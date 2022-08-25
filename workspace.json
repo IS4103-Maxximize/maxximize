@@ -3,6 +3,8 @@
   "version": 2,
   "projects": {
     "api": "apps/api",
+    "site-b2b": "apps/site-b2b",
+    "site-b2b-e2e": "apps/site-b2b-e2e",
     "site-manufacturer": "apps/site-manufacturer",
     "site-manufacturer-e2e": "apps/site-manufacturer-e2e",
     "site-supplier": "apps/site-supplier",
