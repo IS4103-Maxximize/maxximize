@@ -35,6 +35,7 @@
     "@nrwl/nest": "^14.5.10",
     "@nrwl/node": "14.5.10",
     "@nrwl/react": "^14.5.10",
+    "@nrwl/react-native": "^14.5.10",
     "@nrwl/web": "14.5.10",
     "@nrwl/workspace": "14.5.10",
     "@testing-library/react": "13.3.0",
