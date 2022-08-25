@@ -52,7 +52,7 @@
       "options": {
         "buildTarget": "site-supplier:build",
         "hmr": true,
-        "port": 3001
+        "port": 4002
       },
       "configurations": {
         "development": {
