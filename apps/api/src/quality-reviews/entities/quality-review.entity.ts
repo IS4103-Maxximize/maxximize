@@ -7,7 +7,7 @@ export class QualityReview {
     id: number
 
     @Column()
-    reviewResult: Boolean
+    reviewResult: boolean
 
     @Column()
     content: string

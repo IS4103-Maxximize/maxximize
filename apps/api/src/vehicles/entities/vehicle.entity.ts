@@ -1,4 +1,5 @@
 import { Column, Entity, ManyToMany } from "typeorm";
+import { DeliveryRequest } from "../../delivery-requests/entities/delivery-request.entity";
 import { Machine } from "../../machines/machine";
 import { VehicleStatus } from "../enums/vehicleStatus.enum";
 
@@ -19,6 +20,6 @@ export class Vehicle extends Machine {
     })
     currentStatus: VehicleStatus;
 
-    @ManyToMany(() => DeliveryRequest, (deliveryRequest) => deliveryRequest.vehicle)
+    @ManyToMany(() => DeliveryRequest, (deliveryRequest) => deliveryRequest.vehicles)
     deliveryRequests: DeliveryRequest[];
 }

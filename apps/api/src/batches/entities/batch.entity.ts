@@ -1,5 +1,7 @@
 import { Column, Entity, JoinColumn, ManyToMany, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { BomLineItem } from "../../bom-line-items/entities/bom-line-item.entity";
+import { Product } from "../../products/entities/product.entity";
+import { Warehouse } from "../../warehouses/entities/warehouse.entity";
 
 @Entity()
 export class Batch {

@@ -1,7 +1,11 @@
 import { Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { OrganisationType } from "../enums/organisationType.enum";
-import { User } from "../../users/user.entity";
 import { Warehouse } from "../../warehouses/entities/warehouse.entity";
+import { Contact } from "../../contacts/entities/contact.entity";
+import { Machine } from "../../machines/machine";
+import { User } from "../../users/entities/user.entity";
+import { Order } from "../../orders/entities/order.entity";
+import { Billing } from "../../billings/entities/billing.entity";
 
 @Entity()
 export class Organisation {
@@ -26,10 +30,10 @@ export class Organisation {
     @OneToMany(() => Machine, (machine) => machine.organisation)
     machines: Machine[];
 
-    @OneToMany(() => Order, (order) => order.organisation)
+    @OneToMany(() => Order, (order) => order.customer)
     salesOrders: Order[];
 
-    @OneToMany(() => Order, (order) => order.organisation)
+    @OneToMany(() => Order, (order) => order.supplier)
     purchaseOrders: Order[];
 
     @OneToMany(() => Warehouse, (warehouse) => warehouse.organisation)

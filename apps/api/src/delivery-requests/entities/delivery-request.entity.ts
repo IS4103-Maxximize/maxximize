@@ -1,4 +1,5 @@
 import { Column, Entity, JoinTable, ManyToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Order } from "../../orders/entities/order.entity";
 import { Vehicle } from "../../vehicles/entities/vehicle.entity";
 import { DeliveryRequestStatus } from "../enums/deliveryRequestStatus.enum";
 

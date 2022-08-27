@@ -31,7 +31,7 @@ export abstract class Machine {
     @ManyToOne(() => Organisation, (organisation) => organisation.machines, {
         onDelete: 'CASCADE'
     })
-    organisations: Organisation[];
+    organisation: Organisation;
 
     @OneToMany(() => Schedule, (schedule) => schedule.machine)
     schedules: Schedule[];

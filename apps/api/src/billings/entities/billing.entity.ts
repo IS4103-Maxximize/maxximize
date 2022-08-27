@@ -1,4 +1,5 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Organisation } from "../../organisations/entities/organisation.entity";
 
 @Entity()
 export class Billing {

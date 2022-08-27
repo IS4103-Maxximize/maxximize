@@ -1,4 +1,5 @@
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany, ManyToOne } from 'typeorm';
+import { Batch } from '../../batches/entities/batch.entity';
 import { Organisation } from '../../organisations/entities/organisation.entity';
 
 @Entity()

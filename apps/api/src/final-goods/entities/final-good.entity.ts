@@ -1,4 +1,5 @@
 import { Entity, OneToOne } from "typeorm";
+import { Product } from "../../products/entities/product.entity";
 import { Recipe } from "../../recipes/entities/recipe.entity";
 
 @Entity()

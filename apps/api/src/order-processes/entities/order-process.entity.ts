@@ -1,5 +1,6 @@
 import { Column, Entity, JoinColumn, JoinTable, ManyToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { BillOfMaterial } from "../../bill-of-materials/entities/bill-of-material.entity";
+import { FactoryMachine } from "../../factory-machines/entities/factory-machine.entity";
 import { Order } from "../../orders/entities/order.entity";
 
 @Entity()
