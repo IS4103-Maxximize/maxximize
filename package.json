@@ -10,6 +10,7 @@
   },
   "private": true,
   "dependencies": {
+    "@nestjs/cli": "^9.0.0",
     "@nestjs/common": "^9.0.0",
     "@nestjs/core": "^9.0.0",
     "@nestjs/passport": "^9.0.0",
