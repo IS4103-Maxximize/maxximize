@@ -8,7 +8,7 @@ export class Contact {
     id: number;
 
     @Column()
-    phoneNumber: number;
+    phoneNumber: string;
 
     @Column()
     email: string;
@@ -19,10 +19,10 @@ export class Contact {
     @OneToOne(() => Organisation, (organisation) => organisation.contact, {
         onDelete: 'CASCADE'
     })
-    organisation: Organisation;
+    organisation: Organisation | null;
 
     @OneToOne(() => User, (user) => user.contact, {
         onDelete: 'CASCADE'
     })
-    user: User;
+    user: User | null;
 }

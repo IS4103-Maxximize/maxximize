@@ -12,6 +12,12 @@ export class Organisation {
     @PrimaryGeneratedColumn()
     id: number;
 
+    @Column({unique: true})
+    name: string;
+  
+    @Column({default: "true"})
+    isActive: string;
+
     @Column({
         type: 'enum',
         enum: OrganisationType
