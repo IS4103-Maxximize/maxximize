@@ -2,10 +2,10 @@ import { Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn
 import { OrganisationType } from "../enums/organisationType.enum";
 import { Warehouse } from "../../warehouses/entities/warehouse.entity";
 import { Contact } from "../../contacts/entities/contact.entity";
-import { Machine } from "../../machines/machine";
 import { User } from "../../users/entities/user.entity";
 import { Order } from "../../orders/entities/order.entity";
 import { Billing } from "../../billings/entities/billing.entity";
+import { Machine } from "../../vehicles/entities/vehicle.entity";
 
 @Entity()
 export class Organisation {

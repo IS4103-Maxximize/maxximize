@@ -1,6 +1,6 @@
 import { Column, Entity, ManyToMany } from "typeorm";
-import { Machine } from "../../machines/machine";
 import { OrderProcess } from "../../order-processes/entities/order-process.entity";
+import { Machine } from "../../vehicles/entities/vehicle.entity";
 
 @Entity()
 export class FactoryMachine extends Machine {

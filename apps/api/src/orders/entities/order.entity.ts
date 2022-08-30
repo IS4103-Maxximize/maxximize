@@ -14,12 +14,6 @@ export class Order {
     @PrimaryGeneratedColumn()
     id: number
 
-    @ManyToOne(() => Organisation, organisation => organisation.salesOrders)
-    supplier: Organisation
-
-    @ManyToOne(() => Organisation, organisation => organisation.purchaseOrders)
-    customer: Organisation
-
     @Column()
     billingAddress: string
 
@@ -37,21 +31,6 @@ export class Order {
 
     @Column()
     discount: number
-
-    @OneToOne(() => QualityReview, qualityReview => qualityReview.order)
-    qualityReview: QualityReview
-
-    @OneToOne(() => Invoice, invoice => invoice.order)
-    invoice: Invoice
-
-    @OneToMany(() => OrderLineItem, orderLineItem => orderLineItem.order)
-    orderLineItems: OrderLineItem[]
-
-    @OneToOne(() => OrderProcess, orderProcess => orderProcess.order)
-    orderProcess: OrderProcess
-
-    @OneToOne(() => DeliveryRequest, deliveryRequest => deliveryRequest.order)
-    deliveryRequest: DeliveryRequest
 
     @Column({
         type: 'enum',
@@ -73,4 +52,25 @@ export class Order {
         default: null
     })
     status: OrderStatus
+
+    @ManyToOne(() => Organisation, organisation => organisation.salesOrders)
+    supplier: Organisation
+
+    @ManyToOne(() => Organisation, organisation => organisation.purchaseOrders)
+    customer: Organisation
+
+    @OneToOne(() => QualityReview, qualityReview => qualityReview.order)
+    qualityReview: QualityReview
+
+    @OneToOne(() => Invoice, invoice => invoice.order)
+    invoice: Invoice
+
+    @OneToMany(() => OrderLineItem, orderLineItem => orderLineItem.order)
+    orderLineItems: OrderLineItem[]
+
+    @OneToOne(() => OrderProcess, orderProcess => orderProcess.order)
+    orderProcess: OrderProcess
+
+    @OneToOne(() => DeliveryRequest, deliveryRequest => deliveryRequest.order)
+    deliveryRequest: DeliveryRequest
 }

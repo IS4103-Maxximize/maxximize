@@ -1,5 +1,5 @@
 import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from "typeorm";
-import { Machine } from "../../machines/machine";
+import { Machine } from "../../vehicles/entities/vehicle.entity";
 
 @Entity()
 export class Sensor {
