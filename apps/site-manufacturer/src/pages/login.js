@@ -1,28 +1,24 @@
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { Box, Button, Container, Link, TextField, Typography } from '@mui/material';
+import { useFormik } from 'formik';
 import Head from 'next/head';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
-import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import { Box, Button, Container, Grid, Link, TextField, Typography } from '@mui/material';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { Facebook as FacebookIcon } from '../icons/facebook';
-import { Google as GoogleIcon } from '../icons/google';
 
 const Login = () => {
   const router = useRouter();
   const formik = useFormik({
     initialValues: {
-      email: 'demo@devias.io',
-      password: 'Password123'
+      username: '',
+      password: ''
     },
     validationSchema: Yup.object({
-      email: Yup
+      username: Yup
         .string()
-        .email(
-          'Must be a valid email')
         .max(255)
         .required(
-          'Email is required'),
+          'Username is required'),
       password: Yup
         .string()
         .max(255)
@@ -37,7 +33,7 @@ const Login = () => {
   return (
     <>
       <Head>
-        <title>Login | Material Kit</title>
+        <title>Login</title>
       </Head>
       <Box
         component="main"
@@ -57,7 +53,7 @@ const Login = () => {
               component="a"
               startIcon={<ArrowBackIcon fontSize="small" />}
             >
-              Dashboard
+              Home
             </Button>
           </NextLink>
           <form onSubmit={formik.handleSubmit}>
@@ -66,72 +62,21 @@ const Login = () => {
                 color="textPrimary"
                 variant="h4"
               >
-                Sign in
+                MaxxiMize
               </Typography>
               <Typography
                 color="textSecondary"
                 gutterBottom
                 variant="body2"
               >
-                Sign in on the internal platform
-              </Typography>
-            </Box>
-            <Grid
-              container
-              spacing={3}
-            >
-              <Grid
-                item
-                xs={12}
-                md={6}
-              >
-                <Button
-                  color="info"
-                  fullWidth
-                  startIcon={<FacebookIcon />}
-                  onClick={formik.handleSubmit}
-                  size="large"
-                  variant="contained"
-                >
-                  Login with Facebook
-                </Button>
-              </Grid>
-              <Grid
-                item
-                xs={12}
-                md={6}
-              >
-                <Button
-                  fullWidth
-                  color="error"
-                  startIcon={<GoogleIcon />}
-                  onClick={formik.handleSubmit}
-                  size="large"
-                  variant="contained"
-                >
-                  Login with Google
-                </Button>
-              </Grid>
-            </Grid>
-            <Box
-              sx={{
-                pb: 1,
-                pt: 3
-              }}
-            >
-              <Typography
-                align="center"
-                color="textSecondary"
-                variant="body1"
-              >
-                or login with email address
+                Manufacturers Login
               </Typography>
             </Box>
             <TextField
               error={Boolean(formik.touched.email && formik.errors.email)}
               fullWidth
               helperText={formik.touched.email && formik.errors.email}
-              label="Email Address"
+              label="Username"
               margin="normal"
               name="email"
               onBlur={formik.handleBlur}

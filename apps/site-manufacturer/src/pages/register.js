@@ -11,14 +11,25 @@ import {
   FormHelperText,
   Link,
   TextField,
-  Typography
+  Typography,
+  Radio,
+  RadioGroup,
+  FormControlLabel
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+
+const options = [
+  "manufacturer",
+  "supplier",
+  "b2b-sales",
+]
 
 const Register = () => {
   const router = useRouter();
   const formik = useFormik({
     initialValues: {
+      organisation: 'manufacturer',
+      organisationName: '',
       email: '',
       firstName: '',
       lastName: '',
@@ -26,6 +37,14 @@ const Register = () => {
       policy: false
     },
     validationSchema: Yup.object({
+      organisation: Yup
+        .string(),
+      organisationName: Yup
+        .string()
+        .max(255)
+        .required(
+          'Organisation Name is required'
+        ),
       email: Yup
         .string()
         .email(
@@ -104,6 +123,43 @@ const Register = () => {
                 Use your email to create a new account
               </Typography>
             </Box>
+
+            <Box sx={{ mb: 3}}>
+            <Typography>Select Organisation Type :</Typography>
+              <RadioGroup
+                error={Boolean(formik.touched.organisation && formik.errors.organisation)}
+                fullWidth
+                label="Organisation Type"
+                margin="normal"
+                name="organisation"
+                onBlur={formik.handleBlur}
+                onChange={formik.handleChange}
+                value={formik.values.organisation}
+                row
+              >
+                {options.map(option => (
+                  <FormControlLabel 
+                    key={option} 
+                    value={option} 
+                    control={<Radio/>} 
+                    label={option}
+                  />
+                ))}
+              </RadioGroup>
+              <TextField
+                error={Boolean(formik.touched.organisationName && formik.errors.organisationName)}
+                fullWidth
+                helperText={formik.touched.organisationName && formik.errors.organisationName}
+                label="Organisation Name"
+                margin="normal"
+                name="organisationName"
+                onBlur={formik.handleBlur}
+                onChange={formik.handleChange}
+                value={formik.values.organisationName}
+                variant="outlined"
+              />
+            </Box>
+            
             <TextField
               error={Boolean(formik.touched.firstName && formik.errors.firstName)}
               fullWidth
