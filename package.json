@@ -31,6 +31,7 @@
     "date-fns": "^2.29.2",
     "formik": "^2.2.9",
     "mysql2": "^2.3.3",
+    "next": "12.2.3",
     "passport": "^0.6.0",
     "passport-local": "^1.0.0",
     "react": "18.2.0",
@@ -49,6 +50,7 @@
     "yup": "^0.32.11"
   },
   "devDependencies": {
+    "@emotion/babel-plugin": "11.10.0",
     "@nestjs/schematics": "^9.0.0",
     "@nestjs/testing": "^9.0.0",
     "@nrwl/cli": "14.5.10",
@@ -58,6 +60,7 @@
     "@nrwl/jest": "14.5.10",
     "@nrwl/linter": "14.5.10",
     "@nrwl/nest": "^14.5.10",
+    "@nrwl/next": "^14.5.10",
     "@nrwl/node": "14.5.10",
     "@nrwl/react": "^14.5.10",
     "@nrwl/react-native": "^14.5.10",
@@ -87,6 +90,7 @@
     "cypress": "^10.2.0",
     "detox": "19.7.1",
     "eslint": "~8.15.0",
+    "eslint-config-next": "12.2.3",
     "eslint-config-prettier": "8.1.0",
     "eslint-plugin-cypress": "^2.10.3",
     "eslint-plugin-import": "2.26.0",

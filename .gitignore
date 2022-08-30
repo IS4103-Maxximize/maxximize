@@ -107,3 +107,6 @@ buck-out/
 apps/site-b2b-e2e/artifacts
 
 package-lock.json
+
+# Next.js
+.next
