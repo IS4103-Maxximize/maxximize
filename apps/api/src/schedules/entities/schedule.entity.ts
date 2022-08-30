@@ -1,5 +1,5 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { Machine } from "../../machines/machine";
+import { Machine } from "../../vehicles/entities/vehicle.entity";
 import { ScheduleType } from "../enums/scheduleType.enum";
 
 @Entity()
