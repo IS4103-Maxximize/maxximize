@@ -18,6 +18,8 @@ export class UsersService {
     user.lastName = createUserDto.lastName;
     user.username = createUserDto.username;
     user.password = createUserDto.password;
+    user.role = createUserDto.role;
+    user.organisation = createUserDto.organisation;
 
     return this.usersRepository.save(user);
   }

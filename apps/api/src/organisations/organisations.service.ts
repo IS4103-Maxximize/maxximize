@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { User } from '../users/entities/user.entity';
 import { CreateOrganisationDto } from './dto/create-organisation.dto';
 import { UpdateOrganisationDto } from './dto/update-organisation.dto';
 import { Organisation } from './entities/organisation.entity';
@@ -26,6 +27,10 @@ export class OrganisationsService {
 
   findOne(id: number): Promise<Organisation> {
     return this.organisationsRepository.findOneBy({ id });
+  }
+
+  findOrganisationWorkers(id: number): Promise<User[]> {
+    return this.findOne(id).then((organisation) => organisation.users);
   }
 
   async update(id: number, updateOrganisationDto: UpdateOrganisationDto) {
