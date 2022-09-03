@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { Contact } from '../contacts/entities/contact.entity';
 import { CreateOrganisationDto } from './dto/create-organisation.dto';
 import { UpdateOrganisationDto } from './dto/update-organisation.dto';
 import { Organisation } from './entities/organisation.entity';
@@ -10,13 +11,18 @@ export class OrganisationsService {
   constructor(
     @InjectRepository(Organisation)
     private readonly organisationsRepository: Repository<Organisation>,
+    @InjectRepository(Contact)
+    private readonly contactsRepository: Repository<Contact>,
   ) {}
 
-  create(createOrganisationDto: CreateOrganisationDto): Promise<Organisation> {
-    const newOrganisation = 
-    {
-      ...createOrganisationDto
-    }
+  async create(createOrganisationDto: CreateOrganisationDto): Promise<Organisation> {
+    const {name, type, contact} = createOrganisationDto
+    await this.contactsRepository.save(contact)
+    const newOrganisation = this.organisationsRepository.create({
+      name,
+      type,
+      contact
+    })
     return this.organisationsRepository.save(newOrganisation);
   }
 
@@ -24,7 +30,8 @@ export class OrganisationsService {
     return this.organisationsRepository.find({
       relations: {
         customers: true,
-        suppliers: true
+        suppliers: true,
+        contact: true
       }
     });
   }
@@ -35,7 +42,8 @@ export class OrganisationsService {
         id
       }, relations: {
         customers: true,
-        suppliers: true
+        suppliers: true,
+        contact: true
       }})
       return organisation
     } catch (err) {
@@ -44,7 +52,7 @@ export class OrganisationsService {
   }
 
   async update(id: number, updateOrganisationDto: UpdateOrganisationDto): Promise<Organisation> {
-    const businessRelationsProperties = ['suppliers', 'customers']
+    const businessRelationsProperties = ['suppliers', 'customers', 'contactInfo']
     try {
       let organisation = await this.organisationsRepository.findOne({where: {
         id
@@ -75,7 +83,8 @@ export class OrganisationsService {
         id
       }, relations: {
         suppliers: true,
-        customers: true
+        customers: true,
+        contact: true
       }})
     } catch (err) {
       throw new NotFoundException(`update Failed as Organization with id: ${id} cannot be found`)

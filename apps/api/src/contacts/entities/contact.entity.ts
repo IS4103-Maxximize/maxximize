@@ -17,7 +17,7 @@ export class Contact {
     address: string;
 
     @Column()
-    postalCode: number
+    postalCode: string
 
     @OneToOne(() => Organisation, (organisation) => organisation.contact, {
         onDelete: 'CASCADE'
