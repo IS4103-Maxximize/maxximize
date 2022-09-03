@@ -44,7 +44,6 @@ export class OrganisationsService {
   }
 
   async update(id: number, updateOrganisationDto: UpdateOrganisationDto): Promise<Organisation> {
-    console.log(updateOrganisationDto)
     const businessRelationsProperties = ['suppliers', 'customers']
     try {
       let organisation = await this.organisationsRepository.findOne({where: {
@@ -53,8 +52,10 @@ export class OrganisationsService {
         suppliers: true,
         customers: true
       }})
-      Object.entries(updateOrganisationDto).forEach(async entry => {
-        const [key, value] = entry
+      const keyValuePairs = Object.entries(updateOrganisationDto)
+      for (let i = 0; i < keyValuePairs.length; i++) {
+        const key = keyValuePairs[i][0]
+        const value = keyValuePairs[i][1]
         //fields in updateOrganisationDto are optional, so check if the value is present or null
         if (value) {
           if (businessRelationsProperties.includes(key)) {
@@ -68,8 +69,14 @@ export class OrganisationsService {
             organisation[key] = value
           }
         }
-      })
-      return this.organisationsRepository.save(organisation)
+      }
+      await this.organisationsRepository.save(organisation)
+      return this.organisationsRepository.findOne({where: {
+        id
+      }, relations: {
+        suppliers: true,
+        customers: true
+      }})
     } catch (err) {
       throw new NotFoundException(`update Failed as Organization with id: ${id} cannot be found`)
     }
@@ -114,7 +121,6 @@ export class OrganisationsService {
         ...organisation,
         suppliers
       }
-      console.log(organisation)
       return organisation
     } catch (err) {
       throw err
