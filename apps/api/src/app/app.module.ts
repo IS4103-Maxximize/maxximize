@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AuthModule } from '../auth/auth.module';
 import { BatchesModule } from '../batches/batches.module';
 import { BillOfMaterialsModule } from '../bill-of-materials/bill-of-materials.module';
 import { BillingsModule } from '../billings/billings.module';
@@ -37,6 +38,8 @@ import { AppService } from './app.service';
       autoLoadEntities: true,
       synchronize: true, // shouldn't be set to 'true' in production
     }),
+    AuthModule,
+    // Entitiy Modules
     BatchesModule,
     BillOfMaterialsModule,
     BillingsModule,
