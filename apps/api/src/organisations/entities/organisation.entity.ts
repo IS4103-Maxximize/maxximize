@@ -44,12 +44,11 @@ export class Organisation {
     @OneToMany(() => Warehouse, (warehouse) => warehouse.organisation)
     warehouses: Warehouse[];
 
-    @ManyToMany(() => Organisation)
+    @ManyToMany(() => Organisation, organisation => organisation.customers)
     @JoinTable()
     suppliers: Organisation[]
 
-    @ManyToMany(() => Organisation)
-    @JoinTable()
+    @ManyToMany(() => Organisation, organisation => organisation.suppliers)
     customers: Organisation[]
 
     @OneToMany(() => Billing, (billing) => billing.organisation)

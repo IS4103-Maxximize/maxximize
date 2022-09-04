@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { CreateContactDto } from '../contacts/dto/create-contact.dto';
 import { Contact } from '../contacts/entities/contact.entity';
 import { CreateOrganisationDto } from './dto/create-organisation.dto';
 import { UpdateOrganisationDto } from './dto/update-organisation.dto';
@@ -17,11 +18,13 @@ export class OrganisationsService {
 
   async create(createOrganisationDto: CreateOrganisationDto): Promise<Organisation> {
     const {name, type, contact} = createOrganisationDto
-    await this.contactsRepository.save(contact)
+    if (contact) {
+      await this.contactsRepository.save(contact)
+    }
     const newOrganisation = this.organisationsRepository.create({
       name,
       type,
-      contact
+      contact: contact ?? null
     })
     return this.organisationsRepository.save(newOrganisation);
   }
@@ -52,13 +55,9 @@ export class OrganisationsService {
   }
 
   async update(id: number, updateOrganisationDto: UpdateOrganisationDto): Promise<Organisation> {
-    const businessRelationsProperties = ['suppliers', 'customers', 'contactInfo']
     try {
       let organisation = await this.organisationsRepository.findOne({where: {
         id
-      }, relations: {
-        suppliers: true,
-        customers: true
       }})
       const keyValuePairs = Object.entries(updateOrganisationDto)
       for (let i = 0; i < keyValuePairs.length; i++) {
@@ -66,26 +65,18 @@ export class OrganisationsService {
         const value = keyValuePairs[i][1]
         //fields in updateOrganisationDto are optional, so check if the value is present or null
         if (value) {
-          if (businessRelationsProperties.includes(key)) {
-            if (key === 'suppliers') {
-              organisation = await this.assignSuppliers(updateOrganisationDto.suppliers, organisation)
-            }
-            if (key === 'customers') {
-              organisation = await this.assignCustomers(updateOrganisationDto.customers, organisation)
-            }
+          if (key === 'suppliers') {
+            organisation['suppliers'] = await this.retrieveOrganisations(updateOrganisationDto.suppliers)
+          } else if (key === 'customers') {
+            organisation['customers'] = await this.retrieveOrganisations(updateOrganisationDto.customers)
+          } else if (key === 'contact') {
+            organisation['contact'] = await this.updateContact(updateOrganisationDto.contact, organisation)
           } else {
             organisation[key] = value
           }
         }
       }
-      await this.organisationsRepository.save(organisation)
-      return this.organisationsRepository.findOne({where: {
-        id
-      }, relations: {
-        suppliers: true,
-        customers: true,
-        contact: true
-      }})
+      return this.organisationsRepository.save(organisation)
     } catch (err) {
       throw new NotFoundException(`update Failed as Organization with id: ${id} cannot be found`)
     }
@@ -100,138 +91,35 @@ export class OrganisationsService {
     }
   }
 
-  async assignSuppliers(supplierIds: number[], organisation: Organisation): Promise<Organisation> {
-    try {
-      //retrieve list of organisations to be added as suppliers
-      const supplierPromises = supplierIds.map(async id => {
-        const supplier = await this.organisationsRepository.findOne({where: {
-          id
-        }, relations: {
-          customers: true
-        }})
-        return supplier
-      })
-      const suppliers = await Promise.all(supplierPromises)
-
-      //add organisation to each supplier's customers list
-      suppliers.forEach(supplier => {
-        this.addCustomerToSupplier(organisation, supplier)
-      })
-
-      //get the Diff in previous suppliers and new suppliers
-      const removedSuppliers = this.getDiff(organisation.suppliers, suppliers)
-
-      //remove organisation as customer from diff
-      removedSuppliers.forEach(supplier => {
-        this.removeCustomerFromSupplier(organisation, supplier)
-      })
-      //assign suppliers to organisation
-      organisation = {
-        ...organisation,
-        suppliers
-      }
-      return organisation
-    } catch (err) {
-      throw err
-    }
-  }
-
-  addCustomerToSupplier(organisation: Organisation, supplier: Organisation) {
-    const supplierCustomerIds = supplier.customers.map(customer => customer.id)
-    if (!supplierCustomerIds.includes(organisation.id)) {
-      supplier.customers.push(organisation)
-    }
-    this.organisationsRepository.save(supplier)
-  }
-
-  addSupplierToCustomer(organisation: Organisation, customer: Organisation) {
-    const customerSupplierIds = customer.suppliers.map(supplier => supplier.id)
-    if (!customerSupplierIds.includes(organisation.id)) {
-      customer.suppliers.push(organisation)
-    }
-    this.organisationsRepository.save(customer)
-  }
-
-  getDiff(oldList: Organisation[], newList: Organisation[]): Organisation[] {
-    const newListIds = newList.map(organisation => organisation.id)
-    return oldList.filter(organisation => {
-      return !newListIds.includes(organisation.id)
-    })
-  }
-
-  async removeCustomerFromSupplier(organisation: Organisation, supplier: Organisation) {
-    let supplierToUpdate = supplier
-    if (!supplier.customers) {
-      supplierToUpdate = await this.organisationsRepository.findOne({
+  async retrieveOrganisations(ids: number[]): Promise<Organisation[]> {
+    const result = []
+    for (let i = 0; i < ids.length; i++) {
+      result.push(await this.organisationsRepository.findOne({
         where: {
-          id: supplier.id
-        }, relations: {
-          customers: true
+          id: ids[i]
         }
-      })
+      }))
     }
-    const supplierCustomerIds = supplierToUpdate.customers.map(customer => customer.id)
-    if (supplierCustomerIds.includes(organisation.id)) {
-      const indexOfOrganisation = supplierToUpdate.customers.findIndex(customer => customer.id === organisation.id)
-        supplierToUpdate.customers.splice(indexOfOrganisation, 1)
-    }
-    this.organisationsRepository.save(supplierToUpdate)
+    return result
   }
 
-  async removeSupplierFromCustomer(organisation: Organisation, customer: Organisation) {
-    let customerToUpdate = customer
-    if (!customer.suppliers) {
-      customerToUpdate = await this.organisationsRepository.findOne({
-        where: {
-          id: customer.id
-        }, relations: {
-          suppliers: true
-        }
-      })
-    }
-    const customerSupplierIds = customerToUpdate.suppliers.map(customer => customer.id)
-    if (customerSupplierIds.includes(organisation.id)) {
-      const indexOfOrganisation = customerToUpdate.suppliers.findIndex(supplier => supplier.id === organisation.id)
-        customerToUpdate.suppliers.splice(indexOfOrganisation, 1)
-    }
-    this.organisationsRepository.save(customerToUpdate)
-  }
-
-
-  async assignCustomers(customerIds: number[], organisation: Organisation): Promise<Organisation> {
-    try {
-      //retrieve list of organisations to be added as customers
-      const customerPromises = customerIds.map(async id => {
-        const customer = await this.organisationsRepository.findOne({where: {
-          id
-        }, relations: {
-          suppliers: true
-        }})
-        return customer
-      })
-      const customers = await Promise.all(customerPromises)
-
-      //add organisation to each customer's supplier list
-      customers.forEach(customer => {
-        this.addSupplierToCustomer(organisation, customer)
-      })
-
-      //get the Diff in previous customers and new customers
-      const removedCustomers = this.getDiff(organisation.customers, customers)
-
-      //remove organisation as customer from diff
-      removedCustomers.forEach(customer => {
-        this.removeSupplierFromCustomer(organisation, customer)
-       
-      })
-      //assign suppliers to organisation
-      organisation = {
-        ...organisation,
-        customers
+  async updateContact(contact: CreateContactDto, organisation: Organisation): Promise<Contact> {
+    let contactToBeSaved = {}
+    const currentOrg = await this.organisationsRepository.findOne({where: {
+      id: organisation.id
+    }, relations: {
+      contact: true
+    }})
+    //contact is already present
+    if (currentOrg.contact) {
+      contactToBeSaved = {
+        id: currentOrg.contact.id,
+        ...contact
       }
-      return organisation
-    } catch (err) {
-      throw err
+    //contact is new
+    } else {
+      contactToBeSaved = contact
     }
+    return this.contactsRepository.save(contactToBeSaved)
   }
 }
