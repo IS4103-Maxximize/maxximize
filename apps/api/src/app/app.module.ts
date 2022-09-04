@@ -34,7 +34,7 @@ import { AppService } from './app.service';
       port: 3306,
       username: process.env.MYSQL_USERNAME,
       password: process.env.MYSQL_PASSWORD,
-      database: 'test',
+      database: 'maxximize',
       autoLoadEntities: true,
       synchronize: true, // shouldn't be set to 'true' in production
     }),
