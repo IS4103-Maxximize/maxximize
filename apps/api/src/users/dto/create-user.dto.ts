@@ -1,3 +1,4 @@
+import { Contact } from "../../contacts/entities/contact.entity";
 import { Organisation } from "../../organisations/entities/organisation.entity";
 import { Role } from "../enums/role.enum";
 
@@ -8,4 +9,5 @@ export class CreateUserDto {
   password: string;
   role: Role;
   organisation: Organisation;
+  contact: Contact;
 }

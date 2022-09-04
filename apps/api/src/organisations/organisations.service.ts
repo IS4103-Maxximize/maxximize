@@ -41,6 +41,10 @@ export class OrganisationsService {
     return this.organisationsRepository.save(organisation); 
   }
 
+  async directUpdate(organisation: Organisation) {
+    return this.organisationsRepository.save(organisation);
+  }
+
   async remove(id: number): Promise<void> {
     await this.organisationsRepository.delete(id);
   }

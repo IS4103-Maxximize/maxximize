@@ -13,6 +13,7 @@ import { OrganisationsService } from './organisations.service';
 @Module({
   imports: [TypeOrmModule.forFeature([Organisation, User, Contact, Machine, Order, Warehouse, Billing])],
   controllers: [OrganisationsController],
-  providers: [OrganisationsService]
+  providers: [OrganisationsService],
+  exports: [OrganisationsService]
 })
 export class OrganisationsModule {}
