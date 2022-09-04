@@ -11,6 +11,20 @@ export class UsersService {
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
   ) {}
+
+  // ----- TESTING -----
+  // private readonly users = [
+  //   {
+  //     userId: 1,
+  //     username: 'john',
+  //     password: 'changeme',
+  //   },
+  //   {
+  //     userId: 2,
+  //     username: 'maria',
+  //     password: 'guess',
+  //   },
+  // ];
   
   create(createUserDto: CreateUserDto): Promise<User> {
     const user = new User();
@@ -28,6 +42,11 @@ export class UsersService {
 
   findOne(id: number): Promise<User> {
     return this.usersRepository.findOneBy({ id });
+  }
+
+  async findOneByUsername(username: string): Promise<User> {
+    return await this.usersRepository.findOneBy({ username });
+    // return this.users.find(user => user.username === username);
   }
 
   async update(id: number, updateUserDto: UpdateUserDto) {
