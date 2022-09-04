@@ -25,6 +25,7 @@ export class OrganisationsService {
     const newOrganisation = this.organisationsRepository.create({
       name,
       type,
+      users: [],
       contact: contact ?? null
     })
     return this.organisationsRepository.save(newOrganisation);
@@ -57,7 +58,7 @@ export class OrganisationsService {
 
   async update(id: number, updateOrganisationDto: UpdateOrganisationDto): Promise<Organisation> {
     try {
-      let organisation = await this.organisationsRepository.findOne({where: {
+      const organisation = await this.organisationsRepository.findOne({where: {
         id
       }})
       const keyValuePairs = Object.entries(updateOrganisationDto)

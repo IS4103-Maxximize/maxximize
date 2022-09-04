@@ -30,11 +30,13 @@ export class User {
     role: Role;
 
     @ManyToOne(() => Organisation, (organisation) => organisation.users, {
-        onDelete: 'CASCADE'
+        onDelete: 'CASCADE',
     })
     organisation: Organisation;
 
-    @OneToOne(() => Contact, (contact) => contact.user)
+    @OneToOne(() => Contact, (contact) => contact.user, {
+        cascade: true
+    })
     @JoinColumn()
     contact: Contact;
 }

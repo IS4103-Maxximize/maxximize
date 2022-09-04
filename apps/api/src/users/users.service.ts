@@ -1,8 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ContactsService } from '../contacts/contacts.service';
-import { CreateContactDto } from '../contacts/dto/create-contact.dto';
 import { OrganisationsService } from '../organisations/organisations.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -38,29 +37,18 @@ export class UsersService {
     if (user != null) {
       throw new UsernameAlreadyExistsException("Username: " + createUserDto.username + " already exists!");
     }
-
-    const newUser = new User();
-    newUser.firstName = createUserDto.firstName;
-    newUser.lastName = createUserDto.lastName;
-    newUser.username = createUserDto.username;
-    newUser.password = createUserDto.password;
-    newUser.role = createUserDto.role;
-    newUser.organisation = createUserDto.organisation;
-    newUser.contact = createUserDto.contact;
     
     try {
-      const contactDto = new CreateContactDto();
-      contactDto.address = createUserDto.contact.address;
-      contactDto.email = createUserDto.contact.email;
-      contactDto.phoneNumber = createUserDto.contact.phoneNumber;
-      contactDto.user = newUser;
-      this.contactsService.create(contactDto);
-
-      const organisation = await this.organisationsService.findOne(
-        createUserDto.organisation.id
-      );
-      organisation.users.push(newUser);
-      this.organisationsService.directUpdate(organisation);
+      const newUser = new User();
+      newUser.firstName = createUserDto.firstName;
+      newUser.lastName = createUserDto.lastName;
+      newUser.username = createUserDto.username;
+      newUser.password = createUserDto.password;
+      newUser.role = createUserDto.role;
+      newUser.contact = createUserDto.contact;
+      
+      const organisation = await this.organisationsService.findOne(createUserDto.organisationId);
+      newUser.organisation = organisation;
 
       return this.usersRepository.save(newUser);
     } catch (err) {
@@ -69,11 +57,19 @@ export class UsersService {
   }
 
   findAll(): Promise<User[]> {
-    return this.usersRepository.find();
+    try {
+      return this.usersRepository.find();
+    } catch (err) {
+      throw new NotFoundException("No users found!");
+    }
   }
 
   findOne(id: number): Promise<User> {
-    return this.usersRepository.findOneBy({ id });
+    try {
+      return this.usersRepository.findOneBy({ id });
+    } catch (err) {
+      throw new NotFoundException("No user with id: " + id + " found!");
+    }
   }
 
   findByUsername(username: string): Promise<User> {
@@ -91,7 +87,12 @@ export class UsersService {
     return this.usersRepository.save(user);
   }
 
-  async remove(id: number): Promise<void> {
-    await this.usersRepository.delete(id);
+  async remove(id: number): Promise<boolean> {
+    try {
+      await this.usersRepository.delete(id);
+      return true;
+    } catch (err) {
+      throw new HttpException("Error deleting user: " + id, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 }
