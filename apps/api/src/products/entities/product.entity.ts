@@ -23,4 +23,7 @@ export class Product {
 
     @Column()
     unitPrice: number;
+
+    @Column()
+    expiry: number;
 }
