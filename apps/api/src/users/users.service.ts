@@ -19,6 +19,20 @@ export class UsersService {
     private organisationsService: OrganisationsService
   ) {}
 
+  // ----- TESTING -----
+  // private readonly users = [
+  //   {
+  //     userId: 1,
+  //     username: 'john',
+  //     password: 'changeme',
+  //   },
+  //   {
+  //     userId: 2,
+  //     username: 'maria',
+  //     password: 'guess',
+  //   },
+  // ];
+
   async create(createUserDto: CreateUserDto): Promise<User> {
     const user = await this.findByUsername(createUserDto.username);
     if (user != null) {

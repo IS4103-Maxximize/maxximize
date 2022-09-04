@@ -17,6 +17,7 @@ export class ContactsService {
     contact.phoneNumber = createContactDto.phoneNumber;
     contact.email = createContactDto.email;
     contact.address = createContactDto.address;
+    contact.postalCode = createContactDto.postalCode
 
     return this.contactsRepository.save(contact);
   }
@@ -34,6 +35,7 @@ export class ContactsService {
     contact.phoneNumber = updateContactDto.phoneNumber;
     contact.email = updateContactDto.email;
     contact.address = updateContactDto.address;
+    contact.postalCode = updateContactDto.postalCode
 
     return this.contactsRepository.save(contact);
   }

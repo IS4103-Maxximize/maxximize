@@ -1,4 +1,4 @@
-import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Organisation } from "../../organisations/entities/organisation.entity";
 import { User } from "../../users/entities/user.entity";
 
@@ -16,9 +16,13 @@ export class Contact {
     @Column()
     address: string;
 
+    @Column()
+    postalCode: string
+
     @OneToOne(() => Organisation, (organisation) => organisation.contact, {
         onDelete: 'CASCADE'
     })
+    @JoinColumn()
     organisation: Organisation | null;
 
     @OneToOne(() => User, (user) => user.contact, {
