@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateContactDto } from '../contacts/dto/create-contact.dto';
 import { Contact } from '../contacts/entities/contact.entity';
+import { User } from '../users/entities/user.entity';
 import { CreateOrganisationDto } from './dto/create-organisation.dto';
 import { UpdateOrganisationDto } from './dto/update-organisation.dto';
 import { Organisation } from './entities/organisation.entity';
@@ -24,6 +25,7 @@ export class OrganisationsService {
     const newOrganisation = this.organisationsRepository.create({
       name,
       type,
+      users: [],
       contact: contact ?? null
     })
     return this.organisationsRepository.save(newOrganisation);
@@ -56,7 +58,7 @@ export class OrganisationsService {
 
   async update(id: number, updateOrganisationDto: UpdateOrganisationDto): Promise<Organisation> {
     try {
-      let organisation = await this.organisationsRepository.findOne({where: {
+      const organisation = await this.organisationsRepository.findOne({where: {
         id
       }})
       const keyValuePairs = Object.entries(updateOrganisationDto)
@@ -80,6 +82,10 @@ export class OrganisationsService {
     } catch (err) {
       throw new NotFoundException(`update Failed as Organization with id: ${id} cannot be found`)
     }
+  }
+
+  findOrganisationWorkers(id: number): Promise<User[]> {
+    return this.findOne(id).then((organisation) => organisation.users);
   }
 
   async remove(id: number): Promise<Organisation> {
@@ -121,5 +127,9 @@ export class OrganisationsService {
       contactToBeSaved = contact
     }
     return this.contactsRepository.save(contactToBeSaved)
+  }
+
+  async directUpdate(organisation: Organisation) {
+    return this.organisationsRepository.save(organisation);
   }
 }

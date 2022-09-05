@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinTable, ManyToMany, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { OrganisationType } from "../enums/organisationType.enum";
 import { Warehouse } from "../../warehouses/entities/warehouse.entity";
 import { Contact } from "../../contacts/entities/contact.entity";
@@ -14,7 +14,7 @@ export class Organisation {
 
     @Column({unique: true})
     name: string;
-  
+
     @Column({default: "true"})
     isActive: string;
 
@@ -25,7 +25,7 @@ export class Organisation {
     type: OrganisationType;
 
     @OneToMany(() => User, (user) => user.organisation, {
-        cascade: ["remove"]
+        cascade: ["remove"],
     })
     users: User[];
 
