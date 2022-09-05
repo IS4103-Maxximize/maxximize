@@ -35,7 +35,11 @@ export class UsersController {
       );
     }
 
-    return this.usersService.create(createUserDto);
+    return this.usersService.create(createUserDto).then((user) => {
+      user.password = null;
+      user.salt = null;
+      return user;
+    });
   }
 
   @Get('findAllUsers')

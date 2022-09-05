@@ -23,6 +23,9 @@ export class User {
     @Column({default: "true"})
     isActive: string;
 
+    @Column()
+    salt: string;
+
     @Column({
         type: 'enum',
         enum: Role

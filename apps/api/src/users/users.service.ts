@@ -8,6 +8,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { UnknownPersistenceException } from './exceptions/UnknownPersistenceException';
 import { UsernameAlreadyExistsException } from './exceptions/UsernameAlreadyExistsException';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
@@ -43,16 +44,19 @@ export class UsersService {
       newUser.firstName = createUserDto.firstName;
       newUser.lastName = createUserDto.lastName;
       newUser.username = createUserDto.username;
-      newUser.password = createUserDto.password;
       newUser.role = createUserDto.role;
       newUser.contact = createUserDto.contact;
+
+      const salt = await bcrypt.genSalt();
+      newUser.salt = salt;
+      newUser.password = await bcrypt.hash(createUserDto.password, salt);
       
       const organisation = await this.organisationsService.findOne(createUserDto.organisationId);
       newUser.organisation = organisation;
 
       return this.usersRepository.save(newUser);
     } catch (err) {
-      throw new UnknownPersistenceException(err);
+      throw new UnknownPersistenceException("Error saving user to database!");
     }
   }
 
