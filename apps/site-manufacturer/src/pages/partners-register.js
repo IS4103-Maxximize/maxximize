@@ -259,7 +259,7 @@ const Partners_Register = () => {
           </form>
         </Container>
       </Box>
-    </>
+      </>
   );
 };
 
