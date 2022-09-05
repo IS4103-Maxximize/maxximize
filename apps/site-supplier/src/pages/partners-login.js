@@ -6,17 +6,6 @@ import NextLink from 'next/link';
 import { useRouter } from 'next/router';
 import * as Yup from 'yup';
 
-async function loginUser(credentials) {
-  return fetch('http:localhost:3000/api/auth/login',{
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(credentials)
-  })
-    .then(data => data.json)
-}
-
 const Login = () => {
   const router = useRouter();
   const formik = useFormik({
@@ -36,15 +25,8 @@ const Login = () => {
         .required(
           'Password is required')
     }),
-    onSubmit: (values) => {
-      try {
-        const accessToken = loginUser(values).access_token
-        localStorage.setItem('accessToken', accessToken)
-        router.push('/')
-      } catch (e) {
-        // Authentication Error
-      }
-      
+    onSubmit: () => {
+      router.push('/');
     }
   });
 
@@ -87,7 +69,7 @@ const Login = () => {
                 gutterBottom
                 variant="body2"
               >
-                Manufacturer User Login
+                Manufacturers Login
               </Typography>
             </Box>
             <TextField

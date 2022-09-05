@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AuthModule } from '../auth/auth.module';
 import { BatchesModule } from '../batches/batches.module';
 import { BillOfMaterialsModule } from '../bill-of-materials/bill-of-materials.module';
 import { BillingsModule } from '../billings/billings.module';
@@ -33,10 +34,12 @@ import { AppService } from './app.service';
       port: 3306,
       username: process.env.MYSQL_USERNAME,
       password: process.env.MYSQL_PASSWORD,
-      database: 'test',
+      database: 'maxximize',
       autoLoadEntities: true,
       synchronize: true, // shouldn't be set to 'true' in production
     }),
+    AuthModule,
+    // Entitiy Modules
     BatchesModule,
     BillOfMaterialsModule,
     BillingsModule,
