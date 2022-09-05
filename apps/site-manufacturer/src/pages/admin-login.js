@@ -1,8 +1,6 @@
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { Box, Button, Container, Link, TextField, Typography } from '@mui/material';
+import { Box, Button, Container, TextField, Typography } from '@mui/material';
 import { useFormik } from 'formik';
 import Head from 'next/head';
-import NextLink from 'next/link';
 import { useRouter } from 'next/router';
 import * as Yup from 'yup';
 
@@ -51,7 +49,7 @@ const Login = () => {
   return (
     <>
       <Head>
-        <title>Login</title>
+        <title>Admin Login</title>
       </Head>
       <Box
         component="main"
@@ -63,24 +61,13 @@ const Login = () => {
         }}
       >
         <Container maxWidth="sm">
-          <NextLink
-            href="/"
-            passHref
-          >
-            <Button
-              component="a"
-              startIcon={<ArrowBackIcon fontSize="small" />}
-            >
-              Home
-            </Button>
-          </NextLink>
           <form onSubmit={formik.handleSubmit}>
             <Box sx={{ my: 3 }}>
               <Typography
                 color="textPrimary"
                 variant="h4"
               >
-                MaxxiMize
+                MaxxiMize Admin
               </Typography>
               <Typography
                 color="textSecondary"
@@ -91,16 +78,16 @@ const Login = () => {
               </Typography>
             </Box>
             <TextField
-              error={Boolean(formik.touched.email && formik.errors.email)}
+              error={Boolean(formik.touched.username && formik.errors.username)}
               fullWidth
-              helperText={formik.touched.email && formik.errors.email}
+              helperText={formik.touched.username && formik.errors.username}
               label="Username"
               margin="normal"
-              name="email"
+              name="username"
               onBlur={formik.handleBlur}
               onChange={formik.handleChange}
-              type="email"
-              value={formik.values.email}
+              type="username"
+              value={formik.values.username}
               variant="outlined"
             />
             <TextField
@@ -118,37 +105,16 @@ const Login = () => {
             />
             <Box sx={{ py: 2 }}>
               <Button
-                color="primary"
+                color="error"
                 disabled={formik.isSubmitting}
                 fullWidth
                 size="large"
                 type="submit"
                 variant="contained"
               >
-                Sign In Now
+                Sign In
               </Button>
             </Box>
-            <Typography
-              color="textSecondary"
-              variant="body2"
-            >
-              Don&apos;t have an account?
-              {' '}
-              <NextLink
-                href="/register"
-              >
-                <Link
-                  to="/register"
-                  variant="subtitle2"
-                  underline="hover"
-                  sx={{
-                    cursor: 'pointer'
-                  }}
-                >
-                  Sign Up
-                </Link>
-              </NextLink>
-            </Typography>
           </form>
         </Container>
       </Box>

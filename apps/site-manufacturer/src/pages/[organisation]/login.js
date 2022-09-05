@@ -1,5 +1,5 @@
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { Box, Button, Container, Link, TextField, Typography } from '@mui/material';
+import { Box, Button, Container, Link, Skeleton, TextField, Typography } from '@mui/material';
 import { useFormik } from 'formik';
 import Head from 'next/head';
 import NextLink from 'next/link';
@@ -19,6 +19,8 @@ async function loginUser(credentials) {
 
 const Login = () => {
   const router = useRouter();
+  const { organisation } = router.query;
+
   const formik = useFormik({
     initialValues: {
       username: '',
@@ -40,7 +42,7 @@ const Login = () => {
       try {
         const accessToken = loginUser(values).access_token
         localStorage.setItem('accessToken', accessToken)
-        router.push('/')
+        router.push(`/${organisation}/dashboard`)
       } catch (e) {
         // Authentication Error
       }
@@ -80,7 +82,8 @@ const Login = () => {
                 color="textPrimary"
                 variant="h4"
               >
-                MaxxiMize
+                {organisation && organisation.split('-')[0].toUpperCase()}
+                {!organisation && <Skeleton />}
               </Typography>
               <Typography
                 color="textSecondary"
