@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
 import PropTypes from 'prop-types';
-import { Box, Button, Divider, Drawer, Typography, useMediaQuery } from '@mui/material';
+import { Box, Button, Divider, Drawer, Skeleton, Typography, useMediaQuery } from '@mui/material';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { ChartBar as ChartBarIcon } from '../icons/chart-bar';
 import { Cog as CogIcon } from '../icons/cog';
@@ -43,6 +43,11 @@ const items = [
     title: 'Settings'
   },
   {
+    href: '/admin-login',
+    icon: (<LockIcon fontSize="small" />),
+    title: 'Admin Login'
+  },
+  {
     href: '/login',
     icon: (<LockIcon fontSize="small" />),
     title: 'Login'
@@ -60,8 +65,10 @@ const items = [
 ];
 
 export const DashboardSidebar = (props) => {
-  const { open, onClose } = props;
   const router = useRouter();
+  const { organisation } = router.query;
+
+  const { open, onClose } = props;
   const lgUp = useMediaQuery((theme) => theme.breakpoints.up('lg'), {
     defaultMatches: true,
     noSsr: false
@@ -124,7 +131,8 @@ export const DashboardSidebar = (props) => {
                   color="inherit"
                   variant="subtitle1"
                 >
-                  Acme Inc
+                  {organisation && organisation.toUpperCase()}
+                  {!organisation && <Skeleton />}
                 </Typography>
                 <Typography
                   color="neutral.400"
