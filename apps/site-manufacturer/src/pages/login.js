@@ -87,7 +87,7 @@ const Login = () => {
                 gutterBottom
                 variant="body2"
               >
-                Manufacturer User Login
+                Login
               </Typography>
             </Box>
             <TextField
