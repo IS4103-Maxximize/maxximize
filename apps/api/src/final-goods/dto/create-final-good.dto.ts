@@ -3,4 +3,5 @@ import { CreateProductDto } from "../../products/dto/create-product.dto";
 import { FinalGood } from "../entities/final-good.entity";
 
 export class CreateFinalGoodDto extends CreateProductDto{
+    lotQuantity: number;
 }

@@ -19,7 +19,7 @@ export class Product {
         type: 'enum',
         enum: MeasurementUnit
     })
-    unit: MeasurementUnit;
+    unit?: MeasurementUnit;
 
     @Column()
     unitPrice: number;

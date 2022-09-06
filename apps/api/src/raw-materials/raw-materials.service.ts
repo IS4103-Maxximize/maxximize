@@ -45,7 +45,6 @@ export class RawMaterialsService {
   }
 
   async update(id: number, updateRawMaterialDto: UpdateRawMaterialDto): Promise<RawMaterial> {
-    const productProperties = ['description', 'unitPrice', 'expiry']
     try {
       const product = await this.rawMaterialRepository.findOne({where: {
         id
@@ -55,20 +54,18 @@ export class RawMaterialsService {
         const key = keyValuePairs[i][0]
         const value = keyValuePairs[i][1]
         if (value) {
-          if (productProperties.includes(key)) {
             if (key === 'description') {
               product.description = value;
             }
-            if (key === 'unitPrice') {
+            else if (key === 'unitPrice') {
               product.unitPrice = value;
             }
-            if (key === 'expiry') {
+            else if (key === 'expiry') {
               product.expiry = value;
             }
           } else {
-            product[key] = value
+            product[key] = value;
           }
-        }
       }
       await this.rawMaterialRepository.save(product)
       return this.rawMaterialRepository.findOne({where: {

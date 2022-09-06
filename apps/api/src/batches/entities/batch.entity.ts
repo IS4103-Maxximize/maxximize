@@ -24,6 +24,4 @@ export class Batch {
     @ManyToOne(() => Warehouse, (warehouse) => warehouse.batches)
     warehouse: Warehouse
 
-    @ManyToMany(() => BomLineItem, (bomLineItem) => bomLineItem.batches)
-    bomLineItems: BomLineItem[]
 }

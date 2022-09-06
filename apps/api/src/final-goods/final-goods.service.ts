@@ -48,7 +48,6 @@ export class FinalGoodsService {
   }
 
   async update(id: number, updateFinalGoodDto: UpdateFinalGoodDto): Promise<FinalGood> {
-    const finalGoodProperties = ['description', 'unitPrice', 'expiry']
     try {
       const product = await this.finalGoodRepository.findOne({where: {
         id
@@ -58,25 +57,20 @@ export class FinalGoodsService {
         const key = keyValuePairs[i][0]
         const value = keyValuePairs[i][1]
         if (value) {
-          if (finalGoodProperties.includes(key)) {
             if (key === 'description') {
               product.description = value;
             }
-            if (key === 'unitPrice') {
+            else if (key === 'unitPrice') {
               product.unitPrice = value;
             }
-            if (key === 'expiry') {
+            else if (key === 'expiry') {
               product.expiry = value;
-            }
-          } else {
-            product[key] = value //don't understand this line
+            } else {
+            product[key] = value
           }
         }
       }
-      await this.finalGoodRepository.save(product)
-      return this.finalGoodRepository.findOne({where: {
-        id
-      }})
+      return this.finalGoodRepository.save(product)
     } catch (err) {
       throw new NotFoundException(`update Failed as Final Good with id: ${id} cannot be found`)
     }
