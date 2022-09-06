@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Box } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { DashboardNavbar } from './dashboard-navbar';
@@ -17,6 +17,16 @@ const DashboardLayoutRoot = styled('div')(({ theme }) => ({
 export const DashboardLayout = (props) => {
   const { children } = props;
   const [isSidebarOpen, setSidebarOpen] = useState(true);
+  const [userInfo, setUserInfo] = useState(null)
+
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('user'))
+    console.log(user)
+    if (!userInfo) {
+      setUserInfo(user)
+    }
+  })
+  
 
   return (
     <>
@@ -34,6 +44,7 @@ export const DashboardLayout = (props) => {
       </DashboardLayoutRoot>
       <DashboardNavbar onSidebarOpen={() => setSidebarOpen(true)} />
       <DashboardSidebar
+        userInfo={userInfo}
         onClose={() => setSidebarOpen(false)}
         open={isSidebarOpen}
       />

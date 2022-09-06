@@ -4,6 +4,6 @@ export class CreateContactDto {
   phoneNumber: string;
   email: string;
   address: string;
-  postalCode: string
-  user: User;
+  postalCode: string;
+  // user: User; //do it from user side
 }

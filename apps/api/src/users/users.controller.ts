@@ -20,26 +20,7 @@ export class UsersController {
 
   @Post('createUser')
   create(@Body() createUserDto: CreateUserDto): Promise<User> {
-    if (
-      createUserDto.firstName == null ||
-      createUserDto.lastName == null ||
-      createUserDto.password == null ||
-      createUserDto.role == null ||
-      createUserDto.username == null ||
-      createUserDto.organisationId == null ||
-      createUserDto.contact == null
-    ) { 
-      throw new HttpException(
-        'Invalid payload: null value detected',
-        HttpStatus.BAD_REQUEST
-      );
-    }
-
-    return this.usersService.create(createUserDto).then((user) => {
-      user.password = null;
-      user.salt = null;
-      return user;
-    });
+    return this.usersService.create(createUserDto)
   }
 
   @Get('findAllUsers')

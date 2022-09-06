@@ -4,8 +4,10 @@ import { ThemeProvider } from '@mui/material/styles';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import Head from 'next/head';
+import Layout from './layout';
 import { theme } from '../theme';
 import { createEmotionCache } from '../utils/create-emotion-cache';
+
 
 const clientSideEmotionCache = createEmotionCache();
 
@@ -28,7 +30,7 @@ const App = (props) => {
       <LocalizationProvider dateAdapter={AdapterDateFns}>
         <ThemeProvider theme={theme}>
           <CssBaseline />
-          {getLayout(<Component {...pageProps} />)}
+          <Layout>{getLayout(<Component {...pageProps} />)}</Layout>
         </ThemeProvider>
       </LocalizationProvider>
     </CacheProvider>

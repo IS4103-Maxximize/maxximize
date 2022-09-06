@@ -1,20 +1,31 @@
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { Box, Button, Container, Link, TextField, Typography } from '@mui/material';
+import { Box, Button, Container, TextField, Typography } from '@mui/material';
 import { useFormik } from 'formik';
 import Head from 'next/head';
-import NextLink from 'next/link';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
+import Router from 'next/router'
 import * as Yup from 'yup';
 
 async function loginUser(credentials) {
-  return fetch('http:localhost:3000/api/auth/login',{
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(credentials)
-  })
-    .then(data => data.json)
+  try {
+    const res = await fetch('http://localhost:3000/api/login',{
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(credentials)
+    })
+    console.log(res)
+    if (res.status === 201) {
+      const result = await res.json()
+      return result
+    } else {
+      return null
+    } 
+  } catch (err) {
+    throw err
+  }
+  
 }
 
 const Login = () => {
@@ -22,7 +33,8 @@ const Login = () => {
   const formik = useFormik({
     initialValues: {
       username: '',
-      password: ''
+      password: '',
+      authenticationError: ''
     },
     validationSchema: Yup.object({
       username: Yup
@@ -36,17 +48,34 @@ const Login = () => {
         .required(
           'Password is required')
     }),
-    onSubmit: (values) => {
-      try {
-        const accessToken = loginUser(values).access_token
-        localStorage.setItem('accessToken', accessToken)
-        router.push('/')
-      } catch (e) {
-        // Authentication Error
+    onSubmit: async({username, password}) => {
+      const result = await loginUser({username, password})
+      if (result) {
+        console.log(result)
+        localStorage.setItem('access_token', result.access_token)
+        //retrieve user Data
+        const user = await getUserFromJWT(result.access_token)
+        localStorage.setItem('user', JSON.stringify(user))
+        Router.push('./home')
+      } else {
+        formik.values.authenticationError = 'Your credentials are incorrect/not found'
       }
-      
     }
   });
+
+ 
+  const getUserFromJWT = async(accessToken) => {
+    const res = await fetch('http://localhost:3000/api/profile', {
+        headers: {
+            'Authorization': `Bearer ${accessToken}`
+        }
+    })
+    const result = await res.json()
+    const {id} = result
+    const userRes = await fetch(`http://localhost:3000/api/users/findUser/${id}`)
+    const user = await userRes.json()
+    return user
+  }
 
   return (
     <>
@@ -63,17 +92,6 @@ const Login = () => {
         }}
       >
         <Container maxWidth="sm">
-          <NextLink
-            href="/"
-            passHref
-          >
-            <Button
-              component="a"
-              startIcon={<ArrowBackIcon fontSize="small" />}
-            >
-              Home
-            </Button>
-          </NextLink>
           <form onSubmit={formik.handleSubmit}>
             <Box sx={{ my: 3 }}>
               <Typography
@@ -96,11 +114,11 @@ const Login = () => {
               helperText={formik.touched.email && formik.errors.email}
               label="Username"
               margin="normal"
-              name="email"
+              name="username"
               onBlur={formik.handleBlur}
               onChange={formik.handleChange}
               type="email"
-              value={formik.values.email}
+              value={formik.values.username}
               variant="outlined"
             />
             <TextField
@@ -116,6 +134,16 @@ const Login = () => {
               value={formik.values.password}
               variant="outlined"
             />
+            <Typography 
+            color="red"
+            variant="subtitle2">
+              {formik.values.authenticationError}
+            </Typography>
+            <Typography 
+            color="textPrimary"
+            variant="subtitle2">
+              Having troubles logging in? Call us at 67467891 or Email us at maxximize@gmail.com
+            </Typography>
             <Box sx={{ py: 2 }}>
               <Button
                 color="primary"
@@ -128,27 +156,6 @@ const Login = () => {
                 Sign In Now
               </Button>
             </Box>
-            <Typography
-              color="textSecondary"
-              variant="body2"
-            >
-              Don&apos;t have an account?
-              {' '}
-              <NextLink
-                href="/register"
-              >
-                <Link
-                  to="/register"
-                  variant="subtitle2"
-                  underline="hover"
-                  sx={{
-                    cursor: 'pointer'
-                  }}
-                >
-                  Sign Up
-                </Link>
-              </NextLink>
-            </Typography>
           </form>
         </Container>
       </Box>

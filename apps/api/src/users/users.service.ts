@@ -1,7 +1,6 @@
 import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { ContactsService } from '../contacts/contacts.service';
 import { OrganisationsService } from '../organisations/organisations.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -9,13 +8,15 @@ import { User } from './entities/user.entity';
 import { UnknownPersistenceException } from './exceptions/UnknownPersistenceException';
 import { UsernameAlreadyExistsException } from './exceptions/UsernameAlreadyExistsException';
 import * as bcrypt from 'bcrypt';
+import { Contact } from '../contacts/entities/contact.entity';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
-    private contactsService: ContactsService,
+    @InjectRepository(Contact)
+    private readonly contactsRepository: Repository<Contact>,
     private organisationsService: OrganisationsService
   ) {}
 
@@ -40,18 +41,24 @@ export class UsersService {
     }
     
     try {
+      const {firstName, lastName, username, role, contact, organisationId} = createUserDto
       const newUser = new User();
-      newUser.firstName = createUserDto.firstName;
-      newUser.lastName = createUserDto.lastName;
-      newUser.username = createUserDto.username;
-      newUser.role = createUserDto.role;
-      newUser.contact = createUserDto.contact;
+      newUser.firstName = firstName;
+      newUser.lastName = lastName;
+      newUser.username = username;
+      newUser.role = role;
+      if (contact) {
+        const newContact = this.contactsRepository.create({...contact})
+        await this.contactsRepository.save(newContact)
+        newUser.contact = newContact;
+      }
+      
 
       const salt = await bcrypt.genSalt();
       newUser.salt = salt;
       newUser.password = await bcrypt.hash(createUserDto.password, salt);
       
-      const organisation = await this.organisationsService.findOne(createUserDto.organisationId);
+      const organisation = await this.organisationsService.findOne(organisationId);
       newUser.organisation = organisation;
 
       return this.usersRepository.save(newUser);
@@ -70,7 +77,11 @@ export class UsersService {
 
   findOne(id: number): Promise<User> {
     try {
-      return this.usersRepository.findOneBy({ id });
+      return this.usersRepository.findOne({where: {
+        id
+      }, relations: {
+        organisation: true
+      }});
     } catch (err) {
       throw new NotFoundException("No user with id: " + id + " found!");
     }

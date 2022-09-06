@@ -68,7 +68,7 @@ export const DashboardSidebar = (props) => {
   const router = useRouter();
   const { organisation } = router.query;
 
-  const { open, onClose } = props;
+  const { open, onClose, userInfo } = props;
   const lgUp = useMediaQuery((theme) => theme.breakpoints.up('lg'), {
     defaultMatches: true,
     noSsr: false
@@ -98,7 +98,7 @@ export const DashboardSidebar = (props) => {
         }}
       >
         <div>
-          <Box sx={{ p: 3 }}>
+          <Box sx={{ p: 3, display: 'flex', justifyContent: 'start', alignItems: 'center', gap: '20px' }}>
             <NextLink
               href="/"
               passHref
@@ -112,6 +112,7 @@ export const DashboardSidebar = (props) => {
                 />
               </a>
             </NextLink>
+            {userInfo && userInfo.organisation?.name}
           </Box>
           <Box sx={{ px: 2 }}>
             <Box
