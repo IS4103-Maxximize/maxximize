@@ -18,12 +18,14 @@ export const DashboardLayout = (props) => {
   const { children } = props;
   const [isSidebarOpen, setSidebarOpen] = useState(true);
   const [userInfo, setUserInfo] = useState(null)
+  const [orgInfo, setOrgInfo] = useState(null)
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('user'))
-    console.log(user)
-    if (!userInfo) {
+    const organisation = JSON.parse(localStorage.getItem('organisation'))
+    if (!userInfo && !orgInfo) {
       setUserInfo(user)
+      setOrgInfo(organisation)
     }
   })
   
@@ -45,6 +47,7 @@ export const DashboardLayout = (props) => {
       <DashboardNavbar onSidebarOpen={() => setSidebarOpen(true)} />
       <DashboardSidebar
         userInfo={userInfo}
+        orgInfo={orgInfo}
         onClose={() => setSidebarOpen(false)}
         open={isSidebarOpen}
       />

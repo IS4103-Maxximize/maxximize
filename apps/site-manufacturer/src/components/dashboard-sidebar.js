@@ -66,9 +66,8 @@ const items = [
 
 export const DashboardSidebar = (props) => {
   const router = useRouter();
-  const { organisation } = router.query;
 
-  const { open, onClose, userInfo } = props;
+  const { open, onClose, userInfo, orgInfo } = props;
   const lgUp = useMediaQuery((theme) => theme.breakpoints.up('lg'), {
     defaultMatches: true,
     noSsr: false
@@ -112,7 +111,7 @@ export const DashboardSidebar = (props) => {
                 />
               </a>
             </NextLink>
-            {userInfo && userInfo.organisation?.name}
+            Welcome {userInfo?.firstName}
           </Box>
           <Box sx={{ px: 2 }}>
             <Box
@@ -132,8 +131,7 @@ export const DashboardSidebar = (props) => {
                   color="inherit"
                   variant="subtitle1"
                 >
-                  {organisation && organisation.toUpperCase()}
-                  {!organisation && <Skeleton />}
+                  {orgInfo?.name}
                 </Typography>
                 <Typography
                   color="neutral.400"

@@ -1,10 +1,15 @@
-import { useEffect } from "react";
 import Head from 'next/head';
-import Router from 'next/router'
-
+import  Router  from 'next/router';
+import { useEffect } from 'react';
+  
 function index() {
   useEffect(() => {
-      Router.push('./home')
+    const accessToken = localStorage.getItem('access_token')
+    if (accessToken) {
+      const orgId = JSON.parse(localStorage.getItem('organisation')).id
+      const userId = JSON.parse(localStorage.getItem('user')).id
+      Router.push(`/organisations/${orgId}/users/${userId}/dashboard`)
+    }
   })
 
   return (
