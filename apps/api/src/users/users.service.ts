@@ -19,20 +19,6 @@ export class UsersService {
     private organisationsService: OrganisationsService
   ) {}
 
-  // ----- TESTING -----
-  // private readonly users = [
-  //   {
-  //     userId: 1,
-  //     username: 'john',
-  //     password: 'changeme',
-  //   },
-  //   {
-  //     userId: 2,
-  //     username: 'maria',
-  //     password: 'guess',
-  //   },
-  // ];
-
   async create(createUserDto: CreateUserDto): Promise<User> {
     const user = await this.findByUsername(createUserDto.username);
     if (user != null) {
@@ -62,7 +48,11 @@ export class UsersService {
 
   findAll(): Promise<User[]> {
     try {
-      return this.usersRepository.find();
+      return this.usersRepository.find({
+        relations: {
+          contact: true
+        }
+      });
     } catch (err) {
       throw new NotFoundException("No users found!");
     }
@@ -70,7 +60,11 @@ export class UsersService {
 
   findOne(id: number): Promise<User> {
     try {
-      return this.usersRepository.findOneBy({ id });
+      return this.usersRepository.findOne({where: {
+        id
+      }, relations: {
+        contact: true
+      }});
     } catch (err) {
       throw new NotFoundException("No user with id: " + id + " found!");
     }
@@ -91,10 +85,11 @@ export class UsersService {
     return this.usersRepository.save(user);
   }
 
-  async remove(id: number): Promise<boolean> {
+  async remove(id: number): Promise<void> {
     try {
+      const user = await this.findOne(id);
+      await this.contactsService.remove(user.contact.id);
       await this.usersRepository.delete(id);
-      return true;
     } catch (err) {
       throw new HttpException("Error deleting user: " + id, HttpStatus.INTERNAL_SERVER_ERROR);
     }

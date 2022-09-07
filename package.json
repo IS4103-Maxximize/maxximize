@@ -31,6 +31,7 @@
     "@nestjs/typeorm": "^9.0.1",
     "bcrypt": "^5.0.1",
     "chart.js": "^3.5.1",
+    "class-transformer": "^0.5.1",
     "core-js": "^3.6.5",
     "date-fns": "^2.29.2",
     "formik": "^2.2.9",

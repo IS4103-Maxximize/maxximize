@@ -8,18 +8,21 @@ import {
   Delete,
   HttpException,
   HttpStatus,
+  UseInterceptors,
+  ClassSerializerInterceptor,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 
+@UseInterceptors(ClassSerializerInterceptor)
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post('createUser')
-  create(@Body() createUserDto: CreateUserDto): Promise<User> {
+  async create(@Body() createUserDto: CreateUserDto): Promise<User> {
     if (
       createUserDto.firstName == null ||
       createUserDto.lastName == null ||
@@ -35,11 +38,7 @@ export class UsersController {
       );
     }
 
-    return this.usersService.create(createUserDto).then((user) => {
-      user.password = null;
-      user.salt = null;
-      return user;
-    });
+    return this.usersService.create(createUserDto);
   }
 
   @Get('findAllUsers')
