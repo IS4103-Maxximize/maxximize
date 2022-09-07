@@ -1,16 +1,6 @@
-import { 
-  Box, 
-  Button, 
-  Card, 
-  CardContent,
-  Container, 
-  Dialog, 
-  DialogActions, 
-  DialogContent, 
-  DialogContentText,
-  DialogTitle,
-  TextField, 
-  Typography,
+import {
+  Box, Card, CardContent,
+  Container, Typography
 } from '@mui/material';
 import Head from 'next/head';
 // import { products } from '../__mocks__/products';
@@ -19,23 +9,30 @@ import { useRouter } from 'next/router';
 import { useState } from 'react';
 import { DashboardLayout } from '../../components/dashboard-layout';
 import { ProductListToolbar } from '../../components/product/product-list-toolbar';
+import { products } from '../../__mocks__/organisation/products';
+import { ProductDialog } from '../../__mocks__/organisation/products/productDialog';
 
-const rows = [];
+
+// const rows = [];
+const rows = products;
+
 const columns = [
   {
     field: 'id',
     headerName: 'ID',
-    width: 200,
+    // width: 200,
   },
   {
     field: 'name',
     headerName: 'Name',
-    width: 200,
+    width: 300,
+    editable: true,
   },
   {
     field: 'description',
     headerName: 'Description',
-    width: 200,
+    width: 300,
+    editable: true,
   },
   {
     field: 'skuCode',
@@ -44,13 +41,14 @@ const columns = [
   },
   {
     field: 'unit',
-    headerName: 'Measurement Unit',
-    width: 200,
+    headerName: 'Unit',
+    // width: 200,
   },
   {
     field: 'unitPrice',
     headerName: 'Unit Price',
-    width: 200,
+    editable: true,
+    // width: 200,
   },
 ];
 
@@ -81,35 +79,15 @@ const Products = () => {
         component="main"
         sx={{
           flexGrow: 1,
-          py: 8,
+          pt: 4,
+          pb: 8,
         }}
       >
         <Container maxWidth={false}>
-          <Dialog 
+          <ProductDialog 
             open={open} 
-            onClose={handleClose}
-          >
-            <DialogTitle>Subscribe</DialogTitle>
-            <DialogContent>
-              <DialogContentText>
-                To subscribe to this website, please enter your email address here. We
-                will send updates occasionally.
-              </DialogContentText>
-              <TextField
-                autoFocus
-                margin="dense"
-                id="name"
-                label="Email Address"
-                type="email"
-                fullWidth
-                variant="standard"
-              />
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={handleClose}>Cancel</Button>
-              <Button onClick={handleClose}>Subscribe</Button>
-            </DialogActions>
-          </Dialog>
+            handleClose={handleClose}
+          />
           <ProductListToolbar 
             handleClickOpen={handleClickOpen}
             handleClose={handleClose}
@@ -121,10 +99,12 @@ const Products = () => {
           >
             {rows.length > 0 ?
               <DataGrid
+                autoHeight
                 rows={rows}
                 columns={columns}
                 pageSize={10}
                 rowsPerPageOptions={[10]}
+                checkboxSelection
                 components={{
                   Toolbar: GridToolbar,
                 }}
