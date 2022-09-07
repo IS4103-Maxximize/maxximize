@@ -2,15 +2,10 @@ import {
   Box,
   Button,
   Card,
-  CardContent,
-  TextField,
-  InputAdornment,
-  SvgIcon,
-  Typography
+  CardContent, InputAdornment,
+  SvgIcon, TextField, Typography
 } from '@mui/material';
-import { Download as DownloadIcon } from '../../icons/download';
 import { Search as SearchIcon } from '../../icons/search';
-import { Upload as UploadIcon } from '../../icons/upload';
 
 export const ProductListToolbar = (props) => {
   return (
@@ -32,25 +27,11 @@ export const ProductListToolbar = (props) => {
         </Typography>
         <Box sx={{ m: 1 }}>
           <Button
-            startIcon={(<UploadIcon fontSize="small" />)}
-            sx={{ mr: 1 }}
-            disabled
-          >
-            Import
-          </Button>
-          <Button
-            startIcon={(<DownloadIcon fontSize="small" />)}
-            sx={{ mr: 1 }}
-            disabled
-          >
-            Export
-          </Button>
-          <Button
             color="primary"
             variant="contained"
             onClick={props.handleClickOpen}
           >
-            Add products
+            Add Product
           </Button>
         </Box>
       </Box>
