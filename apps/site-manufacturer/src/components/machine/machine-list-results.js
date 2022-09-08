@@ -3,10 +3,12 @@ import { Card, Box, Alert, Collapse, Tooltip } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import DeleteIcon from '@mui/icons-material/Delete';
 import HelpIcon from '@mui/icons-material/Help';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
+import { CreateMachine } from './create-machine';
 
-export const PartnersListResults = () => {
-  const [partners, setPartners] = useState([]);
+export const MachineListResults = () => {
+  const [machines, setMachines] = useState([]);
   const [successAlert, setSuccessAlert] = useState(false);
   const [successAlertContent, setSuccessAlertContent] = useState('');
   const [errorAlert, setErrorAlert] = useState(false);
@@ -14,17 +16,24 @@ export const PartnersListResults = () => {
   const [selectionModel, setSelectionModel] = useState([]);
 
   useEffect(() => {
-    retrieveAllPartners();
+    retrieveAllMachines();
   }, []);
 
-  const retrieveAllPartners = async () => {
-    const partnersList = await fetch(
-      'http://localhost:3000/api/organisations'
+  //
+  const retrieveAllMachines = async () => {
+    const machinesList = await fetch(
+      'http://localhost:3000/api/vehicles/findAllUsers'
     );
-    const result = await partnersList.json();
+    const result = await machinesList.json();
 
-    setPartners(result);
+    setMachines(result);
   };
+
+  const addMachine = (machine) => {
+    const updatedMachines = [...machines, machine];
+    setMachines(updatedMachines);
+  };
+
 
   const handleRowUpdate = (newRow) => {
     console.log(newRow);
@@ -43,15 +52,15 @@ export const PartnersListResults = () => {
     };
 
     fetch(
-      `http://localhost:3000/api/organisations/:id/${updatedRow.id}`,
+      `http://localhost:3000/api/vehicles/updateVehicle/${updatedRow.id}`,
       requestOptions
     )
       .then((response) => {
-        setSuccessAlertContent(`Updated Business Partner Details ${updatedRow.id} successfully!`);
+        setSuccessAlertContent(`Updated Machine ${updatedRow.id} successfully!`);
         setSuccessAlert(true);
       })
       .catch((error) => {
-        setErrorAlertContent(`Update for Business Partner ${updatedRow.id} failed!`);
+        setErrorAlertContent(`Update for Machine ${updatedRow.id} failed!`);
         setErrorAlert(true);
       });
 
@@ -71,84 +80,99 @@ export const PartnersListResults = () => {
     selectedIds.forEach((currentId) => {
       console.log(currentId);
       fetch(
-        `http://localhost:3000/api/organisations/:id/${currentId}`,
+        `http://localhost:3000/api/users/deleteMachine/${currentId}`,
         requestOptions
       )
         .then(() => {
-          setSuccessAlertContent(`Deleted Business Partner successfully!`);
+          setSuccessAlertContent(`Deleted Machine successfully!`);
           setSuccessAlert(true);
         })
         .catch((error) => {
-          setErrorAlertContent(`Error in Deleting Business Partner!`);
+          setErrorAlertContent(`Error in Deleting Machine!`);
           setErrorAlert(true);
         });
     });
 
-    setPartners((result) =>
-      result.filter((partner) => !selectedIds.has(partner.id))
+    setMachines((result) =>
+      result.filter((machine) => !selectedIds.has(machine.id))
     );
   };
+
+  const [openDialog, setOpenDialog] = useState(false);
+
+  const handleOpenDialog = () => {
+    setOpenDialog(true);
+  };
+
 
   const columns = [
     {
       field: 'id',
-      headerName: 'Business Partner ID',
+      headerName: 'Machine ID',
       width: 150,
     },
     {
-      field: 'name',
-      headerName: 'Name',
+      field: 'description',
+      headerName: 'Description',
       width: 200,
     },
     {
-      field: 'isActive',
-      headerName: 'Organisation Activity Status',
+      field: 'make',
+      headerName: 'Make',
+      width: 150,
+    },
+    {
+      field: 'lastServiced',
+      headerName: 'Last Serviced',
+      width: 200,
+      editable: true,
+    },
+    {
+      field: 'start',
+      headerName: 'Start',
       width: 150,
       editable: true,
-      type: 'singleSelect',
-      valueOptions: ['Active', 'Inactive'],
+    },
+    {
+      field: 'end',
+      headerName: 'End',
+      width: 200,
+      editable: true,
     },
     {
       field: 'type',
-      headerName: 'Organisation Type',
+      headerName: 'Schedule Type',
       width: 150,
       editable: true,
       type: 'singleSelect',
-      valueOptions: ['Supplier', 'Retailer'],
+      valueOptions: ['maintenance', 'available', 'reconfiguration', 'delivery'],
     },
     {
-      field: 'address',
-      headerName: 'Address',
-      width: 200,
-      editable: true,
-    },
-    {
-      field: 'phoneNumber',
-      headerName: 'Contact',
+      field: 'temperature',
+      headerName: 'Temperature',
       width: 150,
       editable: true,
     },
     {
-      field: 'email',
-      headerName: 'Email',
+      field: 'humidity',
+      headerName: 'Humidity',
       width: 200,
       editable: true,
     },
-
   ];
 
-  const rows = partners;
+  const rows = machines;
 
   return (
     <>
       <Box mb={2} sx={{ m: 1 }}>
-        <Tooltip title={'Delete Business Partner (Single/Multiple)'}>
+        <Tooltip title={'Delete Machine Entry (Single/Multiple)'}>
           <IconButton
             onClick={() => {
               const selectedIds = new Set(selectionModel);
               console.log(selectedIds);
               if (selectedIds.size == 0) {
-                setErrorAlertContent(`No Business Partner selected`);
+                setErrorAlertContent(`No Machine selected`);
                 setErrorAlert(true);
               } else {
                 handleDelete(selectedIds);
@@ -158,6 +182,18 @@ export const PartnersListResults = () => {
             <DeleteIcon />
           </IconButton>
         </Tooltip>
+
+        <Tooltip title={'Create Machine Entry'}>
+          <IconButton onClick={handleOpenDialog}>
+            <PersonAddIcon />
+          </IconButton>
+        </Tooltip>
+
+        <CreateMachine
+          openDialog={openDialog}
+          setOpenDialog={setOpenDialog}
+          addMachine={addMachine}
+        />
 
         <Tooltip title={'Update entry by clicking on the field to be updated'}>
           <IconButton>

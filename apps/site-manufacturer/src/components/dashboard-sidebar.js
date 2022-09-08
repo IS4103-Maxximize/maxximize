@@ -75,6 +75,16 @@ const items = [
     icon: <UserIcon fontSize="small" />,
     title: 'Worker Management',
   },
+  {
+    href: '/business-partner-management',
+    icon: <UserIcon fontSize="small" />,
+    title: 'Business Partner Management',
+  },
+  {
+    href: '/machine-management',
+    icon: <UserIcon fontSize="small" />,
+    title: 'Machine Management',
+  },
 ];
 
 export const DashboardSidebar = (props) => {
