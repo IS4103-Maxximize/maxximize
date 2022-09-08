@@ -14,9 +14,7 @@ export class BomLineItemsService {
     @InjectRepository(BillOfMaterial)
     private readonly billOfMaterialRepository: Repository<BillOfMaterial>,
     @InjectRepository(BomLineItem)
-    private readonly bomLineItemRepository: Repository<BomLineItem>,
-    @InjectRepository(Product)
-    private readonly productRepository: Repository<Product>,
+    private readonly bomLineItemRepository: Repository<BomLineItem>
   ){}
 
   async create(createBomLineItemDto: CreateBomLineItemDto): Promise<BomLineItem> {
