@@ -25,8 +25,6 @@ export class Contact {
     @JoinColumn()
     organisation: Organisation | null;
 
-    @OneToOne(() => User, (user) => user.contact, {
-        onDelete: 'CASCADE'
-    })
+    @OneToOne(() => User, (user) => user.contact)
     user: User | null;
 }

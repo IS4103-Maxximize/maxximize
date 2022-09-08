@@ -36,7 +36,8 @@ export class OrganisationsService {
       relations: {
         customers: true,
         suppliers: true,
-        contact: true
+        contact: true,
+        users: true
       }
     });
   }
@@ -48,7 +49,8 @@ export class OrganisationsService {
       }, relations: {
         customers: true,
         suppliers: true,
-        contact: true
+        contact: true,
+        users: true
       }})
       return organisation
     } catch (err) {
