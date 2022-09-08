@@ -7,7 +7,15 @@ import {
 } from '@mui/material';
 import { Search as SearchIcon } from '../../icons/search';
 
+
 export const ProductListToolbar = (props) => {
+  const {
+    disabled,
+    handleClickOpen,
+    handleConfirmDialogOpen,
+    handleSearch,
+    numProducts,
+  } = props;
   return (
     <Box {...props}>
       <Box
@@ -25,22 +33,20 @@ export const ProductListToolbar = (props) => {
         >
           Products
         </Typography>
-        <Box sx={{ m: 1 }}>
-          <Button
-            color="primary"
-            variant="contained"
-            onClick={props.handleClickOpen}
-          >
-            Add Product
-          </Button>
-        </Box>
       </Box>
       <Box sx={{ mt: 3 }}>
         <Card>
           <CardContent>
-            <Box sx={{ maxWidth: 500 }}>
+            <Box 
+              sx={{
+                alignItems: 'center',
+                display: 'flex',
+                justifyContent: 'space-between',
+                flexWrap: 'wrap',
+                m: -1
+              }}>
               <TextField
-                fullWidth
+                sx={{ width: 500 }}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
@@ -55,7 +61,28 @@ export const ProductListToolbar = (props) => {
                 }}
                 placeholder="Search product"
                 variant="outlined"
+                type="search"
+                onChange={handleSearch}
               />
+              <Box sx={{ m: 1 }}>
+                <Button
+                    color="primary"
+                    variant="contained"
+                    onClick={handleClickOpen}
+                    sx={{ mr: 1}}
+                  >
+                    Add Product
+                </Button>
+                <Button
+                  disabled={disabled}
+                  color="error"
+                  variant="contained"
+                  onClick={handleConfirmDialogOpen}
+                >
+                  Delete Product(s) 
+                  {numProducts > 0 ? ` [ ${numProducts} ]` : ''}
+                </Button>
+              </Box>
             </Box>
           </CardContent>
         </Card>

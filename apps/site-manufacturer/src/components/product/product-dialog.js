@@ -7,20 +7,22 @@ import { Stack } from "@mui/system";
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 
+
 const options = [
   'KILOGRAM',
   'LITRE',
 ]
 
 export const ProductDialog = (props) => {
-  const {open, handleClose} = props;
+  const {open, handleClose, product} = props;
+  console.log(product);
 
   const formik = useFormik({
     initialValues: {
-      name: '',
-      description: '',
+      name: product ? product.name : '',
+      description: product ? product.description : '',
       unit: 'KILOGRAM',
-      unitPrice: '',
+      unitPrice: product ? product.unitPrice : '',
     },
     validationSchema: Yup.object({
       name: Yup
@@ -45,7 +47,7 @@ export const ProductDialog = (props) => {
         open={open}
         onClose={handleClose}
       >
-        <DialogTitle>Add Product</DialogTitle>
+        <DialogTitle>Save Product</DialogTitle>
         <DialogContent>
           <DialogContentText>
             Enter Product Name, Description, Measurement Unit and Unit Price.
@@ -74,6 +76,8 @@ export const ProductDialog = (props) => {
             onChange={formik.handleChange}
             value={formik.values.description}
             variant="outlined"
+            multiline
+            minRows={4}
           />
           <Stack 
             direction="row"
@@ -119,12 +123,12 @@ export const ProductDialog = (props) => {
         </DialogContent>
         <DialogActions>
           <Button 
+            disabled={!formik.isValid}
             variant="contained"
             onClick={handleClose}>
-            Submit
+            Save
           </Button>
           <Button 
-            color="error" 
             onClick={handleClose}
           >
             Cancel
