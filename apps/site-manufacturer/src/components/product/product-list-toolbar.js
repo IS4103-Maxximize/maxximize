@@ -11,10 +11,11 @@ import { Search as SearchIcon } from '../../icons/search';
 export const ProductListToolbar = (props) => {
   const {
     disabled,
+    numProducts,
     handleClickOpen,
     handleConfirmDialogOpen,
     handleSearch,
-    numProducts,
+    handleAddProductClick,
   } = props;
   return (
     <Box {...props}>
@@ -68,7 +69,10 @@ export const ProductListToolbar = (props) => {
                 <Button
                     color="primary"
                     variant="contained"
-                    onClick={handleClickOpen}
+                    onClick={() => {
+                      handleAddProductClick();
+                      handleClickOpen();
+                    }}
                     sx={{ mr: 1}}
                   >
                     Add Product

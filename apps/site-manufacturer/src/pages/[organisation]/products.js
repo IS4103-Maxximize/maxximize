@@ -59,7 +59,7 @@ const Products = () => {
   
   // const rows = [];
   const rows = products;
-  const [selectedRow, setSelectedRow] = useState([]);
+  const [selectedRow, setSelectedRow] = useState();
   const [selectedRows, setSelectedRows] = useState([]);
   const [disabled, setDisabled] = useState();
   const [search, setSearch] = useState("");
@@ -79,6 +79,10 @@ const Products = () => {
   const handleSearch = (event) => {
     setSearch(event.target.value.toLowerCase())
   };
+
+  const handleAddProductClick = () => {
+    setSelectedRow(undefined);
+  }
   
   const columns = [
     {
@@ -160,11 +164,11 @@ const Products = () => {
           />
           <ProductListToolbar 
             disabled={disabled}
+            numProducts={selectedRows.length}
             handleClickOpen={handleClickOpen}
             handleConfirmDialogOpen={handleConfirmDialogOpen}
-            search={search}
             handleSearch={handleSearch}
-            numProducts={selectedRows.length}
+            handleAddProductClick={handleAddProductClick}
           />
           <Box
             sx={{

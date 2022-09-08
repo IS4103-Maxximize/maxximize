@@ -15,15 +15,14 @@ const options = [
 
 export const ProductDialog = (props) => {
   const {open, handleClose, product} = props;
-  console.log(product);
-
   const formik = useFormik({
     initialValues: {
       name: product ? product.name : '',
       description: product ? product.description : '',
       unit: 'KILOGRAM',
-      unitPrice: product ? product.unitPrice : '',
+      unitPrice: product ? Number(product.unitPrice) : '',
     },
+    enableReinitialize: true,
     validationSchema: Yup.object({
       name: Yup
         .string()
@@ -38,7 +37,9 @@ export const ProductDialog = (props) => {
         .number()
         .required('Unit Price is required'),
     }),
-    onSubmit: {}
+    onSubmit: (values) => {
+      console.log(values);
+    }
   });
 
   return (
@@ -125,7 +126,7 @@ export const ProductDialog = (props) => {
           <Button 
             disabled={!formik.isValid}
             variant="contained"
-            onClick={handleClose}>
+            onClick={formik.handleSubmit}>
             Save
           </Button>
           <Button 
