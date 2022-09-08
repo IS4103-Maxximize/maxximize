@@ -8,9 +8,7 @@ import {
     SvgIcon,
     Typography
   } from '@mui/material';
-import { Download as DownloadIcon } from '../../icons/download';
 import { Search as SearchIcon } from '../../icons/search';
-import { Upload as UploadIcon } from '../../icons/upload';
   
 export const FactoryMachineListToolbar = (props) => (
   <Box {...props}>
