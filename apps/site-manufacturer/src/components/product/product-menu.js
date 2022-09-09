@@ -1,6 +1,5 @@
-import { Menu, MenuList, MenuItem, ListItemIcon, ListItemText } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
-import DeleteIcon from "@mui/icons-material/Delete";
+import { ListItemIcon, ListItemText, Menu, MenuItem, MenuList } from "@mui/material";
 
 
 export const ProductMenu = (props) => {
@@ -20,18 +19,7 @@ export const ProductMenu = (props) => {
             <SearchIcon />
           </ListItemIcon>
           <ListItemText>
-            View Details
-          </ListItemText>
-        </MenuItem>
-        <MenuItem 
-          disabled 
-          onClick={handleMenuClose}
-        >
-          <ListItemIcon>
-            <DeleteIcon />
-          </ListItemIcon>
-          <ListItemText>
-            Delete Product
+            View/Edit Details
           </ListItemText>
         </MenuItem>
       </MenuList>
