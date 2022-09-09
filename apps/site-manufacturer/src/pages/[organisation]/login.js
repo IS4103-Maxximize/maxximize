@@ -7,14 +7,19 @@ import { useRouter } from 'next/router';
 import * as Yup from 'yup';
 
 async function loginUser(credentials) {
-  return fetch('http:localhost:3000/api/auth/login',{
+  return fetch('http://localhost:3000/api/auth/login', {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     },
-    body: JSON.stringify(credentials)
+    body: JSON.stringify(credentials),
   })
-    .then(data => data.json)
+    .then((response) => {
+      return response.json();
+    })
+    .catch((err) => {
+      return err;
+    });
 }
 
 const Login = () => {
@@ -39,14 +44,13 @@ const Login = () => {
           'Password is required')
     }),
     onSubmit: (values) => {
-      try {
-        const accessToken = loginUser(values).access_token
-        localStorage.setItem('accessToken', accessToken)
-        router.push(`/${organisation}/dashboard`)
-      } catch (e) {
-        // Authentication Error
-      }
-      
+      loginUser(values)
+        .then((response) => {
+          console.log(response);
+          localStorage.setItem('accessToken', response.access_token);
+          router.push(`/${organisation}/dashboard`)
+        })
+        .catch((err) => console.log(err));
     }
   });
 
