@@ -136,24 +136,17 @@ export const WorkerListResults = () => {
       width: 150,
     },
     {
+      field: 'username',
+      headerName: 'Username',
+      width: 250,
+    },
+    {
       field: 'role',
       headerName: 'Role',
       width: 150,
       editable: true,
       type: 'singleSelect',
-      valueOptions: ['admin', 'manager', 'factoryworker', 'driver'],
-    },
-    {
-      field: 'address',
-      headerName: 'Address',
-      width: 500,
-      editable: true,
-    },
-    {
-      field: 'postalCode',
-      headerName: 'Postal Code',
-      width: 200,
-      editable: true,
+      valueOptions: ['Admin', 'Manager', 'FactoryWorker', 'Driver'],
     },
     {
       field: 'phoneNumber',
@@ -164,6 +157,18 @@ export const WorkerListResults = () => {
     {
       field: 'email',
       headerName: 'Email',
+      width: 200,
+      editable: true,
+    },
+    {
+      field: 'address',
+      headerName: 'Address',
+      width: 500,
+      editable: true,
+    },
+    {
+      field: 'postalCode',
+      headerName: 'Postal Code',
       width: 200,
       editable: true,
     },

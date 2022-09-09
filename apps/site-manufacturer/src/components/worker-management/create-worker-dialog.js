@@ -34,8 +34,8 @@ export const CreateWorkerDialog = ({
     event.preventDefault();
 
     const min = 100000;
-    const max = 100000000;
-    const rand = min + Math.random() * (max - min);
+    const max = 1000000;
+    const rand = Math.floor(min + Math.random() * (max - min));
 
     formik.values.username =
       formik.values.firstName + formik.values.lastName + rand.toString();
