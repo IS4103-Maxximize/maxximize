@@ -1,7 +1,7 @@
 import MoreVert from '@mui/icons-material/MoreVert';
 import {
   Box, Card, CardContent,
-  Container, IconButton, Typography
+  Container, IconButton, ToggleButton, ToggleButtonGroup, Typography
 } from '@mui/material';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import Head from 'next/head';
@@ -18,6 +18,15 @@ import { products } from '../../__mocks__/organisation/products';
 const Products = () => {
   const router = useRouter();
   const { organisation } = router.query;
+
+  // Page View
+  const [type, setType] = useState('raw');
+
+  const handleType = (event, newType) => {
+    if (newType !== null) {
+      setType(newType);
+    }
+  }
 
   // Dialog helpers
   const [open, setOpen] = useState(false);
@@ -57,20 +66,16 @@ const Products = () => {
     );
   };
   
-  // const rows = [];
-  const rows = products;
+  const data = products;
+  const [rows, setRows] = useState(data);
   const [selectedRow, setSelectedRow] = useState();
   const [selectedRows, setSelectedRows] = useState([]);
   const [disabled, setDisabled] = useState();
   const [search, setSearch] = useState("");
 
   useEffect(() => {
-    console.log(selectedRow);
-  }, [selectedRow])
-
-  useEffect(() => {
-    console.log(selectedRows)
-  }, [selectedRows]);
+    setRows(data.filter((el) => el.type === type ? el : null))
+  }, [data, type])
 
   useEffect(() => {
     setDisabled(selectedRows.length === 0)
@@ -81,8 +86,17 @@ const Products = () => {
   };
 
   const handleAddProductClick = () => {
-    setSelectedRow(undefined);
+    setSelectedRow(null);
   }
+
+  // Logging
+  useEffect(() => {
+    console.log(selectedRow);
+  }, [selectedRow])
+
+  useEffect(() => {
+    console.log(selectedRows)
+  }, [selectedRows]);
   
   const columns = [
     {
@@ -121,7 +135,7 @@ const Products = () => {
     {
       field: 'actions',
       headerName: '',
-      width: 150,
+      width: 50,
       sortable: false,
       renderCell: menuButton,
     },
@@ -165,10 +179,12 @@ const Products = () => {
           <ProductListToolbar 
             disabled={disabled}
             numProducts={selectedRows.length}
+            type={type}
             handleClickOpen={handleClickOpen}
             handleConfirmDialogOpen={handleConfirmDialogOpen}
             handleSearch={handleSearch}
             handleAddProductClick={handleAddProductClick}
+            handleType={handleType}
           />
           <Box
             sx={{
@@ -194,6 +210,10 @@ const Products = () => {
                 }}
                 onSelectionModelChange={(ids) => {
                   setSelectedRows(ids.map((id) => rows.find((row) => row.id === id)))
+                }}
+                editMode="row"
+                onEditRowsModelChange={(model) => {
+                  console.log(model[Object.keys(model)[0]])
                 }}
               />
               :

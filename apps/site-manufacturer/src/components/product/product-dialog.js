@@ -65,6 +65,7 @@ export const ProductDialog = (props) => {
             onChange={formik.handleChange}
             value={formik.values.name}
             variant="outlined"
+            autoFocus
           />
           <TextField
             error={Boolean(formik.touched.description && formik.errors.description)}

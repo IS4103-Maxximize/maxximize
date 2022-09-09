@@ -3,20 +3,44 @@ import {
   Button,
   Card,
   CardContent, InputAdornment,
-  SvgIcon, TextField, Typography
+  SvgIcon, TextField, Typography,
+  ToggleButton, ToggleButtonGroup, Stack, Tooltip,
 } from '@mui/material';
 import { Search as SearchIcon } from '../../icons/search';
+import RawOnIcon from '@mui/icons-material/RawOn';
+import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
 
 
 export const ProductListToolbar = (props) => {
   const {
     disabled,
     numProducts,
+    type,
     handleClickOpen,
     handleConfirmDialogOpen,
     handleSearch,
     handleAddProductClick,
+    handleType
   } = props;
+
+  const ProductToggle = () => {
+    return (
+      <ToggleButtonGroup
+        exclusive
+        color='primary'
+        value={type}
+        onChange={handleType}
+      >
+        <ToggleButton value='raw'>
+          <RawOnIcon />
+        </ToggleButton>
+        <ToggleButton value='final'>
+          <AssignmentTurnedInIcon />
+        </ToggleButton>
+      </ToggleButtonGroup>
+    )
+  }
+
   return (
     <Box {...props}>
       <Box
@@ -32,7 +56,8 @@ export const ProductListToolbar = (props) => {
           sx={{ m: 1 }}
           variant="h4"
         >
-          Products
+          {type === 'raw' && 'Raw Materials'}
+          {type === 'final' && 'Final Products'}
         </Typography>
       </Box>
       <Box sx={{ mt: 3 }}>
@@ -46,6 +71,11 @@ export const ProductListToolbar = (props) => {
                 flexWrap: 'wrap',
                 m: -1
               }}>
+              <Stack
+                direction="row"
+                spacing={1}
+              >
+              <ProductToggle/>
               <TextField
                 sx={{ width: 500 }}
                 InputProps={{
@@ -65,6 +95,8 @@ export const ProductListToolbar = (props) => {
                 type="search"
                 onChange={handleSearch}
               />
+              </Stack>
+              
               <Box sx={{ m: 1 }}>
                 <Button
                     color="primary"
