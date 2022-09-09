@@ -36,7 +36,8 @@ export class OrganisationsService {
       relations: {
         customers: true,
         suppliers: true,
-        contact: true
+        contact: true,
+        users: true
       }
     });
   }
@@ -48,7 +49,8 @@ export class OrganisationsService {
       }, relations: {
         customers: true,
         suppliers: true,
-        contact: true
+        contact: true,
+        users: true
       }})
       return organisation
     } catch (err) {
@@ -84,8 +86,11 @@ export class OrganisationsService {
     }
   }
 
-  findOrganisationWorkers(id: number): Promise<User[]> {
-    return this.findOne(id).then((organisation) => organisation.users);
+  async findOrganisationWorkers(id: number): Promise<User[]> {
+    return this.organisationsRepository.findOne({
+      where: {id},
+      relations: ["users", "users.contact"]
+    }).then((organisation) => organisation.users);
   }
 
   async remove(id: number): Promise<Organisation> {
