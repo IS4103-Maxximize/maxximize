@@ -20,15 +20,25 @@ export const CreateWorkerDialog = ({
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
 
+  //Handle dialog close from child dialog
   const handleDialogClose = () => {
     setOpenDialog(false);
     formik.resetForm();
   };
 
+  //Change this to retrieve local storage user organisation Id
+  const organisationId = '1';
+
+  //Handle Formik submission
   const handleOnSubmit = async (event) => {
     event.preventDefault();
 
-    formik.values.username = formik.values.firstName + formik.values.lastName;
+    const min = 100000;
+    const max = 100000000;
+    const rand = min + Math.random() * (max - min);
+
+    formik.values.username =
+      formik.values.firstName + formik.values.lastName + rand.toString();
 
     const response = await fetch('http://localhost:3000/api/users/createUser', {
       method: 'POST',
@@ -42,7 +52,7 @@ export const CreateWorkerDialog = ({
         username: formik.values.username,
         password: formik.values.password,
         role: formik.values.role,
-        organisationId: 1,
+        organisationId: organisationId,
         contact: {
           address: formik.values.address,
           email: formik.values.email,
@@ -54,7 +64,14 @@ export const CreateWorkerDialog = ({
 
     const result = await response.json();
 
-    addWorker(result);
+    console.log(result);
+
+    const flattenResult = flattenObj(result);
+
+    console.log(flattenResult);
+
+    //Rerender parent data grid compoennt
+    addWorker(flattenResult);
 
     handleDialogClose();
   };
@@ -230,4 +247,18 @@ export const CreateWorkerDialog = ({
       </DialogContent>
     </Dialog>
   );
+};
+
+//Helper methods
+//Flatten the worker record retrieved, difficult to update with an inner object
+const flattenObj = (obj, parent, res = {}) => {
+  for (let key in obj) {
+    let propName = key;
+    if (typeof obj[key] == 'object' && key != 'organisation') {
+      flattenObj(obj[key], propName, res);
+    } else {
+      res[propName] = obj[key];
+    }
+  }
+  return res;
 };

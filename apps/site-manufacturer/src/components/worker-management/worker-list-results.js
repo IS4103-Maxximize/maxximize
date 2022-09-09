@@ -15,6 +15,9 @@ export const WorkerListResults = () => {
   const [errorAlertContent, setErrorAlertContent] = useState('');
   const [selectionModel, setSelectionModel] = useState([]);
 
+  //Change this to retrieve local storage user organisation Id
+  const organisationId = '1';
+
   //Load in list of workers, initial
   useEffect(() => {
     retrieveAllWorkers();
@@ -23,17 +26,24 @@ export const WorkerListResults = () => {
   //Retrieve all workers
   const retrieveAllWorkers = async () => {
     const workersList = await fetch(
-      'http://localhost:3000/api/users/findAllUsers'
+      `http://localhost:3000/api/organisations/getWorkersByOrganisation/${organisationId}`
     );
     const result = await workersList.json();
 
-    setWorkers(result);
+    const flattenResult = result.map((r) => flattenObj(r));
+
+    setWorkers(flattenResult);
   };
 
   //Add a new worker entry to the list
   const addWorker = (worker) => {
-    const updatedWorkers = [...workers, worker];
-    setWorkers(updatedWorkers);
+    try {
+      const updatedWorkers = [...workers, worker];
+
+      setWorkers(updatedWorkers);
+    } catch {
+      console.log('An erorr occured please try again later');
+    }
   };
 
   //Updating a worker entry, calling update API
@@ -45,7 +55,10 @@ export const WorkerListResults = () => {
     const myHeaders = new Headers();
     myHeaders.append('Content-Type', 'application/json');
 
-    const raw = JSON.stringify(updatedRow);
+    const updatedRowJSON = jsonStructure(updatedRow);
+    console.log(updatedRowJSON);
+
+    const raw = JSON.stringify(updatedRowJSON);
 
     const requestOptions = {
       method: 'PATCH',
@@ -73,16 +86,12 @@ export const WorkerListResults = () => {
   //Deleting a worker entry, calling update API
   //Also alerts user of ourcome
   const handleDelete = (selectedIds) => {
-    console.log('handling delete');
-    console.log(selectedIds);
-
     const requestOptions = {
       method: 'DELETE',
       redirect: 'follow',
     };
 
     selectedIds.forEach((currentId) => {
-      console.log(currentId);
       fetch(
         `http://localhost:3000/api/users/deleteUser/${currentId}`,
         requestOptions
@@ -137,6 +146,12 @@ export const WorkerListResults = () => {
     {
       field: 'address',
       headerName: 'Address',
+      width: 500,
+      editable: true,
+    },
+    {
+      field: 'postalCode',
+      headerName: 'Postal Code',
       width: 200,
       editable: true,
     },
@@ -164,7 +179,6 @@ export const WorkerListResults = () => {
           <IconButton
             onClick={() => {
               const selectedIds = new Set(selectionModel);
-              console.log(selectedIds);
               if (selectedIds.size == 0) {
                 setErrorAlertContent(`No Worker selected`);
                 setErrorAlert(true);
@@ -254,4 +268,36 @@ export const WorkerListResults = () => {
       </Card>
     </>
   );
+};
+
+//Helper methods
+//Flatten the worker record retrieved
+const flattenObj = (obj, parent, res = {}) => {
+  for (let key in obj) {
+    let propName = key;
+    if (typeof obj[key] == 'object') {
+      flattenObj(obj[key], propName, res);
+    } else {
+      res[propName] = obj[key];
+    }
+  }
+  return res;
+};
+
+const jsonStructure = (worker) => {
+  const updatedWorkerJSON = {
+    id: worker.id,
+    firstName: worker.firstName,
+    lastName: worker.lastName,
+    username: worker.username,
+    role: worker.role,
+    contact: {
+      phoneNumber: worker.phoneNumber,
+      email: worker.email,
+      address: worker.address,
+      postalCode: worker.postalCode,
+    },
+  };
+
+  return updatedWorkerJSON;
 };
