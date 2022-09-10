@@ -18,7 +18,7 @@ export class OrganisationsService {
   ) {}
 
   async create(createOrganisationDto: CreateOrganisationDto): Promise<Organisation> {
-    const {name, type, contact} = createOrganisationDto
+    const {name, type, contact, uen} = createOrganisationDto
     if (contact) {
       await this.contactsRepository.save(contact)
     }
@@ -26,6 +26,7 @@ export class OrganisationsService {
       name,
       type,
       users: [],
+      uen,
       contact: contact ?? null
     })
     return this.organisationsRepository.save(newOrganisation);
@@ -34,8 +35,7 @@ export class OrganisationsService {
   findAll(): Promise<Organisation[]> {
     return this.organisationsRepository.find({
       relations: {
-        customers: true,
-        suppliers: true,
+        shellOrganisations: true,
         contact: true,
         users: true
       }
@@ -47,8 +47,7 @@ export class OrganisationsService {
       const organisation =  await this.organisationsRepository.findOne({where: {
         id
       }, relations: {
-        customers: true,
-        suppliers: true,
+        shellOrganisations: true,
         contact: true,
         users: true
       }})
@@ -65,16 +64,11 @@ export class OrganisationsService {
       }})
       const keyValuePairs = Object.entries(updateOrganisationDto)
       for (let i = 0; i < keyValuePairs.length; i++) {
-        const key = keyValuePairs[i][0]
-        const value = keyValuePairs[i][1]
+        const [key, value] = keyValuePairs[i]
         //fields in updateOrganisationDto are optional, so check if the value is present or null
         if (value) {
-          if (key === 'suppliers') {
-            organisation['suppliers'] = await this.retrieveOrganisations(updateOrganisationDto.suppliers)
-          } else if (key === 'customers') {
-            organisation['customers'] = await this.retrieveOrganisations(updateOrganisationDto.customers)
-          } else if (key === 'contact') {
-            organisation['contact'] = await this.updateContact(updateOrganisationDto.contact, organisation)
+          if (key === 'contact') {
+            organisation['contact'] = await this.updateOrganisationContact(updateOrganisationDto.contact, organisation)
           } else {
             organisation[key] = value
           }
@@ -102,36 +96,21 @@ export class OrganisationsService {
     }
   }
 
-  async retrieveOrganisations(ids: number[]): Promise<Organisation[]> {
-    const result = []
-    for (let i = 0; i < ids.length; i++) {
-      result.push(await this.organisationsRepository.findOne({
-        where: {
-          id: ids[i]
-        }
-      }))
-    }
-    return result
-  }
 
-  async updateContact(contact: CreateContactDto, organisation: Organisation): Promise<Contact> {
+  async updateOrganisationContact(contact: CreateContactDto, organisation: Organisation): Promise<Contact> {
     let contactToBeSaved = {}
     const currentOrg = await this.organisationsRepository.findOne({where: {
       id: organisation.id
     }, relations: {
       contact: true
     }})
-    //contact is already present
-    if (currentOrg.contact) {
-      contactToBeSaved = {
-        id: currentOrg.contact.id,
-        ...contact
-      }
-    //contact is new
-    } else {
-      contactToBeSaved = contact
+    
+    contactToBeSaved = {
+      id: currentOrg.contact.id ?? null,
+      ...contact
     }
     return this.contactsRepository.save(contactToBeSaved)
+    
   }
 
   async directUpdate(organisation: Organisation) {
