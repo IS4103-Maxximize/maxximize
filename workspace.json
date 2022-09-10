@@ -3,8 +3,12 @@
   "version": 2,
   "projects": {
     "api": "apps/api",
+    "site-admin": "apps/site-admin",
+    "site-admin-e2e": "apps/site-admin-e2e",
     "site-b2b": "apps/site-b2b",
     "site-b2b-e2e": "apps/site-b2b-e2e",
+    "site-main": "apps/site-main",
+    "site-main-e2e": "apps/site-main-e2e",
     "site-manufacturer": "apps/site-manufacturer",
     "site-manufacturer-e2e": "apps/site-manufacturer-e2e",
     "site-supplier": "apps/site-supplier",

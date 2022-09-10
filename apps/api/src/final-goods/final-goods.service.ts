@@ -20,16 +20,19 @@ export class FinalGoodsService {
   ){}
 
   async create(createFinalGoodDto: CreateFinalGoodDto): Promise<FinalGood> {
-    const {name, description, skuCode, unit, unitPrice, expiry} = createFinalGoodDto
-    const newFinalGood = this.finalGoodRepository.create({
+    const {name, description, unit, unitPrice, expiry} = createFinalGoodDto
+    const newFinalGoodInstance = this.finalGoodRepository.create({
       name,
       description,
-      skuCode,
       unit,
       unitPrice,
       expiry
-    })
-    return this.finalGoodRepository.save(newFinalGood);
+    });
+    const newFinalGood = await this.finalGoodRepository.save(newFinalGoodInstance);
+    return this.finalGoodRepository.save({
+      skuCode:`${newFinalGood.id}-${name.toUpperCase().substring(0, 3)}`,
+      ...newFinalGood
+    });
   }
 
   findAll(): Promise<FinalGood[]> {

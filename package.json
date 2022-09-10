@@ -6,8 +6,9 @@
     "start": "nx serve",
     "build": "nx build",
     "test": "nx test",
-    "dev": "nx run-many --target=serve --projects=api,site-manufacturer,",
-    "site": "nx run site-manufacturer:serve"
+    "dev": "nx run-many --target=serve --projects=api,site-manufacturer",
+    "site": "nx run site-manufacturer:serve",
+    "api": "nx run api:serve"
   },
   "private": true,
   "dependencies": {
@@ -112,6 +113,7 @@
     "eslint-plugin-react-hooks": "4.6.0",
     "jest": "27.5.1",
     "jest-circus": "27.5.1",
+    "jest-environment-jsdom": "28.1.1",
     "jest-react-native": "18.0.0",
     "metro": "0.71.3",
     "metro-babel-register": "0.71.3",
