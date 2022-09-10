@@ -177,9 +177,10 @@ export const WorkerListResults = () => {
 
   return (
     <>
-      <Box mb={2} sx={{ m: 1 }}>
+      <Box mb={2} sx={{ m: 1 }} display="flex" justifyContent="space-between">
         <Tooltip title={'Delete Worker Entry (Single/Multiple)'}>
           <IconButton
+            disabled={selectionModel.length === 0}
             onClick={() => {
               const selectedIds = new Set(selectionModel);
               if (selectedIds.size == 0) {
@@ -194,23 +195,27 @@ export const WorkerListResults = () => {
           </IconButton>
         </Tooltip>
 
-        <Tooltip title={'Create Worker Entry'}>
-          <IconButton onClick={handleOpenDialog}>
-            <PersonAddIcon />
-          </IconButton>
-        </Tooltip>
+        <Box>
+          <Tooltip title={'Create Worker Entry'}>
+            <IconButton onClick={handleOpenDialog}>
+              <PersonAddIcon />
+            </IconButton>
+          </Tooltip>
 
-        <CreateWorkerDialog
-          openDialog={openDialog}
-          setOpenDialog={setOpenDialog}
-          addWorker={addWorker}
-        />
+          <CreateWorkerDialog
+            openDialog={openDialog}
+            setOpenDialog={setOpenDialog}
+            addWorker={addWorker}
+          />
 
-        <Tooltip title={'Update entry by clicking on the field to be updated'}>
-          <IconButton>
-            <HelpIcon />
-          </IconButton>
-        </Tooltip>
+          <Tooltip
+            title={'Update entry by clicking on the field to be updated'}
+          >
+            <IconButton>
+              <HelpIcon />
+            </IconButton>
+          </Tooltip>
+        </Box>
       </Box>
 
       {successAlert ? (

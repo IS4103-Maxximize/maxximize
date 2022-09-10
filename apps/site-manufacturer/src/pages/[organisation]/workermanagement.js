@@ -29,7 +29,7 @@ const WorkerManagement = ({ props }) => {
           <Typography sx={{ m: 1 }} variant="h4">
             Workers
           </Typography>
-          <Box sx={{ mt: 3 }}>
+          <Box sx={{ mt: 2 }}>
             <WorkerListResults />
           </Box>
         </Container>
