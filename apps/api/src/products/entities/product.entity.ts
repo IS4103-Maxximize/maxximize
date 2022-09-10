@@ -13,7 +13,7 @@ export class Product {
     @Column()
     description: string;
 
-    @Column()
+    @Column({nullable: true})
     skuCode: string
 
     @Column({
@@ -25,7 +25,7 @@ export class Product {
     @Column()
     unitPrice: number;
 
-    @Column()
+    @Column({nullable: true})
     expiry: number;
 
     @OneToMany(() => Quotation, quotation => quotation.product)

@@ -17,16 +17,17 @@ export class RawMaterialsService {
   ){}
 
   async create(createRawMaterialDto: CreateRawMaterialDto): Promise<RawMaterial> {
-    const {name, description, skuCode, unit, unitPrice, expiry} = createRawMaterialDto
-    const newFinalGood = this.rawMaterialRepository.create({
+    const {name, description, unit, unitPrice, expiry} = createRawMaterialDto;
+    const newRawmaterialInstance = this.rawMaterialRepository.create({
       name,
       description,
-      skuCode,
       unit,
       unitPrice,
       expiry
     })
-    return this.rawMaterialRepository.save(newFinalGood);
+    const newRawmaterial = await this.rawMaterialRepository.save(newRawmaterialInstance);
+    const skuCode = `${newRawmaterial.id}-${name.toUpperCase().substring(0, 3)}`
+    return this.update(newRawmaterial.id, { skuCode: skuCode })
   }
 
   findAll(): Promise<RawMaterial[]> {
@@ -62,6 +63,9 @@ export class RawMaterialsService {
             }
             else if (key === 'expiry') {
               product.expiry = value;
+            }
+            else if (key === 'skuCode') {
+              product.skuCode = value;
             }
           } else {
             product[key] = value;
