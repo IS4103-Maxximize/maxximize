@@ -6,21 +6,45 @@ import {
 import { Stack } from "@mui/system";
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
+import { createProduct, updateProduct } from "../../helpers/products";
 
 
 const options = [
-  'KILOGRAM',
-  'LITRE',
+  'kilogram',
+  'litre',
 ]
 
 export const ProductDialog = (props) => {
-  const {open, handleClose, product} = props;
+  const {
+    action, 
+    open, 
+    handleClose, 
+    product, 
+    type, 
+    addProduct,
+    getProducts
+  } = props;
+
+  const handleOnSubmit = async (values) => {
+    if (action === 'POST') {
+      const result = await createProduct(type, values);
+      addProduct(result);
+    } else if (action === 'PATCH') {
+      updateProduct(product.id, type, values)
+        .then(() => getProducts);
+    }
+    handleClose();
+  }
+  
   const formik = useFormik({
     initialValues: {
+      id: product ? product.id : null,
       name: product ? product.name : '',
       description: product ? product.description : '',
-      unit: 'KILOGRAM',
+      unit: product ? product.unit : 'kilogram',
       unitPrice: product ? Number(product.unitPrice) : '',
+      expiry: product ? Number(product.expiry) : '',
+      skuCode: product ? product.skuCode : '',
     },
     enableReinitialize: true,
     validationSchema: Yup.object({
@@ -29,17 +53,17 @@ export const ProductDialog = (props) => {
         .max(255)
         .required('Product Name is required'),
       description: Yup
-        .string()
-        .max(255),
+        .string(),
       unit: Yup
         .string(),
       unitPrice: Yup
         .number()
         .required('Unit Price is required'),
+      expiry: Yup
+        .number()
+        .required('Expiry (days) is required'),
     }),
-    onSubmit: (values) => {
-      console.log(values);
-    }
+    onSubmit: handleOnSubmit
   });
 
   return (
@@ -48,10 +72,15 @@ export const ProductDialog = (props) => {
         open={open}
         onClose={handleClose}
       >
-        <DialogTitle>Save Product</DialogTitle>
+        <DialogTitle>
+          {action === 'POST' && 'Add '}
+          {action === 'PATCH' && 'Update '}
+          {type === 'raw-materials' && 'Raw Material'}
+          {type === 'final-goods' && 'Final Good'}
+        </DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Enter Product Name, Description, Measurement Unit and Unit Price.
+            Enter Product Name, Description, Measurement Unit, Unit Price, Expiry (in days)
           </DialogContentText>
           <TextField
             required
@@ -65,8 +94,23 @@ export const ProductDialog = (props) => {
             onChange={formik.handleChange}
             value={formik.values.name}
             variant="outlined"
-            autoFocus
+            autoFocus={action === 'POST'}
+            disabled={action === 'PATCH'}
           />
+          {product && <TextField
+            required
+            error={Boolean(formik.touched.skuCode && formik.errors.skuCode)}
+            fullWidth
+            helperText={formik.touched.skuCode && formik.errors.skuCode}
+            label="SKU"
+            margin="normal"
+            name="skuCode"
+            onBlur={formik.handleBlur}
+            onChange={formik.handleChange}
+            value={formik.values.skuCode}
+            variant="outlined"
+            disabled
+          />}
           <TextField
             error={Boolean(formik.touched.description && formik.errors.description)}
             fullWidth
@@ -80,6 +124,7 @@ export const ProductDialog = (props) => {
             variant="outlined"
             multiline
             minRows={4}
+            autoFocus={action === 'PATCH'}
           />
           <Stack 
             direction="row"
@@ -104,6 +149,7 @@ export const ProductDialog = (props) => {
                   value={option} 
                   control={<Radio/>} 
                   label={option}
+                  disabled={action === 'PATCH'}
                 />
               ))}
             </RadioGroup>
@@ -122,13 +168,27 @@ export const ProductDialog = (props) => {
             value={formik.values.unitPrice}
             variant="outlined"
           />
+          <TextField
+            required
+            error={Boolean(formik.touched.expiry && formik.errors.expiry)}
+            fullWidth
+            helperText={formik.touched.expiry && formik.errors.expiry}
+            label="Expiry (Days)"
+            margin="normal"
+            name="expiry"
+            onBlur={formik.handleBlur}
+            onChange={formik.handleChange}
+            type="number"
+            value={formik.values.expiry}
+            variant="outlined"
+          />
         </DialogContent>
         <DialogActions>
           <Button 
-            disabled={!formik.isValid}
+            disabled={!formik.isValid || formik.isSubmitting}
             variant="contained"
             onClick={formik.handleSubmit}>
-            Save
+            Submit
           </Button>
           <Button 
             onClick={handleClose}

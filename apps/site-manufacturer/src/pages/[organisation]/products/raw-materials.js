@@ -7,27 +7,21 @@ import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import { DashboardLayout } from '../../components/dashboard-layout';
-import { ConfirmDialog } from '../../components/product/confirm-dialog';
-import { ProductDialog } from '../../components/product/product-dialog';
-import { ProductListToolbar } from '../../components/product/product-list-toolbar';
-import { ProductMenu } from '../../components/product/product-menu';
-import { fetchProducts, updateProduct } from '../../helpers/products';
+import { DashboardLayout } from '../../../components/dashboard-layout';
+import { ConfirmDialog } from '../../../components/product/confirm-dialog';
+import { ProductDialog } from '../../../components/product/product-dialog';
+import { ProductListToolbar } from '../../../components/product/product-list-toolbar';
+import { ProductMenu } from '../../../components/product/product-menu';
+import { deleteProducts, fetchProducts, updateProduct } from '../../../helpers/products';
 // import { products as mockProducts } from '../../__mocks__/organisation/products';
 
 
-const Products = () => {
+const RawMaterials = () => {
   const router = useRouter();
   const { organisation } = router.query;
 
   // Page View
-  const [type, setType] = useState('raw-materials');
-
-  const handleType = (event, newType) => {
-    if (newType !== null) {
-      setType(newType);
-    }
-  }
+  const type ='raw-materials';
 
   // Dialog helpers
   const [action, setAction] = useState();
@@ -72,37 +66,31 @@ const Products = () => {
     );
   };
   
-  const [products, setProducts] = useState([]);
+  const [rows, setRows] = useState([]);
   const [selectedRow, setSelectedRow] = useState();
   const [selectedRows, setSelectedRows] = useState([]);
   const [disabled, setDisabled] = useState();
   const [search, setSearch] = useState("");
 
-  async function getProducts() {
+  const getProducts = async () => {
     const result = await fetchProducts(type);
-    setProducts(result)
-  };
+    setRows(result)
+  }
 
   const addProduct = (product) => {
-    const updatedProducts = [...products, product];
-    setProducts(updatedProducts);
+    const updatedProducts = [...rows, product];
+    setRows(updatedProducts);
   } 
 
   const handleRowUpdate = (newRow) => {
     const updatedRow = {...newRow};
-    console.log(newRow);
-    console.log(updatedRow);
     updateProduct(updatedRow.id, type, 'PATCH', updatedRow);
     return updatedRow;
   }
 
   useEffect(() => {
     getProducts();
-  }, [type]);
-
-  useEffect(() => {
-    getProducts();
-  }, [products]);
+  }, [rows]);
 
   // const data = mockProducts;
   // useEffect(() => {
@@ -110,6 +98,7 @@ const Products = () => {
   // }, [data, type])
 
   useEffect(() => {
+    console.log(selectedRows);
     setDisabled(selectedRows.length === 0)
   }, [selectedRows]);
 
@@ -120,7 +109,11 @@ const Products = () => {
   const handleAddProductClick = () => {
     setAction('POST')
     setSelectedRow(null);
-  }
+  };
+
+  const handleDelete = (ids) => {
+    deleteProducts(type, ids);
+  };
 
   // Logging
   // useEffect(() => {
@@ -200,13 +193,14 @@ const Products = () => {
             product={selectedRow}
             type={type}
             addProduct={addProduct}
-            getProducts={getProducts}
+            updateProducts={handleRowUpdate}
           />
           <ConfirmDialog
             open={confirmDialogOpen} 
             handleClose={handleConfirmDialogClose}
             dialogTitle={"Delete Product(s)"}
             dialogContent={"Confirm deletion of product(s)?"}
+            dialogAction={() => handleDelete(selectedRows)}
           />
           <ProductMenu 
             anchorEl={anchorEl}
@@ -223,17 +217,16 @@ const Products = () => {
             handleConfirmDialogOpen={handleConfirmDialogOpen}
             handleSearch={handleSearch}
             handleAddProductClick={handleAddProductClick}
-            handleType={handleType}
           />
           <Box
             sx={{
               mt: 3,
             }}
           >
-            {products.length > 0 ?
+            {rows.length > 0 ?
               <DataGrid
                 autoHeight
-                rows={products.filter((row) => {
+                rows={rows.filter((row) => {
                   if (search === "") {
                     return row;
                   } else {
@@ -248,10 +241,11 @@ const Products = () => {
                   Toolbar: GridToolbar,
                 }}
                 onSelectionModelChange={(ids) => {
-                  setSelectedRows(ids.map((id) => products.find((row) => row.id === id)))
+                  setSelectedRows(ids);
+                  // setSelectedRows(ids.map((id) => rows.find((row) => row.id === id)));
                 }}
                 experimentalFeatures={{ newEditingApi: true }}
-                processRowUpdate={(newRow) => handleRowUpdate(newRow)}
+                processRowUpdate={handleRowUpdate}
               />
               :
               <Card 
@@ -274,10 +268,10 @@ const Products = () => {
   )
 };
 
-Products.getLayout = (page) => (
+RawMaterials.getLayout = (page) => (
   <DashboardLayout>
     {page}
   </DashboardLayout>
 );
 
-export default Products;
+export default RawMaterials;

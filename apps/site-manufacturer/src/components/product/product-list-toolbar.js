@@ -2,13 +2,9 @@ import {
   Box,
   Button,
   Card,
-  CardContent, InputAdornment,
-  SvgIcon, TextField, Typography,
-  ToggleButton, ToggleButtonGroup, Stack, Tooltip,
+  CardContent, InputAdornment, Stack, SvgIcon, TextField, Typography
 } from '@mui/material';
 import { Search as SearchIcon } from '../../icons/search';
-import RawOnIcon from '@mui/icons-material/RawOn';
-import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
 
 
 export const ProductListToolbar = (props) => {
@@ -20,26 +16,7 @@ export const ProductListToolbar = (props) => {
     handleConfirmDialogOpen,
     handleSearch,
     handleAddProductClick,
-    handleType
   } = props;
-
-  const ProductToggle = () => {
-    return (
-      <ToggleButtonGroup
-        exclusive
-        color='primary'
-        value={type}
-        onChange={handleType}
-      >
-        <ToggleButton value='raw'>
-          <RawOnIcon />
-        </ToggleButton>
-        <ToggleButton value='final'>
-          <AssignmentTurnedInIcon />
-        </ToggleButton>
-      </ToggleButtonGroup>
-    )
-  }
 
   return (
     <Box {...props}>
@@ -56,8 +33,8 @@ export const ProductListToolbar = (props) => {
           sx={{ m: 1 }}
           variant="h4"
         >
-          {type === 'raw' && 'Raw Materials'}
-          {type === 'final' && 'Final Products'}
+          {type === 'raw-materials' && 'Raw Materials'}
+          {type === 'final-goods' && 'Final Goods'}
         </Typography>
       </Box>
       <Box sx={{ mt: 3 }}>
@@ -75,7 +52,6 @@ export const ProductListToolbar = (props) => {
                 direction="row"
                 spacing={1}
               >
-              <ProductToggle/>
               <TextField
                 sx={{ width: 500 }}
                 InputProps={{

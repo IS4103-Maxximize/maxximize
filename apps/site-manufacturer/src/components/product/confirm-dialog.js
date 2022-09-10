@@ -5,10 +5,16 @@ import {
 
 
 export const ConfirmDialog = (props) => {
-  const {open, handleClose, dialogTitle, dialogContent} = props;
+  const {
+    open, 
+    handleClose, 
+    dialogTitle, 
+    dialogContent,
+    dialogAction,
+  } = props;
 
   return (
-    <form onSubmit={""}>
+    <form>
       <Dialog
         open={open}
         onClose={handleClose}
@@ -23,7 +29,10 @@ export const ConfirmDialog = (props) => {
           <Button 
             color="error"
             variant="contained"
-            onClick={handleClose}
+            onClick={() => {
+              dialogAction();
+              handleClose();
+            }}
           >
             Confirm
           </Button>
