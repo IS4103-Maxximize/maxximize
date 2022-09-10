@@ -6,8 +6,9 @@
     "start": "nx serve",
     "build": "nx build",
     "test": "nx test",
-    "dev": "nx run-many --target=serve --projects=api,site-manufacturer,",
-    "site": "nx run site-manufacturer:serve"
+    "dev": "nx run-many --target=serve --projects=api,site-manufacturer",
+    "site": "nx run site-manufacturer:serve",
+    "api": "nx run api:serve"
   },
   "private": true,
   "dependencies": {
