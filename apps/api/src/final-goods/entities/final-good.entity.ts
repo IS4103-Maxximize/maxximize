@@ -1,9 +1,13 @@
-import { Entity, OneToOne } from "typeorm";
+import { Column, Entity, OneToOne } from "typeorm";
 import { Product } from "../../products/entities/product.entity";
-import { Recipe } from "../../recipes/entities/recipe.entity";
+import { BillOfMaterial } from "../../bill-of-materials/entities/bill-of-material.entity";
 
 @Entity()
 export class FinalGood extends Product {
-    @OneToOne(() => Recipe, (recipe) => recipe.finalGood)
-    recipe: Recipe
+
+    @Column()
+    lotQuantity: number
+
+    @OneToOne(() => BillOfMaterial, (billOfMaterial) => billOfMaterial.finalGood)
+    billOfMaterial: BillOfMaterial
 }
