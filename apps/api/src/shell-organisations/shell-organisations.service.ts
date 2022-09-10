@@ -22,20 +22,29 @@ export class ShellOrganisationsService {
     private readonly quotationsRepository: Repository<Quotation>,
   ) {}
   async create(createShellOrganisationDto: CreateShellOrganisationDto): Promise<ShellOrganisation> {
-    const {name, contact, uen} = createShellOrganisationDto
+    const {name, contact, type, uen, organisationId} = createShellOrganisationDto
+    let organisationToBeAdded: Organisation
+    if (organisationId) {
+      organisationToBeAdded = await this.organisationsRepository.findOneBy({id: organisationId})
+    }
+    //need to check if uen is already present
+    const allShellUens = await this.retrieveAllUen()
+    if (allShellUens.includes(uen) || organisationToBeAdded.uen === uen) {
+      throw new Error('UEN already exists')
+    }
     //contact is provided, save it into database first
     if (contact) {
-      this.contactsRepository.save({
-        ...contact
-      })
+      await this.contactsRepository.save(contact)
     }
     const newShellOrganisation = this.shellOrganisationRepository.create({
       name,
       created: new Date(),
       uen,
+      type,
       contact: contact ?? null,
+      organisation: organisationToBeAdded
     })
-    return newShellOrganisation
+    return this.shellOrganisationRepository.save(newShellOrganisation)
   }
 
   findAll(): Promise<ShellOrganisation[]> {
@@ -64,6 +73,12 @@ export class ShellOrganisationsService {
     }
   }
 
+  async retrieveAllUen(): Promise<Number[]> {
+    const allShellOrganisations = await this.findAll()
+    const allUENs = allShellOrganisations.map(shell => shell.uen)
+    return allUENs
+  }
+
   async update(id: number, updateShellOrganisationDto: UpdateShellOrganisationDto) {
     try {
       //retrieve the shell organisation
@@ -78,9 +93,11 @@ export class ShellOrganisationsService {
         const [key, value] = updateFieldsArray[i]
         if (value) {
           if (key === 'contact') {
-           shellOrganisation['contact'] = await this.updateContact(shellOrganisation, value)
+           shellOrganisation['contact'] = await this.retrieveUpdatedContact(shellOrganisation, value)
           } else if (key === 'quotations') {
-            shellOrganisation['quotations'] = await this.updateQuotations(shellOrganisation, value)
+            shellOrganisation['quotations'] = await this.retrieveUpdatedQuotations(shellOrganisation, value)
+          } else if (key === 'organisation') {
+            shellOrganisation['organisation'] = await this.retrieveOrganisation(value)
           } else {
             shellOrganisation[key] = value
           }
@@ -93,11 +110,20 @@ export class ShellOrganisationsService {
       
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} shellOrganisation`;
+  async remove(id: number): Promise<ShellOrganisation> {
+    const shellOrgToRemove = await this.shellOrganisationRepository.findOneBy({id})
+    return this.shellOrganisationRepository.remove(shellOrgToRemove)
   }
 
-  async updateContact(shellOrganisation: ShellOrganisation, contact: CreateContactDto): Promise<Contact> {
+
+  async removeSome(ids: number[]): Promise<ShellOrganisation[]> {
+    const shellsToRemove = await Promise.all(ids.map(async id => {
+      return await this.shellOrganisationRepository.findOneBy({id})
+    }))
+    return this.shellOrganisationRepository.remove(shellsToRemove)
+  }
+
+  async retrieveUpdatedContact(shellOrganisation: ShellOrganisation, contact: CreateContactDto): Promise<Contact> {
     const newContact = this.contactsRepository.create({
       id: shellOrganisation.contact.id ?? null,
       ...contact
@@ -105,7 +131,7 @@ export class ShellOrganisationsService {
     return this.contactsRepository.save(newContact)
   }
 
-  async updateQuotations(shellOrganisation: ShellOrganisation, quotations: number[]) : Promise<Quotation[]> {
+  async retrieveUpdatedQuotations(shellOrganisation: ShellOrganisation, quotations: number[]) : Promise<Quotation[]> {
     const updatedQuotations = []
     const currentQuotations = shellOrganisation.quotations
     const arrayOfQuotationToBeDeleted = currentQuotations.filter(quotation => {
@@ -117,5 +143,9 @@ export class ShellOrganisationsService {
       updatedQuotations.push(quotation)
     }
     return updatedQuotations
+  }
+
+  async retrieveOrganisation(shellOrganisationId: number) : Promise<Organisation> {
+    return this.organisationsRepository.findOneBy({id: shellOrganisationId})
   }
 }

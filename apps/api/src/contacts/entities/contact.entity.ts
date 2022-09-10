@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Organisation } from "../../organisations/entities/organisation.entity";
 import { ShellOrganisation } from "../../shell-organisations/entities/shell-organisation.entity";
 import { User } from "../../users/entities/user.entity";
@@ -30,6 +30,7 @@ export class Contact {
     user: User | null;
 
     @OneToOne(() => ShellOrganisation, shellOrganisation => shellOrganisation.contact)
+    @JoinColumn()
     shellOrganisation: ShellOrganisation
 
 }

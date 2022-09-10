@@ -1,5 +1,6 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { Organisation } from "../../organisations/entities/organisation.entity";
+import { Product } from "../../products/entities/product.entity";
+import { MeasurementUnit } from "../../products/enums/measurementUnit.enum";
 import { ShellOrganisation } from "../../shell-organisations/entities/shell-organisation.entity";
 
 @Entity()
@@ -13,6 +14,18 @@ export class Quotation {
     @Column()
     lotPrice: number
 
-    @ManyToOne(() => Organisation)
+    @Column({
+        type: 'enum',
+        enum: MeasurementUnit
+    })
+    unit: MeasurementUnit;
+
+    @ManyToOne(() => ShellOrganisation, shellOrganisation => shellOrganisation.quotations, {onDelete: 'SET NULL'})
     shellOrganisation: ShellOrganisation
+
+    @ManyToOne(() => Product, product => product.quotations)
+    product: Product
+
+    // @OneToMany(() => PurchaseOrderLineItem, poLineItem => poLineItem.quotation)
+    // poLineItems: PurchaseOrderLineItem[];
 }

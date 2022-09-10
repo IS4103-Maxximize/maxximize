@@ -1,4 +1,4 @@
-import { Column, Entity, JoinTable, ManyToMany, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { OrganisationType } from "../enums/organisationType.enum";
 import { Warehouse } from "../../warehouses/entities/warehouse.entity";
 import { Contact } from "../../contacts/entities/contact.entity";
@@ -21,9 +21,13 @@ export class Organisation {
 
     @Column({
         type: 'enum',
-        enum: OrganisationType
+        enum: OrganisationType,
+        nullable: false
     })
     type: OrganisationType;
+
+    @Column({unique: true})
+    uen: number
 
     @OneToMany(() => User, (user) => user.organisation, {
         cascade: ["remove"],
@@ -44,13 +48,6 @@ export class Organisation {
 
     @OneToMany(() => Warehouse, (warehouse) => warehouse.organisation)
     warehouses: Warehouse[];
-
-    @ManyToMany(() => Organisation, organisation => organisation.customers)
-    @JoinTable()
-    suppliers: Organisation[]
-
-    @ManyToMany(() => Organisation, organisation => organisation.suppliers)
-    customers: Organisation[]
 
     @OneToMany(() => Billing, (billing) => billing.organisation)
     billings: Billing[];

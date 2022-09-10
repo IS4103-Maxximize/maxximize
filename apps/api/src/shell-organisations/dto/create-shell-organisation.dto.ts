@@ -4,5 +4,7 @@ import { OrganisationType } from "../../organisations/enums/organisationType.enu
 export class CreateShellOrganisationDto {
     name: string;
     uen: number;
-    contact: CreateContactDto
+    type: OrganisationType;
+    contact: CreateContactDto;
+    organisationId: number
 }

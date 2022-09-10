@@ -16,10 +16,12 @@ import { OrdersModule } from '../orders/orders.module';
 import { OrganisationsModule } from '../organisations/organisations.module';
 import { ProductsModule } from '../products/products.module';
 import { QualityReviewsModule } from '../quality-reviews/quality-reviews.module';
+import { QuotationsModule } from '../quotations/quotations.module';
 import { RawMaterialsModule } from '../raw-materials/raw-materials.module';
 import { RecipesModule } from '../recipes/recipes.module';
 import { SchedulesModule } from '../schedules/schedules.module';
 import { SensorsModule } from '../sensors/sensors.module';
+import { ShellOrganisationsModule } from '../shell-organisations/shell-organisations.module';
 import { UsersModule } from '../users/users.module';
 import { VehiclesModule } from '../vehicles/vehicles.module';
 import { WarehousesModule } from '../warehouses/warehouses.module';
@@ -62,6 +64,8 @@ import { AppService } from './app.service';
     UsersModule,
     VehiclesModule,
     WarehousesModule,
+    ShellOrganisationsModule,
+    QuotationsModule
   ],
   controllers: [AppController],
   providers: [AppService],

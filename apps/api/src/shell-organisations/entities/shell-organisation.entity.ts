@@ -1,6 +1,7 @@
-import { Column, Entity, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Contact } from "../../contacts/entities/contact.entity";
 import { Organisation } from "../../organisations/entities/organisation.entity";
+import { OrganisationType } from "../../organisations/enums/organisationType.enum";
 import { Quotation } from "../../quotations/entities/quotation.entity";
 
 @Entity()
@@ -10,6 +11,14 @@ export class ShellOrganisation {
 
     @Column()
     name: string
+
+    //SUPPLIER OR RETAILER
+    @Column({
+        type: 'enum',
+        enum: OrganisationType,
+        nullable: false
+    })
+    type: OrganisationType;
 
     @Column()
     created: Date
@@ -25,4 +34,7 @@ export class ShellOrganisation {
 
     @OneToMany(() => Quotation, quotation => quotation.shellOrganisation)
     quotations: Quotation[]
+
+    // @OneToMany(() => PurchaseOrder, purchaseOrder => purchaseOrder.supplier)
+    // purchaseOrders: PurchaseOrder[];
 }
