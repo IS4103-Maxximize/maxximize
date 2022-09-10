@@ -49,14 +49,12 @@ export const WorkerListResults = () => {
   //Updating a worker entry, calling update API
   //Also alerts user of ourcome
   const handleRowUpdate = (newRow) => {
-    console.log(newRow);
     const updatedRow = { ...newRow };
 
     const myHeaders = new Headers();
     myHeaders.append('Content-Type', 'application/json');
 
     const updatedRowJSON = jsonStructure(updatedRow);
-    console.log(updatedRowJSON);
 
     const raw = JSON.stringify(updatedRowJSON);
 
@@ -76,7 +74,7 @@ export const WorkerListResults = () => {
         setSuccessAlert(true);
       })
       .catch((error) => {
-        setErrorAlertContent(`Update for Worker ${updatedRow.id} failed!`);
+        setErrorAlertContent(error);
         setErrorAlert(true);
       });
 
@@ -101,7 +99,7 @@ export const WorkerListResults = () => {
           setSuccessAlert(true);
         })
         .catch((error) => {
-          setErrorAlertContent(`Delete Worker failed!`);
+          setErrorAlertContent(error);
           setErrorAlert(true);
         });
     });

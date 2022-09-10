@@ -64,11 +64,7 @@ export const CreateWorkerDialog = ({
 
     const result = await response.json();
 
-    console.log(result);
-
     const flattenResult = flattenObj(result);
-
-    console.log(flattenResult);
 
     //Rerender parent data grid compoennt
     addWorker(flattenResult);
