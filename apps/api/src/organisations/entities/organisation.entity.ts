@@ -6,6 +6,7 @@ import { User } from "../../users/entities/user.entity";
 import { Order } from "../../orders/entities/order.entity";
 import { Billing } from "../../billings/entities/billing.entity";
 import { Machine } from "../../vehicles/entities/vehicle.entity";
+import { ShellOrganisation } from "../../shell-organisations/entities/shell-organisation.entity";
 
 @Entity()
 export class Organisation {
@@ -53,5 +54,8 @@ export class Organisation {
 
     @OneToMany(() => Billing, (billing) => billing.organisation)
     billings: Billing[];
+
+    @OneToMany(() => ShellOrganisation, shellOrganisation => shellOrganisation.organisation)
+    shellOrganisations: ShellOrganisation[]
 
 }

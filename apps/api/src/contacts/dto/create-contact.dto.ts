@@ -5,5 +5,4 @@ export class CreateContactDto {
   email: string;
   address: string;
   postalCode: string
-  user: User;
 }
