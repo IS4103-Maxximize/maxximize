@@ -9,6 +9,7 @@ import NextLink from 'next/link';
 import { useRouter } from 'next/router';
 import PropTypes from 'prop-types';
 import { useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { ChartBar as ChartBarIcon } from '../icons/chart-bar';
 import { Cog as CogIcon } from '../icons/cog';
 import { Lock as LockIcon } from '../icons/lock';
@@ -75,101 +76,81 @@ const items = [
 ];
 
 export const DashboardSidebar = (props) => {
-  const router = useRouter();
-  const { organisation } = router.query;
-
   const { open, onClose } = props;
   const lgUp = useMediaQuery((theme) => theme.breakpoints.up('lg'), {
     defaultMatches: true,
     noSsr: false,
   });
 
-  useEffect(
-    () => {
-      if (!router.isReady) {
-        return;
-      }
-
-      if (open) {
-        onClose?.();
-      }
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [router.asPath]
-  );
-
   const content = (
-    <>
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          height: '100%',
-        }}
-      >
-        <div>
-          <Box sx={{ p: 3 }}>
-            <NextLink href="/" passHref>
-              <a>
-                <Logo
-                  sx={{
-                    height: 42,
-                    width: 42,
-                  }}
-                />
-              </a>
-            </NextLink>
-          </Box>
-          <Box sx={{ px: 2 }}>
-            <Box
-              sx={{
-                alignItems: 'center',
-                backgroundColor: 'rgba(255, 255, 255, 0.04)',
-                cursor: 'pointer',
-                display: 'flex',
-                justifyContent: 'space-between',
-                px: 3,
-                py: '11px',
-                borderRadius: 1,
-              }}
-            >
-              <div>
-                <Typography color="inherit" variant="subtitle1">
-                  {organisation && organisation.toUpperCase()}
-                  {!organisation && <Skeleton />}
-                </Typography>
-                <Typography color="neutral.400" variant="body2">
-                  Your tier : Premium
-                </Typography>
-              </div>
-              <SelectorIcon
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100%',
+      }}
+    >
+      <div>
+        <Box sx={{ p: 3 }}>
+          <Link to="/">
+            <a>
+              <Logo
                 sx={{
-                  color: 'neutral.500',
-                  width: 14,
-                  height: 14,
+                  height: 42,
+                  width: 42,
                 }}
               />
-            </Box>
-          </Box>
-        </div>
-        <Divider
-          sx={{
-            borderColor: '#2D3748',
-            my: 3,
-          }}
-        />
-        <Box sx={{ flexGrow: 1 }}>
-          {items.map((item) => (
-            <NavItem
-              key={item.title}
-              icon={item.icon}
-              href={item.href}
-              title={item.title}
-            />
-          ))}
+            </a>
+          </Link>
         </Box>
+        <Box sx={{ px: 2 }}>
+          <Box
+            sx={{
+              alignItems: 'center',
+              backgroundColor: 'rgba(255, 255, 255, 0.04)',
+              cursor: 'pointer',
+              display: 'flex',
+              justifyContent: 'space-between',
+              px: 3,
+              py: '11px',
+              borderRadius: 1,
+            }}
+          >
+            <div>
+              <Typography color="inherit" variant="subtitle1">
+                Acme Inc.
+              </Typography>
+              <Typography color="neutral.400" variant="body2">
+                Your tier : Premium
+              </Typography>
+            </div>
+            <SelectorIcon
+              sx={{
+                color: 'neutral.500',
+                width: 14,
+                height: 14,
+              }}
+            />
+          </Box>
+        </Box>
+      </div>
+      <Divider
+        sx={{
+          borderColor: '#2D3748',
+          my: 3,
+        }}
+      />
+      <Box sx={{ flexGrow: 1 }}>
+        {items.map((item) => (
+          <NavItem
+            key={item.title}
+            icon={item.icon}
+            href={item.href}
+            title={item.title}
+          />
+        ))}
       </Box>
-    </>
+    </Box>
   );
 
   if (lgUp) {

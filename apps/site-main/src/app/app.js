@@ -8,6 +8,7 @@ import { CssBaseline } from '@mui/material';
 import { useRoutes } from "react-router-dom";
 import { DashboardLayout } from "../components/dashboard-layout";
 import Dashboard from "../pages/dashboard";
+import Login from "../pages/login";
 
 
 const clientSideEmotionCache = createEmotionCache();
@@ -22,7 +23,7 @@ const App = (props) => {
       path: "/",
       element: <DashboardLayout/>,
       children: [
-        {path: 'dashboard', element: <Dashboard/>}
+        {path: 'login', element: <Login/>}
       ]
     },
   ];

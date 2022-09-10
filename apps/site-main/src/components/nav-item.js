@@ -1,12 +1,11 @@
-import NextLink from 'next/link';
-import { useRouter } from 'next/router';
-import PropTypes from 'prop-types';
 import { Box, Button, ListItem } from '@mui/material';
+import PropTypes from 'prop-types';
+import { Link, NavLink, useLocation } from 'react-router-dom';
 
 export const NavItem = (props) => {
   const { href, icon, title, ...others } = props;
-  const router = useRouter();
-  const active = href ? (router.pathname === href) : false;
+  const location = useLocation()
+  const active = href ? (location.pathname === href) : false;
 
   return (
     <ListItem
@@ -19,9 +18,9 @@ export const NavItem = (props) => {
       }}
       {...others}
     >
-      <NextLink
-        href={href}
-        passHref
+      <Link
+        to={href}
+        fullWidth
       >
         <Button
           component="a"
@@ -49,7 +48,7 @@ export const NavItem = (props) => {
             {title}
           </Box>
         </Button>
-      </NextLink>
+      </Link>
     </ListItem>
   );
 };
