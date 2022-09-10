@@ -8,7 +8,8 @@
     "test": "nx test",
     "dev": "nx run-many --target=serve --projects=api,site-manufacturer",
     "site": "nx run site-manufacturer:serve",
-    "api": "nx run api:serve"
+    "api": "nx run api:serve",
+    "site-main": "nx run site-main:serve"
   },
   "private": true,
   "dependencies": {
