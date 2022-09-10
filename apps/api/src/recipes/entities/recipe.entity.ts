@@ -14,7 +14,4 @@ export class Recipe {
     @JoinTable()
     ingredients: RawMaterial[]
 
-    @OneToOne(() => FinalGood, (finalGood) => finalGood.recipe)
-    @JoinColumn()
-    finalGood: FinalGood
 }
