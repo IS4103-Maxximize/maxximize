@@ -1,4 +1,4 @@
-import { Column, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Quotation } from "../../quotations/entities/quotation.entity";
 import { MeasurementUnit } from "../enums/measurementUnit.enum";
 
@@ -20,10 +20,13 @@ export class Product {
         type: 'enum',
         enum: MeasurementUnit
     })
-    unit: MeasurementUnit;
+    unit?: MeasurementUnit;
 
     @Column()
     unitPrice: number;
+
+    @Column()
+    expiry: number;
 
     @OneToMany(() => Quotation, quotation => quotation.product)
     quotations: Quotation[]
