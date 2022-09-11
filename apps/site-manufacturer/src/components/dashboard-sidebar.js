@@ -21,6 +21,7 @@ import { User as UserIcon } from '../icons/user';
 import { UserAdd as UserAddIcon } from '../icons/user-add';
 import { Users as UsersIcon } from '../icons/users';
 import { XCircle as XCircleIcon } from '../icons/x-circle';
+import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import { Logo } from './logo';
 import { NavItem } from './nav-item';
 
@@ -74,6 +75,11 @@ const items = [
     href: '/workermanagement',
     icon: <UserIcon fontSize="small" />,
     title: 'Worker Management',
+  },
+  {
+    href: '/procurement',
+    icon: <AddShoppingCartIcon fontSize="small" />,
+    title: 'Procurement',
   },
 ];
 
@@ -166,7 +172,7 @@ export const DashboardSidebar = (props) => {
             <NavItem
               key={item.title}
               icon={item.icon}
-              href={item.href}
+              href={'/' + organisation + item.href}
               title={item.title}
             />
           ))}

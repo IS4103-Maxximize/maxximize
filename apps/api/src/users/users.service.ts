@@ -1,4 +1,9 @@
-import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ContactsService } from '../contacts/contacts.service';
@@ -23,9 +28,11 @@ export class UsersService {
   async create(createUserDto: CreateUserDto): Promise<User> {
     const user = await this.findByUsername(createUserDto.username);
     if (user != null) {
-      throw new UsernameAlreadyExistsException("Username: " + createUserDto.username + " already exists!");
+      throw new UsernameAlreadyExistsException(
+        'Username: ' + createUserDto.username + ' already exists!'
+      );
     }
-    
+
     try {
       const newUser = new User();
       newUser.firstName = createUserDto.firstName;
@@ -37,39 +44,41 @@ export class UsersService {
       const salt = await bcrypt.genSalt();
       newUser.salt = salt;
       newUser.password = await bcrypt.hash(createUserDto.password, salt);
-      
-      const organisation = await this.organisationsService.findOne(createUserDto.organisationId);
+
+      const organisation = await this.organisationsService.findOne(
+        createUserDto.organisationId
+      );
       newUser.organisation = organisation;
 
       return this.usersRepository.save(newUser);
     } catch (err) {
-      throw new UnknownPersistenceException("Error saving user to database!");
+      throw new UnknownPersistenceException('Error saving user to database!');
     }
   }
 
   findAll(): Promise<User[]> {
     try {
       return this.usersRepository.find({
-        relations: {contact: true}
+        relations: { contact: true },
       });
     } catch (err) {
-      throw new NotFoundException("No users found!");
+      throw new NotFoundException('No users found!');
     }
   }
 
   findOne(id: number): Promise<User> {
     try {
       return this.usersRepository.findOne({
-        where: {id}, 
+        where: { id }, 
         relations: {contact: true, organisation: true}
       });
     } catch (err) {
-      throw new NotFoundException("No user with id: " + id + " found!");
+      throw new NotFoundException('No user with id: ' + id + ' found!');
     }
   }
 
   findByUsername(username: string): Promise<User> {
-    return this.usersRepository.findOneBy({ username: username});
+    return this.usersRepository.findOneBy({ username: username });
   }
 
   async update(id: number, updateUserDto: UpdateUserDto) {
@@ -79,14 +88,13 @@ export class UsersService {
     user.password = updateUserDto.password;
     user.isActive = updateUserDto.isActive;
     user.role = updateUserDto.role;
-    
-    const contact = await this.contactsService.findByPhoneNumber(updateUserDto.contact.phoneNumber);
+
     const updateContactDto = new UpdateContactDto();
     updateContactDto.address = updateUserDto.contact.address;
     updateContactDto.email = updateUserDto.contact.email;
     updateContactDto.phoneNumber = updateUserDto.contact.phoneNumber;
     updateContactDto.postalCode = updateUserDto.contact.postalCode;
-    this.contactsService.update(contact.id, updateContactDto);
+    this.contactsService.update(user.contact.id, updateContactDto);
 
     return this.usersRepository.save(user);
   }
@@ -97,7 +105,10 @@ export class UsersService {
       await this.contactsService.remove(user.contact.id);
       await this.usersRepository.delete(id);
     } catch (err) {
-      throw new HttpException("Error deleting user: " + id, HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        'Error deleting user: ' + id,
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
     }
   }
 }
