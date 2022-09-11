@@ -48,11 +48,16 @@ export class UsersService {
       const organisation = await this.organisationsService.findOne(
         createUserDto.organisationId
       );
-      newUser.organisation = organisation;
-
+      if (organisation) {
+        newUser.organisation = organisation;
+      } else {
+        throw new NotFoundException(`organisation with id : ${createUserDto.organisationId} cannot be found!`)
+      }
+     
       return this.usersRepository.save(newUser);
     } catch (err) {
-      throw new UnknownPersistenceException('Error saving user to database!');
+      console.log(err)
+      throw err
     }
   }
 
