@@ -6,10 +6,10 @@
     "start": "nx serve",
     "build": "nx build",
     "test": "nx test",
-    "dev": "nx run-many --target=serve --projects=api,site-manufacturer",
-    "site": "nx run site-manufacturer:serve",
+    "dev": "nx run-many --target=serve --projects=api,site-main",
+    "site": "nx run site-main:serve",
     "api": "nx run api:serve",
-    "site-main": "nx run site-main:serve"
+    "site-old": "nx run site-manufacturer:serve"
   },
   "private": true,
   "dependencies": {
@@ -50,6 +50,7 @@
     "react": "18.2.0",
     "react-chartjs-2": "^3.0.4",
     "react-dom": "18.2.0",
+    "react-helmet": "^6.1.0",
     "react-is": "18.2.0",
     "react-native": "0.69.3",
     "react-perfect-scrollbar": "^1.5.8",

@@ -30,12 +30,13 @@ export const updateProduct = async (id, type, values) => {
     unitPrice: values.unitPrice,
     expiry: values.expiry,
   });
+  console.log(body);
   const requestOptions = {
     method: 'PATCH',
     headers: headers,
     body: body,
   };
-  return await fetch(apiUrl, requestOptions).then(response => response.json());
+  return await fetch(apiUrl, requestOptions).then(response => response.json()).catch(err => console.log(err));
 }
 
 const deleteProduct = async (type, id) => {
