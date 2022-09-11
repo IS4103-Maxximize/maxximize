@@ -23,7 +23,7 @@
       "executor": "@nrwl/react-native:bundle",
       "outputs": ["apps/site-b2b/build"],
       "options": {
-        "entryFile": "src/main.tsx",
+        "entryFile": "src/index.js",
         "platform": "ios",
         "bundleOutput": "dist/apps/site-b2b/ios/main.jsbundle"
       }
@@ -43,7 +43,7 @@
     "bundle-android": {
       "executor": "@nrwl/react-native:bundle",
       "options": {
-        "entryFile": "src/main.tsx",
+        "entryFile": "src/index.js",
         "platform": "android",
         "bundleOutput": "dist/apps/site-b2b/android/main.jsbundle"
       }
