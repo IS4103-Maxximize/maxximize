@@ -4,21 +4,19 @@ import {
   Container, IconButton, Typography
 } from '@mui/material';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
-import Head from 'next/head';
-import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import { DashboardLayout } from '../../../components/dashboard-layout';
-import { ConfirmDialog } from '../../../components/product/confirm-dialog';
-import { ProductDialog } from '../../../components/product/product-dialog';
-import { ProductListToolbar } from '../../../components/product/product-list-toolbar';
-import { ProductMenu } from '../../../components/product/product-menu';
-import { deleteProducts, fetchProducts, updateProduct } from '../../../helpers/products';
+import { Helmet } from "react-helmet";
+import { DashboardLayout } from '../components/dashboard-layout';
+import { ConfirmDialog } from '../components/product/confirm-dialog';
+import { ProductDialog } from '../components/product/product-dialog';
+import { ProductListToolbar } from '../components/product/product-list-toolbar';
+import { ProductMenu } from '../components/product/product-menu';
+import { deleteProducts, fetchProducts, updateProduct } from '../helpers/products';
 // import { products as mockProducts } from '../../__mocks__/organisation/products';
 
 
 const RawMaterials = () => {
-  const router = useRouter();
-  const { organisation } = router.query;
+  const user = JSON.parse(localStorage.getItem('user'));
 
   // Page View
   const type ='raw-materials';
@@ -84,7 +82,7 @@ const RawMaterials = () => {
 
   const handleRowUpdate = (newRow) => {
     const updatedRow = {...newRow};
-    updateProduct(updatedRow.id, type, 'PATCH', updatedRow);
+    updateProduct(updatedRow.id, type, updatedRow);
     return updatedRow;
   }
 
@@ -170,13 +168,9 @@ const RawMaterials = () => {
 
   return (
     <>
-      <Head>
-        <title>
-          {organisation ? 
-            `Products | ${organisation.toUpperCase()}` :
-            "Loading..."}
-        </title>
-      </Head>
+      <Helmet>
+        <title>{`Raw Materials | ${user?.organisation?.name}`}</title>
+      </Helmet>
       <Box
         component="main"
         sx={{

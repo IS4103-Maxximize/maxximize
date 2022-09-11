@@ -33,9 +33,9 @@ export const ProductDialog = (props) => {
       updateProduct(product.id, type, values)
         .then(() => getProducts);
     }
-    handleClose();
+    onClose();
   }
-  
+
   const formik = useFormik({
     initialValues: {
       id: product ? product.id : null,
@@ -66,11 +66,16 @@ export const ProductDialog = (props) => {
     onSubmit: handleOnSubmit
   });
 
+  const onClose = () => {
+    formik.resetForm();
+    handleClose();
+  }
+
   return (
     <form onSubmit={formik.handleSubmit}>
       <Dialog
         open={open}
-        onClose={handleClose}
+        onClose={onClose}
       >
         <DialogTitle>
           {action === 'POST' && 'Add '}
@@ -191,7 +196,7 @@ export const ProductDialog = (props) => {
             Submit
           </Button>
           <Button 
-            onClick={handleClose}
+            onClick={onClose}
           >
             Cancel
           </Button>
