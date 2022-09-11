@@ -1,14 +1,17 @@
 import {
-  Box, Button, Divider,
+  Box,
+  Button,
+  Divider,
   Drawer,
   Typography,
-  useMediaQuery
+  useMediaQuery,
 } from '@mui/material';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { Selector as SelectorIcon } from '../icons/selector';
 import { ShoppingBag as ShoppingBagIcon } from '../icons/shopping-bag';
 import { User as UserIcon } from '../icons/user';
+import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import { Logo } from './logo';
 
 const items = [
@@ -21,6 +24,11 @@ const items = [
     href: '/workermanagement',
     icon: <UserIcon fontSize="small" />,
     title: 'Worker Management',
+  },
+  {
+    href: '/procurement',
+    icon: <AddShoppingCartIcon fontSize="small" />,
+    title: 'Procurement',
   },
 ];
 
@@ -40,7 +48,15 @@ export const DashboardSidebar = (props) => {
       }}
     >
       <div>
-        <Box sx={{ p: 3, display: 'flex', justifyContent: 'start', alignItems: 'center', gap: '10px' }}>
+        <Box
+          sx={{
+            p: 3,
+            display: 'flex',
+            justifyContent: 'start',
+            alignItems: 'center',
+            gap: '10px',
+          }}
+        >
           <Link to="/">
             <Logo
               sx={{
@@ -88,10 +104,19 @@ export const DashboardSidebar = (props) => {
           my: 3,
         }}
       />
-      <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', gap: '15px' }}>
+      <Box
+        sx={{
+          flexGrow: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '15px',
+        }}
+      >
         {items.map((item, index) => (
           <Link to={item.href} style={{ textDecoration: 'none' }} key={index}>
-            <Button variant="contained" endIcon={item.icon}>{item.title}</Button>
+            <Button variant="contained" endIcon={item.icon}>
+              {item.title}
+            </Button>
           </Link>
         ))}
       </Box>
