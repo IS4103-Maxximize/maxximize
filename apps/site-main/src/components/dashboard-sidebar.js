@@ -1,72 +1,21 @@
 import {
-  Box, Divider,
+  Box, Button, Divider,
   Drawer,
-  Skeleton,
   Typography,
   useMediaQuery
 } from '@mui/material';
-import NextLink from 'next/link';
-import { useRouter } from 'next/router';
 import PropTypes from 'prop-types';
-import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ChartBar as ChartBarIcon } from '../icons/chart-bar';
-import { Cog as CogIcon } from '../icons/cog';
-import { Lock as LockIcon } from '../icons/lock';
 import { Selector as SelectorIcon } from '../icons/selector';
 import { ShoppingBag as ShoppingBagIcon } from '../icons/shopping-bag';
 import { User as UserIcon } from '../icons/user';
-import { UserAdd as UserAddIcon } from '../icons/user-add';
-import { Users as UsersIcon } from '../icons/users';
-import { XCircle as XCircleIcon } from '../icons/x-circle';
 import { Logo } from './logo';
-import { NavItem } from './nav-item';
 
 const items = [
-  {
-    href: '/',
-    icon: <ChartBarIcon fontSize="small" />,
-    title: 'Dashboard',
-  },
-  {
-    href: '/customers',
-    icon: <UsersIcon fontSize="small" />,
-    title: 'Customers',
-  },
   {
     href: '/products',
     icon: <ShoppingBagIcon fontSize="small" />,
     title: 'Products',
-  },
-  {
-    href: '/account',
-    icon: <UserIcon fontSize="small" />,
-    title: 'Account',
-  },
-  {
-    href: '/settings',
-    icon: <CogIcon fontSize="small" />,
-    title: 'Settings',
-  },
-  {
-    href: '/admin-login',
-    icon: <LockIcon fontSize="small" />,
-    title: 'Admin Login',
-  },
-  {
-    href: '/login',
-    icon: <LockIcon fontSize="small" />,
-    title: 'Login',
-  },
-  {
-    href: '/register',
-    icon: <UserAddIcon fontSize="small" />,
-    title: 'Register',
-  },
-  {
-    href: '/404',
-    icon: <XCircleIcon fontSize="small" />,
-    title: 'Error',
   },
   {
     href: '/workermanagement',
@@ -76,7 +25,7 @@ const items = [
 ];
 
 export const DashboardSidebar = (props) => {
-  const { open, onClose } = props;
+  const { open, onClose, user } = props;
   const lgUp = useMediaQuery((theme) => theme.breakpoints.up('lg'), {
     defaultMatches: true,
     noSsr: false,
@@ -91,17 +40,16 @@ export const DashboardSidebar = (props) => {
       }}
     >
       <div>
-        <Box sx={{ p: 3 }}>
+        <Box sx={{ p: 3, display: 'flex', justifyContent: 'start', alignItems: 'center', gap: '10px' }}>
           <Link to="/">
-            <a>
-              <Logo
-                sx={{
-                  height: 42,
-                  width: 42,
-                }}
-              />
-            </a>
+            <Logo
+              sx={{
+                height: 42,
+                width: 42,
+              }}
+            />
           </Link>
+          Welcome {user.firstName}!
         </Box>
         <Box sx={{ px: 2 }}>
           <Box
@@ -118,7 +66,7 @@ export const DashboardSidebar = (props) => {
           >
             <div>
               <Typography color="inherit" variant="subtitle1">
-                Acme Inc.
+                {user?.organisation?.name}
               </Typography>
               <Typography color="neutral.400" variant="body2">
                 Your tier : Premium
@@ -140,14 +88,11 @@ export const DashboardSidebar = (props) => {
           my: 3,
         }}
       />
-      <Box sx={{ flexGrow: 1 }}>
-        {items.map((item) => (
-          <NavItem
-            key={item.title}
-            icon={item.icon}
-            href={item.href}
-            title={item.title}
-          />
+      <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', gap: '15px' }}>
+        {items.map((item, index) => (
+          <Link to={item.href} style={{ textDecoration: 'none' }} key={index}>
+            <Button variant="contained" endIcon={item.icon}>{item.title}</Button>
+          </Link>
         ))}
       </Box>
     </Box>

@@ -1,15 +1,9 @@
-import Head from 'next/head';
 import { Box, Container, Typography } from '@mui/material';
 import { WorkerListResults } from '../components/worker-management/worker-list-results';
-import { DashboardLayout } from '../components/dashboard-layout';
 
-const WorkerManagement = ({ props }) => {
+const WorkerManagement = () => {
   return (
     <>
-      <Head>
-        <title>Worker Management</title>
-      </Head>
-
       <Box
         component="main"
         sx={{
@@ -29,9 +23,5 @@ const WorkerManagement = ({ props }) => {
     </>
   );
 };
-
-WorkerManagement.getLayout = (page) => (
-  <DashboardLayout>{page}</DashboardLayout>
-);
 
 export default WorkerManagement;

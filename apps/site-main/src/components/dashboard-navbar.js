@@ -1,11 +1,10 @@
 import PropTypes from 'prop-types';
 import styled from '@emotion/styled';
-import { AppBar, Avatar, Badge, Box, IconButton, Toolbar, Tooltip } from '@mui/material';
+import { AppBar, Box, IconButton, Menu, MenuItem, Toolbar, Tooltip } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
-import SearchIcon from '@mui/icons-material/Search';
-import { Bell as BellIcon } from '../icons/bell';
 import { UserCircle as UserCircleIcon } from '../icons/user-circle';
-import { Users as UsersIcon } from '../icons/users';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom'
 
 const DashboardNavbarRoot = styled(AppBar)(({ theme }) => ({
   backgroundColor: theme.palette.background.paper,
@@ -13,7 +12,25 @@ const DashboardNavbarRoot = styled(AppBar)(({ theme }) => ({
 }));
 
 export const DashboardNavbar = (props) => {
+  const navigate = useNavigate()
   const { onSidebarOpen, ...other } = props;
+  const [anchorEl, setAnchorEl] = useState(null)
+  const open = Boolean(anchorEl)
+  const toggleMenu = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = (type) => {
+    setAnchorEl(null);
+    switch(type) {
+      case('logout'):
+        localStorage.removeItem('user')
+        navigate('/organisationSelection', {replace: true})
+        break
+      case ('profile'):
+        //do nothing yet
+        break;
+    }
+  };
 
   return (
     <>
@@ -46,38 +63,16 @@ export const DashboardNavbar = (props) => {
           >
             <MenuIcon fontSize="small" />
           </IconButton>
-          <Tooltip title="Search">
-            <IconButton sx={{ ml: 1 }}>
-              <SearchIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
           <Box sx={{ flexGrow: 1 }} />
-          <Tooltip title="Contacts">
-            <IconButton sx={{ ml: 1 }}>
-              <UsersIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Notifications">
-            <IconButton sx={{ ml: 1 }}>
-              <Badge
-                badgeContent={4}
-                color="primary"
-                variant="dot"
-              >
-                <BellIcon fontSize="small" />
-              </Badge>
-            </IconButton>
-          </Tooltip>
-          <Avatar
-            sx={{
-              height: 40,
-              width: 40,
-              ml: 1
-            }}
-            src="/static/images/avatars/avatar_1.png"
+          <IconButton 
+            onClick={toggleMenu} 
           >
             <UserCircleIcon fontSize="small" />
-          </Avatar>
+          </IconButton>
+          <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
+            <MenuItem onClick={() => handleClose('profile')}>Profile</MenuItem>
+            <MenuItem onClick={() => handleClose('logout')}>Logout</MenuItem>
+          </Menu>
         </Toolbar>
       </DashboardNavbarRoot>
     </>

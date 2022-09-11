@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Box } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { DashboardNavbar } from './dashboard-navbar';
 import { DashboardSidebar } from './dashboard-sidebar';
+import { Outlet } from 'react-router-dom'
 
 const DashboardLayoutRoot = styled('div')(({ theme }) => ({
   display: 'flex',
@@ -14,9 +15,14 @@ const DashboardLayoutRoot = styled('div')(({ theme }) => ({
   }
 }));
 
-export const DashboardLayout = (props) => {
-  const { children } = props;
+export const DashboardLayout = () => {
   const [isSidebarOpen, setSidebarOpen] = useState(true);
+  const [user, setUser] = useState({})
+
+  useEffect(() => {
+    setUser(JSON.parse(localStorage.getItem('user')))
+  }, [])
+  
 
   return (
     <>
@@ -29,13 +35,13 @@ export const DashboardLayout = (props) => {
             width: '100%'
           }}
         >
-          {children}
+          <Outlet />
         </Box>
       </DashboardLayoutRoot>
       <DashboardNavbar onSidebarOpen={() => setSidebarOpen(true)} />
       <DashboardSidebar
         onClose={() => setSidebarOpen(false)}
-        open={isSidebarOpen}
+        open={isSidebarOpen} user={user}
       />
     </>
   );

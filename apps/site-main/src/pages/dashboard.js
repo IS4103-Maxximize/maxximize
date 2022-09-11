@@ -1,6 +1,4 @@
 import { Box, Container, Grid } from '@mui/material';
-import Head from 'next/head';
-import { DashboardLayout } from '../components/dashboard-layout';
 import { Budget } from '../components/dashboard/budget';
 import { LatestOrders } from '../components/dashboard/latest-orders';
 import { LatestProducts } from '../components/dashboard/latest-products';
@@ -14,11 +12,6 @@ import { TrafficByDevice } from '../components/dashboard/traffic-by-device';
 const Dashboard = () => {
   return (
     <>
-      <head>
-        <title>
-          Dashboard
-        </title>
-      </head>
       <Box
         component="main"
         sx={{
@@ -109,11 +102,5 @@ const Dashboard = () => {
     </>
   );
 };
-
-// Dashboard.getLayout = (page) => (  
-//   <DashboardLayout>
-//     {page}
-//   </DashboardLayout>
-// );
 
 export default Dashboard;
