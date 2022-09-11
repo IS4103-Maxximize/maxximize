@@ -4,22 +4,17 @@ import {
   Container, IconButton, Typography
 } from '@mui/material';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
-import Head from 'next/head';
-import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import { DashboardLayout } from '../../../components/dashboard-layout';
-import { ConfirmDialog } from '../../../components/product/confirm-dialog';
-import { ProductDialog } from '../../../components/product/product-dialog';
-import { ProductListToolbar } from '../../../components/product/product-list-toolbar';
-import { ProductMenu } from '../../../components/product/product-menu';
-import { deleteProducts, fetchProducts, updateProduct } from '../../../helpers/products';
+import { DashboardLayout } from '../components/dashboard-layout';
+import { ConfirmDialog } from '../components/product/confirm-dialog';
+import { ProductDialog } from '../components/product/product-dialog';
+import { ProductListToolbar } from '../components/product/product-list-toolbar';
+import { ProductMenu } from '../components/product/product-menu';
+import { deleteProducts, fetchProducts, updateProduct } from '../helpers/products';
 // import { products as mockProducts } from '../../__mocks__/organisation/products';
 
 
 const RawMaterials = () => {
-  const router = useRouter();
-  const { organisation } = router.query;
-
   // Page View
   const type ='raw-materials';
 
@@ -84,7 +79,7 @@ const RawMaterials = () => {
 
   const handleRowUpdate = (newRow) => {
     const updatedRow = {...newRow};
-    updateProduct(updatedRow.id, type, 'PATCH', updatedRow);
+    updateProduct(updatedRow.id, type, updatedRow);
     return updatedRow;
   }
 
@@ -170,13 +165,11 @@ const RawMaterials = () => {
 
   return (
     <>
-      <Head>
+      <head>
         <title>
-          {organisation ? 
-            `Products | ${organisation.toUpperCase()}` :
-            "Loading..."}
+          Raw Materials
         </title>
-      </Head>
+      </head>
       <Box
         component="main"
         sx={{

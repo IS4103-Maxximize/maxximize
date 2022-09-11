@@ -1,17 +1,18 @@
-import OrganisationSelection from './pages/organisationSelection';
-import { Routes, Route } from 'react-router-dom';
-import Layout from './components/Layout';
-import Login from './pages/login';
+import { Route, Routes } from 'react-router-dom';
 import { DashboardLayout } from './components/dashboard-layout';
-import Dashboard from './pages/dashboard';
-import Products from './pages/products';
-import WorkerManagement from './pages/workermanagement';
-import NotFound from './pages/404';
+import Layout from './components/Layout';
 import RequireAuth from './components/RequireAuth';
+import NotFound from './pages/404';
+import Dashboard from './pages/dashboard';
+import FinalGoods from './pages/final-goods';
+import Login from './pages/login';
+import OrganisationSelection from './pages/organisationSelection';
 import Procurement from './pages/procurement';
+import ProcurementForecast from './pages/procurement/forecast';
 import ProcurementOrdering from './pages/procurement/ordering';
 import ProcurementReceiving from './pages/procurement/receiving';
-import ProcurementForecast from './pages/procurement/forecast';
+import RawMaterials from './pages/raw-materials';
+import WorkerManagement from './pages/workermanagement';
 
 const App = () => {
   return (
@@ -32,7 +33,9 @@ const App = () => {
             <Route path="/" element={<Dashboard />}></Route>
 
             {/* Product Management */}
-            <Route path="products" element={<Products />}></Route>
+            {/* <Route path="products" element={<Products />}></Route> */}
+            <Route path="raw-materials" element={<RawMaterials />}></Route>
+            <Route path="final-goods" element={<FinalGoods />}></Route>
 
             {/* Worker Management */}
             <Route

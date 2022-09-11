@@ -5,7 +5,6 @@ import {
 } from '@mui/material';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import Head from 'next/head';
-import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { DashboardLayout } from '../components/dashboard-layout';
 import { ConfirmDialog } from '../components/product/confirm-dialog';
@@ -17,9 +16,6 @@ import { fetchProducts, updateProduct } from '../helpers/products';
 
 
 const FinalGoods = () => {
-  const router = useRouter();
-  const { organisation } = router.query;
-
   // Page View
   const type ='final-goods';
 
@@ -165,13 +161,11 @@ const FinalGoods = () => {
 
   return (
     <>
-      <Head>
+      <head>
         <title>
-          {organisation ? 
-            `Products | ${organisation.toUpperCase()}` :
-            "Loading..."}
+          Final Goods
         </title>
-      </Head>
+      </head>
       <Box
         component="main"
         sx={{
