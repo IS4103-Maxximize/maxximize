@@ -23,7 +23,8 @@
       "defaultConfiguration": "development",
       "options": {
         "buildTarget": "site-manufacturer:build",
-        "dev": true
+        "dev": true,
+        "port": 4201
       },
       "configurations": {
         "development": {
