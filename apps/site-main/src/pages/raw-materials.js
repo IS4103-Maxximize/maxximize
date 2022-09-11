@@ -5,6 +5,7 @@ import {
 } from '@mui/material';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import { useEffect, useState } from 'react';
+import { Helmet } from "react-helmet";
 import { DashboardLayout } from '../components/dashboard-layout';
 import { ConfirmDialog } from '../components/product/confirm-dialog';
 import { ProductDialog } from '../components/product/product-dialog';
@@ -15,6 +16,8 @@ import { deleteProducts, fetchProducts, updateProduct } from '../helpers/product
 
 
 const RawMaterials = () => {
+  const user = JSON.parse(localStorage.getItem('user'));
+
   // Page View
   const type ='raw-materials';
 
@@ -165,11 +168,9 @@ const RawMaterials = () => {
 
   return (
     <>
-      <head>
-        <title>
-          Raw Materials
-        </title>
-      </head>
+      <Helmet>
+        <title>{`Raw Materials | ${user?.organisation?.name}`}</title>
+      </Helmet>
       <Box
         component="main"
         sx={{
