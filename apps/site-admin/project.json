@@ -12,7 +12,7 @@
         "outputPath": "dist/apps/site-admin",
         "index": "apps/site-admin/src/index.html",
         "baseHref": "/",
-        "main": "apps/site-admin/src/main.tsx",
+        "main": "apps/site-admin/src/index.js",
         "polyfills": "apps/site-admin/src/polyfills.ts",
         "tsConfig": "apps/site-admin/tsconfig.app.json",
         "assets": [
