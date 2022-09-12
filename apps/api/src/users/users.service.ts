@@ -11,7 +11,6 @@ import { OrganisationsService } from '../organisations/organisations.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
-import { UnknownPersistenceException } from './exceptions/UnknownPersistenceException';
 import { UsernameAlreadyExistsException } from './exceptions/UsernameAlreadyExistsException';
 import * as bcrypt from 'bcrypt';
 import { UpdateContactDto } from '../contacts/dto/update-contact.dto';
@@ -53,11 +52,11 @@ export class UsersService {
       } else {
         throw new NotFoundException(`organisation with id : ${createUserDto.organisationId} cannot be found!`)
       }
-     
+
       return this.usersRepository.save(newUser);
     } catch (err) {
-      console.log(err)
-      throw err
+      console.log(err);
+      throw err;
     }
   }
 
