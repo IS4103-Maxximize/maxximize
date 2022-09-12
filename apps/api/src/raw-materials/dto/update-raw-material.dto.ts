@@ -5,5 +5,5 @@ export class UpdateRawMaterialDto extends PartialType(CreateRawMaterialDto) {
     description?: string;
     unitPrice?: number;
     expiry?: number;
-    skuCode?: string
+    skuCode?: string;
 }
