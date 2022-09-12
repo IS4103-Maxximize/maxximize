@@ -1,12 +1,13 @@
-import { useState, useEffect } from 'react';
+import { React, useState, useEffect } from 'react';
 import { Card, Box, Alert, Collapse, Tooltip } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
-import DeleteIcon from '@mui/icons-material/Delete';
 import HelpIcon from '@mui/icons-material/Help';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
+import GroupsIcon from '@mui/icons-material/Groups';
+import { OnboardBusinessPartner } from './onboard-business-partner-dialog';
 
-export const PartnersListResults = () => {
-  const [partners, setPartners] = useState([]);
+export const RetailersList = () => {
+  const [retailers, setRetailers] = useState([]);
   const [successAlert, setSuccessAlert] = useState(false);
   const [successAlertContent, setSuccessAlertContent] = useState('');
   const [errorAlert, setErrorAlert] = useState(false);
@@ -14,16 +15,34 @@ export const PartnersListResults = () => {
   const [selectionModel, setSelectionModel] = useState([]);
 
   useEffect(() => {
-    retrieveAllPartners();
+    retrieveRetailers();
   }, []);
 
-  const retrieveAllPartners = async () => {
-    const partnersList = await fetch(
-      'http://localhost:3000/api/organisations'
+  const retrieveRetailers = async () => {
+    const retailersList = await fetch(
+      'http://localhost:3000/api/shell-organisations'
+      
     );
-    const result = await partnersList.json();
+    const queries = await retailersList.json();
+    const result = queries.filter( query => query.type === 'supplier');
+    const flattenResult = result.map((r) => flattenObj(r));
+    setRetailers(flattenResult);
+  };
 
-    setPartners(result);
+  const [openDialog, setOpenDialog] = useState(false);
+
+  const handleOpenDialog = () => {
+    setOpenDialog(true);
+  };
+  
+  const addOrganisation = (retailer) => {
+    try {
+      const updatedRetailers = [...retailers, retailer];
+
+      setRetailers(updatedRetailers);
+    } catch {
+      console.log('An erorr occured please try again later');
+    }
   };
 
   const handleRowUpdate = (newRow) => {
@@ -43,7 +62,7 @@ export const PartnersListResults = () => {
     };
 
     fetch(
-      `http://localhost:3000/api/organisations/:id/${updatedRow.id}`,
+      `http://localhost:3000/api/shell-organisations/:id/${updatedRow.id}`,
       requestOptions
     )
       .then((response) => {
@@ -71,7 +90,7 @@ export const PartnersListResults = () => {
     selectedIds.forEach((currentId) => {
       console.log(currentId);
       fetch(
-        `http://localhost:3000/api/organisations/:id/${currentId}`,
+        `http://localhost:3000/api/shell-organisations/:id/${currentId}`,
         requestOptions
       )
         .then(() => {
@@ -84,15 +103,15 @@ export const PartnersListResults = () => {
         });
     });
 
-    setPartners((result) =>
-      result.filter((partner) => !selectedIds.has(partner.id))
+    setRetailers((result) =>
+      result.filter((retailer) => !selectedIds.has(retailer.id))
     );
   };
 
   const columns = [
     {
       field: 'id',
-      headerName: 'Business Partner ID',
+      headerName: 'Retailer ID',
       width: 150,
     },
     {
@@ -101,20 +120,17 @@ export const PartnersListResults = () => {
       width: 200,
     },
     {
+        field: 'uen',
+        headerName: 'UEN',
+        width: 200,
+      },
+    {
       field: 'isActive',
-      headerName: 'Organisation Activity Status',
+      headerName: 'Activity Status',
       width: 150,
       editable: true,
       type: 'singleSelect',
       valueOptions: ['Active', 'Inactive'],
-    },
-    {
-      field: 'type',
-      headerName: 'Organisation Type',
-      width: 150,
-      editable: true,
-      type: 'singleSelect',
-      valueOptions: ['Supplier', 'Retailer'],
     },
     {
       field: 'address',
@@ -134,30 +150,50 @@ export const PartnersListResults = () => {
       width: 200,
       editable: true,
     },
+    {
+      field: 'postalCode',
+      headerName: 'Postal Code',
+      width: 200,
+      editable: true,
+    },
 
   ];
 
-  const rows = partners;
+  const rows = retailers;
 
   return (
     <>
-      <Box mb={2} sx={{ m: 1 }}>
-        <Tooltip title={'Delete Business Partner (Single/Multiple)'}>
+      <Box mb={2} sx={{ m: 1 }} display="flex" justifyContent="space-between">
+      
+      </Box>
+        <Tooltip title={'Delete Retailer (Single/Multiple)'}>
           <IconButton
             onClick={() => {
               const selectedIds = new Set(selectionModel);
               console.log(selectedIds);
               if (selectedIds.size == 0) {
-                setErrorAlertContent(`No Business Partner selected`);
+                setErrorAlertContent(`No Supplier selected`);
                 setErrorAlert(true);
               } else {
                 handleDelete(selectedIds);
               }
             }}
-          >
-            <DeleteIcon />
-          </IconButton>
+          />
         </Tooltip>
+        
+        <Box>
+          <Tooltip title={'Add new retailer'}>
+            <IconButton onClick={handleOpenDialog}>
+              <GroupsIcon />
+            </IconButton>
+          </Tooltip>
+
+          <OnboardBusinessPartner
+            openDialog={openDialog}
+            setOpenDialog={setOpenDialog}
+            addOrganisation={addOrganisation}
+            type='retailer'
+          />
 
         <Tooltip title={'Update entry by clicking on the field to be updated'}>
           <IconButton>
@@ -223,5 +259,16 @@ export const PartnersListResults = () => {
         </Box>
       </Card>
     </>
-  );
-};
+  )};
+
+  const flattenObj = (obj, parent, res = {}) => {
+    for (let key in obj) {
+      let propName = key;
+      if (typeof obj[key] == 'object') {
+        flattenObj(obj[key], propName, res);
+      } else {
+        res[propName] = obj[key];
+      }
+    }
+    return res;
+  };

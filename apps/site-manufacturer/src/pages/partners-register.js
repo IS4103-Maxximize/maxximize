@@ -20,7 +20,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 const options = [
   "supplier",
-  "b2b-sales",
+  "retailer",
 ]
 
 const Partners_Register = () => {
@@ -95,14 +95,14 @@ const Partners_Register = () => {
       >
         <Container maxWidth="sm">
           <NextLink
-            href="/"
+            href="/business-partner-management"
             passHref
           >
             <Button
               component="a"
               startIcon={<ArrowBackIcon fontSize="small" />}
             >
-              Dashboard
+              Business Partner Management
             </Button>
           </NextLink>
           <form onSubmit={formik.handleSubmit}>

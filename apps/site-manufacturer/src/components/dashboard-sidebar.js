@@ -20,6 +20,8 @@ import { ShoppingBag as ShoppingBagIcon } from '../icons/shopping-bag';
 import { User as UserIcon } from '../icons/user';
 import { UserAdd as UserAddIcon } from '../icons/user-add';
 import { Users as UsersIcon } from '../icons/users';
+import GroupsIcon from '@mui/icons-material/Groups';
+import ConstructionIcon from '@mui/icons-material/Construction';
 import { XCircle as XCircleIcon } from '../icons/x-circle';
 import { Logo } from './logo';
 import { NavItem } from './nav-item';
@@ -77,12 +79,12 @@ const items = [
   },
   {
     href: '/business-partner-management',
-    icon: <UserIcon fontSize="small" />,
+    icon: <GroupsIcon fontSize="small" />,
     title: 'Business Partner Management',
   },
   {
     href: '/machine-management',
-    icon: <UserIcon fontSize="small" />,
+    icon: <ConstructionIcon fontSize="small" />,
     title: 'Machine Management',
   },
 ];
