@@ -56,7 +56,7 @@ public class MainApplicationReactNativeHost extends ReactNativeHost {
 
   @Override
   protected String getJSMainModuleName() {
-    return "src/main.tsx";
+    return "src/index.js";
   }
 
   @NonNull

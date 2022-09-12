@@ -1,30 +1,37 @@
+import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
+import DoneAllIcon from '@mui/icons-material/DoneAll';
+import RawOnIcon from '@mui/icons-material/RawOn';
 import {
   Box,
   Button,
   Divider,
   Drawer,
   Typography,
-  useMediaQuery,
+  useMediaQuery
 } from '@mui/material';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { Selector as SelectorIcon } from '../icons/selector';
-import { ShoppingBag as ShoppingBagIcon } from '../icons/shopping-bag';
 import { User as UserIcon } from '../icons/user';
-import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import { Logo } from './logo';
 
+
 const items = [
-  {
-    href: '/products',
-    icon: <ShoppingBagIcon fontSize="small" />,
-    title: 'Products',
-  },
   {
     href: '/workermanagement',
     icon: <UserIcon fontSize="small" />,
     title: 'Worker Management',
   },
+  {
+    href: '/raw-materials',
+    icon: <RawOnIcon fontSize="small"/>,
+    title: 'Raw Materials'
+  },
+  // {
+  //   href: '/final-goods',
+  //   icon: <DoneAllIcon fontSize="small"/>,
+  //   title: 'Final Goods',
+  // },
   {
     href: '/procurement',
     icon: <AddShoppingCartIcon fontSize="small" />,
@@ -112,7 +119,7 @@ export const DashboardSidebar = (props) => {
           gap: '15px',
         }}
       >
-        {items.map((item, index) => (
+        {items.map((item, index, disabled) => (
           <Link to={item.href} style={{ textDecoration: 'none' }} key={index}>
             <Button variant="contained" endIcon={item.icon}>
               {item.title}
