@@ -20,7 +20,6 @@ const Products = (props) => {
 
   // Page View
   const { type } = props;
-  console.log(type);
   const typeString = type ==='raw-materials' ? 'Raw Material' : 'Final Good'
 
   // NotificationAlert helpers
@@ -105,12 +104,14 @@ const Products = (props) => {
       .then((result) => {
         handleAlertOpen(`Updated ${typeString} ${updatedRow.id} successfully!`, 'success');
       })
+      .then(() =>getProducts())
+      .catch((err) => handleAlertOpen(`Error updating ${typeString} ${updatedRow.id}`, 'error'));
     return updatedRow;
   }
 
   useEffect(() => {
     getProducts();
-  }, [rows]);
+  }, []);
 
   useEffect(() => {
     console.log(selectedRows);
@@ -133,15 +134,6 @@ const Products = (props) => {
       })
   };
 
-  // Logging
-  // useEffect(() => {
-  //   console.log(selectedRow);
-  // }, [selectedRow])
-
-  // useEffect(() => {
-  //   console.log(selectedRows)
-  // }, [selectedRows]);
-  
   let columns = [
     {
       field: 'id',
@@ -223,7 +215,7 @@ const Products = (props) => {
             type={type}
             typeString={typeString}
             addProduct={addProduct}
-            updateProducts={handleRowUpdate}
+            updateProduct={handleRowUpdate}
             handleAlertOpen={handleAlertOpen}
           />
           <ConfirmDialog

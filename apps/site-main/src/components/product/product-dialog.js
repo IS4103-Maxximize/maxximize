@@ -7,7 +7,6 @@ import { Stack } from "@mui/system";
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { createProduct, updateProduct } from "../../helpers/products";
-import { useEffect, useState } from "react";
 
 const options = [
   'kilogram',
@@ -23,7 +22,7 @@ export const ProductDialog = (props) => {
     typeString,
     product, 
     addProduct,
-    getProducts,
+    updateProduct,
     handleAlertOpen,
   } = props;
 
@@ -72,9 +71,7 @@ export const ProductDialog = (props) => {
         .catch((err) => handleAlertOpen(`Error creating ${typeString}`, 'error'));
       addProduct(result);
     } else if (action === 'PATCH') {
-      updateProduct(product.id, type, values)
-        .then(() => getProducts)
-        .catch((err) => handleAlertOpen(`Error updateing ${typeString} product.id`, 'error'));
+      updateProduct(values);
     }
     onClose();
   }
