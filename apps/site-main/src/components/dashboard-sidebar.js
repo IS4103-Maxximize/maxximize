@@ -1,6 +1,7 @@
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import DoneAllIcon from '@mui/icons-material/DoneAll';
 import RawOnIcon from '@mui/icons-material/RawOn';
+import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
 import {
   Box,
   Button,
@@ -37,6 +38,11 @@ const items = [
     icon: <AddShoppingCartIcon fontSize="small" />,
     title: 'Procurement',
   },
+  {
+    href: '/procurement/ordering/sales-inquiry',
+    icon: <QuestionAnswerIcon fontSize="small" />,
+    title: 'Sales Inquiry',
+  }
 ];
 
 export const DashboardSidebar = (props) => {

@@ -3,7 +3,6 @@ import { DashboardLayout } from './components/dashboard-layout';
 import Layout from './components/Layout';
 import RequireAuth from './components/RequireAuth';
 import NotFound from './pages/404';
-import Unauthorized from './pages/unauthorized';
 import Dashboard from './pages/dashboard';
 import Login from './pages/login';
 import OrganisationSelection from './pages/organisationSelection';
@@ -12,6 +11,8 @@ import ProcurementForecast from './pages/procurement/forecast';
 import ProcurementOrdering from './pages/procurement/ordering';
 import ProcurementReceiving from './pages/procurement/receiving';
 import Products from './pages/products';
+import SalesInquiry from './pages/sales-inquiry';
+import Unauthorized from './pages/unauthorized';
 import WorkerManagement from './pages/workermanagement';
 
 const ROLES = {
@@ -47,6 +48,8 @@ const App = () => {
                 {/* Product Management */}
                 <Route path="raw-materials" element={<Products type="raw-materials" />}></Route>
                 <Route path="final-goods" element={<Products type="final-goods" />}></Route>
+
+                <Route path="procurement/ordering/sales-inquiry" element={<SalesInquiry />}></Route>
               </Route>
 
               {/* Protected Routes for Manager and Factory Worker */}
