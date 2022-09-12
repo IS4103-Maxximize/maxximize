@@ -84,7 +84,7 @@ export class OrganisationsService {
     return this.organisationsRepository.findOne({
       where: {id},
       relations: ["users", "users.contact"]
-    }).then((organisation) => organisation.users);
+    }).then((organisation) => organisation?.users);
   }
 
   async remove(id: number): Promise<Organisation> {
