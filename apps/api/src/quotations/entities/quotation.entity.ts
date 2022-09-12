@@ -1,5 +1,6 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Product } from "../../products/entities/product.entity";
+import { PurchaseOrderLineItem } from "../../purchase-order-line-items/entities/purchase-order-line-item.entity";
 import { MeasurementUnit } from "../../products/enums/measurementUnit.enum";
 import { ShellOrganisation } from "../../shell-organisations/entities/shell-organisation.entity";
 
@@ -26,6 +27,6 @@ export class Quotation {
     @ManyToOne(() => Product, product => product.quotations)
     product: Product
 
-    // @OneToMany(() => PurchaseOrderLineItem, poLineItem => poLineItem.quotation)
-    // poLineItems: PurchaseOrderLineItem[];
+    @OneToMany(() => PurchaseOrderLineItem, poLineItem => poLineItem.quotation)
+    poLineItems: PurchaseOrderLineItem[];
 }
