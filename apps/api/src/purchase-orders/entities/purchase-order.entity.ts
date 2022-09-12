@@ -12,8 +12,8 @@ export class PurchaseOrder {
     @Column()
     deliveryAddress: string
 
-    @Column()
-    contact: Contact
+    // @Column()
+    // contact: Contact
 
     @Column()
     totalPrice: number
@@ -21,8 +21,8 @@ export class PurchaseOrder {
     @Column()
     createdDateTime: Date
 
-    @ManyToOne(() => ShellOrganisation, supplierOrganisation => supplierOrganisation.purchaseOrders, {onDelete: 'SET NULL'})
-    supplierOrganisation: ShellOrganisation
+    // @ManyToOne(() => ShellOrganisation, supplierOrganisation => supplierOrganisation.purchaseOrders, {onDelete: 'SET NULL'})
+    // supplierOrganisation: ShellOrganisation
 
     @ManyToOne(() => Organisation, currentOrganisation => currentOrganisation.purchaseOrders, {onDelete: 'SET NULL'})
     currentOrganisation: Organisation

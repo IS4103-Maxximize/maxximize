@@ -14,6 +14,7 @@ import { User } from './entities/user.entity';
 import { UsernameAlreadyExistsException } from './exceptions/UsernameAlreadyExistsException';
 import * as bcrypt from 'bcrypt';
 import { UpdateContactDto } from '../contacts/dto/update-contact.dto';
+import { MailService } from '../mail/mail.service';
 
 @Injectable()
 export class UsersService {
@@ -21,7 +22,8 @@ export class UsersService {
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
     private contactsService: ContactsService,
-    private organisationsService: OrganisationsService
+    private organisationsService: OrganisationsService,
+    private mailService: MailService
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
@@ -53,6 +55,7 @@ export class UsersService {
         throw new NotFoundException(`organisation with id : ${createUserDto.organisationId} cannot be found!`)
       }
 
+      await this.mailService.sendUserConfirmation(createUserDto.contact);
       return this.usersRepository.save(newUser);
     } catch (err) {
       console.log(err);
