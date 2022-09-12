@@ -5,14 +5,13 @@ import RequireAuth from './components/RequireAuth';
 import NotFound from './pages/404';
 import Unauthorized from './pages/unauthorized';
 import Dashboard from './pages/dashboard';
-import FinalGoods from './pages/final-goods';
 import Login from './pages/login';
 import OrganisationSelection from './pages/organisationSelection';
 import Procurement from './pages/procurement';
 import ProcurementForecast from './pages/procurement/forecast';
 import ProcurementOrdering from './pages/procurement/ordering';
 import ProcurementReceiving from './pages/procurement/receiving';
-import RawMaterials from './pages/raw-materials';
+import Products from './pages/products';
 import WorkerManagement from './pages/workermanagement';
 
 const ROLES = {
@@ -46,8 +45,8 @@ const App = () => {
                 {/* Worker Management */}
                 <Route path="workermanagement" element={<WorkerManagement />}></Route>
                 {/* Product Management */}
-                <Route path="raw-materials" element={<RawMaterials />}></Route>
-                <Route path="final-goods" element={<FinalGoods />}></Route>
+                <Route path="raw-materials" element={<Products type="raw-materials" />}></Route>
+                <Route path="final-goods" element={<Products type="final-goods" />}></Route>
               </Route>
 
               {/* Protected Routes for Manager and Factory Worker */}

@@ -27,11 +27,11 @@ const items = [
     icon: <RawOnIcon fontSize="small"/>,
     title: 'Raw Materials'
   },
-  // {
-  //   href: '/final-goods',
-  //   icon: <DoneAllIcon fontSize="small"/>,
-  //   title: 'Final Goods',
-  // },
+  {
+    href: '/final-goods',
+    icon: <DoneAllIcon fontSize="small"/>,
+    title: 'Final Goods',
+  },
   {
     href: '/procurement',
     icon: <AddShoppingCartIcon fontSize="small" />,

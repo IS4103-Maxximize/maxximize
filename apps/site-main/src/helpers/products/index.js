@@ -7,37 +7,57 @@ export const fetchProducts = async (type) => {
 
 export const createProduct = async (type, values) => {
   const apiUrl = `${apiHost}/${type}`;
-  const body = JSON.stringify({
+  let body = {
     name: values.name,
     description: values.description,
     unit: values.unit,
     unitPrice: values.unitPrice,
     expiry: values.expiry,
-  });
+  };
+
+  if (type === 'final-goods') {
+    body = {
+      ...body,
+      lotQuantity: values.lotQuantity,
+    }
+  }
+
+  body = JSON.stringify(body);
+  
   const requestOptions = {
     method: 'POST',
     headers: headers,
     body: body,
   };
-
   return await fetch(apiUrl, requestOptions).then(response => response.json());
-}
+};
 
-export const updateProduct = async (id, type, values) => { 
+export const updateProduct = async (id, type, values) => {
   const apiUrl = `${apiHost}/${type}/${id}`;
-  const body = JSON.stringify({
+  let body = {
+    name: values.name,
     description: values.description,
+    unit: values.unit,
     unitPrice: values.unitPrice,
     expiry: values.expiry,
-  });
-  console.log(body);
+  };
+
+  if (type === 'final-goods') {
+    body = {
+      ...body,
+      lotQuantity: values.lotQuantity,
+    }
+  }
+
+  body = JSON.stringify(body);
+
   const requestOptions = {
     method: 'PATCH',
     headers: headers,
     body: body,
   };
-  return await fetch(apiUrl, requestOptions).then(response => response.json()).catch(err => console.log(err));
-}
+  return await fetch(apiUrl, requestOptions).then(response => response.json());
+};
 
 const deleteProduct = async (type, id) => {
   const apiUrl = `${apiHost}/${type}/${id}`;

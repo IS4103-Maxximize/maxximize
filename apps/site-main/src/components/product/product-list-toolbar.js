@@ -1,8 +1,9 @@
+import AddBoxIcon from '@mui/icons-material/AddBox';
+import DeleteIcon from '@mui/icons-material/Delete';
 import {
-  Box,
-  Button,
-  Card,
-  CardContent, InputAdornment, Stack, SvgIcon, TextField, Typography
+  Badge,
+  Box, Card,
+  CardContent, IconButton, InputAdornment, Stack, SvgIcon, TextField, Tooltip, Typography
 } from '@mui/material';
 import { Search as SearchIcon } from '../../icons/search';
 
@@ -74,26 +75,33 @@ export const ProductListToolbar = (props) => {
               </Stack>
               
               <Box sx={{ m: 1 }}>
-                <Button
+                <Tooltip 
+                  title={`Add ${type === 'raw-materials' ? 'Raw Material' : 'Final Good'}`}
+                >
+                  <IconButton
                     color="primary"
-                    variant="contained"
                     onClick={() => {
                       handleAddProductClick();
                       handleClickOpen();
                     }}
                     sx={{ mr: 1}}
                   >
-                    Add Product
-                </Button>
-                <Button
-                  disabled={disabled}
-                  color="error"
-                  variant="contained"
-                  onClick={handleConfirmDialogOpen}
+                    <AddBoxIcon />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip
+                  title={`Delete ${type === 'raw-materials' ? 'Raw Material(s)' : 'Final Good(s)'}`}
                 >
-                  Delete Product(s) 
-                  {numProducts > 0 ? ` [ ${numProducts} ]` : ''}
-                </Button>
+                  <Badge badgeContent={numProducts} color="error">
+                    <IconButton
+                      disabled={disabled}
+                      color="error"
+                      onClick={handleConfirmDialogOpen}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </Badge>
+                </Tooltip>
               </Box>
             </Box>
           </CardContent>
