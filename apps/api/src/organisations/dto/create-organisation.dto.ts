@@ -4,5 +4,6 @@ import { CreateContactDto } from '../../contacts/dto/create-contact.dto'
 export class CreateOrganisationDto {
   name: string;
   type: OrganisationType;
+  uen: number;
   contact?: CreateContactDto
 }

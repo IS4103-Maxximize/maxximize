@@ -23,6 +23,7 @@ import { Users as UsersIcon } from '../icons/users';
 import GroupsIcon from '@mui/icons-material/Groups';
 import ConstructionIcon from '@mui/icons-material/Construction';
 import { XCircle as XCircleIcon } from '../icons/x-circle';
+import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import { Logo } from './logo';
 import { NavItem } from './nav-item';
 
@@ -78,6 +79,7 @@ const items = [
     title: 'Worker Management',
   },
   {
+<<<<<<< HEAD
     href: '/business-partner-management',
     icon: <GroupsIcon fontSize="small" />,
     title: 'Business Partner Management',
@@ -86,6 +88,11 @@ const items = [
     href: '/machine-management',
     icon: <ConstructionIcon fontSize="small" />,
     title: 'Machine Management',
+=======
+    href: '/procurement',
+    icon: <AddShoppingCartIcon fontSize="small" />,
+    title: 'Procurement',
+>>>>>>> f43dd03b9e96e7d7feb1a75fd414ad70ee21ec13
   },
 ];
 
@@ -178,12 +185,12 @@ export const DashboardSidebar = (props) => {
             <NavItem
               key={item.title}
               icon={item.icon}
-              href={item.href}
+              href={'/' + organisation + item.href}
               title={item.title}
             />
           ))}
         </Box>
-        <Divider sx={{ borderColor: '#2D3748' }} />
+        {/* <Divider sx={{ borderColor: '#2D3748' }} />
         <Box
           sx={{
             px: 2,
@@ -221,7 +228,7 @@ export const DashboardSidebar = (props) => {
               Pro Live Preview
             </Button>
           </NextLink>
-        </Box>
+        </Box> */}
       </Box>
     </>
   );

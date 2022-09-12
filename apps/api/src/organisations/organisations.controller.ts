@@ -31,4 +31,9 @@ export class OrganisationsController {
   remove(@Param('id') id: string) {
     return this.organisationsService.remove(+id);
   }
+
+  @Get('getWorkersByOrganisation/:id')
+  findOrganisationWorkers(@Param('id') id: string) {
+    return this.organisationsService.findOrganisationWorkers(+id);
+  }
 }

@@ -1,72 +1,179 @@
-import { 
-  Box, 
-  Button, 
-  Card, 
-  CardContent,
-  Container, 
-  Dialog, 
-  DialogActions, 
-  DialogContent, 
-  DialogContentText,
-  DialogTitle,
-  TextField, 
-  Typography,
+import MoreVert from '@mui/icons-material/MoreVert';
+import {
+  Box, Card, CardContent,
+  Container, IconButton, Typography
 } from '@mui/material';
-import Head from 'next/head';
-// import { products } from '../__mocks__/products';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
+import Head from 'next/head';
 import { useRouter } from 'next/router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { DashboardLayout } from '../../components/dashboard-layout';
+import { ConfirmDialog } from '../../components/product/confirm-dialog';
+import { ProductDialog } from '../../components/product/product-dialog';
 import { ProductListToolbar } from '../../components/product/product-list-toolbar';
+import { ProductMenu } from '../../components/product/product-menu';
+import { fetchProducts, updateProduct } from '../../helpers/products';
+// import { products as mockProducts } from '../../__mocks__/organisation/products';
 
-const rows = [];
-const columns = [
-  {
-    field: 'id',
-    headerName: 'ID',
-    width: 200,
-  },
-  {
-    field: 'name',
-    headerName: 'Name',
-    width: 200,
-  },
-  {
-    field: 'description',
-    headerName: 'Description',
-    width: 200,
-  },
-  {
-    field: 'skuCode',
-    headerName: 'SKU',
-    width: 200,
-  },
-  {
-    field: 'unit',
-    headerName: 'Measurement Unit',
-    width: 200,
-  },
-  {
-    field: 'unitPrice',
-    headerName: 'Unit Price',
-    width: 200,
-  },
-];
 
 const Products = () => {
   const router = useRouter();
   const { organisation } = router.query;
 
-  const [open, setOpen] = useState(false);
+  // Page View
+  const [type, setType] = useState('raw-materials');
 
+  const handleType = (event, newType) => {
+    if (newType !== null) {
+      setType(newType);
+    }
+  }
+
+  // Dialog helpers
+  const [action, setAction] = useState();
+
+  const [open, setOpen] = useState(false);
   const handleClickOpen = () => {
     setOpen(true);
   };
-
   const handleClose = () => {
     setOpen(false);
   };
+
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const handleConfirmDialogOpen = () => {
+    setConfirmDialogOpen(true);
+  }
+  const handleConfirmDialogClose = () => {
+    setConfirmDialogOpen(false);
+  }
+
+  // Menu helpers
+  const [anchorEl, setAnchorEl] = useState(null);
+  const menuOpen = Boolean(anchorEl);
+  const handleMenuClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+  const handleClickViewEdit = () => {
+    setAction('PATCH');
+  };
+
+  const menuButton = (params) => {
+    return (
+      <IconButton onClick={(event) => {
+        setSelectedRow(params.row);
+        handleMenuClick(event);
+        }}>
+        <MoreVert/>
+      </IconButton>
+    );
+  };
+  
+  const [products, setProducts] = useState([]);
+  const [selectedRow, setSelectedRow] = useState();
+  const [selectedRows, setSelectedRows] = useState([]);
+  const [disabled, setDisabled] = useState();
+  const [search, setSearch] = useState("");
+
+  async function getProducts() {
+    const result = await fetchProducts(type);
+    setProducts(result)
+  };
+
+  const addProduct = (product) => {
+    const updatedProducts = [...products, product];
+    setProducts(updatedProducts);
+  } 
+
+  const handleRowUpdate = (newRow) => {
+    const updatedRow = {...newRow};
+    console.log(newRow);
+    console.log(updatedRow);
+    updateProduct(updatedRow.id, type, 'PATCH', updatedRow);
+    return updatedRow;
+  }
+
+  useEffect(() => {
+    getProducts();
+  }, [type]);
+
+  useEffect(() => {
+    getProducts();
+  }, [products]);
+
+  // const data = mockProducts;
+  // useEffect(() => {
+  //   setRows(data.filter((el) => el.type === type ? el : null))
+  // }, [data, type])
+
+  useEffect(() => {
+    setDisabled(selectedRows.length === 0)
+  }, [selectedRows]);
+
+  const handleSearch = (event) => {
+    setSearch(event.target.value.toLowerCase())
+  };
+
+  const handleAddProductClick = () => {
+    setAction('POST')
+    setSelectedRow(null);
+  }
+
+  // Logging
+  // useEffect(() => {
+  //   console.log(selectedRow);
+  // }, [selectedRow])
+
+  // useEffect(() => {
+  //   console.log(selectedRows)
+  // }, [selectedRows]);
+  
+  const columns = [
+    {
+      field: 'id',
+      headerName: 'ID',
+    },
+    {
+      field: 'name',
+      headerName: 'Name',
+      width: 300,
+    },
+    {
+      field: 'description',
+      headerName: 'Description',
+      width: 300,
+      editable: true,
+    },
+    {
+      field: 'skuCode',
+      headerName: 'SKU',
+      width: 200,
+    },
+    {
+      field: 'unit',
+      headerName: 'Unit',
+    },
+    {
+      field: 'unitPrice',
+      headerName: 'Unit Price',
+      editable: true,
+    },
+    {
+      field: 'expiry',
+      headerName: 'Expiry (days)',
+      editable: true,
+    },
+    {
+      field: 'actions',
+      headerName: '',
+      width: 50,
+      sortable: false,
+      renderCell: menuButton,
+    },
+  ];
 
   return (
     <>
@@ -81,53 +188,70 @@ const Products = () => {
         component="main"
         sx={{
           flexGrow: 1,
-          py: 8,
+          pt: 4,
+          pb: 4,
         }}
       >
         <Container maxWidth={false}>
-          <Dialog 
+          <ProductDialog 
+            action={action}
             open={open} 
-            onClose={handleClose}
-          >
-            <DialogTitle>Subscribe</DialogTitle>
-            <DialogContent>
-              <DialogContentText>
-                To subscribe to this website, please enter your email address here. We
-                will send updates occasionally.
-              </DialogContentText>
-              <TextField
-                autoFocus
-                margin="dense"
-                id="name"
-                label="Email Address"
-                type="email"
-                fullWidth
-                variant="standard"
-              />
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={handleClose}>Cancel</Button>
-              <Button onClick={handleClose}>Subscribe</Button>
-            </DialogActions>
-          </Dialog>
-          <ProductListToolbar 
-            handleClickOpen={handleClickOpen}
             handleClose={handleClose}
+            product={selectedRow}
+            type={type}
+            addProduct={addProduct}
+            getProducts={getProducts}
+          />
+          <ConfirmDialog
+            open={confirmDialogOpen} 
+            handleClose={handleConfirmDialogClose}
+            dialogTitle={"Delete Product(s)"}
+            dialogContent={"Confirm deletion of product(s)?"}
+          />
+          <ProductMenu 
+            anchorEl={anchorEl}
+            menuOpen={menuOpen}
+            handleClickOpen={handleClickOpen}
+            handleMenuClose={handleMenuClose}
+            handleClickViewEdit={handleClickViewEdit}
+          />
+          <ProductListToolbar 
+            disabled={disabled}
+            numProducts={selectedRows.length}
+            type={type}
+            handleClickOpen={handleClickOpen}
+            handleConfirmDialogOpen={handleConfirmDialogOpen}
+            handleSearch={handleSearch}
+            handleAddProductClick={handleAddProductClick}
+            handleType={handleType}
           />
           <Box
             sx={{
               mt: 3,
             }}
           >
-            {rows.length > 0 ?
+            {products.length > 0 ?
               <DataGrid
-                rows={rows}
+                autoHeight
+                rows={products.filter((row) => {
+                  if (search === "") {
+                    return row;
+                  } else {
+                    return row.name.toLowerCase().includes(search);
+                  }
+                })}
                 columns={columns}
                 pageSize={10}
                 rowsPerPageOptions={[10]}
+                checkboxSelection
                 components={{
                   Toolbar: GridToolbar,
                 }}
+                onSelectionModelChange={(ids) => {
+                  setSelectedRows(ids.map((id) => products.find((row) => row.id === id)))
+                }}
+                experimentalFeatures={{ newEditingApi: true }}
+                processRowUpdate={(newRow) => handleRowUpdate(newRow)}
               />
               :
               <Card 

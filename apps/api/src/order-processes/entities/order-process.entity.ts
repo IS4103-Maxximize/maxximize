@@ -15,9 +15,6 @@ export class OrderProcess {
     @JoinColumn()
     order: Order
 
-    @OneToOne(() => BillOfMaterial, billOfMaterial => billOfMaterial.orderProcess)
-    billOfMaterial: BillOfMaterial
-
     @ManyToMany(() => FactoryMachine, factoryMachine => factoryMachine.orderProcesses)
     @JoinTable()
     factoryMachines: FactoryMachine[]

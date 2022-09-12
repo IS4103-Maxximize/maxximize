@@ -43,4 +43,10 @@ export class ContactsService {
   async remove(id: number): Promise<void> {
     await this.contactsRepository.delete(id);
   }
+
+  async findByPhoneNumber(phoneNumber: string) {
+    return this.contactsRepository.findOneBy({
+      phoneNumber: phoneNumber
+    });
+  }
 }
