@@ -9,7 +9,7 @@ import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { DashboardLayout } from '../../components/dashboard-layout';
 import { ConfirmDialog } from '../../components/product/confirm-dialog';
-import { ProductDialog } from '../../components/product/product-dialog';
+import { ProductDialog } from '../../components/product/raw-material-dialog';
 import { ProductListToolbar } from '../../components/product/product-list-toolbar';
 import { ProductMenu } from '../../components/product/product-menu';
 import { fetchProducts, updateProduct } from '../../helpers/products';

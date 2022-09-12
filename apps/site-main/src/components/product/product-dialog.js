@@ -1,13 +1,13 @@
 import {
   Button, Dialog, DialogActions, DialogContent,
-  DialogContentText, DialogTitle, FormControlLabel, 
-  Radio, RadioGroup, TextField, Typography,
+  DialogContentText, DialogTitle, FormControlLabel,
+  Radio, RadioGroup, TextField, Typography
 } from "@mui/material";
 import { Stack } from "@mui/system";
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { createProduct, updateProduct } from "../../helpers/products";
-
+import { useEffect, useState } from "react";
 
 const options = [
   'kilogram',
@@ -19,50 +19,70 @@ export const ProductDialog = (props) => {
     action, 
     open, 
     handleClose, 
+    type,
+    typeString,
     product, 
-    type, 
     addProduct,
-    getProducts
+    getProducts,
+    handleAlertOpen,
   } = props;
+
+  let initialValues = {
+    id: product ? product.id : null,
+    name: product ? product.name : '',
+    description: product ? product.description : '',
+    unit: product ? product.unit : 'kilogram',
+    unitPrice: product ? Number(product.unitPrice) : '',
+    expiry: product ? Number(product.expiry) : '',
+    skuCode: product ? product.skuCode : '',
+  }
+  let schema = {
+    name: Yup
+      .string()
+      .max(255)
+      .required('Name is required'),
+    description: Yup
+      .string(),
+    unit: Yup
+      .string(),
+    unitPrice: Yup
+      .number()
+      .required('Unit Price is required'),
+    expiry: Yup
+      .number()
+      .required('Expiry (days) is required'),
+  }
+
+  if (type === 'final-goods') {
+    initialValues = {
+      ...initialValues,
+      lotQuantity: product ? Number(product.lotQuantity) : '',
+    };
+    schema = {
+      ...schema,
+      lotQuantity: Yup
+        .number()
+        .required('Lot quantity is required')
+    };
+  }
 
   const handleOnSubmit = async (values) => {
     if (action === 'POST') {
-      const result = await createProduct(type, values);
+      const result = await createProduct(type, values)
+        .catch((err) => handleAlertOpen(`Error creating ${typeString}`, 'error'));
       addProduct(result);
     } else if (action === 'PATCH') {
       updateProduct(product.id, type, values)
-        .then(() => getProducts);
+        .then(() => getProducts)
+        .catch((err) => handleAlertOpen(`Error updateing ${typeString} product.id`, 'error'));
     }
     onClose();
   }
 
   const formik = useFormik({
-    initialValues: {
-      id: product ? product.id : null,
-      name: product ? product.name : '',
-      description: product ? product.description : '',
-      unit: product ? product.unit : 'kilogram',
-      unitPrice: product ? Number(product.unitPrice) : '',
-      expiry: product ? Number(product.expiry) : '',
-      skuCode: product ? product.skuCode : '',
-    },
+    initialValues: initialValues,
     enableReinitialize: true,
-    validationSchema: Yup.object({
-      name: Yup
-        .string()
-        .max(255)
-        .required('Product Name is required'),
-      description: Yup
-        .string(),
-      unit: Yup
-        .string(),
-      unitPrice: Yup
-        .number()
-        .required('Unit Price is required'),
-      expiry: Yup
-        .number()
-        .required('Expiry (days) is required'),
-    }),
+    validationSchema: Yup.object(schema),
     onSubmit: handleOnSubmit
   });
 
@@ -79,20 +99,20 @@ export const ProductDialog = (props) => {
       >
         <DialogTitle>
           {action === 'POST' && 'Add '}
-          {action === 'PATCH' && 'Update '}
-          {type === 'raw-materials' && 'Raw Material'}
-          {type === 'final-goods' && 'Final Good'}
+          {action === 'PATCH' && 'Edit '}
+          {typeString}
         </DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Enter Product Name, Description, Measurement Unit, Unit Price, Expiry (in days)
+            Enter {typeString} Name, Description, Measurement Unit, Unit Price, Expiry (in days)
+            {type === 'final-goods' && ', Lot Quantity'}
           </DialogContentText>
           <TextField
             required
             error={Boolean(formik.touched.name && formik.errors.name)}
             fullWidth
             helperText={formik.touched.name && formik.errors.name}
-            label="Product Name"
+            label="Name"
             margin="normal"
             name="name"
             onBlur={formik.handleBlur}
@@ -120,7 +140,7 @@ export const ProductDialog = (props) => {
             error={Boolean(formik.touched.description && formik.errors.description)}
             fullWidth
             helperText={formik.touched.description && formik.errors.description}
-            label="Product Description"
+            label="Description"
             margin="normal"
             name="description"
             onBlur={formik.handleBlur}
@@ -187,6 +207,22 @@ export const ProductDialog = (props) => {
             value={formik.values.expiry}
             variant="outlined"
           />
+          {type === 'final-goods' && 
+            <TextField
+              required
+              error={Boolean(formik.touched.lotQuantity && formik.errors.lotQuantity)}
+              fullWidth
+              helperText={formik.touched.lotQuantity && formik.errors.lotQuantity}
+              label="Lot Quantity"
+              margin="normal"
+              name="lotQuantity"
+              onBlur={formik.handleBlur}
+              onChange={formik.handleChange}
+              type="number"
+              value={formik.values.lotQuantity}
+              variant="outlined"
+            />
+          }
         </DialogContent>
         <DialogActions>
           <Button 
