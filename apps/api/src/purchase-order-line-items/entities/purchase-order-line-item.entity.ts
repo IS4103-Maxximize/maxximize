@@ -22,7 +22,7 @@ export class PurchaseOrderLineItem {
     @ManyToOne(() => Quotation, quotation => quotation.poLineItems, {onDelete: 'SET NULL'})
     quotation: Quotation
 
-    @ManyToOne(() => PurchaseOrder, purchaseOrder => purchaseOrder.poLineItem, {onDelete: 'SET NULL'})
+    @ManyToOne(() => PurchaseOrder, purchaseOrder => purchaseOrder.poLineItems, {onDelete: 'SET NULL'})
     purchaseOrder: PurchaseOrder
 }
 
