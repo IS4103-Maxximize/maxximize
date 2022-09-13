@@ -1,22 +1,34 @@
-import { useState, useEffect } from 'react';
-import { Card, Box, Alert, Collapse, Tooltip } from '@mui/material';
+import { useState, useEffect, useCallback } from 'react';
+import {
+  Card,
+  Box,
+  Alert,
+  Collapse,
+  Tooltip,
+  Badge,
+  Stack,
+  CardContent,
+  TextField,
+  InputAdornment,
+  SvgIcon,
+} from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import DeleteIcon from '@mui/icons-material/Delete';
 import HelpIcon from '@mui/icons-material/Help';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import { CreateWorkerDialog } from './create-worker-dialog';
+import { Search as SearchIcon } from '../../icons/search';
+import { NotificationAlert } from '../notification-alert';
+import { WorkerConfirmDialog } from './worker-confirm-dialog';
 
 export const WorkerListResults = () => {
   const [workers, setWorkers] = useState([]);
-  const [successAlert, setSuccessAlert] = useState(false);
-  const [successAlertContent, setSuccessAlertContent] = useState('');
-  const [errorAlert, setErrorAlert] = useState(false);
-  const [errorAlertContent, setErrorAlertContent] = useState('');
   const [selectionModel, setSelectionModel] = useState([]);
 
-  //Change this to retrieve local storage user organisation Id
-  const organisationId = '1';
+  //User organisation Id
+  const user = JSON.parse(localStorage.getItem('user'));
+  const organisationId = user.organisation.id;
 
   //Load in list of workers, initial
   useEffect(() => {
@@ -70,12 +82,13 @@ export const WorkerListResults = () => {
       requestOptions
     )
       .then((response) => {
-        setSuccessAlertContent(`Updated Worker ${updatedRow.id} successfully!`);
-        setSuccessAlert(true);
+        handleAlertOpen(
+          `Updated Worker ${updatedRow.id} successfully!`,
+          'success'
+        );
       })
       .catch((error) => {
-        setErrorAlertContent(error);
-        setErrorAlert(true);
+        handleAlertOpen(error, 'error');
       });
 
     return updatedRow;
@@ -95,12 +108,10 @@ export const WorkerListResults = () => {
         requestOptions
       )
         .then(() => {
-          setSuccessAlertContent(`Deleted Worker successfully!`);
-          setSuccessAlert(true);
+          handleAlertOpen('Deleted Worker successfully!', 'success');
         })
         .catch((error) => {
-          setErrorAlertContent(error);
-          setErrorAlert(true);
+          handleAlertOpen(error, 'error');
         });
     });
 
@@ -109,19 +120,54 @@ export const WorkerListResults = () => {
     );
   };
 
-  //Create worker dialog
+  //Open create worker dialog
   const [openDialog, setOpenDialog] = useState(false);
 
   const handleOpenDialog = () => {
     setOpenDialog(true);
   };
 
+  //Searching
+  const [search, setSearch] = useState('');
+
+  const handleSearch = (event) => {
+    setSearch(event.target.value.toLowerCase());
+  };
+
+  // NotificationAlert helpers
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertText, setAlertText] = useState();
+  const [alertSeverity, setAlertSeverity] = useState('success');
+  const handleAlertOpen = (text, severity) => {
+    setAlertText(text);
+    setAlertSeverity(severity);
+    setAlertOpen(true);
+  };
+  const handleAlertClose = () => {
+    setAlertOpen(false);
+    setAlertText(null);
+    setAlertSeverity('');
+  };
+
+  //Confirm Dialog Helpers
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const handleConfirmDialogOpen = () => {
+    setConfirmDialogOpen(true);
+  };
+  const handleConfirmDialogClose = () => {
+    setConfirmDialogOpen(false);
+  };
+
+  const handleError = () => {
+    setAlertOpen('Update worker error', 'error');
+  };
+
   //Columns for datagrid, column headers & specs
   const columns = [
     {
       field: 'id',
-      headerName: 'Worker ID',
-      width: 150,
+      headerName: 'ID',
+      width: 70,
     },
     {
       field: 'firstName',
@@ -144,31 +190,79 @@ export const WorkerListResults = () => {
       width: 150,
       editable: true,
       type: 'singleSelect',
-      valueOptions: ['Admin', 'Manager', 'FactoryWorker', 'Driver'],
+      valueOptions: ['admin', 'manager', 'factoryworker', 'driver'],
     },
     {
       field: 'phoneNumber',
       headerName: 'Contact',
       width: 150,
       editable: true,
+      preProcessEditCellProps: (params) => {
+        const hasError =
+          params.props.value.length < 8 || isNaN(params.props.value);
+
+        if (hasError) {
+          handleAlertOpen(
+            'Phone Number is invalid (Cannot be blank or less than 8 digits), not updated.',
+            'error'
+          );
+        }
+        return { ...params.props, error: hasError };
+      },
     },
     {
       field: 'email',
       headerName: 'Email',
       width: 200,
       editable: true,
+      preProcessEditCellProps: (params) => {
+        const emailRegex =
+          /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        const hasError =
+          params.props.value.length < 1 || !emailRegex.test(params.props.value);
+
+        if (hasError) {
+          handleAlertOpen(
+            'Email is invalid (Cannot be blank, must be in valid format), not updated.',
+            'error'
+          );
+        }
+
+        return { ...params.props, error: hasError };
+      },
     },
     {
       field: 'address',
       headerName: 'Address',
       width: 500,
       editable: true,
+      preProcessEditCellProps: (params) => {
+        const hasError = params.props.value.length < 1;
+        if (hasError) {
+          handleAlertOpen(
+            'Address is invalid (Cannot be blank), not updated.',
+            'error'
+          );
+        }
+        return { ...params.props, error: hasError };
+      },
     },
     {
       field: 'postalCode',
       headerName: 'Postal Code',
       width: 200,
       editable: true,
+      preProcessEditCellProps: (params) => {
+        const hasError =
+          params.props.value.length !== 6 || isNaN(params.props.value);
+        if (hasError) {
+          handleAlertOpen(
+            'Postal Code is invalid (Must be 6 digits), not updated.',
+            'error'
+          );
+        }
+        return { ...params.props, error: hasError };
+      },
     },
   ];
 
@@ -177,103 +271,131 @@ export const WorkerListResults = () => {
 
   return (
     <>
-      <Box mb={2} sx={{ m: 1 }} display="flex" justifyContent="space-between">
-        <Tooltip title={'Delete Worker Entry (Single/Multiple)'}>
-          <IconButton
-            disabled={selectionModel.length === 0}
-            onClick={() => {
-              const selectedIds = new Set(selectionModel);
-              if (selectedIds.size == 0) {
-                setErrorAlertContent(`No Worker selected`);
-                setErrorAlert(true);
-              } else {
-                handleDelete(selectedIds);
-              }
-            }}
-          >
-            <DeleteIcon />
-          </IconButton>
-        </Tooltip>
+      <NotificationAlert
+        open={alertOpen}
+        severity={alertSeverity}
+        text={alertText}
+        handleClose={handleAlertClose}
+      />
+      <Box>
+        <Card>
+          <CardContent>
+            <Box
+              sx={{
+                alignItems: 'center',
+                display: 'flex',
+                justifyContent: 'space-between',
+                flexWrap: 'wrap',
+                m: -1,
+              }}
+            >
+              {/* Search Bar */}
+              {/* <Stack direction="row" spacing={1}>
+                <TextField
+                  sx={{ width: 500 }}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <SvgIcon fontSize="small" color="action">
+                          <SearchIcon />
+                        </SvgIcon>
+                      </InputAdornment>
+                    ),
+                  }}
+                  placeholder="Search worker (username)"
+                  variant="outlined"
+                  type="search"
+                  onChange={handleSearch}
+                />
+              </Stack> */}
+              <Box></Box>
 
-        <Box>
-          <Tooltip title={'Create Worker Entry'}>
-            <IconButton onClick={handleOpenDialog}>
-              <PersonAddIcon />
-            </IconButton>
-          </Tooltip>
+              {/* Buttons functionalities */}
+              <Box sx={{ m: 1 }} display="flex" flexDirection="row-reverse">
+                <Badge badgeContent={selectionModel.length} color="error">
+                  <Tooltip title={'Delete Worker Entry (Single/Multiple)'}>
+                    <>
+                      <IconButton
+                        disabled={selectionModel.length === 0}
+                        onClick={handleConfirmDialogOpen}
+                      >
+                        <DeleteIcon color="error" />
+                      </IconButton>
+                    </>
+                  </Tooltip>
+                </Badge>
 
-          <CreateWorkerDialog
-            openDialog={openDialog}
-            setOpenDialog={setOpenDialog}
-            addWorker={addWorker}
-          />
+                <WorkerConfirmDialog
+                  open={confirmDialogOpen}
+                  handleClose={handleConfirmDialogClose}
+                  dialogTitle={`Delete worker(s)`}
+                  dialogContent={`Confirm deletion of worker(s)?`}
+                  dialogAction={() => {
+                    const selectedIds = new Set(selectionModel);
+                    handleDelete(selectedIds);
+                  }}
+                />
 
-          <Tooltip
-            title={'Update entry by clicking on the field to be updated'}
-          >
-            <IconButton>
-              <HelpIcon />
-            </IconButton>
-          </Tooltip>
-        </Box>
+                <Tooltip
+                  title={
+                    'Update entry by clicking on the field to be updated. [Esc] to abandon update.'
+                  }
+                >
+                  <IconButton>
+                    <HelpIcon color="primary" />
+                  </IconButton>
+                </Tooltip>
+
+                <Tooltip title={'Create Worker Entry'}>
+                  <IconButton onClick={handleOpenDialog}>
+                    <PersonAddIcon color="primary" />
+                  </IconButton>
+                </Tooltip>
+
+                <CreateWorkerDialog
+                  openDialog={openDialog}
+                  setOpenDialog={setOpenDialog}
+                  handleAlertOpen={handleAlertOpen}
+                  addWorker={addWorker}
+                />
+              </Box>
+            </Box>
+          </CardContent>
+        </Card>
       </Box>
 
-      {successAlert ? (
-        <Collapse in={successAlert}>
-          <Alert
-            severity="success"
-            onClose={() => {
-              setSuccessAlert(false);
-            }}
-          >
-            {successAlertContent}
-          </Alert>
-        </Collapse>
-      ) : (
-        <Collapse in={successAlert}>
-          <></>
-        </Collapse>
-      )}
-
-      {errorAlert ? (
-        <Collapse in={errorAlert}>
-          <Alert
-            severity="error"
-            onClose={() => {
-              setErrorAlert(false);
-            }}
-          >
-            {errorAlertContent}
-          </Alert>
-        </Collapse>
-      ) : (
-        <Collapse in={errorAlert}>
-          <></>
-        </Collapse>
-      )}
-
-      <Card>
-        <Box sx={{ minWidth: 1050 }}>
-          <DataGrid
-            autoHeight
-            rows={rows}
-            columns={columns}
-            pageSize={10}
-            rowsPerPageOptions={[10]}
-            allowSorting={true}
-            components={{
-              Toolbar: GridToolbar,
-            }}
-            disableSelectionOnClick
-            checkboxSelection={true}
-            onSelectionModelChange={(ids) => {
-              setSelectionModel(ids);
-            }}
-            experimentalFeatures={{ newEditingApi: true }}
-            processRowUpdate={handleRowUpdate}
-          />
-        </Box>
-      </Card>
+      <Box mt={3}>
+        <Card>
+          <Box sx={{ minWidth: 1050 }}>
+            <DataGrid
+              autoHeight
+              rows={rows}
+              //   {rows.filter((row) => {
+              //     if (search === '') {
+              //       return row;
+              //     } else {
+              //       return row.username.toLowerCase().includes(search);
+              //     }
+              //   })}
+              columns={columns}
+              pageSize={10}
+              rowsPerPageOptions={[10]}
+              allowSorting={true}
+              components={{
+                Toolbar: GridToolbar,
+              }}
+              disableSelectionOnClick
+              checkboxSelection={true}
+              onSelectionModelChange={(ids) => {
+                setSelectionModel(ids);
+              }}
+              //editMode="row"
+              experimentalFeatures={{ newEditingApi: true }}
+              processRowUpdate={handleRowUpdate}
+            />
+          </Box>
+        </Card>
+      </Box>
     </>
   );
 };
