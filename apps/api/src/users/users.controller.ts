@@ -6,8 +6,6 @@ import {
   Patch,
   Param,
   Delete,
-  HttpException,
-  HttpStatus,
   UseInterceptors,
   ClassSerializerInterceptor,
 } from '@nestjs/common';
@@ -44,5 +42,10 @@ export class UsersController {
   @Delete('deleteUser/:id')
   remove(@Param('id') id: number) {
     return this.usersService.remove(+id);
+  }
+
+  @Patch('changePassword/:id')
+  changePassword(@Param('id') id: number, @Body() updateUserDto: UpdateUserDto) {
+    return this.usersService.changePassword(+id, updateUserDto);
   }
 }

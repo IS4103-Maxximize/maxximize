@@ -11,10 +11,11 @@ import { OrganisationsService } from '../organisations/organisations.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
-import { UnknownPersistenceException } from './exceptions/UnknownPersistenceException';
 import { UsernameAlreadyExistsException } from './exceptions/UsernameAlreadyExistsException';
 import * as bcrypt from 'bcrypt';
 import { UpdateContactDto } from '../contacts/dto/update-contact.dto';
+import { MailService } from '../mail/mail.service';
+
 
 @Injectable()
 export class UsersService {
@@ -22,7 +23,8 @@ export class UsersService {
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
     private contactsService: ContactsService,
-    private organisationsService: OrganisationsService
+    private organisationsService: OrganisationsService,
+    private mailService: MailService
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
@@ -43,7 +45,8 @@ export class UsersService {
 
       const salt = await bcrypt.genSalt();
       newUser.salt = salt;
-      newUser.password = await bcrypt.hash(createUserDto.password, salt);
+      const password = Math.random().toString(36).slice(-8);
+      newUser.password = await bcrypt.hash(password, salt);
 
       const organisation = await this.organisationsService.findOne(
         createUserDto.organisationId
@@ -53,11 +56,12 @@ export class UsersService {
       } else {
         throw new NotFoundException(`organisation with id : ${createUserDto.organisationId} cannot be found!`)
       }
-     
+
+      await this.mailService.sendUserConfirmation(createUserDto.contact, organisation.name, newUser, password);
       return this.usersRepository.save(newUser);
     } catch (err) {
-      console.log(err)
-      throw err
+      console.log(err);
+      throw err;
     }
   }
 
@@ -90,7 +94,6 @@ export class UsersService {
     const user = await this.findOne(id);
     user.firstName = updateUserDto.firstName;
     user.lastName = updateUserDto.lastName;
-    user.password = updateUserDto.password;
     user.isActive = updateUserDto.isActive;
     user.role = updateUserDto.role;
 
@@ -115,5 +118,14 @@ export class UsersService {
         HttpStatus.INTERNAL_SERVER_ERROR
       );
     }
+  }
+
+  async changePassword(id: number,updateUserDto: UpdateUserDto) {
+    const user = await this.findOne(id);
+    user.password = await bcrypt.hash(updateUserDto.password, user.salt);
+    if (!user.passwordChanged) {
+      user.passwordChanged = true;
+    }
+    return this.usersRepository.save(user);
   }
 }

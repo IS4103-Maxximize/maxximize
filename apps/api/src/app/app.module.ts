@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from '../auth/auth.module';
+import { BatchLineItemsModule } from '../batch-line-items/batch-line-items.module';
 import { BatchesModule } from '../batches/batches.module';
 import { BillOfMaterialsModule } from '../bill-of-materials/bill-of-materials.module';
 import { BillingsModule } from '../billings/billings.module';
@@ -9,6 +10,8 @@ import { ContactsModule } from '../contacts/contacts.module';
 import { DeliveryRequestsModule } from '../delivery-requests/delivery-requests.module';
 import { FactoryMachinesModule } from '../factory-machines/factory-machines.module';
 import { FinalGoodsModule } from '../final-goods/final-goods.module';
+import { GoodsReceiptsModule } from '../goods-receipts/goods-receipts.module';
+import { GrLineItemsModule } from '../gr-line-items/gr-line-items.module';
 import { InvoicesModule } from '../invoices/invoices.module';
 import { OrderLineItemsModule } from '../order-line-items/order-line-items.module';
 import { OrderProcessesModule } from '../order-processes/order-processes.module';
@@ -70,6 +73,9 @@ import { AppService } from './app.service';
     QuotationsModule,
     PurchaseOrdersModule,
     PurchaseOrderLineItem,
+    BatchLineItemsModule,
+    GoodsReceiptsModule,
+    GrLineItemsModule
   ],
   controllers: [AppController],
   providers: [AppService],
