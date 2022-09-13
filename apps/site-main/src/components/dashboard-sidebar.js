@@ -75,7 +75,7 @@ export const DashboardSidebar = (props) => {
               }}
             />
           </Link>
-          Welcome {user.firstName}!
+          Welcome {user.firstName}! [{user.role}]
         </Box>
         <Box sx={{ px: 2 }}>
           <Box
