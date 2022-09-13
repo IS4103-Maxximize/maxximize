@@ -13,6 +13,12 @@ export class SalesInquiry {
     @Column()
     status: SalesInquiryStatus
 
+    @Column()
+    totalPrice: number
+
+    @Column()
+    created: Date
+
     @ManyToOne(() => Organisation, currentOrganisation => currentOrganisation.salesInquiries, {onDelete: 'SET NULL'})
     currentOrganisation: Organisation
 
@@ -26,5 +32,5 @@ export class SalesInquiry {
     salesInquiryLineItems: SalesInquiryLineItem[]
 
     @OneToOne(() => Quotation, { nullable: true })
-    chosenQuotation: Quotation
+    chosenQuotation?: Quotation
 }

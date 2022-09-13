@@ -1,26 +1,84 @@
-import { Injectable } from '@nestjs/common';
+/* eslint-disable prefer-const */
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Organisation } from '../organisations/entities/organisation.entity';
+import { Quotation } from '../quotations/entities/quotation.entity';
+import { SalesInquiryLineItem } from '../sales-inquiry-line-items/entities/sales-inquiry-line-item.entity';
+import { ShellOrganisation } from '../shell-organisations/entities/shell-organisation.entity';
 import { CreateSalesInquiryDto } from './dto/create-sales-inquiry.dto';
 import { UpdateSalesInquiryDto } from './dto/update-sales-inquiry.dto';
+import { SalesInquiry } from './entities/sales-inquiry.entity';
+import { SalesInquiryStatus } from './enums/salesInquiryStatus.enum';
 
 @Injectable()
 export class SalesInquiryService {
-  create(createSalesInquiryDto: CreateSalesInquiryDto) {
-    return 'This action adds a new salesInquiry';
+  constructor(
+    @InjectRepository(Organisation)
+    private readonly organisationsRepository: Repository<Organisation>,
+    @InjectRepository(SalesInquiry)
+    private readonly salesInquiriesRepository: Repository<SalesInquiry>,
+    @InjectRepository(ShellOrganisation)
+    private readonly shellOrganisationsRepository: Repository<ShellOrganisation>,
+    @InjectRepository(Quotation)
+    private readonly quotationsRepository: Repository<Quotation>,
+    @InjectRepository(SalesInquiryLineItem)
+    private readonly salesInquiryLineItemsRepository: Repository<SalesInquiryLineItem>,
+  ) {}
+
+  async create(createSalesInquiryDto: CreateSalesInquiryDto): Promise<SalesInquiry> {
+    try {
+      const { currentOrganisation, suppliers } = createSalesInquiryDto
+      let suppliersToBeAdded: ShellOrganisation[]
+      let organisationToBeAdded: Organisation
+      organisationToBeAdded = await this.organisationsRepository.findOneByOrFail({id: currentOrganisation.id})
+      for (let i=0;i<suppliers.length;i++){
+        suppliersToBeAdded.push(await this.shellOrganisationsRepository.findOneByOrFail({id: suppliers[i].id}))
+      }
+      const newSalesInquiry = this.salesInquiriesRepository.create({
+        status: SalesInquiryStatus.DRAFT,
+        totalPrice: 0,
+        created: new Date(),
+        currentOrganisation: organisationToBeAdded,
+        suppliers: suppliersToBeAdded,
+        quotations: [],
+        salesInquiryLineItems: []
+      })
+      return this.salesInquiriesRepository.save(newSalesInquiry)
+    } catch (error) {
+      throw new NotFoundException('either product code or Shell org id cannot be found')
+    }
   }
 
-  findAll() {
-    return `This action returns all salesInquiry`;
+  findAll(): Promise<SalesInquiry[]> {
+    return this.salesInquiriesRepository.find({
+      relations: {
+        currentOrganisation: true,
+        suppliers: true
+      }
+    })
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} salesInquiry`;
+  findOne(id: number): Promise<SalesInquiry> {
+    return this.salesInquiriesRepository.findOne({where: {
+      id
+    }, relations: {
+      currentOrganisation: true,
+      suppliers: true
+    }})
   }
 
-  update(id: number, updateSalesInquiryDto: UpdateSalesInquiryDto) {
-    return `This action updates a #${id} salesInquiry`;
+  async update(id: number, updateSalesInquiryDto: UpdateSalesInquiryDto): Promise<SalesInquiry> {
+    const salesInquiryToUpdate = await this.salesInquiriesRepository.findOneBy({id})
+    const arrayOfKeyValues = Object.entries(updateSalesInquiryDto)
+    arrayOfKeyValues.forEach(([key, value]) => {
+      salesInquiryToUpdate[key] = value
+    })
+    return this.salesInquiriesRepository.save(salesInquiryToUpdate)
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} salesInquiry`;
+  async remove(id: number): Promise<SalesInquiry> {
+    const salesInquiryToRemove = await this.salesInquiriesRepository.findOneBy({id})
+    return this.salesInquiriesRepository.remove(salesInquiryToRemove)
   }
 }

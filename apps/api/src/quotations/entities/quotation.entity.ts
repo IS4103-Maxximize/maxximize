@@ -12,8 +12,11 @@ export class Quotation {
     @Column()
     created: Date
 
+    @Column()
+    totalPrice: number
+
     @OneToOne(() => PurchaseOrder, purchaseOrder => purchaseOrder.quotation, { nullable: true })
-    purchaseOrder: PurchaseOrder
+    purchaseOrder?: PurchaseOrder
 
     @ManyToOne(() => SalesInquiry, salesInquiry => salesInquiry.quotations)
     salesInquiry: SalesInquiry

@@ -1,3 +1,4 @@
+/* eslint-disable prefer-const */
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -42,6 +43,8 @@ export class QuotationLineItemsService {
         finalGood: finalGoodToBeAdded,
         quotation: quotationToBeAdded
       })
+      quotationToBeAdded.totalPrice += price*quantity
+      this.quotationsRepository.save(quotationToBeAdded)
       return this.quotationLineItemsRepository.save(newQuotationLineItem)
     } catch (error) {
       throw new NotFoundException('The Entity cannot be found')

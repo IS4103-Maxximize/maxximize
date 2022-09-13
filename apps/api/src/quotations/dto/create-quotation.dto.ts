@@ -1,9 +1,7 @@
-import { MeasurementUnit } from "../../products/enums/measurementUnit.enum";
+import { SalesInquiry } from "../../sales-inquiry/entities/sales-inquiry.entity";
+import { ShellOrganisation } from "../../shell-organisations/entities/shell-organisation.entity";
 
 export class CreateQuotationDto {
-    lotQuantity: number;
-    lotPrice: number;
-    unit: MeasurementUnit;
-    shellOrganisationId: number;
-    productCode: number
+    salesInquiry: SalesInquiry;
+    shellOrganisation: ShellOrganisation;
 }

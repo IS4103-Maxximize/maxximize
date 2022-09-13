@@ -1,3 +1,4 @@
+/* eslint-disable prefer-const */
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -13,7 +14,7 @@ export class SalesInquiryLineItemsService {
     @InjectRepository(SalesInquiryLineItem)
     private readonly salesInquiryLineItemsRepository: Repository<SalesInquiryLineItem>,
     @InjectRepository(SalesInquiry)
-    private readonly salesInquiryRepository: Repository<SalesInquiry>,
+    private readonly salesInquiriesRepository: Repository<SalesInquiry>,
     @InjectRepository(RawMaterial)
     private readonly rawMaterialsRepository: Repository<RawMaterial>,
   ){}
@@ -24,7 +25,7 @@ export class SalesInquiryLineItemsService {
       let rawMaterialToBeAdded: RawMaterial
       let salesInquiryToBeAdded: SalesInquiry
       rawMaterialToBeAdded = await this.rawMaterialsRepository.findOneByOrFail({id: rawMaterial.id})
-      salesInquiryToBeAdded = await this.salesInquiryRepository.findOneByOrFail({id: salesInquiry.id})
+      salesInquiryToBeAdded = await this.salesInquiriesRepository.findOneByOrFail({id: salesInquiry.id})
       const newSalesInquiryLineItem = this.salesInquiryLineItemsRepository.create({
         quantity,
         indicativePrice,
@@ -32,6 +33,8 @@ export class SalesInquiryLineItemsService {
         rawMaterial: rawMaterialToBeAdded,
         salesInquiry: salesInquiryToBeAdded
       })
+      salesInquiryToBeAdded.totalPrice += indicativePrice*quantity
+      this.salesInquiriesRepository.save(salesInquiryToBeAdded)
       return this.salesInquiryLineItemsRepository.save(newSalesInquiryLineItem)
     } catch (error) {
       throw new NotFoundException('The Entity cannot be found')
