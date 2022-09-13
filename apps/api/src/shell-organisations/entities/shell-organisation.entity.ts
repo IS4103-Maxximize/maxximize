@@ -3,6 +3,7 @@ import { Contact } from "../../contacts/entities/contact.entity";
 import { Organisation } from "../../organisations/entities/organisation.entity";
 import { OrganisationType } from "../../organisations/enums/organisationType.enum";
 import { Quotation } from "../../quotations/entities/quotation.entity";
+import { RawMaterial } from "../../raw-materials/entities/raw-material.entity";
 import { SalesInquiry } from "../../sales-inquiry/entities/sales-inquiry.entity";
 
 @Entity()
@@ -36,7 +37,10 @@ export class ShellOrganisation {
     @OneToMany(() => Quotation, quotation => quotation.shellOrganisation)
     quotations: Quotation[]
 
-    @ManyToMany(() => SalesInquiry, salesInquiry => salesInquiry.shellOrganisations)
+    @ManyToMany(() => SalesInquiry, salesInquiry => salesInquiry.suppliers)
     salesInquiries: SalesInquiry[]
+
+    @ManyToMany(() => RawMaterial, rawMaterial => rawMaterial.suppliers)
+    rawMaterials: RawMaterial[]
 
 }

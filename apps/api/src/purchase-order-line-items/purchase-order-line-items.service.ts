@@ -1,8 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { FinalGood } from '../final-goods/entities/final-good.entity';
 import { PurchaseOrder } from '../purchase-orders/entities/purchase-order.entity';
-import { Quotation } from '../quotations/entities/quotation.entity';
+import { RawMaterial } from '../raw-materials/entities/raw-material.entity';
 import { CreatePurchaseOrderLineItemDto } from './dto/create-purchase-order-line-item.dto';
 import { UpdatePurchaseOrderLineItemDto } from './dto/update-purchase-order-line-item.dto';
 import { PurchaseOrderLineItem } from './entities/purchase-order-line-item.entity';
@@ -14,35 +15,43 @@ export class PurchaseOrderLineItemsService {
     private readonly poLineItemsRepository: Repository<PurchaseOrderLineItem>,
     @InjectRepository(PurchaseOrder)
     private readonly purchaseOrdersRepository: Repository<PurchaseOrder>,
-    @InjectRepository(Quotation)
-    private readonly quotationsRepository: Repository<Quotation>,
+    @InjectRepository(RawMaterial)
+    private readonly rawMaterialsRepository: Repository<RawMaterial>,
+    @InjectRepository(FinalGood)
+    private readonly finalGoodsRepository: Repository<FinalGood>,
   ){}
 
   async create(createPurchaseOrderLineItemDto: CreatePurchaseOrderLineItemDto): Promise<PurchaseOrderLineItem> {
     try {
-      const { quantity, subTotal, organisationRawMaterialId, supplierFinalGoodId, quotation, purchaseOrder} = createPurchaseOrderLineItemDto
-      let quotationToBeAdded: Quotation
+      const { quantity, price, unit, rawMaterial, finalGood, purchaseOrder} = createPurchaseOrderLineItemDto
+      let rawMaterialToBeAdded: RawMaterial
+      let finalGoodToBeAdded: FinalGood
       let purchaseOrderToBeAdded: PurchaseOrder
-      quotationToBeAdded = await this.quotationsRepository.findOneByOrFail({id: quotation.id})
+      rawMaterialToBeAdded = await this.rawMaterialsRepository.findOneByOrFail({id: rawMaterial.id})
+      if (finalGood) {
+        finalGoodToBeAdded = await this.finalGoodsRepository.findOneByOrFail({id: finalGood.id})
+      } else {
+        finalGoodToBeAdded = null
+      }
       purchaseOrderToBeAdded = await this.purchaseOrdersRepository.findOneByOrFail({id: purchaseOrder.id})
       const newPurchaseOrderLineItem = this.poLineItemsRepository.create({
         quantity,
-        subTotal,
-        organisationRawMaterialId,
-        supplierFinalGoodId,
-        quotation: quotationToBeAdded,
+        price,
+        unit,
+        rawMaterial: rawMaterialToBeAdded,
+        finalGood: finalGoodToBeAdded,
         purchaseOrder: purchaseOrderToBeAdded
       })
       return this.poLineItemsRepository.save(newPurchaseOrderLineItem)
     } catch (error) {
-      throw new NotFoundException('The Organisation cannot be found')
+      throw new NotFoundException('The Entity cannot be found')
     }
   }
 
   findAll(): Promise<PurchaseOrderLineItem[]> {
     return this.poLineItemsRepository.find({
       relations: {
-        quotation: true,
+        rawMaterial: true,
         purchaseOrder: true
       }
     })
@@ -52,7 +61,7 @@ export class PurchaseOrderLineItemsService {
     return this.poLineItemsRepository.findOne({where: {
       id
     }, relations: {
-      quotation: true,
+      rawMaterial: true,
       purchaseOrder: true
     }})
   }
