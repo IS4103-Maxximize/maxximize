@@ -1,11 +1,12 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { FinalGood } from "../../final-goods/entities/final-good.entity";
 import { MeasurementUnit } from "../../products/enums/measurementUnit.enum";
-import { PurchaseOrder } from "../../purchase-orders/entities/purchase-order.entity";
+import { Quotation } from "../../quotations/entities/quotation.entity";
 import { RawMaterial } from "../../raw-materials/entities/raw-material.entity";
 
+
 @Entity()
-export class PurchaseOrderLineItem {
+export class QuotationLineItem {
     @PrimaryGeneratedColumn()
     id: number
 
@@ -24,7 +25,6 @@ export class PurchaseOrderLineItem {
     @ManyToOne(() => FinalGood, { nullable: true })
     finalGood?: FinalGood
 
-    @ManyToOne(() => PurchaseOrder, purchaseOrder => purchaseOrder.poLineItems, {onDelete: 'SET NULL'})
-    purchaseOrder: PurchaseOrder
+    @ManyToOne(() => Quotation, quotation => quotation.quotationLineItems, {onDelete: 'SET NULL'})
+    quotation: Quotation
 }
-
