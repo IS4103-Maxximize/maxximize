@@ -104,7 +104,7 @@ const Products = (props) => {
       .then((result) => {
         handleAlertOpen(`Updated ${typeString} ${updatedRow.id} successfully!`, 'success');
       })
-      .then(() =>getProducts())
+      .then(() => getProducts())
       .catch((err) => handleAlertOpen(`Error updating ${typeString} ${updatedRow.id}`, 'error'));
     return updatedRow;
   }

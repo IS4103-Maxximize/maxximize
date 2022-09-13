@@ -95,22 +95,17 @@ export const SalesInquiry = (props) => {
     {
       field: 'id',
       headerName: 'ID',
-      width: 500,
-    },
-    {
-      field: 'lineItems',
-      headerName: 'Line Items',
-      width: 300,
+      flex: 3,
     },
     {
       field: 'status',
       headerName: 'Status',
-      width: 100,
+      flex: 1,
     },
     {
       field: 'actions',
       headerName: '',
-      width: 50,
+      flex: 1,
       sortable: false,
       renderCell: menuButton,
     },

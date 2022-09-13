@@ -92,15 +92,15 @@ export const Toolbar = (props) => {
                   title={`Delete ${name}(s)`}
                   disableHoverListener={deleteDisabled}
                 >
-                  <Badge badgeContent={numRows} color="error">
-                    <IconButton
-                      color="error"
-                      disabled={deleteDisabled}
-                      onClick={handleConfirmDialogOpen}
-                    >
+                  <IconButton
+                    color="error"
+                    disabled={deleteDisabled}
+                    onClick={handleConfirmDialogOpen}
+                  >
+                    <Badge badgeContent={numRows} color="error">
                       <DeleteIcon />
-                    </IconButton>
-                  </Badge>
+                    </Badge>
+                  </IconButton>
                 </Tooltip>
               </Box>
             </Box>

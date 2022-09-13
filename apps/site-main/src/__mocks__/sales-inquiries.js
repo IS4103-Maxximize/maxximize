@@ -4,15 +4,16 @@ export const salesInquiries = [
   {
     id: uuid(),
     status: 'draft',
+    indPrice: 110,
     lineItems: [
       {
         id: 1,
         subTotal: 5,
         product: {
-          id: 1,
+          id: 18,
           name: 'tomato',
           description: 'from NZ',
-          skuCode: '1-TOM',
+          skuCode: '18-TOM',
           unit: 'kilogram',
           unitPrice: 10,
           expiry: 10,
@@ -36,6 +37,7 @@ export const salesInquiries = [
   {
     id: uuid(),
     status: 'pending',
+    indPrice: 225,
     lineItems: [
       {
         id: 1,
@@ -65,4 +67,4 @@ export const salesInquiries = [
       },
     ]
   },
-]
+];
