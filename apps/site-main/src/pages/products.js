@@ -111,7 +111,7 @@ const Products = (props) => {
 
   useEffect(() => {
     getProducts();
-  }, []);
+  }, [type]);
 
   useEffect(() => {
     console.log(selectedRows);
@@ -255,7 +255,8 @@ const Products = (props) => {
                   if (search === "") {
                     return row;
                   } else {
-                    return row.name.toLowerCase().includes(search);
+                    return row.name.toLowerCase().includes(search) ||
+                      row.description.toLowerCase().includes(search);
                   }
                 })}
                 columns={columns}
