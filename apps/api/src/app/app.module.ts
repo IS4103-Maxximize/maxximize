@@ -18,7 +18,7 @@ import { OrderProcessesModule } from '../order-processes/order-processes.module'
 import { OrdersModule } from '../orders/orders.module';
 import { OrganisationsModule } from '../organisations/organisations.module';
 import { ProductsModule } from '../products/products.module';
-import { PurchaseOrderLineItemsModule } from '../purchase-order-line-items/purchase-order-line-items.module';
+import { PurchaseOrderLineItem } from '../purchase-order-line-items/entities/purchase-order-line-item.entity';
 import { PurchaseOrdersModule } from '../purchase-orders/purchase-orders.module';
 import { QualityReviewsModule } from '../quality-reviews/quality-reviews.module';
 import { QuotationsModule } from '../quotations/quotations.module';
@@ -71,11 +71,11 @@ import { AppService } from './app.service';
     WarehousesModule,
     ShellOrganisationsModule,
     QuotationsModule,
+    PurchaseOrdersModule,
+    PurchaseOrderLineItem,
     BatchLineItemsModule,
     GoodsReceiptsModule,
-    GrLineItemsModule,
-    PurchaseOrdersModule,
-    PurchaseOrderLineItemsModule
+    GrLineItemsModule
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,9 +1,12 @@
 import { View, TouchableOpacity, TextInput, Text, StyleSheet } from 'react-native';
-import React, { useRef, useState } from 'react';
+import React, { useContext, useRef, useState } from 'react';
 import { Input, Button } from "@rneui/themed";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { AppContext } from '../App';
 
 
 function Login({navigation}) {
+    const { setAuth } = useContext(AppContext)
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
     const [organisationCode, setOrganisationCode] = useState('')
@@ -20,7 +23,6 @@ function Login({navigation}) {
           });
           if (res.status === 201 || res.status === 200) {
             const result = await res.json();
-            console.log(result)
             return result;
           } else {
             return null;
@@ -54,7 +56,10 @@ function Login({navigation}) {
       if (result) {
         const user = await getUserFromJWT(result.access_token)
         if (user.organisation.type === 'retailer' && user.organisation.id === parseInt(organisationCode)) {
-          navigation.navigate('Home', {orgId: organisationCode})
+          const parsedUser = JSON.stringify(user)
+          //store in asyncStorage
+          await AsyncStorage.setItem('user', parsedUser)
+          setAuth(user)
         }
       } 
       setError(`You are not a valid user of this organisation with code:${organisationCode}`)
