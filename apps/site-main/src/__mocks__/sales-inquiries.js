@@ -7,7 +7,7 @@ export const salesInquiries = [
     lineItems: [
       {
         id: 1,
-        subTotal: 10,
+        subTotal: 5,
         product: {
           id: 1,
           name: 'tomato',
@@ -23,7 +23,7 @@ export const salesInquiries = [
         subTotal: 5,
         product: {
           id: 2,
-          name: 'potato]',
+          name: 'potato',
           description: 'from AUS',
           skuCode: '2-POT',
           unit: 'kilogram',
@@ -52,10 +52,10 @@ export const salesInquiries = [
       },
       {
         id: 2,
-        subTotal: 5,
+        subTotal: 10,
         product: {
           id: 2,
-          name: 'potato]',
+          name: 'potato',
           description: 'from AUS',
           skuCode: '2-POT',
           unit: 'kilogram',
