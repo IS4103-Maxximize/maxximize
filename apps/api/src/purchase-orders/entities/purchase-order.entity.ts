@@ -1,5 +1,4 @@
 import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
-import { Contact } from "../../contacts/entities/contact.entity";
 import { Organisation } from "../../organisations/entities/organisation.entity";
 import { PurchaseOrderLineItem } from "../../purchase-order-line-items/entities/purchase-order-line-item.entity";
 import { ShellOrganisation } from "../../shell-organisations/entities/shell-organisation.entity";
@@ -11,9 +10,6 @@ export class PurchaseOrder {
 
     @Column()
     deliveryAddress: string
-
-    @Column()
-    contact: Contact
 
     @Column()
     totalPrice: number

@@ -28,13 +28,10 @@ export class PurchaseOrdersService {
       const { deliveryAddress, contact, totalPrice, createdDateTime, supplierOrganisation, currentOrganisation, poLineItems} = createPurchaseOrderDto
       let supplierOrganisationToBeAdded: ShellOrganisation
       let currentOrganisationToBeAdded: Organisation
-      let contactToBeAdded: Contact
       supplierOrganisationToBeAdded = await this.shellOrganisationsRepository.findOneByOrFail({id: supplierOrganisation.id})
       currentOrganisationToBeAdded = await this.organisationsRepository.findOneByOrFail({id: currentOrganisation.id})
-      contactToBeAdded = await this.contactsRepository.findOneByOrFail({id: contact.id})
       const newPurchaseOrder = this.purchaseOrdersRepository.create({
         deliveryAddress,
-        contact: contactToBeAdded,
         totalPrice,
         createdDateTime,
         supplierOrganisation: supplierOrganisationToBeAdded,
