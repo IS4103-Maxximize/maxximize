@@ -9,16 +9,18 @@ import Login from './pages/login';
 import OrganisationSelection from './pages/organisationSelection';
 import Procurement from './pages/procurement';
 import ProcurementForecast from './pages/procurement/forecast';
-import ProcurementOrdering from './pages/procurement/ordering';
-import ProcurementReceiving from './pages/procurement/receiving';
+import ProcurementSalesInquiry from './pages/procurement/salesinquiry';
+import ProcurementQuotation from './pages/procurement/quotation';
+import ProcurementPurchaseOrder from './pages/procurement/purchaseorder';
+import ProcurementGoodReceipt from './pages/procurement/goodreceipt';
 import Products from './pages/products';
 import WorkerManagement from './pages/workermanagement';
 
 const ROLES = {
   Admin: 'admin',
   Manager: 'manager',
-  FactoryWorker: 'factoryworker'
-}
+  FactoryWorker: 'factoryworker',
+};
 
 const App = () => {
   return (
@@ -35,30 +37,74 @@ const App = () => {
         {/* Protected Routes */}
 
         {/* Protected Routes for all Roles */}
-        <Route element={<RequireAuth requiredRoles={[ROLES.Admin, ROLES.Manager, ROLES.FactoryWorker]}/>}>
-            <Route element={<DashboardLayout />}>
-              {/* Dashboard */}
-              <Route path="/" element={<Dashboard />}></Route>
+        <Route
+          element={
+            <RequireAuth
+              requiredRoles={[ROLES.Admin, ROLES.Manager, ROLES.FactoryWorker]}
+            />
+          }
+        >
+          <Route element={<DashboardLayout />}>
+            {/* Dashboard */}
+            <Route path="/" element={<Dashboard />}></Route>
 
-              {/* Protected Routes for Admin Specifically */}
-              <Route element={<RequireAuth requiredRoles={[ROLES.Admin]}/>}>
-                {/* Worker Management */}
-                <Route path="workermanagement" element={<WorkerManagement />}></Route>
-                {/* Product Management */}
-                <Route path="raw-materials" element={<Products type="raw-materials" />}></Route>
-                <Route path="final-goods" element={<Products type="final-goods" />}></Route>
-              </Route>
-
-              {/* Protected Routes for Manager and Factory Worker */}
-              <Route element={<RequireAuth requiredRoles={[ROLES.Manager, ROLES.FactoryWorker]}/>}>
-                {/* Procurement */}
-                <Route path="procurement" element={<Procurement />}></Route>
-                {/* Procurement Modules */}
-                <Route path="procurement/ordering" element={<ProcurementOrdering />}></Route>
-                <Route path="procurement/receiving" element={<ProcurementReceiving />}></Route>
-                <Route path="procurement/forecast" element={<ProcurementForecast />}></Route>
-              </Route>
+            {/* Protected Routes for Admin Specifically */}
+            <Route element={<RequireAuth requiredRoles={[ROLES.Admin]} />}>
+              {/* Worker Management */}
+              <Route
+                path="workermanagement"
+                element={<WorkerManagement />}
+              ></Route>
             </Route>
+
+            {/* Protected Routes for Manager*/}
+            <Route element={<RequireAuth requiredRoles={[ROLES.Manager]} />}>
+              {/* Product Management */}
+              <Route
+                path="raw-materials"
+                element={<Products type="raw-materials" />}
+              ></Route>
+              <Route
+                path="final-goods"
+                element={<Products type="final-goods" />}
+              ></Route>
+
+              {/* Procurement Forecast */}
+              <Route
+                path="procurement/forecast"
+                element={<ProcurementForecast />}
+              ></Route>
+            </Route>
+
+            {/* Protected Routes for Manager and Factory Worker */}
+            <Route
+              element={
+                <RequireAuth
+                  requiredRoles={[ROLES.Manager, ROLES.FactoryWorker]}
+                />
+              }
+            >
+              {/* Procurement */}
+              <Route path="procurement" element={<Procurement />}></Route>
+              {/* Procurement Modules */}
+              <Route
+                path="procurement/salesinquiry"
+                element={<ProcurementSalesInquiry />}
+              ></Route>
+              <Route
+                path="procurement/quotation"
+                element={<ProcurementQuotation />}
+              ></Route>
+              <Route
+                path="procurement/purchaseorder"
+                element={<ProcurementPurchaseOrder />}
+              ></Route>
+              <Route
+                path="procurement/goodreceipt"
+                element={<ProcurementGoodReceipt />}
+              ></Route>
+            </Route>
+          </Route>
         </Route>
 
         {/* catch all */}
