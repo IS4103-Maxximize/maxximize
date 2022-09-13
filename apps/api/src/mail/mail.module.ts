@@ -8,15 +8,12 @@ import { join } from 'path';
   imports: [
     MailerModule.forRoot({
       transport: {
-        host: 'smtp.gmail.com',
+        host: process.env.MAIL_HOST,
         secure: false,
         auth: {
-          user: 'maxximize4103@gmail.com',
-          pass: 'm@xximize123',
+          user: process.env.MAIL_USER,
+          pass: process.env.MAIL_PASSWORD,
         },
-      },
-      defaults: {
-        from: '"No Reply" <noreply@example.com>',
       },
       template: {
         dir: join(__dirname, '/assets'),
