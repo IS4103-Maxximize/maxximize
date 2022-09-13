@@ -1,8 +1,12 @@
+/* eslint-disable prefer-const */
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateContactDto } from '../contacts/dto/create-contact.dto';
 import { Contact } from '../contacts/entities/contact.entity';
+import { PurchaseOrder } from '../purchase-orders/entities/purchase-order.entity';
+import { SalesInquiry } from '../sales-inquiry/entities/sales-inquiry.entity';
+import { ShellOrganisation } from '../shell-organisations/entities/shell-organisation.entity';
 import { User } from '../users/entities/user.entity';
 import { CreateOrganisationDto } from './dto/create-organisation.dto';
 import { UpdateOrganisationDto } from './dto/update-organisation.dto';
@@ -15,6 +19,12 @@ export class OrganisationsService {
     private readonly organisationsRepository: Repository<Organisation>,
     @InjectRepository(Contact)
     private readonly contactsRepository: Repository<Contact>,
+    @InjectRepository(ShellOrganisation)
+    private readonly shellOrganisationsRepository: Repository<ShellOrganisation>,
+    @InjectRepository(PurchaseOrder)
+    private readonly purchaseOrdersRepository: Repository<PurchaseOrder>,
+    @InjectRepository(SalesInquiry)
+    private readonly salesInquiriesRepository: Repository<SalesInquiry>,
   ) {}
 
   async create(createOrganisationDto: CreateOrganisationDto): Promise<Organisation> {
@@ -115,5 +125,24 @@ export class OrganisationsService {
 
   async directUpdate(organisation: Organisation) {
     return this.organisationsRepository.save(organisation);
+  }
+
+  async addSupplier(organisationId: number, shellOrganisationId: number): Promise<Organisation>{
+    let shellOrganisation: ShellOrganisation
+    shellOrganisation = await this.shellOrganisationsRepository.findOneByOrFail({id: shellOrganisationId})
+    let organisation: Organisation
+    organisation = await this.organisationsRepository.findOneByOrFail({id: organisationId})
+    organisation.suppliers.push(shellOrganisation)
+    return this.organisationsRepository.save(organisation)
+  }
+
+  async removeSupplier(organisationId: number, shellOrganisationId: number): Promise<Organisation> {
+    let shellOrganisation: ShellOrganisation
+    shellOrganisation = await this.shellOrganisationsRepository.findOneByOrFail({id: shellOrganisationId})
+    let organisation: Organisation
+    organisation = await this.organisationsRepository.findOneByOrFail({id: organisationId})
+    let index = organisation.suppliers.indexOf(shellOrganisation)
+    organisation.suppliers.splice(index, 1)
+    return this.organisationsRepository.save(organisation)
   }
 }

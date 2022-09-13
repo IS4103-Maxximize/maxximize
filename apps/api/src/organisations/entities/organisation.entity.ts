@@ -60,4 +60,7 @@ export class Organisation {
     @OneToMany(() => ShellOrganisation, shellOrganisation => shellOrganisation.organisation)
     shellOrganisations: ShellOrganisation[]
 
+    @OneToMany(() => ShellOrganisation, shellOrganisation => shellOrganisation.organisation)
+    suppliers: ShellOrganisation[]
+
 }

@@ -34,6 +34,9 @@ export class ShellOrganisation {
     @ManyToOne(() => Organisation, organisation => organisation.shellOrganisations)
     organisation?: Organisation
 
+    @ManyToOne(() => Organisation, organisation => organisation.shellOrganisations)
+    creator: Organisation
+
     @OneToMany(() => Quotation, quotation => quotation.shellOrganisation)
     quotations: Quotation[]
 
