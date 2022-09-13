@@ -1,27 +1,21 @@
-import { Column, Entity, JoinColumn, ManyToMany, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
-import { BomLineItem } from "../../bom-line-items/entities/bom-line-item.entity";
-import { Product } from "../../products/entities/product.entity";
-import { Warehouse } from "../../warehouses/entities/warehouse.entity";
+import { Column, Entity, JoinColumn, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { BatchLineItem } from "../../batch-line-items/entities/batch-line-item.entity";
+import { GoodsReceipt } from "../../goods-receipts/entities/goods-receipt.entity";
 
 @Entity()
 export class Batch {
     @PrimaryGeneratedColumn()
-    id: number
+    id: number;
 
     @Column({nullable: false})
-    batchNumber: number
+    batchNumber: string;
 
-    @Column({nullable: false})
-    expiryDate: Date
+    @OneToMany(() => BatchLineItem, batchLineItem => batchLineItem.batch, {
+        cascade: true
+    })
+    batchLineItems: BatchLineItem[];
 
-    @Column({nullable: false})
-    quantity: number
-
-    @OneToOne(() => Product)
+    @OneToOne(() => GoodsReceipt, goodReceipt => goodReceipt.batch)
     @JoinColumn()
-    product: Product
-
-    @ManyToOne(() => Warehouse, (warehouse) => warehouse.batches)
-    warehouse: Warehouse
-
+    goodReceipt: GoodsReceipt;
 }
