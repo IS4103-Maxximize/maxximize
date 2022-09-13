@@ -26,7 +26,8 @@ const WorkerManagement = ({ props }) => {
         }}
       >
         <Container maxWidth={false}>
-          <Typography sx={{ m: 1 }} variant="h4">
+          <Typography sx={{ m: 1 }} 
+          variant="h4">
             Workers
           </Typography>
           <Box sx={{ mt: 2 }}>

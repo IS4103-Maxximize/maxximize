@@ -1,12 +1,14 @@
 import { React, useState, useEffect } from 'react';
-import { Card, Box, Alert, Collapse, Tooltip } from '@mui/material';
+import { Card, Box, Alert, Collapse, Tooltip, InputAdornment, Stack, SvgIcon, TextField} from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import HelpIcon from '@mui/icons-material/Help';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import GroupsIcon from '@mui/icons-material/Groups';
+import { Search as SearchIcon } from '../../icons/search';
 import { OnboardBusinessPartner } from './onboard-business-partner-dialog';
 
 export const RetailersList = () => {
+  const [search, setSearch] = useState([]);
   const [retailers, setRetailers] = useState([]);
   const [successAlert, setSuccessAlert] = useState(false);
   const [successAlertContent, setSuccessAlertContent] = useState('');
@@ -76,7 +78,10 @@ export const RetailersList = () => {
 
     return updatedRow;
   };
-
+  
+  const handleSearch = (event) => {
+    setSearch(event.target.value.toLowerCase())
+  };
 
   const handleDelete = (selectedIds) => {
     console.log('handling delete');
@@ -163,9 +168,36 @@ export const RetailersList = () => {
 
   return (
     <>
-      <Box mb={2} sx={{ m: 1 }} display="flex" justifyContent="space-between">
+            <Box 
+              sx={{ 
+                alignItems: 'center', 
+                display: 'flex', 
+                justifyContent: 'space-between', 
+                flexWrap: 'wrap', 
+                m: -1, 
+              }} 
+            > 
+              <Stack direction="row" spacing={1}> 
+                <TextField 
+                  sx={{ width: 500 }} 
+                  InputProps={{ 
+                    startAdornment: ( 
+                      <InputAdornment position="start"> 
+                        <SvgIcon fontSize="small" color="action"> 
+                          <SearchIcon /> 
+                        </SvgIcon> 
+                      </InputAdornment> 
+                    ), 
+                  }} 
+                  placeholder="Search Retailer" 
+                  variant="outlined" 
+                  type="search" 
+                  onChange={handleSearch} 
+                /> 
+              </Stack> 
       
       </Box>
+
         <Tooltip title={'Delete Retailer (Single/Multiple)'}>
           <IconButton
             onClick={() => {
@@ -240,7 +272,13 @@ export const RetailersList = () => {
         <Box sx={{ minWidth: 1050 }}>
           <DataGrid
             autoHeight
-            rows={rows}
+            rows={rows.filter((row) => {
+              if (search === '') {
+                return row;
+              } else {
+                return row.username.toLowerCase().includes(search);
+              }
+            })}
             columns={columns}
             pageSize={10}
             rowsPerPageOptions={[10]}

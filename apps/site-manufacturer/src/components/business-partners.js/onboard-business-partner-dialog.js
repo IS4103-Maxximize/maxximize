@@ -10,9 +10,8 @@ import {
   import useMediaQuery from '@mui/material/useMediaQuery';
   import { useFormik } from 'formik';
   import * as Yup from 'yup';
-  //import organisation from 
 
-  export const OnboardBusinessPartner = ({
+export const OnboardBusinessPartner = ({
     openDialog,
     setOpenDialog,
     addOrganisation,
@@ -24,7 +23,9 @@ import {
       setOpenDialog(false);
       formik.resetForm();
     };
-  
+
+    const user = JSON.parse(localStorage.getItem('user'));
+
     const handleOnSubmit = async (event) => {
       event.preventDefault();
   
@@ -56,7 +57,7 @@ import {
     const formik = useFormik({
       initialValues: {
         name: '',
-        //organisationId:organisations.organisationId,
+        organisationId:user.organisation.organisationId,
         uen: '',
         address: '',
         postalCode: '',

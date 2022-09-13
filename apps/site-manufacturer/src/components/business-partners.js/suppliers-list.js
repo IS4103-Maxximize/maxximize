@@ -163,7 +163,10 @@ export const SuppliersList = () => {
 
   return (
     <>
-      <Box mb={2} sx={{ m: 1 }} display="flex" justifyContent="space-between">
+      <Box mb={2} 
+      sx={{ m: 1 }} 
+      display="flex" 
+      justifyContent="space-between">
       
       </Box>
         <Tooltip title={'Delete Supplier (Single/Multiple)'}>
