@@ -92,15 +92,15 @@ export const ProductListToolbar = (props) => {
                 <Tooltip
                   title={`Delete ${type === 'raw-materials' ? 'Raw Material(s)' : 'Final Good(s)'}`}
                 >
-                  <Badge badgeContent={numProducts} color="error">
-                    <IconButton
-                      disabled={disabled}
-                      color="error"
-                      onClick={handleConfirmDialogOpen}
-                    >
+                  <IconButton
+                    disabled={disabled}
+                    color="error"
+                    onClick={handleConfirmDialogOpen}
+                  >
+                    <Badge badgeContent={numProducts} color="error">
                       <DeleteIcon />
-                    </IconButton>
-                  </Badge>
+                    </Badge>
+                  </IconButton>
                 </Tooltip>
               </Box>
             </Box>
