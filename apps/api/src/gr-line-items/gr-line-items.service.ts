@@ -24,18 +24,24 @@ export class GrLineItemsService {
   }
 
   findAll() {
-    return `This action returns all grLineItems`;
+    return this.grLineItemRepository.find();
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} grLineItem`;
+    return this.grLineItemRepository.findOne({
+      where: { id },
+      relations: ["goodReceipt"]
+    });
   }
 
-  update(id: number, updateGrLineItemDto: UpdateGrLineItemDto) {
-    return `This action updates a #${id} grLineItem`;
+  async update(id: number, updateGrLineItemDto: UpdateGrLineItemDto) {
+    const grLineItem = await this.findOne(id);
+    grLineItem.quantity = updateGrLineItemDto.quantity;
+    grLineItem.subTotal = updateGrLineItemDto.subtotal;
+    return this.grLineItemRepository.save(grLineItem);
   }
 
   remove(id: number) {
-    return `This action removes a #${id} grLineItem`;
+    return this.grLineItemRepository.delete(id);
   }
 }

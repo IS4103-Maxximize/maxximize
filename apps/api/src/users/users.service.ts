@@ -58,7 +58,7 @@ export class UsersService {
     
     const savedUser = await this.usersRepository.save(newUser);
     if (savedUser) {
-      await this.mailService.sendUserConfirmation(createUserDto.contact, organisation.name, newUser, password);
+      await this.mailService.sendUserConfirmation(createUserDto.contact, organisation.name, newUser, password, organisation.id);
     }
     return savedUser;
   }
