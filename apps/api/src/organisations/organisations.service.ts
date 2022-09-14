@@ -37,7 +37,17 @@ export class OrganisationsService {
       type,
       users: [],
       uen,
-      contact: contact ?? null
+      contact: contact ?? null,
+      machines: [],
+      salesOrders: [],
+      purchaseOrders: [],
+      salesInquiries: [],
+      warehouses: [],
+      billings: [],
+      shellOrganisations: [],
+      suppliers: [],
+      rawMaterials: [],
+      finalGoods: []
     })
     return this.organisationsRepository.save(newOrganisation);
   }
@@ -127,6 +137,7 @@ export class OrganisationsService {
     return this.organisationsRepository.save(organisation);
   }
 
+  //May not need to use these 2 methods because the relationship is captured when shellOrganisation is created
   async addSupplier(organisationId: number, shellOrganisationId: number): Promise<Organisation>{
     let shellOrganisation: ShellOrganisation
     shellOrganisation = await this.shellOrganisationsRepository.findOneByOrFail({id: shellOrganisationId})
@@ -145,4 +156,5 @@ export class OrganisationsService {
     organisation.suppliers.splice(index, 1)
     return this.organisationsRepository.save(organisation)
   }
+
 }

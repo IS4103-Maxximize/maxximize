@@ -1,3 +1,4 @@
+/* eslint-disable prefer-const */
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -7,6 +8,7 @@ import { BillOfMaterial } from '../bill-of-materials/entities/bill-of-material.e
 import { CreateFinalGoodDto } from './dto/create-final-good.dto';
 import { UpdateFinalGoodDto } from './dto/update-final-good.dto';
 import { NotFoundException } from '@nestjs/common';
+import { Organisation } from '../organisations/entities/organisation.entity';
 
 @Injectable()
 export class FinalGoodsService {
@@ -17,16 +19,21 @@ export class FinalGoodsService {
     private readonly productRepository: Repository<Product>,
     @InjectRepository(BillOfMaterial)
     private readonly billOfMaterialRepository: Repository<BillOfMaterial>,
+    @InjectRepository(Organisation)
+    private readonly organisationsRepository: Repository<Organisation>
   ){}
 
   async create(createFinalGoodDto: CreateFinalGoodDto): Promise<FinalGood> {
-    const {name, description, unit, unitPrice, expiry} = createFinalGoodDto
+    const {name, description, unit, unitPrice, expiry, organisation} = createFinalGoodDto
+    let organisationToBeAdded: Organisation
+    organisationToBeAdded = await this.organisationsRepository.findOneByOrFail({id: organisation.id})
     const newFinalGoodInstance = this.finalGoodRepository.create({
       name,
       description,
       unit,
       unitPrice,
-      expiry
+      expiry,
+      organisation: organisationToBeAdded
     });
     const newFinalGood = await this.finalGoodRepository.save(newFinalGoodInstance);
     return this.finalGoodRepository.save({
