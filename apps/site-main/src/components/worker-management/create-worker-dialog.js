@@ -27,8 +27,9 @@ export const CreateWorkerDialog = ({
     formik.resetForm();
   };
 
-  //Change this to retrieve local storage user organisation Id
-  const organisationId = '1';
+  //User organisation Id
+  const user = JSON.parse(localStorage.getItem('user'));
+  const organisationId = user.organisation.id;
 
   //Handle Formik submission
   const handleOnSubmit = async (event) => {
@@ -51,7 +52,7 @@ export const CreateWorkerDialog = ({
         firstName: formik.values.firstName,
         lastName: formik.values.lastName,
         username: formik.values.username,
-        password: 'password',
+        password: '',
         role: formik.values.role,
         organisationId: organisationId,
         contact: {
@@ -66,6 +67,7 @@ export const CreateWorkerDialog = ({
     const result = await response.json();
 
     const flattenResult = flattenObj(result);
+    console.log(flattenResult);
 
     //Rerender parent data grid compoennt
     addWorker(flattenResult);
@@ -118,10 +120,10 @@ export const CreateWorkerDialog = ({
   });
 
   const workerRoles = [
-    { value: 'Admin', label: 'Admin' },
-    { value: 'Manager', label: 'Manager' },
-    { value: 'FactoryWorker', label: 'FactoryWorker' },
-    { value: 'Driver', label: 'Driver' },
+    { value: 'admin', label: 'Admin' },
+    { value: 'manager', label: 'Manager' },
+    { value: 'factoryWorker', label: 'Factory Worker' },
+    { value: 'driver', label: 'Driver' },
   ];
 
   return (

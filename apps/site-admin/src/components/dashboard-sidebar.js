@@ -1,22 +1,24 @@
 import {
-  Box, Button, Divider,
+  Box,
+  Button,
+  Divider,
   Drawer,
   Typography,
-  useMediaQuery
+  useMediaQuery,
 } from '@mui/material';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
-import { Selector as SelectorIcon } from '../icons/selector';
 import { ShoppingBag as ShoppingBagIcon } from '../icons/shopping-bag';
-import { User as UserIcon } from '../icons/user';
 import { Logo } from './logo';
+import DomainAddIcon from '@mui/icons-material/DomainAdd';
 
 const items = [
-  // {
-  //   href: '/products',
-  //   icon: <ShoppingBagIcon fontSize="small" />,
-  //   title: 'Products',
-  // },
+  {
+    href: '/onboarding',
+    icon: <DomainAddIcon fontSize="small" />,
+    title: 'Onboarding',
+    access: ['admin'],
+  },
   // {
   //   href: '/workermanagement',
   //   icon: <UserIcon fontSize="small" />,
@@ -40,7 +42,15 @@ export const DashboardSidebar = (props) => {
       }}
     >
       <div>
-        <Box sx={{ p: 3, display: 'flex', justifyContent: 'start', alignItems: 'center', gap: '10px' }}>
+        <Box
+          sx={{
+            p: 3,
+            display: 'flex',
+            justifyContent: 'start',
+            alignItems: 'center',
+            gap: '10px',
+          }}
+        >
           <Link to="/">
             <Logo
               sx={{
@@ -49,7 +59,7 @@ export const DashboardSidebar = (props) => {
               }}
             />
           </Link>
-          Welcome {user.firstName}!
+          Welcome {user.firstName}! [{user.role}]
         </Box>
         <Box sx={{ px: 2 }}>
           <Box
@@ -68,7 +78,6 @@ export const DashboardSidebar = (props) => {
               <Typography color="inherit" variant="subtitle1">
                 {user?.organisation?.name}
               </Typography>
-    
             </div>
           </Box>
         </Box>
@@ -79,12 +88,24 @@ export const DashboardSidebar = (props) => {
           my: 3,
         }}
       />
-      <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', gap: '15px' }}>
-        {items.map((item, index) => (
-          <Link to={item.href} style={{ textDecoration: 'none' }} key={index}>
-            <Button variant="contained" endIcon={item.icon}>{item.title}</Button>
-          </Link>
-        ))}
+      <Box
+        sx={{
+          pl: 2,
+          flexGrow: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '15px',
+        }}
+      >
+        {items
+          .filter((item) => item.access.includes(user.role))
+          .map((item, index, disabled) => (
+            <Link to={item.href} style={{ textDecoration: 'none' }} key={index}>
+              <Button color="success" variant="contained" endIcon={item.icon}>
+                {item.title}
+              </Button>
+            </Link>
+          ))}
       </Box>
     </Box>
   );

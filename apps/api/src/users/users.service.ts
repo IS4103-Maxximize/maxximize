@@ -16,7 +16,6 @@ import * as bcrypt from 'bcrypt';
 import { UpdateContactDto } from '../contacts/dto/update-contact.dto';
 import { MailService } from '../mail/mail.service';
 
-
 @Injectable()
 export class UsersService {
   constructor(
@@ -53,12 +52,20 @@ export class UsersService {
     if (organisation) {
       newUser.organisation = organisation;
     } else {
-      throw new NotFoundException(`Organisation with id : ${createUserDto.organisationId} cannot be found!`)
+      throw new NotFoundException(
+        `Organisation with id : ${createUserDto.organisationId} cannot be found!`
+      );
     }
-    
+
     const savedUser = await this.usersRepository.save(newUser);
     if (savedUser) {
-      await this.mailService.sendUserConfirmation(createUserDto.contact, organisation.name, newUser, password, organisation.id);
+      await this.mailService.sendUserConfirmation(
+        createUserDto.contact,
+        organisation.name,
+        newUser,
+        password,
+        organisation.id
+      );
     }
     return savedUser;
   }
@@ -76,8 +83,8 @@ export class UsersService {
   findOne(id: number): Promise<User> {
     try {
       return this.usersRepository.findOne({
-        where: { id }, 
-        relations: {contact: true, organisation: true}
+        where: { id },
+        relations: { contact: true, organisation: true },
       });
     } catch (err) {
       throw new NotFoundException('No user with id: ' + id + ' found!');
@@ -118,7 +125,7 @@ export class UsersService {
     }
   }
 
-  async changePassword(id: number,updateUserDto: UpdateUserDto) {
+  async changePassword(id: number, updateUserDto: UpdateUserDto) {
     const user = await this.findOne(id);
     user.password = await bcrypt.hash(updateUserDto.password, user.salt);
     if (!user.passwordChanged) {
