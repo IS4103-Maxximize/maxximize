@@ -1,9 +1,10 @@
-import { Autocomplete, Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack, TextField } from "@mui/material";
+import { Autocomplete, Button, Dialog, DialogActions, DialogContent, DialogTitle, InputAdornment, Stack, TextField } from "@mui/material";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useEffect, useState } from "react";
 import { fetchProducts } from "../../helpers/products";
 import { fetchSuppliers } from "../../helpers/procurement-ordering";
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 
 export const QuotationDialog = (props) => {
   const {
@@ -39,8 +40,13 @@ export const QuotationDialog = (props) => {
       .required('Enter Lot Price'),
     unit: Yup
       .string(),
-    // supplierId
-    // skuCode
+    supplierId: Yup
+      .number()
+      .integer()
+      .required('Select Supplier ID'),
+    skuCode: Yup
+      .string()
+      .required('Select Raw Material SKU'),
   })
 
   const handleOnSubmit = async (values) => {
@@ -55,8 +61,6 @@ export const QuotationDialog = (props) => {
 
   const onClose = () => {
     formik.resetForm();
-    setSupplierValue(null);
-    setProductValue(null);
     handleClose();
   };
 
@@ -68,31 +72,25 @@ export const QuotationDialog = (props) => {
   })
 
   // Autocomplete Helpers
-  const [supplierOptions, setSupplierOptions] = useState([]);
-  const [supplierInput, setSupplierInput] = useState("");
-  const [supplierValue, setSupplierValue] = useState();
+  const [suppliers, setSuppliers] = useState([]);
+  const [products, setProducts] = useState([]);
 
+  const [supplierOptions, setSupplierOptions] = useState([]);
   const [productOptions, setProductOptions] = useState([]);
-  const [productInput, setProductInput] = useState("");
-  const [productValue, setProductValue] = useState();
   
   useEffect(() => {
     const fetchData = async () => {
       const suppliers = await fetchSuppliers();
       const products = await fetchProducts('raw-materials');
 
-      setSupplierOptions(suppliers);
-      setProductOptions(products);
+      setSuppliers(suppliers);
+      setProducts(products);
+
+      setSupplierOptions(suppliers.map(el => el.id));
+      setProductOptions(products.map(el => el.skuCode));
     }
     fetchData();
   }, [open]);
-
-  useEffect(() => {
-    if (quotation !== null) {
-      setProductValue(quotation.product)
-    };
-  }, [quotation])
-
 
   return (
     <form onSubmit={formik.handleSubmit}>
@@ -121,6 +119,26 @@ export const QuotationDialog = (props) => {
           />}
           <TextField
             fullWidth
+            error={Boolean(formik.touched.lotPrice && formik.errors.lotPrice)}
+            helperText={formik.touched.lotPrice && formik.errors.lotPrice}
+            label="Lot Price"
+            margin="normal"
+            name="lotPrice"
+            type="number"
+            onBlur={formik.handleBlur}
+            onChange={formik.handleChange}
+            value={formik.values.lotPrice}
+            variant="outlined"
+            // InputProps={{
+            //   startAdornment: (
+            //     <InputAdornment sx={{mr: 1}}>
+            //       $
+            //     </InputAdornment>
+            //   )
+            // }}
+          />
+          <TextField
+            fullWidth
             error={Boolean(formik.touched.lotQuantity && formik.errors.lotQuantity)}
             helperText={formik.touched.lotQuantity && formik.errors.lotQuantity}
             label="Lot Quantity"
@@ -132,51 +150,28 @@ export const QuotationDialog = (props) => {
             value={formik.values.lotQuantity}
             variant="outlined"
           />
-          <TextField
-            fullWidth
-            error={Boolean(formik.touched.lotPrice && formik.errors.lotPrice)}
-            helperText={formik.touched.lotPrice && formik.errors.lotPrice}
-            label="Lot Price"
-            margin="normal"
-            name="lotPrice"
-            type="number"
-            onBlur={formik.handleBlur}
-            onChange={formik.handleChange}
-            value={formik.values.lotPrice}
-            variant="outlined"
-          />
           <Stack sx={{ py: 1 }} direction="row" spacing={1}>
             {/* Supplier Selection */}
             <Autocomplete 
+              id="supplier-selector"
               sx={{width: '50%'}}
               options={supplierOptions}
-              value={supplierValue}
+              value={formik.values.supplierId}
               onChange={(event, newValue) => {
-                setSupplierValue(newValue);
+                formik.setFieldValue('supplierId', newValue);
               }}
-              isOptionEqualToValue={(option, value) => {
-                return option.name === value.name;
-              }}
-              getOptionLabel={(option) => {
-                return option.name
-              }}
-              renderInput={(params) => <TextField {...params} label="Suppliers"/>}
+              renderInput={(params) => <TextField {...params} label="Suppliers ID"/>}
             />
             {/* Raw Material Selection */}
             <Autocomplete 
+              id="raw-material-selector"
               sx={{width: '50%'}}
               options={productOptions}
-              value={productValue}
+              value={formik.values.skuCode}
               onChange={(event, newValue) => {
-                setProductValue(newValue);
+                formik.setFieldValue('skuCode', newValue);
               }}
-              isOptionEqualToValue={(option, value) => {
-                return option.skuCode === value.skuCode;
-              }}
-              getOptionLabel={(option) => {
-                return option.skuCode
-              }}
-              renderInput={(params) => <TextField {...params} label="Raw Materials"/>}
+              renderInput={(params) => <TextField {...params} label="SKUs"/>}
             />
           </Stack>
         </DialogContent>
@@ -184,7 +179,7 @@ export const QuotationDialog = (props) => {
           <Button 
             disabled={
               !formik.isValid || formik.isSubmitting ||
-              !supplierValue || !productValue
+              !formik.values.supplierId || !formik.values.skuCode
             }
             variant="contained"
             onClick={formik.handleSubmit}>
