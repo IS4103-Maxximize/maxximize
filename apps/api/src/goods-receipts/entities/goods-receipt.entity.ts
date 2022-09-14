@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Batch } from "../../batches/entities/batch.entity";
 import { GrLineItem } from "../../gr-line-items/entities/gr-line-item.entity";
 
@@ -14,15 +14,14 @@ export class GoodsReceipt {
     @Column()
     recipientName: string
 
-    @ManyToOne(() => GrLineItem, grLineItem => grLineItem.goodReceipt, {
-        cascade: true
-    })
+    @OneToMany(() => GrLineItem, grLineItem => grLineItem.goodReceipt)
     goodReceiptLineItems: GrLineItem[];
 
     // @OneToOne(() => PurchaseOrder)
     // @JoinColumn()
     // purchaseOrder: PurchaseOrder;
 
-    @OneToOne(() => Batch, batch => batch.goodReceipt)
+    @OneToOne(() => Batch, batch => batch.goodReceipt) // delete batch when gr is deleted
+    @JoinColumn()
     batch: Batch;
 }

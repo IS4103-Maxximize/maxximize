@@ -16,6 +16,5 @@ export class Batch {
     batchLineItems: BatchLineItem[];
 
     @OneToOne(() => GoodsReceipt, goodReceipt => goodReceipt.batch)
-    @JoinColumn()
     goodReceipt: GoodsReceipt;
 }

@@ -5,5 +5,5 @@ export class UpdatePurchaseOrderLineItemDto extends PartialType(
   CreatePurchaseOrderLineItemDto
 ) {
   quantity?: number;
-  subTotal?: number;
+  price?: number;
 }

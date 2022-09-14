@@ -5,6 +5,6 @@ export class CreateShellOrganisationDto {
     name: string;
     uen: string;
     type: OrganisationType;
-    contact: CreateContactDto;
-    organisationId: number
+    contact?: CreateContactDto;
+    organisationId: number;
 }
