@@ -29,9 +29,9 @@ export class ShellOrganisationsService {
     private readonly rawMaterialsRepository: Repository<RawMaterial>,
   ) {}
   async create(createShellOrganisationDto: CreateShellOrganisationDto): Promise<ShellOrganisation> {
-    const {name, type, uen, contact, creator} = createShellOrganisationDto
+    const {name, type, uen, contact, organisationId} = createShellOrganisationDto
     let creatorToBeAdded: Organisation
-    creatorToBeAdded = await this.organisationsRepository.findOneBy({id: creator.id})
+    creatorToBeAdded = await this.organisationsRepository.findOneBy({id: organisationId})
     
     //contact is provided, save it into database first
     if (contact) {
@@ -175,7 +175,7 @@ export class ShellOrganisationsService {
     return updatedQuotations
   }*/
 
-  async retrieveOrganisation(shellOrganisationUen: number) : Promise<Organisation> {
+  async retrieveOrganisation(shellOrganisationUen: string) : Promise<Organisation> {
     return this.organisationsRepository.findOneBy({uen: shellOrganisationUen})
   }
 }
