@@ -1,6 +1,8 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { FinalGood } from "../../final-goods/entities/final-good.entity";
+import { MeasurementUnit } from "../../products/enums/measurementUnit.enum";
 import { PurchaseOrder } from "../../purchase-orders/entities/purchase-order.entity";
-import { Quotation } from "../../quotations/entities/quotation.entity";
+import { RawMaterial } from "../../raw-materials/entities/raw-material.entity";
 
 @Entity()
 export class PurchaseOrderLineItem {
@@ -11,16 +13,16 @@ export class PurchaseOrderLineItem {
     quantity: number
 
     @Column()
-    subTotal: number
+    price: number
 
     @Column()
-    organisationRawMaterialId: number
+    unit: MeasurementUnit
 
-    @Column()
-    supplierFinalGoodId: number
+    @ManyToOne(() => RawMaterial)
+    rawMaterial: RawMaterial
 
-    @ManyToOne(() => Quotation, quotation => quotation.poLineItems, {onDelete: 'SET NULL'})
-    quotation: Quotation
+    @ManyToOne(() => FinalGood, { nullable: true })
+    finalGood?: FinalGood
 
     @ManyToOne(() => PurchaseOrder, purchaseOrder => purchaseOrder.poLineItems, {onDelete: 'SET NULL'})
     purchaseOrder: PurchaseOrder

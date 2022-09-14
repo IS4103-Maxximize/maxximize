@@ -18,12 +18,17 @@ import { OrderProcessesModule } from '../order-processes/order-processes.module'
 import { OrdersModule } from '../orders/orders.module';
 import { OrganisationsModule } from '../organisations/organisations.module';
 import { ProductsModule } from '../products/products.module';
+import { PurchaseOrderLineItemsModule } from '../purchase-order-line-items/purchase-order-line-items.module';
+import { PurchaseOrder } from '../purchase-orders/entities/purchase-order.entity';
 import { PurchaseOrderLineItem } from '../purchase-order-line-items/entities/purchase-order-line-item.entity';
 import { PurchaseOrdersModule } from '../purchase-orders/purchase-orders.module';
 import { QualityReviewsModule } from '../quality-reviews/quality-reviews.module';
+import { QuotationLineItemsModule } from '../quotation-line-items/quotation-line-items.module';
 import { QuotationsModule } from '../quotations/quotations.module';
 import { RawMaterialsModule } from '../raw-materials/raw-materials.module';
 import { RecipesModule } from '../recipes/recipes.module';
+import { SalesInquiryLineItemsModule } from '../sales-inquiry-line-items/sales-inquiry-line-items.module';
+import { SalesInquiryModule } from '../sales-inquiry/sales-inquiry.module';
 import { SchedulesModule } from '../schedules/schedules.module';
 import { SensorsModule } from '../sensors/sensors.module';
 import { ShellOrganisationsModule } from '../shell-organisations/shell-organisations.module';
@@ -71,7 +76,11 @@ import { AppService } from './app.service';
     WarehousesModule,
     ShellOrganisationsModule,
     QuotationsModule,
+    QuotationLineItemsModule,
     PurchaseOrdersModule,
+    PurchaseOrderLineItemsModule,
+    SalesInquiryModule,
+    SalesInquiryLineItemsModule
     PurchaseOrderLineItem,
     BatchLineItemsModule,
     GoodsReceiptsModule,

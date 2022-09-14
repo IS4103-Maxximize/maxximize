@@ -1,8 +1,8 @@
-import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
-import { Product } from "../../products/entities/product.entity";
-import { PurchaseOrderLineItem } from "../../purchase-order-line-items/entities/purchase-order-line-item.entity";
-import { MeasurementUnit } from "../../products/enums/measurementUnit.enum";
+import { Column, Entity, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { ShellOrganisation } from "../../shell-organisations/entities/shell-organisation.entity";
+import { QuotationLineItem } from "../../quotation-line-items/entities/quotation-line-item.entity";
+import { PurchaseOrder } from "../../purchase-orders/entities/purchase-order.entity";
+import { SalesInquiry } from "../../sales-inquiry/entities/sales-inquiry.entity";
 
 @Entity()
 export class Quotation {
@@ -10,23 +10,20 @@ export class Quotation {
     id: number
 
     @Column()
-    lotQuantity: number
+    created: Date
 
     @Column()
-    lotPrice: number
+    totalPrice: number
 
-    @Column({
-        type: 'enum',
-        enum: MeasurementUnit
-    })
-    unit: MeasurementUnit;
+    @OneToOne(() => PurchaseOrder, purchaseOrder => purchaseOrder.quotation, { nullable: true })
+    purchaseOrder?: PurchaseOrder
+
+    @ManyToOne(() => SalesInquiry, salesInquiry => salesInquiry.quotations)
+    salesInquiry: SalesInquiry
 
     @ManyToOne(() => ShellOrganisation, shellOrganisation => shellOrganisation.quotations, {onDelete: 'SET NULL'})
     shellOrganisation: ShellOrganisation
 
-    @ManyToOne(() => Product, product => product.quotations)
-    product: Product
-
-    @OneToMany(() => PurchaseOrderLineItem, poLineItem => poLineItem.quotation)
-    poLineItems: PurchaseOrderLineItem[];
+    @OneToMany(() => QuotationLineItem, quotationLineItem => quotationLineItem.quotation)
+    quotationLineItems: QuotationLineItem[];
 }
