@@ -35,7 +35,7 @@ export const SalesInquiryDialog = (props) => {
   let initialValues = {
     id: inquiry ? inquiry.id : null,
     status: inquiry ? inquiry.status : 'draft',
-    indPrice: inquiry ? inquiry.indPrice : null,
+    indPrice: inquiry ? inquiry.indPrice : 1,
     lineItems: inquiry ? inquiry.lineItems : [],
     totalPrice: inquiry ? calculateTotalPrice(inquiry.lineItems) : 0,
     numProd: 1,
