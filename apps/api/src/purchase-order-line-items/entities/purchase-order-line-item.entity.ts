@@ -15,7 +15,10 @@ export class PurchaseOrderLineItem {
     @Column()
     price: number
 
-    @Column()
+    @Column({
+        type: 'enum',
+        enum: MeasurementUnit
+    })
     unit: MeasurementUnit
 
     @ManyToOne(() => RawMaterial)

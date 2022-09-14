@@ -81,7 +81,7 @@ import { AppService } from './app.service';
     PurchaseOrdersModule,
     PurchaseOrderLineItemsModule,
     SalesInquiryModule,
-    SalesInquiryLineItemsModule
+    SalesInquiryLineItemsModule,
     PurchaseOrderLineItem,
     BatchLineItemsModule,
     GoodsReceiptsModule,
