@@ -3,7 +3,13 @@ import { ListItemIcon, ListItemText, Menu, MenuItem, MenuList } from "@mui/mater
 
 
 export const ProductMenu = (props) => {
-  const {anchorEl, menuOpen, handleClickOpen, handleMenuClose, handleClickViewEdit} = props;
+  const {
+    anchorEl, 
+    menuOpen, 
+    handleClickOpen, 
+    handleMenuClose, 
+    handleClickViewEdit
+  } = props;
   return (
     <Menu 
       anchorEl={anchorEl}

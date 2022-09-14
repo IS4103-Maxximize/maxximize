@@ -3,6 +3,7 @@ import DoneAllIcon from '@mui/icons-material/DoneAll';
 import RawOnIcon from '@mui/icons-material/RawOn';
 import CorporateFareIcon from '@mui/icons-material/CorporateFare';
 import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
+import RequestQuoteIcon from '@mui/icons-material/RequestQuote';
 import {
   Box,
   Button,
@@ -28,13 +29,19 @@ const items = [
     href: '/raw-materials',
     icon: <RawOnIcon fontSize="small" />,
     title: 'Raw Materials',
-    access: ['manager'],
+    access: [
+      'manager',
+      'admin'
+    ],
   },
   {
     href: '/final-goods',
     icon: <DoneAllIcon fontSize="small" />,
     title: 'Final Goods',
-    access: ['manager'],
+    access: [
+      'manager',
+      'admin'
+    ],
   },
   {
     href: '/procurement',
@@ -49,9 +56,22 @@ const items = [
     access: ['admin'],
   },
   {
-    href: '/procurement/ordering/sales-inquiry',
+    href: '/procurement/sales-inquiry',
     icon: <QuestionAnswerIcon fontSize="small" />,
     title: 'Sales Inquiry',
+    access: [
+      'admin',
+      'manager',
+    ],
+  },
+  {
+    href: '/procurement/quotation',
+    icon: <RequestQuoteIcon fontSize="small" />,
+    title: 'Quotation Management',
+    access: [
+      'admin',
+      'manager',
+    ],
   }
 ];
 
