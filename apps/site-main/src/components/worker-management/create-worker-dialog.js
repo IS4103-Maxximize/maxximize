@@ -15,6 +15,7 @@ import * as Yup from 'yup';
 export const CreateWorkerDialog = ({
   openDialog,
   setOpenDialog,
+  handleAlertOpen,
   addWorker,
 }) => {
   const theme = useTheme();
@@ -50,7 +51,7 @@ export const CreateWorkerDialog = ({
         firstName: formik.values.firstName,
         lastName: formik.values.lastName,
         username: formik.values.username,
-        password: formik.values.password,
+        password: 'password',
         role: formik.values.role,
         organisationId: organisationId,
         contact: {
@@ -69,6 +70,8 @@ export const CreateWorkerDialog = ({
     //Rerender parent data grid compoennt
     addWorker(flattenResult);
 
+    handleAlertOpen(`Created Worker ${result.id} successfully`);
+
     handleDialogClose();
   };
 
@@ -77,7 +80,6 @@ export const CreateWorkerDialog = ({
       firstName: '',
       lastName: '',
       username: '',
-      password: 'password',
       role: '',
       address: '',
       postalCode: '',
@@ -85,13 +87,33 @@ export const CreateWorkerDialog = ({
       phoneNumber: '',
     },
     validationSchema: Yup.object({
-      firstName: Yup.string().max(255).required('First name is required'),
-      lastName: Yup.string().max(255).required('Last name is required'),
+      firstName: Yup.string()
+        .min(1, 'First Name must be at least be 1 character long')
+        .max(50, 'First Name can at most be 50 characters long')
+        .required('First name is required'),
+      lastName: Yup.string()
+        .min(1, 'Last Name must be at least be 1 character long')
+        .max(50, 'Last Name can at most be 50 characters long')
+        .required('Last name is required'),
       role: Yup.string().required('Role is required'),
-      address: Yup.string().max(255).required('Address is required'),
-      postalCode: Yup.string().max(255).required('Postal Code is required'),
-      email: Yup.string().max(255).required('Email is required'),
-      phoneNumber: Yup.string().max(16).required('Phone Number is required'),
+      address: Yup.string()
+        .min(3, 'Address must be at least be 3 characters long')
+        .max(95, 'Address can at most be 95 characters long')
+        .required('Address is required'),
+      postalCode: Yup.string()
+        .min(6, 'Postal Code must be at least be 6 digits')
+        .max(6, 'Postal Code can at most be 6 digits')
+        .required('Postal Code is required'),
+      email: Yup.string()
+        .email('Email must be in a proper format [eg. user@email.com]')
+        .min(7, 'Email must be at least be 7 characters long')
+        .max(62, 'Email can at most be 62 characters long')
+        .required('Email is required'),
+      phoneNumber: Yup.string()
+        .min(8, 'Phone number must be at least be 8 digits')
+        .max(16, 'Phone number can at most be 16 digits')
+        .matches(new RegExp('[0-9]'), 'Phone number should only contain digits')
+        .required('Phone Number is required'),
     }),
   });
 
@@ -198,6 +220,7 @@ export const CreateWorkerDialog = ({
             name="email"
             onBlur={formik.handleBlur}
             onChange={formik.handleChange}
+            type="email"
             value={formik.values.email}
             variant="outlined"
             size="small"
@@ -231,7 +254,7 @@ export const CreateWorkerDialog = ({
             </Button>
             <Button
               color="primary"
-              disabled={formik.isSubmitting}
+              disabled={!(formik.dirty && formik.isValid)}
               size="large"
               type="submit"
               variant="contained"

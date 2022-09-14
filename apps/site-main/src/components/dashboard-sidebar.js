@@ -1,6 +1,7 @@
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import DoneAllIcon from '@mui/icons-material/DoneAll';
 import RawOnIcon from '@mui/icons-material/RawOn';
+import CorporateFareIcon from '@mui/icons-material/CorporateFare';
 import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
 import {
   Box,
@@ -8,7 +9,7 @@ import {
   Divider,
   Drawer,
   Typography,
-  useMediaQuery
+  useMediaQuery,
 } from '@mui/material';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
@@ -16,27 +17,36 @@ import { Selector as SelectorIcon } from '../icons/selector';
 import { User as UserIcon } from '../icons/user';
 import { Logo } from './logo';
 
-
 const items = [
   {
     href: '/workermanagement',
     icon: <UserIcon fontSize="small" />,
     title: 'Worker Management',
+    access: ['admin'],
   },
   {
     href: '/raw-materials',
-    icon: <RawOnIcon fontSize="small"/>,
-    title: 'Raw Materials'
+    icon: <RawOnIcon fontSize="small" />,
+    title: 'Raw Materials',
+    access: ['manager'],
   },
   {
     href: '/final-goods',
-    icon: <DoneAllIcon fontSize="small"/>,
+    icon: <DoneAllIcon fontSize="small" />,
     title: 'Final Goods',
+    access: ['manager'],
   },
   {
     href: '/procurement',
     icon: <AddShoppingCartIcon fontSize="small" />,
     title: 'Procurement',
+    access: ['manager', 'factoryworker'],
+  },
+  {
+    href: '/businessrelations',
+    icon: <CorporateFareIcon fontSize="small" />,
+    title: 'Business Relations',
+    access: ['admin'],
   },
   {
     href: '/procurement/ordering/sales-inquiry',
@@ -78,7 +88,7 @@ export const DashboardSidebar = (props) => {
               }}
             />
           </Link>
-          Welcome {user.firstName}!
+          Welcome {user.firstName}! [{user.role}]
         </Box>
         <Box sx={{ px: 2 }}>
           <Box
@@ -119,19 +129,22 @@ export const DashboardSidebar = (props) => {
       />
       <Box
         sx={{
+          pl: 2,
           flexGrow: 1,
           display: 'flex',
           flexDirection: 'column',
           gap: '15px',
         }}
       >
-        {items.map((item, index, disabled) => (
-          <Link to={item.href} style={{ textDecoration: 'none' }} key={index}>
-            <Button variant="contained" endIcon={item.icon}>
-              {item.title}
-            </Button>
-          </Link>
-        ))}
+        {items
+          .filter((item) => item.access.includes(user.role))
+          .map((item, index, disabled) => (
+            <Link to={item.href} style={{ textDecoration: 'none' }} key={index}>
+              <Button variant="contained" endIcon={item.icon}>
+                {item.title}
+              </Button>
+            </Link>
+          ))}
       </Box>
     </Box>
   );

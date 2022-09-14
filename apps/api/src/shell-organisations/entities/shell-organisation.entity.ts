@@ -3,6 +3,7 @@ import { Contact } from "../../contacts/entities/contact.entity";
 import { Organisation } from "../../organisations/entities/organisation.entity";
 import { OrganisationType } from "../../organisations/enums/organisationType.enum";
 import { Quotation } from "../../quotations/entities/quotation.entity";
+import { PurchaseOrder } from "../../purchase-orders/entities/purchase-order.entity";
 
 @Entity()
 export class ShellOrganisation {
@@ -23,8 +24,8 @@ export class ShellOrganisation {
     @Column()
     created: Date
 
-    @Column()
-    uen: number
+    @Column({unique: true})
+    uen: string
 
     @OneToOne(() => Contact, contact => contact.shellOrganisation)
     contact: Contact
@@ -35,6 +36,6 @@ export class ShellOrganisation {
     @OneToMany(() => Quotation, quotation => quotation.shellOrganisation)
     quotations: Quotation[]
 
-    // @OneToMany(() => PurchaseOrder, purchaseOrder => purchaseOrder.supplier)
-    // purchaseOrders: PurchaseOrder[];
+    @OneToMany(() => PurchaseOrder, purchaseOrder => purchaseOrder.supplierOrganisation)
+    purchaseOrders: PurchaseOrder[];
 }
