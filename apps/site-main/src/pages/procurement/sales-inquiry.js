@@ -18,7 +18,7 @@ export const SalesInquiry = (props) => {
   // Search Helpers
   const [search, setSearch] = useState("");
   const handleSearch = (event) => {
-    setSearch(event.target.value.toLowerCase())
+    setSearch(event.target.value.toLowerCase().trim());
   };
 
   // DataGrid Row and Toolbar helpers

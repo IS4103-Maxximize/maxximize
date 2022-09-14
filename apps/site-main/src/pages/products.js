@@ -119,7 +119,7 @@ const Products = (props) => {
   }, [selectedRows]);
 
   const handleSearch = (event) => {
-    setSearch(event.target.value.toLowerCase())
+    setSearch(event.target.value.toLowerCase().trim());
   };
 
   const handleAddProductClick = () => {
