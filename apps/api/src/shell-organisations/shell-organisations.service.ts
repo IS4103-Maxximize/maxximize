@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { HttpException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateContactDto } from '../contacts/dto/create-contact.dto';
@@ -30,7 +30,7 @@ export class ShellOrganisationsService {
     //need to check if uen is already present
     const allShellUens = await this.retrieveAllUen()
     if (allShellUens.includes(uen) || organisationToBeAdded.uen === uen) {
-      throw new Error('UEN already exists')
+      throw new NotFoundException('UEN already exists')
     }
     //contact is provided, save it into database first
     if (contact) {
@@ -73,7 +73,7 @@ export class ShellOrganisationsService {
     }
   }
 
-  async retrieveAllUen(): Promise<Number[]> {
+  async retrieveAllUen(): Promise<String[]> {
     const allShellOrganisations = await this.findAll()
     const allUENs = allShellOrganisations.map(shell => shell.uen)
     return allUENs
