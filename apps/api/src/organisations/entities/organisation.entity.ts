@@ -7,6 +7,10 @@ import { Order } from "../../orders/entities/order.entity";
 import { Billing } from "../../billings/entities/billing.entity";
 import { Machine } from "../../vehicles/entities/vehicle.entity";
 import { ShellOrganisation } from "../../shell-organisations/entities/shell-organisation.entity";
+import { PurchaseOrder } from "../../purchase-orders/entities/purchase-order.entity";
+import { SalesInquiry } from "../../sales-inquiry/entities/sales-inquiry.entity";
+import { RawMaterial } from "../../raw-materials/entities/raw-material.entity";
+import { FinalGood } from "../../final-goods/entities/final-good.entity";
 
 @Entity()
 export class Organisation {
@@ -43,8 +47,11 @@ export class Organisation {
     @OneToMany(() => Order, (order) => order.customer)
     salesOrders: Order[];
 
-    @OneToMany(() => Order, (order) => order.supplier)
-    purchaseOrders: Order[];
+    @OneToMany(() => PurchaseOrder, (order) => order.currentOrganisation)
+    purchaseOrders: PurchaseOrder[];
+
+    @OneToMany(() => SalesInquiry, salesInquiry => salesInquiry.currentOrganisation)
+    salesInquiries: SalesInquiry[];
 
     @OneToMany(() => Warehouse, (warehouse) => warehouse.organisation)
     warehouses: Warehouse[];
@@ -54,5 +61,14 @@ export class Organisation {
 
     @OneToMany(() => ShellOrganisation, shellOrganisation => shellOrganisation.organisation)
     shellOrganisations: ShellOrganisation[]
+
+    @OneToMany(() => ShellOrganisation, shellOrganisation => shellOrganisation.organisation)
+    suppliers: ShellOrganisation[]
+
+    @OneToMany(() => RawMaterial, rawMaterial => rawMaterial.organisation)
+    rawMaterials: RawMaterial[]
+
+    @OneToMany(() => FinalGood, finalGood => finalGood.organisation)
+    finalGoods: FinalGood[]
 
 }

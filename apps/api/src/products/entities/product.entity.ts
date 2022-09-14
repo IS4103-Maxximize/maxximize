@@ -33,7 +33,4 @@ export class Product {
 
     @Column({nullable: true})
     expiry: number;
-
-    @OneToMany(() => Quotation, quotation => quotation.product)
-    quotations: Quotation[]
 }

@@ -1,3 +1,4 @@
+/* eslint-disable prefer-const */
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -6,6 +7,7 @@ import { CreateRawMaterialDto } from './dto/create-raw-material.dto';
 import { UpdateRawMaterialDto } from './dto/update-raw-material.dto';
 import { RawMaterial } from './entities/raw-material.entity';
 import { NotFoundException } from '@nestjs/common';
+import { Organisation } from '../organisations/entities/organisation.entity';
 
 @Injectable()
 export class RawMaterialsService {
@@ -13,17 +15,22 @@ export class RawMaterialsService {
     @InjectRepository(RawMaterial)
     private readonly rawMaterialRepository: Repository<RawMaterial>,
     @InjectRepository(Product)
-    private readonly productRepository: Repository<Product>
+    private readonly productRepository: Repository<Product>,
+    @InjectRepository(Organisation)
+    private readonly organisationsRepository: Repository<Organisation>
   ){}
 
   async create(createRawMaterialDto: CreateRawMaterialDto): Promise<RawMaterial> {
-    const {name, description, unit, unitPrice, expiry} = createRawMaterialDto;
+    const {name, description, unit, unitPrice, expiry, organisation} = createRawMaterialDto;
+    let organisationToBeAdded: Organisation
+    organisationToBeAdded = await this.organisationsRepository.findOneByOrFail({id: organisation.id})
     const newRawmaterialInstance = this.rawMaterialRepository.create({
       name,
       description,
       unit,
       unitPrice,
-      expiry
+      expiry,
+      organisation: organisationToBeAdded
     })
     const newRawmaterial = await this.rawMaterialRepository.save(newRawmaterialInstance);
     const skuCode = `${newRawmaterial.id}-${name.toUpperCase().substring(0, 3)}`

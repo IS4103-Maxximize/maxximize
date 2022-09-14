@@ -1,53 +1,52 @@
+/* eslint-disable prefer-const */
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { Organisation } from '../organisations/entities/organisation.entity';
 import { PurchaseOrderLineItem } from '../purchase-order-line-items/entities/purchase-order-line-item.entity';
-import { ShellOrganisation } from '../shell-organisations/entities/shell-organisation.entity';
 import { CreatePurchaseOrderDto } from './dto/create-purchase-order.dto';
 import { UpdatePurchaseOrderDto } from './dto/update-purchase-order.dto';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PurchaseOrder } from './entities/purchase-order.entity';
-import { Contact } from '../contacts/entities/contact.entity';
+import { Quotation } from '../quotations/entities/quotation.entity';
 
 @Injectable()
 export class PurchaseOrdersService {
   constructor(
     @InjectRepository(Organisation)
     private readonly organisationsRepository: Repository<Organisation>,
-    @InjectRepository(ShellOrganisation)
-    private readonly shellOrganisationsRepository: Repository<ShellOrganisation>,
+    @InjectRepository(Quotation)
+    private readonly quotationsRepository: Repository<Quotation>,
     @InjectRepository(PurchaseOrderLineItem)
     private readonly poLineItemsRepository: Repository<PurchaseOrderLineItem>,
     @InjectRepository(PurchaseOrder)
     private readonly purchaseOrdersRepository: Repository<PurchaseOrder>,
-    @InjectRepository(Contact)
-    private readonly contactsRepository: Repository<Contact>,
   ) {}
   async create(createPurchaseOrderDto: CreatePurchaseOrderDto): Promise<PurchaseOrder> {
     try {
-      const { deliveryAddress, contact, totalPrice, createdDateTime, supplierOrganisation, currentOrganisation, poLineItems} = createPurchaseOrderDto
-      let supplierOrganisationToBeAdded: ShellOrganisation
+      const { deliveryAddress, totalPrice, currentOrganisation, quotation} = createPurchaseOrderDto
       let currentOrganisationToBeAdded: Organisation
-      supplierOrganisationToBeAdded = await this.shellOrganisationsRepository.findOneByOrFail({id: supplierOrganisation.id})
+      let quotationToBeAdded: Quotation
+      quotationToBeAdded = await this.quotationsRepository.findOneByOrFail({id: quotation.id})
       currentOrganisationToBeAdded = await this.organisationsRepository.findOneByOrFail({id: currentOrganisation.id})
       const newPurchaseOrder = this.purchaseOrdersRepository.create({
         deliveryAddress,
         totalPrice,
-        createdDateTime,
-        supplierOrganisation: supplierOrganisationToBeAdded,
+        created: new Date(),
         currentOrganisation: currentOrganisationToBeAdded,
-        poLineItems
+        poLineItems: [],
+        quotation: quotationToBeAdded
       })
       return this.purchaseOrdersRepository.save(newPurchaseOrder)
     } catch (error) {
-      throw new NotFoundException('The Organisation cannot be found')
+      throw new NotFoundException('The Entity cannot be found')
     }
   }
 
   findAll(): Promise<PurchaseOrder[]> {
     return this.purchaseOrdersRepository.find({
       relations: {
-        supplierOrganisation: true,
+        quotation: true,
+        poLineItems: true,
         currentOrganisation: true
       }
     })
@@ -57,7 +56,8 @@ export class PurchaseOrdersService {
     return this.purchaseOrdersRepository.findOne({where: {
       id
     }, relations: {
-      supplierOrganisation: true,
+      quotation: true,
+      poLineItems: true,
       currentOrganisation: true
     }})
   }
@@ -75,4 +75,5 @@ export class PurchaseOrdersService {
     const purchaseOrderToRemove = await this.purchaseOrdersRepository.findOneBy({id})
     return this.purchaseOrdersRepository.remove(purchaseOrderToRemove)
   }
+
 }
