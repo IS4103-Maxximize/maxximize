@@ -24,15 +24,20 @@ export const SalesInquiryDialog = (props) => {
     updateInquiry
   } = props;
 
+  // Calculation Helpers
+  const calculateTotalPrice = (lineItems) => {
+    return lineItems.reduce((a, b) => {
+      return a += b.subTotal * b.product.unitPrice;
+    }, 0);
+  }
+
   // Formik Helpers and Variables
   let initialValues = {
     id: inquiry ? inquiry.id : null,
     status: inquiry ? inquiry.status : 'draft',
     indPrice: inquiry ? inquiry.indPrice : null,
     lineItems: inquiry ? inquiry.lineItems : [],
-    totalPrice: inquiry ? inquiry.lineItems.reduce((a, b) => {
-      return a += b.subTotal * b.product.unitPrice;
-    }, 0) : 0,
+    totalPrice: inquiry ? calculateTotalPrice(inquiry.lineItems) : 0,
     numProd: 1,
   };
 
@@ -87,6 +92,9 @@ export const SalesInquiryDialog = (props) => {
       setOptions(data);
     }
     fetchData();
+    
+    // Update Total Price
+    formik.setFieldValue('totalPrice', calculateTotalPrice(formik.values.lineItems));
   }, [open, formik.values.lineItems]);
 
   // DataGrid Helpers
