@@ -7,6 +7,7 @@ import { DashboardLayout } from "../components/dashboard-layout";
 import { NotificationAlert } from "../components/notification-alert";
 import { SalesInquiryDialog } from "../components/procurement-ordering/sales-inquiry-dialog";
 import { SalesInquiryMenu } from "../components/procurement-ordering/sales-inquiry.menu";
+import { SupplierDialog } from "../components/procurement-ordering/supplier-dialog";
 import { Toolbar } from "../components/procurement-ordering/toolbar";
 import { ConfirmDialog } from "../components/product/confirm-dialog";
 import { salesInquiries } from "../__mocks__/sales-inquiries";
@@ -52,6 +53,15 @@ export const SalesInquiry = (props) => {
   }
   const handleFormDialogClose = () => {
     setFormDialogOpen(false);
+  }
+
+  // Supplier Dialog Helpers
+  const [supplierDialogOpen, setSupplierDialogOpen] = useState(false);
+  const handleSupplierDialogOpen = () => {
+    setSupplierDialogOpen(true);
+  }
+  const handleSupplierDialogClose = () => {
+    setSupplierDialogOpen(false);
   }
 
   // Menu Helpers
@@ -151,6 +161,7 @@ export const SalesInquiry = (props) => {
             handleClickOpen={handleFormDialogOpen} 
             handleMenuClose={handleMenuClose}
             handleEdit={handleEdit}
+            handleSupplierDialogOpen={handleSupplierDialogOpen}
           />
           <ConfirmDialog
             open={confirmDialogOpen} 
@@ -167,6 +178,11 @@ export const SalesInquiry = (props) => {
             string={'Sales Inquiry'}
             inquiry={selectedRow}
             handleClose={handleFormDialogClose}
+          />
+          <SupplierDialog
+            open={supplierDialogOpen}
+            inquiry={selectedRow}
+            handleClose={handleSupplierDialogClose}
           />
           <Toolbar 
             name="Sales Inquiry"

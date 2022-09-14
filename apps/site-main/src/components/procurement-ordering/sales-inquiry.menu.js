@@ -9,8 +9,8 @@ export const SalesInquiryMenu = (props) => {
     menuOpen, 
     handleClickOpen, 
     handleMenuClose,
-    handleEdit
-    // ... handle supplier form open
+    handleEdit,
+    handleSupplierDialogOpen,
   } = props;
 
   return (
@@ -33,13 +33,14 @@ export const SalesInquiryMenu = (props) => {
           </ListItemText>
         </MenuItem>
         <MenuItem onClick={() => {
-          // handle supplier form open
+          handleSupplierDialogOpen();
+          handleMenuClose();
         }}>
           <ListItemIcon>
             <SendIcon />
           </ListItemIcon>
           <ListItemText>
-            Send
+            Send Suppliers
           </ListItemText>
         </MenuItem>
       </MenuList>

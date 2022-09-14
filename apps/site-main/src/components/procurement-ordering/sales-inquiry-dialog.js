@@ -191,17 +191,18 @@ export const SalesInquiryDialog = (props) => {
               {formik.values.status === 'pending' && 'View Pending '}
               {string}
             </Typography>
-            {<Button 
-              variant="contained"
-              disabled={
-                !formik.isValid || 
-                formik.isSubmitting ||
-                formik.values.status === 'pending'
-              }
-              onClick={formik.handleSubmit}
-            >
-              Save
-            </Button>}
+            {formik.values.status !== 'pending' &&
+              <Button 
+                variant="contained"
+                disabled={
+                  !formik.isValid || 
+                  formik.isSubmitting
+                }
+                onClick={formik.handleSubmit}
+              >
+                Save
+              </Button>
+            }
           </Toolbar>
         </AppBar>
         <DialogContent>
