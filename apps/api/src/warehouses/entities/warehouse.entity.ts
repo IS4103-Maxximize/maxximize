@@ -20,7 +20,4 @@ export class Warehouse {
         onDelete: 'CASCADE'
     })
     organisation: Organisation;
-
-    @OneToMany(() => Batch, (batch) => batch.warehouse)
-    batches: Batch[];
 }

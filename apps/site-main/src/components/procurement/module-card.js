@@ -55,12 +55,12 @@ export const ModuleCard = ({ module, ...rest }) => {
     >
       <CardActionArea
         onClick={() => {
-          routeChange(module.title.toLowerCase());
+          routeChange(module.href.toLowerCase());
         }}
       >
         <CardMedia
           component="img"
-          height="140"
+          height="150"
           image={module.media}
           alt={module.title}
         />
