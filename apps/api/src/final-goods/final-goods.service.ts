@@ -33,7 +33,7 @@ export class FinalGoodsService {
       unit,
       unitPrice,
       expiry,
-      organisation: organisationToBeAdded
+      organisation: organisationToBeAdded,
       lotQuantity
     });
     const newFinalGood = await this.finalGoodRepository.save(newFinalGoodInstance);

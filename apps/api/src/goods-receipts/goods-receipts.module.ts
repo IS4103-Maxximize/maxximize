@@ -8,9 +8,10 @@ import { BatchLineItem } from '../batch-line-items/entities/batch-line-item.enti
 import { Batch } from '../batches/entities/batch.entity';
 import { GrLineItem } from '../gr-line-items/entities/gr-line-item.entity';
 import { BatchesModule } from '../batches/batches.module';
+import { GrLineItemsModule } from '../gr-line-items/gr-line-items.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([GoodsReceipt, BatchLineItem, GrLineItem, Batch]), /*PurchaseOrderModule,*/ UsersModule, BatchesModule],
+  imports: [TypeOrmModule.forFeature([GoodsReceipt, GrLineItem, Batch]), /*PurchaseOrderModule,*/ UsersModule, BatchesModule, GrLineItemsModule],
   controllers: [GoodsReceiptsController],
   providers: [GoodsReceiptsService]
 })

@@ -1,8 +1,8 @@
-import { GrLineItem } from "../../gr-line-items/entities/gr-line-item.entity";
+import { CreateGrLineItemDto } from "../../gr-line-items/dto/create-gr-line-item.dto";
 
 export class CreateGoodsReceiptDto {
     recipientId: number;
     createdDateTime: Date;
     purchaseOrderId: number;
-    goodsReceiptLineItems: GrLineItem[];
+    goodsReceiptLineItemsDtos: CreateGrLineItemDto[];
 }

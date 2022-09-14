@@ -35,7 +35,6 @@ export class OrganisationsService {
     const newOrganisation = this.organisationsRepository.create({
       name,
       type,
-      users: [],
       uen,
       contact: contact ?? null,
       machines: [],

@@ -3,7 +3,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { randomUUID } from 'crypto';
 import { Repository } from 'typeorm';
 import { BatchLineItem } from '../batch-line-items/entities/batch-line-item.entity';
+import { BatchesService } from '../batches/batches.service';
+import { CreateBatchDto } from '../batches/dto/create-batch.dto';
 import { Batch } from '../batches/entities/batch.entity';
+import { CreateGrLineItemDto } from '../gr-line-items/dto/create-gr-line-item.dto';
+import { GrLineItemsService } from '../gr-line-items/gr-line-items.service';
 import { UsersService } from '../users/users.service';
 import { CreateGoodsReceiptDto } from './dto/create-goods-receipt.dto';
 import { UpdateGoodsReceiptDto } from './dto/update-goods-receipt.dto';
@@ -15,34 +19,47 @@ export class GoodsReceiptsService {
     @InjectRepository(GoodsReceipt)
     private readonly goodsReceiptRepository: Repository<GoodsReceipt>,
     /*private purchaseOrderSerivce: PurchaseOrderService,*/
-    private userService: UsersService
+    private userService: UsersService,
+    private grLineItemService: GrLineItemsService,
+    private batchService: BatchesService
   ) {}
 
   async create(createGoodsReceiptDto: CreateGoodsReceiptDto) {
     const goodReceipt = new GoodsReceipt();
     goodReceipt.createdDateTime = createGoodsReceiptDto.createdDateTime;
-    goodReceipt.goodReceiptLineItems = createGoodsReceiptDto.goodsReceiptLineItems;
+    const createGrLineDtos = createGoodsReceiptDto.goodsReceiptLineItemsDtos;
+    const goodsReceiptLineItems = [];
+
+    const createBatchDto = new CreateBatchDto();
+    createBatchDto.batchLineItems = [];
+
+    createGrLineDtos.forEach(async (dto) => {
+      const createGrLineDto = new CreateGrLineItemDto();
+      createGrLineDto.rawMaterialId = dto.rawMaterialId;
+      createGrLineDto.subtotal = dto.subtotal;
+      createGrLineDto.quantity = dto.quantity
+      const grLineItem = await this.grLineItemService.create(createGrLineDto);
+      goodsReceiptLineItems.push(grLineItem);
+
+      const batchLineItem = new BatchLineItem();
+      batchLineItem.product = grLineItem.product;
+      batchLineItem.subTotal = grLineItem.subTotal;
+      batchLineItem.quantity = grLineItem.quantity;
+      createBatchDto.batchLineItems.push(batchLineItem);
+    });
+
+    goodReceipt.goodReceiptLineItems = goodsReceiptLineItems;
     
     //const purchaseOrder = this.purchaseOrderSerivce.findOne(createGoodsReceiptDto.purchaseOrderId);
     //goodReceipt.purchaseOrder = purchaseOrder;
 
     const recipient = await this.userService.findOne(createGoodsReceiptDto.recipientId);
     goodReceipt.recipientName = recipient.firstName + " " + recipient.lastName;
-
-    const batch = new Batch();
-    batch.batchLineItems = [];
-    createGoodsReceiptDto.goodsReceiptLineItems.forEach((goodReceiptLineItem) => {
-      const batchLineItem = new BatchLineItem();
-      batchLineItem.product = goodReceiptLineItem.product;
-      batchLineItem.subTotal = goodReceiptLineItem.subTotal;
-      batchLineItem.batch = batch;
-      batch.batchLineItems.push(batchLineItem);
-    });
-    batch.batchNumber = randomUUID() + new Date().toLocaleDateString();
-    batch.goodReceipt = goodReceipt;
-    goodReceipt.batch = batch;
     
-    return this.goodsReceiptRepository.save(goodReceipt);
+    createBatchDto.batchNumber = randomUUID() + new Date().toLocaleDateString();
+    const batch = await this.batchService.create(createBatchDto);
+    goodReceipt.batch = batch;
+    return this.goodsReceiptRepository.save(goodReceipt);;
   }
 
   findAll() {
@@ -67,7 +84,7 @@ export class GoodsReceiptsService {
 
     //goodReceipt.purchaseOrder = purchaseOrder;
     goodReceipt.recipientName = recipient.firstName + " " + recipient.lastName;
-    goodReceipt.goodReceiptLineItems = updateGoodsReceiptDto.goodsReceiptLineItems;
+    // goodReceipt.goodReceiptLineItems = updateGoodsReceiptDto.goodsReceiptLineItems;
 
     // update batch line items
     
