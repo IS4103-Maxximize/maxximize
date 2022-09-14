@@ -25,8 +25,8 @@ export class ShellOrganisation {
     @Column()
     created: Date
 
-    @Column()
-    uen: number
+    @Column({unique: true})
+    uen: string
 
     @OneToOne(() => Contact, contact => contact.shellOrganisation)
     contact: Contact

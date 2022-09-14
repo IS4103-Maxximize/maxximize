@@ -15,6 +15,7 @@ import ProcurementPurchaseOrder from './pages/procurement/purchaseorder';
 import ProcurementGoodReceipt from './pages/procurement/goodreceipt';
 import Products from './pages/products';
 import WorkerManagement from './pages/workermanagement';
+import BusinessRelations from './pages/businessRelations';
 
 const ROLES = {
   Admin: 'admin',
@@ -55,6 +56,8 @@ const App = () => {
                 path="workermanagement"
                 element={<WorkerManagement />}
               ></Route>
+              {/* Business Relations */}
+              <Route path="businessrelations" element={<BusinessRelations />}></Route>
             </Route>
 
             {/* Protected Routes for Manager*/}

@@ -1,5 +1,5 @@
 /* eslint-disable prefer-const */
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { HttpException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateContactDto } from '../contacts/dto/create-contact.dto';
@@ -81,7 +81,7 @@ export class ShellOrganisationsService {
     }
   }
 
-  async retrieveAllUen(): Promise<number[]> {
+  async retrieveAllUen(): Promise<string[]> {
     const allOrganisations = await this.organisationsRepository.find({
       relations: {
         shellOrganisations: true,
