@@ -10,6 +10,7 @@ import { useFormik } from 'formik';
 import { useEffect, useState } from "react";
 import * as Yup from 'yup';
 import { fetchProducts } from '../../helpers/products';
+import { v4 as uuid } from 'uuid';
 
 
 export const SalesInquiryDialog = (props) => {
@@ -86,21 +87,27 @@ export const SalesInquiryDialog = (props) => {
       setOptions(data);
     }
     fetchData();
-  }, []);
-
-  // useEffect(() => {
-  //   setInput(options[0].skuCode)
-  // }, [options]);
-
+  }, [open, formik.values.lineItems]);
 
   // DataGrid Helpers
   const [selectedRows, setSelectedRows] = useState([]);
 
-  const addLineItem = (newItem) => {
-    formik.setFieldValue('lineItems', formik.values.lineItems.push(newItem));
+  const addLineItem = (subTotal, inputValue) => {
+    const product = options.find((option) => option.skuCode === inputValue);
+    const newItem = {
+      id: uuid(),
+      subTotal: subTotal,
+      product: product
+    }
+    formik.setFieldValue('lineItems', [...formik.values.lineItems, newItem]);
     setInputValue('');
     formik.setFieldValue('numProd', 1);
   };
+
+  const deleteLineItems = (ids) => {
+    const updatedLineItems = formik.values.lineItems.filter((el) => !ids.includes(el.id));
+    formik.setFieldValue('lineItems', [...updatedLineItems]);
+  }
 
   const columns = [
     {
@@ -165,7 +172,7 @@ export const SalesInquiryDialog = (props) => {
             <IconButton
               edge="start"
               color="inherit"
-              onClick={handleClose}
+              onClick={onClose}
               aria-label="close"
             >
               <CloseIcon />
@@ -252,15 +259,12 @@ export const SalesInquiryDialog = (props) => {
               >
                 <Autocomplete
                   sx={{width: 300}}
-                  disablePortal
                   options={options.map(option => option.skuCode)}
                   renderInput={(params) => <TextField {...params} label="Raw Materials"/>}
                   inputValue={inputValue}
                   onInputChange={(event, newInputValue) => {
                     setInputValue(newInputValue);
                   }}
-                  // value={}
-                  // onChange={}
                 />
                 <TextField
                   error={Boolean(formik.touched.numProd && formik.errors.numProd)}
@@ -281,7 +285,9 @@ export const SalesInquiryDialog = (props) => {
                     formik.values.numProd === null
                   }
                   color="primary"
-                  // onClick={() => addLineItem(input)}
+                  onClick={() => {
+                    addLineItem(formik.values.numProd, inputValue);
+                  }}
                 >
                   <AddBoxIcon/>
                 </IconButton>
@@ -289,7 +295,7 @@ export const SalesInquiryDialog = (props) => {
               <IconButton
                 disabled={selectedRows.length === 0}
                 color="error"
-                // onClick={}
+                onClick={() => deleteLineItems(selectedRows)}
               >
                 <Badge badgeContent={selectedRows.length} color="error">
                   <DeleteIcon/>
@@ -298,15 +304,15 @@ export const SalesInquiryDialog = (props) => {
             </Box>
           }
           <DataGrid
-              autoHeight
-              rows={formik.values.lineItems}
-              columns={columns}
-              checkboxSelection={formik.values.status !== 'pending'}
-              disableSelectionOnClick={formik.values.status === 'pending'}
-              pageSize={5}
-              rowsPerPageOptions={[5]}
-              onSelectionModelChange={(ids) => setSelectedRows(ids)}
-            />
+            autoHeight
+            rows={formik.values.lineItems}
+            columns={columns}
+            checkboxSelection={formik.values.status !== 'pending'}
+            disableSelectionOnClick={formik.values.status === 'pending'}
+            pageSize={5}
+            rowsPerPageOptions={[5]}
+            onSelectionModelChange={(ids) => setSelectedRows(ids)}
+          />
         </DialogContent>
       </Dialog>
     </form>
