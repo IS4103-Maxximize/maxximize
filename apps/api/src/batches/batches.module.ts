@@ -9,6 +9,7 @@ import { BomLineItem } from '../bom-line-items/entities/bom-line-item.entity';
 @Module({
   imports: [TypeOrmModule.forFeature([Product, Warehouse, BomLineItem])],
   controllers: [BatchesController],
-  providers: [BatchesService]
+  providers: [BatchesService],
+  exports: [BatchesService]
 })
 export class BatchesModule {}
