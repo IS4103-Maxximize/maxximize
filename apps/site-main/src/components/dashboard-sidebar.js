@@ -45,6 +45,7 @@ const items = [
     href: '/businessrelations',
     icon: <CorporateFareIcon fontSize="small" />,
     title: 'Business Relations',
+    access: ['admin'],
   },
 ];
 
