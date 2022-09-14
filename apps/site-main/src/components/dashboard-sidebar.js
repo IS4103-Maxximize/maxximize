@@ -1,6 +1,7 @@
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import DoneAllIcon from '@mui/icons-material/DoneAll';
 import RawOnIcon from '@mui/icons-material/RawOn';
+import CorporateFareIcon from '@mui/icons-material/CorporateFare';
 import {
   Box,
   Button,
@@ -36,6 +37,11 @@ const items = [
     href: '/procurement',
     icon: <AddShoppingCartIcon fontSize="small" />,
     title: 'Procurement',
+  },
+  {
+    href: '/businessrelations',
+    icon: <CorporateFareIcon fontSize="small" />,
+    title: 'Business Relations',
   },
 ];
 

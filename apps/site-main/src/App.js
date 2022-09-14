@@ -13,6 +13,7 @@ import ProcurementOrdering from './pages/procurement/ordering';
 import ProcurementReceiving from './pages/procurement/receiving';
 import Products from './pages/products';
 import WorkerManagement from './pages/workermanagement';
+import BusinessRelations from './pages/businessRelations';
 
 const ROLES = {
   Admin: 'admin',
@@ -44,6 +45,7 @@ const App = () => {
               <Route element={<RequireAuth requiredRoles={[ROLES.Admin]}/>}>
                 {/* Worker Management */}
                 <Route path="workermanagement" element={<WorkerManagement />}></Route>
+                <Route path="businessrelations" element={<BusinessRelations />}></Route>
                 {/* Product Management */}
                 <Route path="raw-materials" element={<Products type="raw-materials" />}></Route>
                 <Route path="final-goods" element={<Products type="final-goods" />}></Route>
