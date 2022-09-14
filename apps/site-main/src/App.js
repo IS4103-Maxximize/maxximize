@@ -93,7 +93,7 @@ const App = () => {
               {/* Procurement Modules */}
               <Route
                 path="procurement/salesinquiry"
-                element={<ProcurementSalesInquiry />}
+                element={<SalesInquiry />}
               ></Route>
               <Route
                 path="procurement/quotation"
