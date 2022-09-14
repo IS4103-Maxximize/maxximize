@@ -1,6 +1,6 @@
-import { Entity } from "typeorm";
+import { ChildEntity, Entity } from "typeorm";
 import { Product } from "../../products/entities/product.entity";
 
-@Entity()
+@ChildEntity()
 export class RawMaterial extends Product {
 }

@@ -1,8 +1,8 @@
-import { Column, Entity, OneToOne } from "typeorm";
+import { ChildEntity, Column, Entity, OneToOne } from "typeorm";
 import { Product } from "../../products/entities/product.entity";
 import { BillOfMaterial } from "../../bill-of-materials/entities/bill-of-material.entity";
 
-@Entity()
+@ChildEntity()
 export class FinalGood extends Product {
 
     @Column()

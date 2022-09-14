@@ -8,6 +8,7 @@ import { Product } from '../products/entities/product.entity';
 @Module({
   imports: [TypeOrmModule.forFeature([RawMaterial, Product])],
   controllers: [RawMaterialsController],
-  providers: [RawMaterialsService]
+  providers: [RawMaterialsService],
+  exports: [RawMaterialsService]
 })
 export class RawMaterialsModule {}

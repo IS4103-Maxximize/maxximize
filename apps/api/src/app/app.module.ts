@@ -5,6 +5,7 @@ import { BatchLineItemsModule } from '../batch-line-items/batch-line-items.modul
 import { BatchesModule } from '../batches/batches.module';
 import { BillOfMaterialsModule } from '../bill-of-materials/bill-of-materials.module';
 import { BillingsModule } from '../billings/billings.module';
+import { BinsModule } from '../bins/bins.module';
 import { BomLineItemsModule } from '../bom-line-items/bom-line-items.module';
 import { ContactsModule } from '../contacts/contacts.module';
 import { DeliveryRequestsModule } from '../delivery-requests/delivery-requests.module';
@@ -75,7 +76,8 @@ import { AppService } from './app.service';
     PurchaseOrderLineItem,
     BatchLineItemsModule,
     GoodsReceiptsModule,
-    GrLineItemsModule
+    GrLineItemsModule,
+    BinsModule
   ],
   controllers: [AppController],
   providers: [AppService],
