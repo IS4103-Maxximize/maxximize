@@ -27,7 +27,7 @@ export class Organisation {
     type: OrganisationType;
 
     @Column({unique: true})
-    uen: number
+    uen: string
 
     @OneToMany(() => User, (user) => user.organisation, {
         cascade: ["remove"],
