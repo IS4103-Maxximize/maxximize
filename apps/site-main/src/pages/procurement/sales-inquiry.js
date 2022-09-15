@@ -10,10 +10,25 @@ import { SalesInquiryMenu } from "../../components/procurement-ordering/sales-in
 import { SupplierDialog } from "../../components/procurement-ordering/supplier-dialog";
 import { Toolbar } from "../../components/procurement-ordering/toolbar";
 import { ConfirmDialog } from "../../components/product/confirm-dialog";
-import { salesInquiries } from "../../__mocks__/sales-inquiries";
+import { fetchSalesInquiries } from "../../helpers/procurement-ordering";
 
 export const SalesInquiry = (props) => {
   const user = JSON.parse(localStorage.getItem('user'));
+
+  // NotificationAlert helpers
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertText, setAlertText] = useState();
+  const [alertSeverity, setAlertSeverity] = useState('success');
+  const handleAlertOpen = (text, severity) => {
+    setAlertText(text);
+    setAlertSeverity(severity);
+    setAlertOpen(true);
+  };
+  const handleAlertClose = () => {
+    setAlertOpen(false);
+    setAlertText(null);
+    setAlertSeverity('success');
+  };
 
   // Search Helpers
   const [search, setSearch] = useState("");
@@ -97,15 +112,21 @@ export const SalesInquiry = (props) => {
   // DataGrid Rows & Columns
   const [rows, setRows] = useState([]);
 
+  const getSalesInquiries = async () => {
+    fetchSalesInquiries()
+    .then(result => setRows(result))
+    .catch(err => handleAlertOpen(`Failed to fetch Sales Inquiries`, 'error'))
+  }
+
   useEffect(() => {
-    setRows(salesInquiries);
+    getSalesInquiries();
   }, [])
 
   const columns = [
     {
       field: 'id',
       headerName: 'ID',
-      flex: 3,
+      flex: 1,
     },
     {
       field: 'status',
@@ -139,22 +160,11 @@ export const SalesInquiry = (props) => {
       >
         <Container maxWidth={false}>
           <NotificationAlert
-            // open={alertOpen}
-            // severity={alertSeverity}
-            // text={alertText}
-            // handleClose={handleAlertClose}
+            open={alertOpen}
+            severity={alertSeverity}
+            text={alertText}
+            handleClose={handleAlertClose}
           />
-          {/* <ProductDialog 
-            action={action}
-            open={open} 
-            handleClose={handleClose}
-            product={selectedRow}
-            type={type}
-            typeString={typeString}
-            addProduct={addProduct}
-            updateProducts={handleRowUpdate}
-            handleAlertOpen={handleAlertOpen}
-          />*/}
           <SalesInquiryMenu
             anchorEl={anchorEl}
             menuOpen={menuOpen}

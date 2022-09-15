@@ -9,10 +9,26 @@ import { QuotationDialog } from '../../components/procurement-ordering/quotation
 import { Toolbar } from '../../components/procurement-ordering/toolbar';
 import { ConfirmDialog } from '../../components/product/confirm-dialog';
 import { ProductMenu } from '../../components/product/product-menu';
+import { fetchQuotations } from '../../helpers/procurement-ordering';
 import { quotations } from '../../__mocks__/quotations';
 
 const Quotation = (props) => {
   const user = JSON.parse(localStorage.getItem('user'));
+
+  // NotificationAlert helpers
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertText, setAlertText] = useState();
+  const [alertSeverity, setAlertSeverity] = useState('success');
+  const handleAlertOpen = (text, severity) => {
+    setAlertText(text);
+    setAlertSeverity(severity);
+    setAlertOpen(true);
+  };
+  const handleAlertClose = () => {
+    setAlertOpen(false);
+    setAlertText(null);
+    setAlertSeverity('success');
+  };
 
   // Search Helpers
   const [search, setSearch] = useState("");
@@ -87,6 +103,16 @@ const Quotation = (props) => {
   // DataGrid Rows & Columns
   const [rows, setRows] = useState([]);
 
+  const getQuotations = async () => {
+    fetchQuotations()
+    .then(result => setRows(result))
+    .catch(err => handleAlertOpen(`Failed to fetch Quotations`, 'error'))
+  }
+
+  useEffect(() => {
+    getQuotations();
+  }, [])
+
   useEffect(() => {
     setRows(quotations);
   }, [])
@@ -155,22 +181,11 @@ const Quotation = (props) => {
       >
         <Container maxWidth={false}>
           <NotificationAlert
-            // open={alertOpen}
-            // severity={alertSeverity}
-            // text={alertText}
-            // handleClose={handleAlertClose}
+            open={alertOpen}
+            severity={alertSeverity}
+            text={alertText}
+            handleClose={handleAlertClose}
           />
-          {/* <ProductDialog 
-            action={action}
-            open={open} 
-            handleClose={handleClose}
-            product={selectedRow}
-            type={type}
-            typeString={typeString}
-            addProduct={addProduct}
-            updateProducts={handleRowUpdate}
-            handleAlertOpen={handleAlertOpen}
-          />*/}
           <ProductMenu
             anchorEl={anchorEl}
             menuOpen={menuOpen}
