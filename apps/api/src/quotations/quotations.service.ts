@@ -27,11 +27,11 @@ export class QuotationsService {
 
   async create(createQuotationDto: CreateQuotationDto): Promise<Quotation> {
     try {
-      const { salesInquiry, shellOrganisation } = createQuotationDto
+      const { salesInquiryId, shellOrganisationId } = createQuotationDto
       let shellOrganisationToBeAdded: ShellOrganisation
       let salesInquiryToBeAdded: SalesInquiry
-      shellOrganisationToBeAdded = await this.shellOrganisationsRepository.findOneByOrFail({id: shellOrganisation.id})
-      salesInquiryToBeAdded = await this.salesInquiriesRepository.findOneByOrFail({id: salesInquiry.id})
+      shellOrganisationToBeAdded = await this.shellOrganisationsRepository.findOneByOrFail({id: shellOrganisationId})
+      salesInquiryToBeAdded = await this.salesInquiriesRepository.findOneByOrFail({id: salesInquiryId})
       const newQuotation = this.quotationsRepository.create({
         created: new Date(),
         totalPrice: 0,
@@ -47,6 +47,18 @@ export class QuotationsService {
 
   findAll(): Promise<Quotation[]> {
     return this.quotationsRepository.find({
+      relations: {
+        shellOrganisation: true,
+        salesInquiry: true
+      }
+    })
+  }
+
+  async findAllBySalesInquiry(salesInquiryId: number): Promise<Quotation[]> {
+    return this.quotationsRepository.find({
+      where: {
+        salesInquiry: await this.salesInquiriesRepository.findOneByOrFail({id: salesInquiryId})
+      },
       relations: {
         shellOrganisation: true,
         salesInquiry: true

@@ -21,9 +21,9 @@ export class RawMaterialsService {
   ){}
 
   async create(createRawMaterialDto: CreateRawMaterialDto): Promise<RawMaterial> {
-    const {name, description, unit, unitPrice, expiry, organisation} = createRawMaterialDto;
+    const {name, description, unit, unitPrice, expiry, organisationId} = createRawMaterialDto;
     let organisationToBeAdded: Organisation
-    organisationToBeAdded = await this.organisationsRepository.findOneByOrFail({id: organisation.id})
+    organisationToBeAdded = await this.organisationsRepository.findOneByOrFail({id: organisationId})
     const newRawmaterialInstance = this.rawMaterialRepository.create({
       name,
       description,
@@ -39,6 +39,14 @@ export class RawMaterialsService {
 
   findAll(): Promise<RawMaterial[]> {
     return this.rawMaterialRepository.find({})
+  }
+
+  async findAllByOrg(organisationId: number): Promise<RawMaterial[]> {
+    return this.rawMaterialRepository.find({
+      where: {
+        organisation: await this.organisationsRepository.findOneByOrFail({id: organisationId})
+      }
+    })
   }
 
   async findOne(id: number): Promise<RawMaterial> {

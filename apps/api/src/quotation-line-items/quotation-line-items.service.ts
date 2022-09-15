@@ -24,21 +24,20 @@ export class QuotationLineItemsService {
 
   async create(createQuotationLineItemDto: CreateQuotationLineItemDto): Promise<QuotationLineItem> {
     try {
-      const { quantity, price, unit, rawMaterial, finalGood, quotation} = createQuotationLineItemDto
+      const { quantity, price, rawMaterialId, finalGoodId, quotationId } = createQuotationLineItemDto
       let rawMaterialToBeAdded: RawMaterial
       let finalGoodToBeAdded: FinalGood
       let quotationToBeAdded: Quotation
-      rawMaterialToBeAdded = await this.rawMaterialsRepository.findOneByOrFail({id: rawMaterial.id})
-      if (finalGood) {
-        finalGoodToBeAdded = await this.finalGoodsRepository.findOneByOrFail({id: finalGood.id})
+      rawMaterialToBeAdded = await this.rawMaterialsRepository.findOneByOrFail({id: rawMaterialId})
+      if (finalGoodId) {
+        finalGoodToBeAdded = await this.finalGoodsRepository.findOneByOrFail({id: finalGoodId})
       } else {
         finalGoodToBeAdded = null
       }
-      quotationToBeAdded = await this.quotationsRepository.findOneByOrFail({id: quotation.id})
+      quotationToBeAdded = await this.quotationsRepository.findOneByOrFail({id: quotationId})
       const newQuotationLineItem = this.quotationLineItemsRepository.create({
         quantity,
         price,
-        unit,
         rawMaterial: rawMaterialToBeAdded,
         finalGood: finalGoodToBeAdded,
         quotation: quotationToBeAdded
