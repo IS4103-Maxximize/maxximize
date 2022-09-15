@@ -1,7 +1,9 @@
 import {
+  BadRequestException,
   HttpException,
   HttpStatus,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -16,6 +18,8 @@ import * as bcrypt from 'bcrypt';
 import { UpdateContactDto } from '../contacts/dto/update-contact.dto';
 import { MailService } from '../mail/mail.service';
 import { Organisation } from '../organisations/entities/organisation.entity';
+import { Contact } from '../contacts/entities/contact.entity';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
 
 
 @Injectable()
@@ -41,12 +45,18 @@ export class UsersService {
     newUser.lastName = createUserDto.lastName;
     newUser.username = createUserDto.username;
     newUser.role = createUserDto.role;
-    newUser.contact = createUserDto.contact;
+
+    const contact = new Contact();
+    contact.address = createUserDto.contactDto.address;
+    contact.email = createUserDto.contactDto.email;
+    contact.phoneNumber = createUserDto.contactDto.phoneNumber;
+    contact.postalCode = createUserDto.contactDto.postalCode;
+    newUser.contact = contact;
 
     const salt = await bcrypt.genSalt();
     newUser.salt = salt;
     const password = Math.random().toString(36).slice(-8);
-    console.log(password)
+    console.log(password);
     newUser.password = await bcrypt.hash(password, salt);
 
     const organisation = await this.organisationsService.findOne(
@@ -61,14 +71,18 @@ export class UsersService {
     //check contact email whether its unique in user's organisation
 
     const allEmailsInOrganisation = await this.getAllEmailsInOrganisation(organisation)
-    if (allEmailsInOrganisation.includes(createUserDto.contact.email)) {
+    if (allEmailsInOrganisation.includes(createUserDto.contactDto.email)) {
       throw new NotFoundException('Email is already being used by another user or the organisation you are in!')
     }
     
     const savedUser = await this.usersRepository.save(newUser);
-    if (savedUser) {
-      await this.mailService.sendUserConfirmation(createUserDto.contact, organisation.name, newUser, password, organisation.id);
+    
+    try {
+      await this.mailService.sendPasswordEmail(createUserDto.contactDto.email, organisation.name, newUser, password, organisation.id);
+    } catch (err) {
+      throw new InternalServerErrorException("Unable to send email successfully");
     }
+    
     return savedUser;
   }
 
@@ -115,10 +129,10 @@ export class UsersService {
     user.role = updateUserDto.role;
 
     const updateContactDto = new UpdateContactDto();
-    updateContactDto.address = updateUserDto.contact.address;
-    updateContactDto.email = updateUserDto.contact.email;
-    updateContactDto.phoneNumber = updateUserDto.contact.phoneNumber;
-    updateContactDto.postalCode = updateUserDto.contact.postalCode;
+    updateContactDto.address = updateUserDto.contactDto.address;
+    updateContactDto.email = updateUserDto.contactDto.email;
+    updateContactDto.phoneNumber = updateUserDto.contactDto.phoneNumber;
+    updateContactDto.postalCode = updateUserDto.contactDto.postalCode;
     this.contactsService.update(user.contact.id, updateContactDto);
 
     return this.usersRepository.save(user);
@@ -144,5 +158,37 @@ export class UsersService {
       user.passwordChanged = true;
     }
     return this.usersRepository.save(user);
+  }
+
+  async forgotPassword(forgotPasswordDto: ForgotPasswordDto) {
+    const email = forgotPasswordDto.email;
+    const organisationId = forgotPasswordDto.organisationId;
+    const organisation = await this.organisationsService.findOne(organisationId);
+    if (organisation) {
+      let user: User;
+      organisation.users.forEach((organisationUser) => {
+        if (organisationUser.contact.email == email) {
+          user = organisationUser;
+        }
+      });
+
+      if (user) {
+        const password = Math.random().toString(36).slice(-8);
+        console.log(password);
+        user.password = await bcrypt.hash(password, user.salt);
+        user.passwordChanged = false;
+        this.usersRepository.save(user);
+        try {
+          const name = user.firstName + " " + user.lastName;
+          await this.mailService.sendForgotPasswordEmail(email, password, name, organisationId);
+        } catch (err) {
+          throw new InternalServerErrorException("Unable to send email successfully");
+        }
+      } else {
+        throw new BadRequestException(`User with email: ${email} cannot be found in organisation with id ${organisationId}`);
+      }
+    } else {
+      throw new BadRequestException(`Organisation: ${organisationId} cannot be found`);
+    }
   }
 }

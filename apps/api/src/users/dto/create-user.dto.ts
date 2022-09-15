@@ -1,6 +1,6 @@
-import { Contact } from "../../contacts/entities/contact.entity";
 import { Role } from "../enums/role.enum";
 import { IsNotEmpty } from 'class-validator';
+import { CreateContactDto } from "../../contacts/dto/create-contact.dto";
 
 export class CreateUserDto {
   @IsNotEmpty()
@@ -19,5 +19,5 @@ export class CreateUserDto {
   organisationId: number;
 
   @IsNotEmpty()
-  contact: Contact;
+  contactDto: CreateContactDto;
 }

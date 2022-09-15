@@ -13,6 +13,7 @@ import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
 
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller('users')
@@ -47,5 +48,10 @@ export class UsersController {
   @Patch('changePassword/:id')
   changePassword(@Param('id') id: number, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.changePassword(+id, updateUserDto);
+  }
+
+  @Patch('forgotPassword')
+  forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
+    return this.usersService.forgotPassword(forgotPasswordDto);
   }
 }
