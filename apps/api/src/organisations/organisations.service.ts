@@ -4,9 +4,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateContactDto } from '../contacts/dto/create-contact.dto';
 import { Contact } from '../contacts/entities/contact.entity';
-import { PurchaseOrder } from '../purchase-orders/entities/purchase-order.entity';
-import { SalesInquiry } from '../sales-inquiry/entities/sales-inquiry.entity';
-import { ShellOrganisation } from '../shell-organisations/entities/shell-organisation.entity';
 import { User } from '../users/entities/user.entity';
 import { CreateOrganisationDto } from './dto/create-organisation.dto';
 import { UpdateOrganisationDto } from './dto/update-organisation.dto';
@@ -18,17 +15,15 @@ export class OrganisationsService {
     @InjectRepository(Organisation)
     private readonly organisationsRepository: Repository<Organisation>,
     @InjectRepository(Contact)
-    private readonly contactsRepository: Repository<Contact>,
-    @InjectRepository(ShellOrganisation)
-    private readonly shellOrganisationsRepository: Repository<ShellOrganisation>,
-    @InjectRepository(PurchaseOrder)
-    private readonly purchaseOrdersRepository: Repository<PurchaseOrder>,
-    @InjectRepository(SalesInquiry)
-    private readonly salesInquiriesRepository: Repository<SalesInquiry>,
+    private readonly contactsRepository: Repository<Contact>
   ) {}
 
   async create(createOrganisationDto: CreateOrganisationDto): Promise<Organisation> {
     const {name, type, contact, uen} = createOrganisationDto
+    const allUensOfRegisteredOrgs = await this.findAllUensOfRegisterdOrgs()
+    if (allUensOfRegisteredOrgs.includes(uen)) {
+      throw new NotFoundException('UEN is used by an exisiting registed organisation!')
+    }
     if (contact) {
       await this.contactsRepository.save(contact)
     }
@@ -37,16 +32,6 @@ export class OrganisationsService {
       type,
       uen,
       contact: contact ?? null,
-      machines: [],
-      salesOrders: [],
-      purchaseOrders: [],
-      salesInquiries: [],
-      warehouses: [],
-      billings: [],
-      shellOrganisations: [],
-      suppliers: [],
-      rawMaterials: [],
-      finalGoods: []
     })
     return this.organisationsRepository.save(newOrganisation);
   }
@@ -63,7 +48,7 @@ export class OrganisationsService {
 
   async findOne(id: number): Promise<Organisation> {
     try {
-      const organisation =  await this.organisationsRepository.findOne({where: {
+      const organisation =  await this.organisationsRepository.findOneOrFail({where: {
         id
       }, relations: {
         shellOrganisations: true,
@@ -115,6 +100,12 @@ export class OrganisationsService {
     }
   }
 
+  async findAllUensOfRegisterdOrgs() {
+    const allRegisterdOrgs = await this.organisationsRepository.find()
+    const allUens = allRegisterdOrgs.map(org => org.uen)
+    return allUens
+  }
+
 
   async updateOrganisationContact(contact: CreateContactDto, organisation: Organisation): Promise<Contact> {
     let contactToBeSaved = {}
@@ -134,26 +125,6 @@ export class OrganisationsService {
 
   async directUpdate(organisation: Organisation) {
     return this.organisationsRepository.save(organisation);
-  }
-
-  //May not need to use these 2 methods because the relationship is captured when shellOrganisation is created
-  async addSupplier(organisationId: number, shellOrganisationId: number): Promise<Organisation>{
-    let shellOrganisation: ShellOrganisation
-    shellOrganisation = await this.shellOrganisationsRepository.findOneByOrFail({id: shellOrganisationId})
-    let organisation: Organisation
-    organisation = await this.organisationsRepository.findOneByOrFail({id: organisationId})
-    organisation.suppliers.push(shellOrganisation)
-    return this.organisationsRepository.save(organisation)
-  }
-
-  async removeSupplier(organisationId: number, shellOrganisationId: number): Promise<Organisation> {
-    let shellOrganisation: ShellOrganisation
-    shellOrganisation = await this.shellOrganisationsRepository.findOneByOrFail({id: shellOrganisationId})
-    let organisation: Organisation
-    organisation = await this.organisationsRepository.findOneByOrFail({id: organisationId})
-    let index = organisation.suppliers.indexOf(shellOrganisation)
-    organisation.suppliers.splice(index, 1)
-    return this.organisationsRepository.save(organisation)
   }
 
 }

@@ -13,8 +13,7 @@ export class Contact {
     phoneNumber: string;
 
     @Column({
-        nullable: false,
-        unique: true
+        nullable: false
     })
     @IsEmail()
     email: string;
