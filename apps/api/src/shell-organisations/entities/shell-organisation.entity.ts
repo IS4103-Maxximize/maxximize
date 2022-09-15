@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Contact } from "../../contacts/entities/contact.entity";
 import { Organisation } from "../../organisations/entities/organisation.entity";
 import { OrganisationType } from "../../organisations/enums/organisationType.enum";
@@ -32,18 +32,17 @@ export class ShellOrganisation {
     contact: Contact
 
     @ManyToOne(() => Organisation, organisation => organisation.shellOrganisations)
-    organisation?: Organisation
-
-    @ManyToOne(() => Organisation, organisation => organisation.shellOrganisations)
-    creator: Organisation
+    parentOrganisation?: Organisation
 
     @OneToMany(() => Quotation, quotation => quotation.shellOrganisation)
     quotations: Quotation[]
 
     @ManyToMany(() => SalesInquiry, salesInquiry => salesInquiry.suppliers)
+    @JoinTable()
     salesInquiries: SalesInquiry[]
 
     @ManyToMany(() => RawMaterial, rawMaterial => rawMaterial.suppliers)
+    @JoinTable()
     rawMaterials: RawMaterial[]
 
 }

@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Organisation } from "../../organisations/entities/organisation.entity";
 import { Quotation } from "../../quotations/entities/quotation.entity";
 import { SalesInquiryLineItem } from "../../sales-inquiry-line-items/entities/sales-inquiry-line-item.entity";
@@ -25,7 +25,8 @@ export class SalesInquiry {
     @ManyToOne(() => Organisation, currentOrganisation => currentOrganisation.salesInquiries, {onDelete: 'SET NULL'})
     currentOrganisation: Organisation
 
-    @ManyToMany(() => ShellOrganisation, supplier => supplier.salesInquiries, {onDelete: 'SET NULL'})
+    @ManyToMany(() => ShellOrganisation, supplier => supplier.salesInquiries)
+    @JoinTable()
     suppliers: ShellOrganisation[]
 
     @OneToMany(() => Quotation, quotation => quotation.salesInquiry)

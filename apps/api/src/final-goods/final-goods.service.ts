@@ -24,17 +24,17 @@ export class FinalGoodsService {
   ){}
 
   async create(createFinalGoodDto: CreateFinalGoodDto): Promise<FinalGood> {
-    const {name, description, unit, unitPrice, expiry, lotQuantity, organisation} = createFinalGoodDto
+    const {name, description, unit, unitPrice, expiry, lotQuantity, organisationId} = createFinalGoodDto
     let organisationToBeAdded: Organisation
-    organisationToBeAdded = await this.organisationsRepository.findOneByOrFail({id: organisation.id})
+    organisationToBeAdded = await this.organisationsRepository.findOneByOrFail({id: organisationId})
     const newFinalGoodInstance = this.finalGoodRepository.create({
       name,
       description,
       unit,
       unitPrice,
       expiry,
-      organisation: organisationToBeAdded,
-      lotQuantity
+      lotQuantity,
+      organisation: organisationToBeAdded
     });
     const newFinalGood = await this.finalGoodRepository.save(newFinalGoodInstance);
     const skuCode = `${newFinalGood.id}-${name.toUpperCase().substring(0, 3)}`;
@@ -43,6 +43,14 @@ export class FinalGoodsService {
 
   findAll(): Promise<FinalGood[]> {
     return this.finalGoodRepository.find({})
+  }
+
+  async findAllByOrg(organisationId: number): Promise<FinalGood[]> {
+    return this.finalGoodRepository.find({
+      where: {
+        organisation: await this.organisationsRepository.findOneByOrFail({id: organisationId})
+      }
+    })
   }
 
   async findOne(id: number): Promise<FinalGood> {

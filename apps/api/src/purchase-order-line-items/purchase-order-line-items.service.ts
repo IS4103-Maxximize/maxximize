@@ -24,7 +24,7 @@ export class PurchaseOrderLineItemsService {
 
   async create(createPurchaseOrderLineItemDto: CreatePurchaseOrderLineItemDto): Promise<PurchaseOrderLineItem> {
     try {
-      const { quantity, price, unit, rawMaterial, finalGood, purchaseOrder} = createPurchaseOrderLineItemDto
+      const { quantity, price, rawMaterial, finalGood, purchaseOrder} = createPurchaseOrderLineItemDto
       let rawMaterialToBeAdded: RawMaterial
       let finalGoodToBeAdded: FinalGood
       let purchaseOrderToBeAdded: PurchaseOrder
@@ -38,7 +38,6 @@ export class PurchaseOrderLineItemsService {
       const newPurchaseOrderLineItem = this.poLineItemsRepository.create({
         quantity,
         price,
-        unit,
         rawMaterial: rawMaterialToBeAdded,
         finalGood: finalGoodToBeAdded,
         purchaseOrder: purchaseOrderToBeAdded

@@ -14,12 +14,6 @@ export class SalesInquiryLineItem {
     @Column()
     indicativePrice: number
 
-    @Column({
-        type: 'enum',
-        enum: MeasurementUnit
-    })
-    unit: MeasurementUnit
-
     @ManyToOne(() => RawMaterial)
     rawMaterial: RawMaterial
 
