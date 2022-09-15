@@ -15,6 +15,7 @@ import { UsernameAlreadyExistsException } from './exceptions/UsernameAlreadyExis
 import * as bcrypt from 'bcrypt';
 import { UpdateContactDto } from '../contacts/dto/update-contact.dto';
 import { MailService } from '../mail/mail.service';
+import { Organisation } from '../organisations/entities/organisation.entity';
 
 
 @Injectable()
@@ -55,6 +56,13 @@ export class UsersService {
     } else {
       throw new NotFoundException(`Organisation with id : ${createUserDto.organisationId} cannot be found!`)
     }
+
+    //check contact email whether its unique in user's organisation
+
+    const allEmailsInOrganisation = await this.getAllEmailsInOrganisation(organisation)
+    if (allEmailsInOrganisation.includes(createUserDto.contact.email)) {
+      throw new NotFoundException('Email is already being used by another user or the organisation you are in!')
+    }
     
     const savedUser = await this.usersRepository.save(newUser);
     if (savedUser) {
@@ -86,6 +94,12 @@ export class UsersService {
 
   findByUsername(username: string): Promise<User> {
     return this.usersRepository.findOneBy({ username: username });
+  }
+
+  async getAllEmailsInOrganisation(organisation: Organisation) {
+    const users = organisation.users
+    const usersEmail = users.map(user => user.contact.email)
+    return [...usersEmail, organisation.contact.email]
   }
 
   async update(id: number, updateUserDto: UpdateUserDto) {

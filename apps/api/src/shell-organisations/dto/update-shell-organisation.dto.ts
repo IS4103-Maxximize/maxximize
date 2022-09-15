@@ -9,6 +9,5 @@ export class UpdateShellOrganisationDto extends PartialType(CreateShellOrganisat
     name?: string
     type?: OrganisationType;
     contact?: CreateContactDto;
-    organisation?: Organisation;
-    rawMaterials?: RawMaterial[];
+    rawMaterials?: number[];
 }
