@@ -6,7 +6,6 @@ import { FinalGood } from "../../final-goods/entities/final-good.entity";
 export class CreatePurchaseOrderLineItemDto {
     quantity: number;
     price: number;
-    unit: MeasurementUnit;
     rawMaterial: RawMaterial;
     finalGood?: FinalGood;
     purchaseOrder: PurchaseOrder;

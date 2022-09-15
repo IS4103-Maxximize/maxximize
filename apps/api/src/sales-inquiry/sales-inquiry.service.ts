@@ -28,19 +28,15 @@ export class SalesInquiryService {
 
   async create(createSalesInquiryDto: CreateSalesInquiryDto): Promise<SalesInquiry> {
     try {
-      const { currentOrganisation, suppliers } = createSalesInquiryDto
-      let suppliersToBeAdded: ShellOrganisation[]
+      const { currentOrganisationId } = createSalesInquiryDto
       let organisationToBeAdded: Organisation
-      organisationToBeAdded = await this.organisationsRepository.findOneByOrFail({id: currentOrganisation.id})
-      for (let i=0;i<suppliers.length;i++){
-        suppliersToBeAdded.push(await this.shellOrganisationsRepository.findOneByOrFail({id: suppliers[i].id}))
-      }
+      organisationToBeAdded = await this.organisationsRepository.findOneByOrFail({id: currentOrganisationId})
       const newSalesInquiry = this.salesInquiriesRepository.create({
         status: SalesInquiryStatus.DRAFT,
         totalPrice: 0,
         created: new Date(),
         currentOrganisation: organisationToBeAdded,
-        suppliers: suppliersToBeAdded,
+        suppliers: [],
         quotations: [],
         salesInquiryLineItems: []
       })
@@ -59,6 +55,18 @@ export class SalesInquiryService {
     })
   }
 
+  async findAllByOrg(organisationId: number): Promise<SalesInquiry[]> {
+    return this.salesInquiriesRepository.find({
+      where: {
+        currentOrganisation: await this.organisationsRepository.findOneByOrFail({id: organisationId})
+      },
+      relations: {
+        currentOrganisation: true,
+        suppliers: true
+      }
+    })
+  }
+
   findOne(id: number): Promise<SalesInquiry> {
     return this.salesInquiriesRepository.findOne({where: {
       id
@@ -67,6 +75,7 @@ export class SalesInquiryService {
       suppliers: true
     }})
   }
+
 
   async update(id: number, updateSalesInquiryDto: UpdateSalesInquiryDto): Promise<SalesInquiry> {
     const salesInquiryToUpdate = await this.salesInquiriesRepository.findOneBy({id})
@@ -80,5 +89,28 @@ export class SalesInquiryService {
   async remove(id: number): Promise<SalesInquiry> {
     const salesInquiryToRemove = await this.salesInquiriesRepository.findOneBy({id})
     return this.salesInquiriesRepository.remove(salesInquiryToRemove)
+  }
+
+  async addSupplier(salesInquiryId: number, shellOrganisationId: number): Promise<SalesInquiry>{
+    let shellOrganisation: ShellOrganisation
+    shellOrganisation = await this.shellOrganisationsRepository.findOneByOrFail({id: shellOrganisationId})
+    let salesInquiry: SalesInquiry
+    salesInquiry = await this.salesInquiriesRepository.findOneByOrFail({id: salesInquiryId})
+    salesInquiry.suppliers.push(shellOrganisation)
+    if (salesInquiry.status == SalesInquiryStatus.DRAFT) {
+      salesInquiry.status = SalesInquiryStatus.SENT
+    }
+
+    return this.salesInquiriesRepository.save(salesInquiry)
+  }
+
+  async removeSupplier(salesInquiryId: number, shellOrganisationId: number): Promise<SalesInquiry> {
+    let shellOrganisation: ShellOrganisation
+    shellOrganisation = await this.shellOrganisationsRepository.findOneByOrFail({id: shellOrganisationId})
+    let salesInquiry: SalesInquiry
+    salesInquiry = await this.salesInquiriesRepository.findOneByOrFail({id: salesInquiryId})
+    let index = salesInquiry.suppliers.indexOf(shellOrganisation)
+    salesInquiry.suppliers.splice(index, 1)
+    return this.salesInquiriesRepository.save(salesInquiry)
   }
 }
