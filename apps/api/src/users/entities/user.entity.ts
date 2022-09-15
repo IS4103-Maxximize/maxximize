@@ -29,6 +29,9 @@ export class User {
     @Exclude()
     salt: string;
 
+    @Column({default: false})
+    passwordChanged: boolean;
+
     @Column({
         type: 'enum',
         enum: Role

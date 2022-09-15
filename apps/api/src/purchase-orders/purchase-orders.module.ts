@@ -9,6 +9,7 @@ import { PurchaseOrderLineItem } from '../purchase-order-line-items/entities/pur
 
 @Module({
   imports: [TypeOrmModule.forFeature([Organisation, PurchaseOrder, PurchaseOrderLineItem, Quotation])],
+
   controllers: [PurchaseOrdersController],
   providers: [PurchaseOrdersService],
 })

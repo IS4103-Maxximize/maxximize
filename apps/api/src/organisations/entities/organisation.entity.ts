@@ -31,7 +31,7 @@ export class Organisation {
     type: OrganisationType;
 
     @Column({unique: true})
-    uen: number
+    uen: string
 
     @OneToMany(() => User, (user) => user.organisation, {
         cascade: ["remove"],
@@ -59,11 +59,11 @@ export class Organisation {
     @OneToMany(() => Billing, (billing) => billing.organisation)
     billings: Billing[];
 
-    @OneToMany(() => ShellOrganisation, shellOrganisation => shellOrganisation.organisation)
+    @OneToMany(() => ShellOrganisation, shellOrganisation => shellOrganisation.parentOrganisation)
     shellOrganisations: ShellOrganisation[]
 
-    @OneToMany(() => ShellOrganisation, shellOrganisation => shellOrganisation.organisation)
-    suppliers: ShellOrganisation[]
+    // @OneToMany(() => ShellOrganisation, shellOrganisation => shellOrganisation.organisation)
+    // suppliers: ShellOrganisation[]
 
     @OneToMany(() => RawMaterial, rawMaterial => rawMaterial.organisation)
     rawMaterials: RawMaterial[]

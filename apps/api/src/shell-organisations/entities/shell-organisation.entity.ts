@@ -25,17 +25,14 @@ export class ShellOrganisation {
     @Column()
     created: Date
 
-    @Column()
-    uen: number
+    @Column({unique: true})
+    uen: string
 
     @OneToOne(() => Contact, contact => contact.shellOrganisation)
     contact: Contact
 
     @ManyToOne(() => Organisation, organisation => organisation.shellOrganisations)
-    organisation?: Organisation
-
-    @ManyToOne(() => Organisation, organisation => organisation.shellOrganisations)
-    creator: Organisation
+    parentOrganisation?: Organisation
 
     @OneToMany(() => Quotation, quotation => quotation.shellOrganisation)
     quotations: Quotation[]

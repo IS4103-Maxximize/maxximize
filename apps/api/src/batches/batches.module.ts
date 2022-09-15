@@ -4,11 +4,13 @@ import { BatchesController } from './batches.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Product } from '../products/entities/product.entity';
 import { Warehouse } from '../warehouses/entities/warehouse.entity';
-import { BomLineItem } from '../bom-line-items/entities/bom-line-item.entity';
+import { Batch } from './entities/batch.entity';
+import { BatchLineItem } from '../batch-line-items/entities/batch-line-item.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Product, Warehouse, BomLineItem])],
+  imports: [TypeOrmModule.forFeature([Batch, Product, Warehouse, BatchLineItem])],
   controllers: [BatchesController],
-  providers: [BatchesService]
+  providers: [BatchesService],
+  exports: [BatchesService]
 })
 export class BatchesModule {}

@@ -9,12 +9,14 @@ import { ContactsModule } from '../contacts/contacts.module';
 import { OrganisationsModule } from '../organisations/organisations.module';
 import { UsernameAlreadyExistsException } from './exceptions/UsernameAlreadyExistsException';
 import { UnknownPersistenceException } from './exceptions/UnknownPersistenceException';
+import { MailModule } from '../mail/mail.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([User, Contact, Organisation]),
     ContactsModule,
     OrganisationsModule,
+    MailModule,
     UsernameAlreadyExistsException,
     UnknownPersistenceException,
   ],
