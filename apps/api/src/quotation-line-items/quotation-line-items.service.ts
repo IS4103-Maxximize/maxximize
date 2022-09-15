@@ -24,7 +24,7 @@ export class QuotationLineItemsService {
 
   async create(createQuotationLineItemDto: CreateQuotationLineItemDto): Promise<QuotationLineItem> {
     try {
-      const { quantity, price, unit, rawMaterialId, finalGoodId, quotationId } = createQuotationLineItemDto
+      const { quantity, price, rawMaterialId, finalGoodId, quotationId } = createQuotationLineItemDto
       let rawMaterialToBeAdded: RawMaterial
       let finalGoodToBeAdded: FinalGood
       let quotationToBeAdded: Quotation
@@ -38,7 +38,6 @@ export class QuotationLineItemsService {
       const newQuotationLineItem = this.quotationLineItemsRepository.create({
         quantity,
         price,
-        unit,
         rawMaterial: rawMaterialToBeAdded,
         finalGood: finalGoodToBeAdded,
         quotation: quotationToBeAdded

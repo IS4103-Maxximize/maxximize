@@ -6,7 +6,6 @@ import { RawMaterial } from "../../raw-materials/entities/raw-material.entity";
 export class CreateQuotationLineItemDto {
     quantity: number;
     price: number;
-    unit: MeasurementUnit;
     rawMaterialId: number;
     finalGoodId?: number;
     quotationId: number;

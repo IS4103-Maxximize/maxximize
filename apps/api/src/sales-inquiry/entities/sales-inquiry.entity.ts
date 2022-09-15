@@ -10,7 +10,10 @@ export class SalesInquiry {
     @PrimaryGeneratedColumn()
     id: number
 
-    @Column()
+    @Column({
+        type: 'enum',
+        enum: SalesInquiryStatus
+    })
     status: SalesInquiryStatus
 
     @Column()

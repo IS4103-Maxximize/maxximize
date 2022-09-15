@@ -14,9 +14,6 @@ export class SalesInquiryLineItem {
     @Column()
     indicativePrice: number
 
-    @Column()
-    unit: MeasurementUnit
-
     @ManyToOne(() => RawMaterial)
     rawMaterial: RawMaterial
 

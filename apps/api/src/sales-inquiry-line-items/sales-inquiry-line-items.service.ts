@@ -21,7 +21,7 @@ export class SalesInquiryLineItemsService {
 
   async create(createSalesInquiryLineItemDto: CreateSalesInquiryLineItemDto): Promise<SalesInquiryLineItem> {
     try {
-      const { quantity, indicativePrice, unit, rawMaterialId, salesInquiryId} = createSalesInquiryLineItemDto
+      const { quantity, indicativePrice, rawMaterialId, salesInquiryId} = createSalesInquiryLineItemDto
       let rawMaterialToBeAdded: RawMaterial
       let salesInquiryToBeAdded: SalesInquiry
       rawMaterialToBeAdded = await this.rawMaterialsRepository.findOneByOrFail({id: rawMaterialId})
@@ -29,7 +29,6 @@ export class SalesInquiryLineItemsService {
       const newSalesInquiryLineItem = this.salesInquiryLineItemsRepository.create({
         quantity,
         indicativePrice,
-        unit,
         rawMaterial: rawMaterialToBeAdded,
         salesInquiry: salesInquiryToBeAdded
       })

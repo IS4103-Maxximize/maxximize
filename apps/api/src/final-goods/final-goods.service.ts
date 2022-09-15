@@ -24,7 +24,7 @@ export class FinalGoodsService {
   ){}
 
   async create(createFinalGoodDto: CreateFinalGoodDto): Promise<FinalGood> {
-    const {name, description, unit, unitPrice, expiry, organisationId} = createFinalGoodDto
+    const {name, description, unit, unitPrice, expiry, lotQuantity, organisationId} = createFinalGoodDto
     let organisationToBeAdded: Organisation
     organisationToBeAdded = await this.organisationsRepository.findOneByOrFail({id: organisationId})
     const newFinalGoodInstance = this.finalGoodRepository.create({
@@ -33,6 +33,7 @@ export class FinalGoodsService {
       unit,
       unitPrice,
       expiry,
+      lotQuantity,
       organisation: organisationToBeAdded
     });
     const newFinalGood = await this.finalGoodRepository.save(newFinalGoodInstance);

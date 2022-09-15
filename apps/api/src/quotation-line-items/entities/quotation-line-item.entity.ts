@@ -16,9 +16,6 @@ export class QuotationLineItem {
     @Column()
     price: number
 
-    @Column()
-    unit: MeasurementUnit
-
     @ManyToOne(() => RawMaterial)
     rawMaterial: RawMaterial
 
