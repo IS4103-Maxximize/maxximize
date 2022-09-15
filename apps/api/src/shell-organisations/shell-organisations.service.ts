@@ -90,7 +90,6 @@ export class ShellOrganisationsService {
         parentOrganisation: true,
         contact: true
       }})
-      console.log(shellOrganisation)
       const updateFieldsArray = Object.entries(updateShellOrganisationDto)
       for (let i = 0; i < updateFieldsArray.length; i++) {
         const [key, value] = updateFieldsArray[i]

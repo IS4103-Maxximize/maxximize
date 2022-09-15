@@ -48,7 +48,7 @@ export class OrganisationsService {
 
   async findOne(id: number): Promise<Organisation> {
     try {
-      const organisation =  await this.organisationsRepository.findOne({where: {
+      const organisation =  await this.organisationsRepository.findOneOrFail({where: {
         id
       }, relations: {
         shellOrganisations: true,

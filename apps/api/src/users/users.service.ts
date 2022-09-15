@@ -46,6 +46,7 @@ export class UsersService {
     const salt = await bcrypt.genSalt();
     newUser.salt = salt;
     const password = Math.random().toString(36).slice(-8);
+    console.log(password)
     newUser.password = await bcrypt.hash(password, salt);
 
     const organisation = await this.organisationsService.findOne(
@@ -98,7 +99,11 @@ export class UsersService {
 
   async getAllEmailsInOrganisation(organisation: Organisation) {
     const users = organisation.users
-    const usersEmail = users.map(user => user.contact.email)
+    const usersWithContactPromises = users.map(async user => {
+      return await this.findOne(user.id)
+    })
+    const usersWithContact = await Promise.all(usersWithContactPromises)
+    const usersEmail = usersWithContact.map(user => user.contact.email)
     return [...usersEmail, organisation.contact.email]
   }
 

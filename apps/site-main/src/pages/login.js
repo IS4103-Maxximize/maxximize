@@ -31,8 +31,8 @@ const Login = () => {
       const res = await fetch(
         `http://localhost:3000/api/organisations/${currentOrgId}`
       );
-      const result = await res.json();
-      if (result) {
+      if (res.status === 200 || res.status === 201) {
+        const result = await res.json();
         setOrganisation(result);
       } else {
         navigate('/organisationSelection', { replace: true });
