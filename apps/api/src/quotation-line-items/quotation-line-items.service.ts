@@ -54,7 +54,7 @@ export class QuotationLineItemsService {
     return this.quotationLineItemsRepository.find({
       relations: {
         rawMaterial: true,
-        quotation: true
+        quotation: true,
       }
     })
   }

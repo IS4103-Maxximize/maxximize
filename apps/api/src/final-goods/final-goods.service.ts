@@ -42,7 +42,9 @@ export class FinalGoodsService {
   }
 
   findAll(): Promise<FinalGood[]> {
-    return this.finalGoodRepository.find({})
+    return this.finalGoodRepository.find({relations: {
+      organisation: true
+    }})
   }
 
   async findAllByOrg(organisationId: number): Promise<FinalGood[]> {
@@ -57,6 +59,8 @@ export class FinalGoodsService {
     try {
       const finalGood =  await this.finalGoodRepository.findOne({where: {
         id
+      }, relations: {
+        organisation: true
       }})
       return finalGood
     } catch (err) {
