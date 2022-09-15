@@ -21,31 +21,31 @@ const items = [
     href: '/workermanagement',
     icon: <UserIcon fontSize="small" />,
     title: 'Worker Management',
-    access: ['admin'],
+    access: ['admin', 'superadmin'],
   },
   {
     href: '/raw-materials',
     icon: <RawOnIcon fontSize="small" />,
     title: 'Raw Materials',
-    access: ['manager'],
+    access: ['manager', 'superadmin'],
   },
   {
     href: '/final-goods',
     icon: <DoneAllIcon fontSize="small" />,
     title: 'Final Goods',
-    access: ['manager'],
+    access: ['manager', 'superadmin'],
   },
   {
     href: '/procurement',
     icon: <AddShoppingCartIcon fontSize="small" />,
     title: 'Procurement',
-    access: ['manager', 'factoryworker'],
+    access: ['manager', 'factoryworker', 'superadmin'],
   },
   {
     href: '/businessrelations',
     icon: <CorporateFareIcon fontSize="small" />,
     title: 'Business Relations',
-    access: ['admin'],
+    access: ['admin', 'superadmin'],
   },
 ];
 

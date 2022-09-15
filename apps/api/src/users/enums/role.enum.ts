@@ -2,5 +2,6 @@ export enum Role {
     ADMIN = 'admin',
     MANAGER = 'manager',
     FACTORYWORKER = 'factoryworker',
-    DRIVER = 'driver'
+    DRIVER = 'driver',
+    SUPERADMIN='superadmin'
 }

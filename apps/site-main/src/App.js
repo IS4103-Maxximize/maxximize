@@ -22,6 +22,7 @@ const ROLES = {
   Admin: 'admin',
   Manager: 'manager',
   FactoryWorker: 'factoryworker',
+  SuperAdmin: 'superadmin'
 };
 
 const App = () => {
@@ -46,7 +47,7 @@ const App = () => {
         <Route
           element={
             <RequireAuth
-              requiredRoles={[ROLES.Admin, ROLES.Manager, ROLES.FactoryWorker]}
+              requiredRoles={[ROLES.Admin, ROLES.Manager, ROLES.FactoryWorker, ROLES.SuperAdmin]}
             />
           }
         >
@@ -55,7 +56,7 @@ const App = () => {
             <Route path="/" element={<Dashboard />}></Route>
 
             {/* Protected Routes for Admin Specifically */}
-            <Route element={<RequireAuth requiredRoles={[ROLES.Admin]} />}>
+            <Route element={<RequireAuth requiredRoles={[ROLES.Admin, ROLES.SuperAdmin]} />}>
               {/* Worker Management */}
               <Route
                 path="workermanagement"
@@ -69,7 +70,7 @@ const App = () => {
             </Route>
 
             {/* Protected Routes for Manager*/}
-            <Route element={<RequireAuth requiredRoles={[ROLES.Manager]} />}>
+            <Route element={<RequireAuth requiredRoles={[ROLES.Manager, ROLES.SuperAdmin]} />}>
               {/* Product Management */}
               <Route
                 path="raw-materials"
@@ -91,7 +92,7 @@ const App = () => {
             <Route
               element={
                 <RequireAuth
-                  requiredRoles={[ROLES.Manager, ROLES.FactoryWorker]}
+                  requiredRoles={[ROLES.Manager, ROLES.FactoryWorker, ROLES.SuperAdmin]}
                 />
               }
             >

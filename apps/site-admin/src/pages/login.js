@@ -40,7 +40,7 @@ const Login = () => {
       if (result) {
         //check if the user organisation belong to the same organisation as that of login landing page
         const user = await getUserFromJWT(result.access_token);
-        if (user?.organisation?.type === 'Maxximize') {
+        if (user?.organisation?.type === 'maxximize') {
           //this is not a good way...
           localStorage.setItem('user', JSON.stringify(user));
           formik.values.username = '';
