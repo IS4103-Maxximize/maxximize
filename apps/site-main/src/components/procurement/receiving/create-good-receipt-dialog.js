@@ -11,7 +11,7 @@ import {
   Toolbar,
 } from '@mui/material';
 import { useFormik } from 'formik';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import * as Yup from 'yup';
 import AddIcon from '@mui/icons-material/Add';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
@@ -26,12 +26,11 @@ export const CreateGoodReceiptDialog = ({
 }) => {
   //User organisation Id
   const user = JSON.parse(localStorage.getItem('user'));
-  const organisationId = user.organisation.id;
+  const userId = user.id;
 
   //Handle dialog close from child dialog
   const handleDialogClose = () => {
     setOpen(false);
-    setProducts(originalProducts); //TODO clear the products, this is just to revert back to a backup
     setProductInput('');
     formik.resetForm();
   };
@@ -40,64 +39,92 @@ export const CreateGoodReceiptDialog = ({
   const handleOnSubmit = async (event) => {
     event.preventDefault();
 
-    // const response = await fetch('http://localhost:3000/api/users/createUser', {
-    //   method: 'POST',
-    //   headers: {
-    //     Accept: 'application/json',
-    //     'Content-Type': 'application/json',
-    //   },
-    //   body: JSON.stringify({
-    //     firstName: formik.values.firstName,
-    //     lastName: formik.values.lastName,
-    //     username: formik.values.username,
-    //     password: formik.values.password,
-    //     role: formik.values.role,
-    //     organisationId: organisationId,
-    //     contact: {
-    //       address: formik.values.address,
-    //       email: formik.values.email,
-    //       phoneNumber: formik.values.phoneNumber,
-    //       postalCode: formik.values.postalCode,
-    //     },
-    //   }),
-    // });
+    const response = await fetch('http://localhost:3000/api/goods-receipts', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        recipient: userId,
+        createdDateTime: formik.values.dateReceived,
+        goodsReceiptLineItemsDtos: products,
+      }),
+    });
 
-    // const result = await response.json();
+    const result = await response.json();
 
-    // const flattenResult = flattenObj(result);
-
-    // //Rerender parent data grid compoennt
-    // addGoodReceipt(flattenResult);
+    //Rerender parent data grid compoennt
+    addGoodReceipt(result);
 
     handleDialogClose();
   };
 
   //Products for testing, TODO useEffect to import PO line items and populate this
-  const [products, setProducts] = useState([
-    { id: 1, productName: 'Product 1', quantity: 1 },
-    { id: 2, productName: 'Product 2', quantity: 3 },
-    { id: 3, productName: 'Product 3', quantity: 2 },
-  ]);
-
-  //TODO Remove, not needed when there is API call to get the products
-  const originalProducts = [
-    { id: 1, productName: 'Product 1', quantity: 1 },
-    { id: 2, productName: 'Product 2', quantity: 3 },
-    { id: 3, productName: 'Product 3', quantity: 2 },
-  ];
+  const [products, setProducts] = useState([]);
 
   //TODO Options to be replaced with fetching all products/from the PO
-  const options = [
-    'Product 1',
-    'Product 2',
-    'Product 3',
-    'Product 4',
-    'Product 5',
-  ];
+  const [rawMaterials, setRawMaterials] = useState([
+    {
+      name: 'apple',
+      description: 'apple',
+      unit: 'kilogram',
+      unitPrice: 1,
+      expiry: 1,
+    },
+    {
+      name: 'orange',
+      description: 'orange',
+      unit: 'kilogram',
+      unitPrice: 2,
+      expiry: 1,
+    },
+    {
+      name: 'pear',
+      description: 'pear',
+      unit: 'kilogram',
+      unitPrice: 3,
+      expiry: 1,
+    },
+    {
+      name: 'pineapple',
+      description: 'pineapple',
+      unit: 'kilogram',
+      unitPrice: 5,
+      expiry: 1,
+    },
+    {
+      name: 'dragonfruit',
+      description: 'dragonfruit',
+      unit: 'kilogram',
+      unitPrice: 10,
+      expiry: 1,
+    },
+  ]);
 
+  //Load in list of raw material, initial
+  useEffect(() => {
+    retrieveAllRawMaterial();
+  }, []);
+
+  //Retrieve all raw material [TODO]
+  const retrieveAllRawMaterial = async () => {
+    // const rawMaterialList = await fetch(
+    //   `http://localhost:3000/api/raw-materials`
+    // );
+    // const result = await rawMaterialList.json();
+    // setRawMaterial(result);
+  };
+
+  const selectedProducts = products.map((product) => product.name);
+  const options = rawMaterials
+    .map((rawMaterial) => rawMaterial.name)
+    .filter((name) => !selectedProducts.includes(name));
+
+  //Columns for datagrid
   const columns = [
     {
-      field: 'productName',
+      field: 'name',
       headerName: 'Product Name',
       width: 300,
       flex: 4,
@@ -109,18 +136,31 @@ export const CreateGoodReceiptDialog = ({
       editable: true,
       flex: 1,
     },
+    {
+      field: 'subtotal',
+      headerName: 'Subtotal',
+      width: 120,
+      flex: 1,
+    },
   ];
 
-  //New Product input
+  //New Product input to add product to the list
   const [productInput, setProductInput] = useState('');
 
   const handleAddButtonClick = () => {
     const newProduct = {
       id: products.length + 1,
-      productName: productInput,
+      name: productInput,
       quantity: 1,
+      unitPrice: rawMaterials
+        .filter((rawMaterial) => rawMaterial.name === productInput)
+        .map((rawMaterial) => rawMaterial.unitPrice),
+      subtotal: 0,
       isSelected: false,
     };
+
+    newProduct.subtotal =
+      Number(newProduct.quantity) * Number(newProduct.unitPrice);
 
     const newProducts = [...products, newProduct];
 
@@ -133,12 +173,11 @@ export const CreateGoodReceiptDialog = ({
   const handleRowUpdate = (newRow) => {
     const updatedRow = { ...newRow };
 
-    console.log(updatedRow);
+    updatedRow.subtotal = updatedRow.quantity * updatedRow.unitPrice;
+
     const newProducts = [...products];
     newProducts[updatedRow.id - 1] = updatedRow;
     setProducts(newProducts);
-    console.log(newProducts);
-    console.log(products);
 
     //handleQuantityIncrease();
 
@@ -149,26 +188,6 @@ export const CreateGoodReceiptDialog = ({
   const [selectionModel, setSelectionModel] = useState([]);
 
   const handleDelete = (selectedIds) => {
-    // const requestOptions = {
-    //   method: 'DELETE',
-    //   redirect: 'follow',
-    // };
-
-    // selectedIds.forEach((currentId) => {
-    //     fetch(
-    //       `http://localhost:3000/api/users/deleteUser/${currentId}`,
-    //       requestOptions
-    //     )
-    //       .then(() => {
-    //         setSuccessAlertContent(`Deleted Good Receipt successfully!`);
-    //         setSuccessAlert(true);
-    //       })
-    //       .catch((error) => {
-    //         setErrorAlertContent(error);
-    //         setErrorAlert(true);
-    //       });
-    // });
-
     setProducts((result) =>
       result.filter((product) => !selectedIds.has(product.id))
     );
@@ -207,7 +226,7 @@ export const CreateGoodReceiptDialog = ({
           <Button
             autoFocus
             color="inherit"
-            disabled={formik.isSubmitting}
+            disabled={formik.isSubmitting || products.length == 0}
             size="medium"
             type="submit"
             variant="outlined"
@@ -247,9 +266,7 @@ export const CreateGoodReceiptDialog = ({
                 )}
                 options={options.filter(
                   (option) =>
-                    !products
-                      .map((product) => product.productName)
-                      .includes(option)
+                    !products.map((product) => product.name).includes(option)
                 )}
                 value={productInput}
                 onChange={(e, data) => {
@@ -299,18 +316,4 @@ export const CreateGoodReceiptDialog = ({
       </DialogContent>
     </Dialog>
   );
-};
-
-//Helper method TODO, remove if not needed
-//Flatten the good receipt record retrieved, difficult to update with an inner object
-const flattenObj = (obj, parent, res = {}) => {
-  for (let key in obj) {
-    let propName = key;
-    if (typeof obj[key] == 'object' && key != 'organisation') {
-      flattenObj(obj[key], propName, res);
-    } else {
-      res[propName] = obj[key];
-    }
-  }
-  return res;
 };

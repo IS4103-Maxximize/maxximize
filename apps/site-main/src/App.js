@@ -16,6 +16,7 @@ import ProcurementGoodReceipt from './pages/procurement/goodreceipt';
 import Products from './pages/products';
 import WorkerManagement from './pages/workermanagement';
 import BusinessRelations from './pages/businessRelations';
+import ForgetPassword from './pages/forgetpassword';
 
 const ROLES = {
   Admin: 'admin',
@@ -33,6 +34,10 @@ const App = () => {
           element={<OrganisationSelection />}
         ></Route>
         <Route path="login/:orgId" element={<Login />}></Route>
+        <Route
+          path="forgetpassword/:orgId"
+          element={<ForgetPassword />}
+        ></Route>
         <Route path="unauthorized" element={<Unauthorized />}></Route>
 
         {/* Protected Routes */}
@@ -57,7 +62,10 @@ const App = () => {
                 element={<WorkerManagement />}
               ></Route>
               {/* Business Relations */}
-              <Route path="businessrelations" element={<BusinessRelations />}></Route>
+              <Route
+                path="businessrelations"
+                element={<BusinessRelations />}
+              ></Route>
             </Route>
 
             {/* Protected Routes for Manager*/}

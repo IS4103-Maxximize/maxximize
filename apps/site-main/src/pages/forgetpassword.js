@@ -2,7 +2,6 @@ import { Box, Button, Container, TextField, Typography } from '@mui/material';
 import { useFormik } from 'formik';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import Link from '@mui/material/Link';
 import * as Yup from 'yup';
 
 async function loginUser(credentials) {
@@ -21,7 +20,7 @@ async function loginUser(credentials) {
   }
 }
 
-const Login = () => {
+const ForgetPassword = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const currentOrgId = location.pathname.split('/')[2];
@@ -44,44 +43,19 @@ const Login = () => {
   const from = location.state?.from?.pathname || '/';
   const formik = useFormik({
     initialValues: {
-      username: '',
       password: '',
+      confirmPassword: '',
       authenticationError: '',
     },
     validationSchema: Yup.object({
-      username: Yup.string().max(255).required('Username is required'),
-      password: Yup.string().max(255).required('Password is required'),
+      password: Yup.string().max(255).required('New Password is required'),
+      confirmPassword: Yup.string()
+        .oneOf([Yup.ref('password'), null], 'Passwords must match')
+        .max(255)
+        .required('Confirm Password is required'),
     }),
-    onSubmit: async ({ username, password }) => {
-      const result = await loginUser({ username, password });
-      if (result) {
-        //check if the user organisation belong to the same organisation as that of login landing page
-        const user = await getUserFromJWT(result.access_token);
-        if (user?.organisation.id === parseInt(currentOrgId)) {
-          localStorage.setItem('user', JSON.stringify(user));
-          formik.values.username = '';
-          formik.values.password = '';
-          navigate(from, { replace: true });
-        }
-      }
-      formik.values.authenticationError = 'You are Unauthorised';
-    },
+    onSubmit: {},
   });
-
-  const getUserFromJWT = async (accessToken) => {
-    const res = await fetch('http://localhost:3000/api/profile', {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
-    const result = await res.json();
-    const { id } = result;
-    const userRes = await fetch(
-      `http://localhost:3000/api/users/findUser/${id}`
-    );
-    const user = await userRes.json();
-    return user;
-  };
 
   return (
     <>
@@ -104,33 +78,20 @@ const Login = () => {
                 {organisation?.name}
               </Typography>
               <Typography color="textSecondary" gutterBottom variant="body2">
-                Login
+                Forget Password
               </Typography>
             </Box>
             <TextField
-              error={Boolean(formik.touched.username && formik.errors.username)}
+              error={Boolean(formik.touched.email && formik.errors.email)}
               fullWidth
-              helperText={formik.touched.username && formik.errors.username}
-              label="Username"
+              helperText={formik.touched.email && formik.errors.email}
+              label="Email Address"
               margin="normal"
-              name="username"
+              name="email"
               onBlur={formik.handleBlur}
               onChange={formik.handleChange}
-              type="username"
-              value={formik.values.username}
-              variant="outlined"
-            />
-            <TextField
-              error={Boolean(formik.touched.password && formik.errors.password)}
-              fullWidth
-              helperText={formik.touched.password && formik.errors.password}
-              label="Password"
-              margin="normal"
-              name="password"
-              onBlur={formik.handleBlur}
-              onChange={formik.handleChange}
-              type="password"
-              value={formik.values.password}
+              type="email"
+              value={formik.values.email}
               variant="outlined"
             />
             <Typography color="red" variant="subtitle2">
@@ -143,18 +104,14 @@ const Login = () => {
             <Box sx={{ py: 2 }}>
               <Button
                 color="primary"
-                disabled={formik.isSubmitting}
+                disabled={!(formik.dirty && formik.isValid)}
                 fullWidth
                 size="large"
                 type="submit"
                 variant="contained"
-                sx={{ mb: 1 }}
               >
-                Log in
+                Confirm
               </Button>
-              <Link href={`forgetpassword/${currentOrgId}`}>
-                Forgot your password?
-              </Link>
             </Box>
           </form>
         </Container>
@@ -163,4 +120,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default ForgetPassword;

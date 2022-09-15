@@ -47,17 +47,23 @@ export const OnboardClientDialog = (props) => {
       body: orgBody,
     };
 
-    let newClientOrganisation;
+    const newClientOrganisation = await fetch(
+      `http://localhost:3000/api/organisations`,
+      orgRequestOptions
+    );
 
-    try {
-      newClientOrganisation = await fetch(
-        `http://localhost:3000/api/organisations`,
-        orgRequestOptions
-      ).then((response) => response.json());
-    } catch (err) {
-      handleAlertOpen(`Error onboarding client: ${err}`, 'error');
-    }
+    //const newClientOrganisationResult = await newClientOrganisation.json();
 
+    return newClientOrganisation;
+  };
+
+  const createAdminAccount = async (values, newClientOrganisationId) => {
+    console.log(newClientOrganisationId);
+    console.log(values);
+    const headers = {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    };
     //Create Admin User Account
     const min = 100000;
     const max = 1000000;
@@ -72,7 +78,7 @@ export const OnboardClientDialog = (props) => {
       username: formik.values.username,
       password: '',
       role: 'admin',
-      organisationId: newClientOrganisation.id,
+      organisationId: newClientOrganisationId,
       contact: {
         address: formik.values.address,
         email: formik.values.email,
@@ -89,35 +95,48 @@ export const OnboardClientDialog = (props) => {
       body: adminBody,
     };
 
-    try {
-      const adminAccount = await fetch(
-        `http://localhost:3000/api/users/createUser`,
-        accountRequestOptions
-      ).then((response) => response.json());
-    } catch (err) {
-      handleAlertOpen(`Error onboarding client: ${err}`, 'error');
-    }
+    const adminAccount = await fetch(
+      `http://localhost:3000/api/users/createUser`,
+      accountRequestOptions
+    );
 
-    return newClientOrganisation;
+    //const adminAccountResult = await adminAccount.json();
+
+    return adminAccount;
   };
 
+  //Submission
   const [error, setError] = useState('');
 
   const handleOnSubmit = async (values) => {
     if (action === 'POST') {
-      const result = await createOrganisation(values).then(async (response) => {
-        console.log(response);
-        if (response.status === 200 || response.status === 201) {
-          const result = await response.json();
+      const response = await createOrganisation(values);
+      console.log(response);
 
+      if (response.status === 200 || response.status === 201) {
+        console.log('Organisation success');
+        const result = await response.json();
+        console.log(result);
+        setError('');
+
+        const accountResponse = await createAdminAccount(values, result.id);
+        if (accountResponse.status === 200 || accountResponse.status === 201) {
+          console.log('Account success');
+          const accountResult = await accountResponse.json();
+          console.log(accountResult);
           setError('');
           handleClose();
         } else {
-          const result = await response.json();
-          setError(result.message);
-          handleAlertOpen(`Error onboarding client: ${error}`, 'error');
+          console.log('Account fail');
+          const accountResult = await accountResponse.json();
+          console.log(accountResult.message);
+          setError(accountResult.message);
         }
-      });
+      } else {
+        console.log('Organisation failed');
+        console.log(response.message);
+        setError(response.message);
+      }
     }
   };
 
@@ -472,6 +491,7 @@ export const OnboardClientDialog = (props) => {
               />
             </Box>
           </Box>
+          <Typography>Error: {error}</Typography>
         </DialogContent>
       </Dialog>
     </form>

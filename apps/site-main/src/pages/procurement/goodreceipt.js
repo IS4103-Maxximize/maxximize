@@ -17,28 +17,7 @@ const ProcurementGoodReceipt = () => {
   const [disabled, setDisabled] = useState();
 
   const user = JSON.parse(localStorage.getItem('user'));
-
-  //TODO Remove Sample Data
-  const goodReceiptsData = [
-    {
-      id: 1,
-      purchaseOrderId: 1454324423,
-      recipientName: 'TestWorker',
-      dateReceived: '01/01/2022',
-    },
-    {
-      id: 2,
-      purchaseOrderId: 12334942321,
-      recipientName: 'TestWorker',
-      dateReceived: '01/01/2022',
-    },
-    {
-      id: 3,
-      purchaseOrderId: 132323223,
-      recipientName: 'TestWorker',
-      dateReceived: '01/01/2022',
-    },
-  ];
+  const organisationId = user.organisation.id;
 
   //Load in list of goodReceipts, initial
   useEffect(() => {
@@ -50,16 +29,13 @@ const ProcurementGoodReceipt = () => {
     setDisabled(selectedRows.length === 0);
   }, [selectedRows]);
 
-  //Retrieve all goodReceipts
+  //Retrieve all goodReceipts [TODO	]
   const retrieveAllGoodReceipts = async () => {
     // const goodReceiptsList = await fetch(
-    //   `http://localhost:3000/api/organisations/getgoodReceiptsByOrganisation/${organisationId}`
+    //   `http://localhost:3000/api/goods-receipts`
     // );
     // const result = await goodReceiptsList.json();
-
-    // const flattenResult = result.map((r) => flattenObj(r));
-
-    setGoodReceipts(goodReceiptsData);
+    // setGoodReceipts(result);
   };
 
   //Search Function
