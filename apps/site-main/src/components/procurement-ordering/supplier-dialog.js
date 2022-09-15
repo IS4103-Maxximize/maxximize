@@ -14,7 +14,7 @@ export const SupplierDialog = (props) =>{
 
   // Formik Helpers
   let initialValues = {
-    suppliers: []
+    suppliers: inquiry ? inquiry.suppliers : [],
   }
 
   const handleOnSubmit = async (values) => {
@@ -45,7 +45,7 @@ export const SupplierDialog = (props) =>{
 
   useEffect(() => {
     getSuppliers();
-  }, [inquiry]);
+  }, []);
 
   useEffect(() => {
     console.log(rows);
@@ -62,7 +62,7 @@ export const SupplierDialog = (props) =>{
       headerName: "Email",
       flex: 2,
       valueGetter: (params) => {
-        return params.contact ? params.contact.email : '';
+        return params.row.contact ? params.row.contact.email : '';
       }
     },
     {
@@ -70,7 +70,7 @@ export const SupplierDialog = (props) =>{
       headerName: "Phone Number",
       flex: 2,
       valueGetter: (params) => {
-        return params.contact ? params.contact.phoneNumber : '';
+        return params.row.contact ? params.row.contact.phoneNumber : '';
       }
     },
   ]
@@ -94,7 +94,7 @@ export const SupplierDialog = (props) =>{
           pageSize={5}
           rowsPerPageOptions={[5]}
           onSelectionModelChange={(ids) => setSelectedRows(ids)}
-          isRowSelectable={(params) => params.contact} // disable selection on Suppliers without contact information
+          isRowSelectable={(params) => params.row.contact} // disable selection on Suppliers without contact information
         />
       </DialogContent>
       <DialogActions>

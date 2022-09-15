@@ -8,63 +8,62 @@ import { Stack } from '@mui/system';
 import { DataGrid } from "@mui/x-data-grid";
 import { useFormik } from 'formik';
 import { useEffect, useState } from "react";
-import * as Yup from 'yup';
-import { fetchProducts } from '../../helpers/products';
 import { v4 as uuid } from 'uuid';
+import * as Yup from 'yup';
+import { createSalesInquiry, updateSalesInquiry } from '../../helpers/procurement-ordering';
+import { fetchProducts } from '../../helpers/products';
 
 
 export const SalesInquiryDialog = (props) => {
+  const user = JSON.parse(localStorage.getItem('user'));
   const {
     action, // POST || PATCH
     open,
     handleClose,
     string,
     inquiry,
-    addInquiry,
-    updateInquiry
+    addSalesInquiry,
+    updateInquiry,
+    handleAlertOpen
   } = props;
-
-  // Calculation Helpers
-  const calculateTotalPrice = (lineItems) => {
-    return lineItems.reduce((a, b) => {
-      return a += b.subTotal * b.product.unitPrice;
-    }, 0);
-  }
 
   // Formik Helpers and Variables
   let initialValues = {
     id: inquiry ? inquiry.id : null,
     status: inquiry ? inquiry.status : 'draft',
-    indPrice: inquiry ? inquiry.indPrice : 1,
-    lineItems: inquiry ? inquiry.lineItems : [],
-    totalPrice: inquiry ? calculateTotalPrice(inquiry.lineItems) : 0,
+    lineItems: inquiry ? inquiry.salesInquiryLineItems : [],
+    totalPrice: inquiry ? inquiry.totalPrice : 0,
     numProd: 1,
   };
 
-  const lineItem = Yup.object().shape({
-    subTotal: Yup.number(),
-    product: Yup.object().shape({
-      name: Yup.string(),
-      description: Yup.string(),
-      skuCode: Yup.string(),
-      unit: Yup.string(),
-      unitPrice: Yup.number().positive(),
-      expiry: Yup.number().positive(),
-    })
-  });
+  // const lineItem = Yup.object().shape({
+  //   quantity: Yup.number(),
+  //   rawMaterial: Yup.object().shape({
+  //     name: Yup.string(),
+  //     description: Yup.string(),
+  //     skuCode: Yup.string(),
+  //     unit: Yup.string(),
+  //     unitPrice: Yup.number().positive(),
+  //     expiry: Yup.number().positive(),
+  //   })
+  // });
 
   let schema = {
     status: Yup.string().required('Inquiry status is required'),
-    indPrice: Yup.number().positive().required('State Indicative Price'),
-    lineItems: Yup.array(lineItem),
+    // lineItems: Yup.array(lineItem),
     numProd: Yup.number().integer().positive(),
   };
 
   const handleOnSubmit = async (values) => {
     if (action === 'POST') {
       // create
+      const result = await createSalesInquiry(user.organisation.id, values.lineItems)
+        .catch((err) => handleAlertOpen(`Error creating ${string}`, 'error'));
+      addSalesInquiry(result);
     } else if (action === 'PATCH') {
       // update
+      const result = await updateSalesInquiry(inquiry, values);
+      updateInquiry(result);
     }
     onClose();
   };
@@ -88,24 +87,25 @@ export const SalesInquiryDialog = (props) => {
   useEffect(() => {
     const fetchData = async () => {
       const result = await fetchProducts('raw-materials');
-      const data = result.filter(el => formik.values.lineItems.map((item) => item.product.skuCode).includes(el.skuCode) ? null : el);
+      // console.log(formik.values.lineItems)
+      const data = result.filter(el => formik.values.lineItems.map((item) => item.rawMaterial.skuCode).includes(el.skuCode) ? null : el);
       setOptions(data);
     }
     fetchData();
     
-    // Update Total Price
-    formik.setFieldValue('totalPrice', calculateTotalPrice(formik.values.lineItems));
+    // // Update Total Price
+    // formik.setFieldValue('totalPrice', calculateTotalPrice(formik.values.lineItems));
   }, [open, formik.values.lineItems]);
 
   // DataGrid Helpers
   const [selectedRows, setSelectedRows] = useState([]);
 
-  const addLineItem = (subTotal, inputValue) => {
-    const product = options.find((option) => option.skuCode === inputValue);
+  const addLineItem = (quantity, inputValue) => {
+    const rawMaterial = options.find((option) => option.skuCode === inputValue);
     const newItem = {
       id: uuid(),
-      subTotal: subTotal,
-      product: product
+      quantity: quantity,
+      rawMaterial: rawMaterial
     }
     formik.setFieldValue('lineItems', [...formik.values.lineItems, newItem]);
     setInputValue('');
@@ -124,12 +124,12 @@ export const SalesInquiryDialog = (props) => {
       minWidth: 150,
       flex: 2,
       valueGetter: (params) => {
-        return params.row.product.skuCode;
+        return params.row.rawMaterial.skuCode;
       }
     },
     {
-      field: "subTotal",
-      headerName: "Subtotal",
+      field: "quantity",
+      headerName: "Quantity",
       flex: 1,
     },
     {
@@ -138,7 +138,7 @@ export const SalesInquiryDialog = (props) => {
       minWidth: 150,
       flex: 2,
       valueGetter: (params) => {
-        return params.row.product.name;
+        return params.row.rawMaterial.name;
       }
     },
     {
@@ -147,7 +147,7 @@ export const SalesInquiryDialog = (props) => {
       minWidth: 300,
       flex: 3,
       valueGetter: (params) => {
-        return params.row.product.description;
+        return params.row.rawMaterial.description;
       }
     },
     {
@@ -155,7 +155,7 @@ export const SalesInquiryDialog = (props) => {
       headerName: "Unit",
       flex: 1,
       valueGetter: (params) => {
-        return params.row.product.unit;
+        return params.row.rawMaterial.unit;
       }
     },
     {
@@ -163,7 +163,7 @@ export const SalesInquiryDialog = (props) => {
       headerName: "Unit Price",
       flex: 1,
       valueGetter: (params) => {
-        return params.row.product.unitPrice;
+        return params.row.rawMaterial.unitPrice;
       }
     },
   ];
@@ -187,11 +187,11 @@ export const SalesInquiryDialog = (props) => {
             </IconButton>
             <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
               {action === 'POST' && 'Add '}
-              {(action === 'PATCH' && formik.values.status !== 'pending') && 'Edit '}
-              {formik.values.status === 'pending' && 'View Pending '}
+              {(action === 'PATCH' && formik.values.status !== 'sent') && 'Edit '}
+              {formik.values.status === 'sent' && 'View Sent '}
               {string}
             </Typography>
-            {formik.values.status !== 'pending' &&
+            {formik.values.status !== 'sent' &&
               <Button 
                 variant="contained"
                 disabled={
@@ -232,7 +232,7 @@ export const SalesInquiryDialog = (props) => {
             variant="outlined"
             disabled
           />
-          <TextField
+          {inquiry && <TextField
             fullWidth
             error={Boolean(formik.touched.totalPrice && formik.errors.totalPrice)}
             helperText={formik.touched.totalPrice && formik.errors.totalPrice}
@@ -245,22 +245,8 @@ export const SalesInquiryDialog = (props) => {
             value={formik.values.totalPrice}
             variant="outlined"
             disabled
-          />
-          <TextField
-            fullWidth
-            error={Boolean(formik.touched.indPrice && formik.errors.indPrice)}
-            helperText={formik.touched.indPrice && formik.errors.indPrice}
-            label="Indicative Price"
-            margin="normal"
-            name="indPrice"
-            type="number"
-            onBlur={formik.handleBlur}
-            onChange={formik.handleChange}
-            value={formik.values.indPrice}
-            variant="outlined"
-            disabled={formik.values.status === 'pending'}
-          />
-          {formik.values.status !== 'pending' && 
+          />}
+          {formik.values.status !== 'sent' && 
             <Box my={2} display="flex" justifyContent="space-between">
               <Stack 
                 direction="row" 
@@ -316,8 +302,8 @@ export const SalesInquiryDialog = (props) => {
             autoHeight
             rows={formik.values.lineItems}
             columns={columns}
-            checkboxSelection={formik.values.status !== 'pending'}
-            disableSelectionOnClick={formik.values.status === 'pending'}
+            checkboxSelection={formik.values.status !== 'sent'}
+            disableSelectionOnClick={formik.values.status === 'sent'}
             pageSize={5}
             rowsPerPageOptions={[5]}
             onSelectionModelChange={(ids) => setSelectedRows(ids)}

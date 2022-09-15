@@ -10,7 +10,7 @@ import { SalesInquiryMenu } from "../../components/procurement-ordering/sales-in
 import { SupplierDialog } from "../../components/procurement-ordering/supplier-dialog";
 import { Toolbar } from "../../components/procurement-ordering/toolbar";
 import { ConfirmDialog } from "../../components/product/confirm-dialog";
-import { fetchSalesInquiries } from "../../helpers/procurement-ordering";
+import { deleteSalesInquiries, fetchSalesInquiries, updateSalesInquiry } from "../../helpers/procurement-ordering";
 
 export const SalesInquiry = (props) => {
   const user = JSON.parse(localStorage.getItem('user'));
@@ -73,11 +73,13 @@ export const SalesInquiry = (props) => {
   // Supplier Dialog Helpers
   const [supplierDialogOpen, setSupplierDialogOpen] = useState(false);
   const handleSupplierDialogOpen = () => {
+    console.log(selectedRow)
     setSupplierDialogOpen(true);
   }
   const handleSupplierDialogClose = () => {
     setSupplierDialogOpen(false);
   }
+
 
   // Menu Helpers
   const [anchorEl, setAnchorEl] = useState(null);
@@ -104,11 +106,6 @@ export const SalesInquiry = (props) => {
     );
   };
 
-  // CRUD helpers
-  const handleDelete = async (ids) => {
-    // delete rows
-  }
-
   // DataGrid Rows & Columns
   const [rows, setRows] = useState([]);
 
@@ -116,6 +113,28 @@ export const SalesInquiry = (props) => {
     fetchSalesInquiries()
     .then(result => setRows(result))
     .catch(err => handleAlertOpen(`Failed to fetch Sales Inquiries`, 'error'))
+  }
+
+  const addSalesInquiry = (inquiry) => {
+    const updatedProducts = [...rows, inquiry];
+    setRows(updatedProducts);
+    console.log(inquiry);
+    handleAlertOpen(`Added Sales Inquiry ${inquiry.id} successfully!`, 'success');
+  } 
+
+  const handleRowUpdate = (newRow) => {
+    const updatedRow = {...newRow};
+    getSalesInquiries()
+    handleAlertOpen(`Updated Sales Inquiry ${newRow.id} successfully!`, 'success');
+    return updatedRow;
+  }
+
+  const handleDelete = (ids) => {
+    deleteSalesInquiries(ids)
+      .then(() => {
+        handleAlertOpen(`Successfully deleted Sales Inquiry(s)`, 'success');
+      })
+      .then(() => getSalesInquiries());
   }
 
   useEffect(() => {
@@ -187,7 +206,10 @@ export const SalesInquiry = (props) => {
             open={formDialogOpen}
             string={'Sales Inquiry'}
             inquiry={selectedRow}
+            addSalesInquiry={addSalesInquiry}
+            updateInquiry={handleRowUpdate}
             handleClose={handleFormDialogClose}
+            handleAlertOpen={handleAlertOpen}
           />
           <SupplierDialog
             open={supplierDialogOpen}

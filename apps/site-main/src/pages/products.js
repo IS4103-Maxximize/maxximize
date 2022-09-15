@@ -114,7 +114,6 @@ const Products = (props) => {
   }, [type]);
 
   useEffect(() => {
-    console.log(selectedRows);
     setDisabled(selectedRows.length === 0)
   }, [selectedRows]);
 
@@ -127,11 +126,12 @@ const Products = (props) => {
     setSelectedRow(null);
   };
 
-  const handleDelete = async (ids) => {
+  const handleDelete = (ids) => {
     deleteProducts(type, ids)
       .then(() => {
         handleAlertOpen(`Successfully deleted ${typeString}(s)`, 'success');
       })
+      .then(() => getProducts())
   };
 
   let columns = [

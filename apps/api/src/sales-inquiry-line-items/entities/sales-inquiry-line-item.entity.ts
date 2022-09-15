@@ -11,12 +11,9 @@ export class SalesInquiryLineItem {
     @Column()
     quantity: number
 
-    @Column()
-    indicativePrice: number
-
     @ManyToOne(() => RawMaterial)
     rawMaterial: RawMaterial
 
-    @ManyToOne(() => SalesInquiry, salesInquiry => salesInquiry.salesInquiryLineItems, {onDelete: 'SET NULL'})
+    @ManyToOne(() => SalesInquiry, salesInquiry => salesInquiry.salesInquiryLineItems, {onDelete: 'CASCADE'})
     salesInquiry: SalesInquiry
 }

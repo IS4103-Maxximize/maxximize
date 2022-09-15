@@ -4,7 +4,6 @@ import { SalesInquiry } from "../../sales-inquiry/entities/sales-inquiry.entity"
 
 export class CreateSalesInquiryLineItemDto {
     quantity: number;
-    indicativePrice: number;
     rawMaterialId: number;
     salesInquiryId: number;
 }

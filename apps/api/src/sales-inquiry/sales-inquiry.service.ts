@@ -50,7 +50,10 @@ export class SalesInquiryService {
     return this.salesInquiriesRepository.find({
       relations: {
         currentOrganisation: true,
-        suppliers: true
+        suppliers: true,
+        salesInquiryLineItems: {
+          rawMaterial: true
+        },
       }
     })
   }
@@ -62,7 +65,8 @@ export class SalesInquiryService {
       },
       relations: {
         currentOrganisation: true,
-        suppliers: true
+        suppliers: true,
+        salesInquiryLineItems: true,
       }
     })
   }
