@@ -7,7 +7,7 @@ export class CreateQuotationLineItemDto {
     quantity: number;
     price: number;
     unit: MeasurementUnit;
-    rawMaterial: RawMaterial;
-    finalGood?: FinalGood;
-    quotation: Quotation;
+    rawMaterialId: number;
+    finalGoodId?: number;
+    quotationId: number;
 }
