@@ -1,14 +1,16 @@
-import { Column, JoinColumn, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Product } from "../products/entities/product.entity";
 
 export abstract class LineItem {
     @PrimaryGeneratedColumn()
-    id: number
+    id: number;
 
     @Column()
-    subTotal: number
+    subTotal: number;
 
-    @OneToOne(() => Product)
-    @JoinColumn()
-    product: Product
+    @Column()
+    quantity: number;
+
+    @ManyToOne(() => Product)
+    product: Product;
 }

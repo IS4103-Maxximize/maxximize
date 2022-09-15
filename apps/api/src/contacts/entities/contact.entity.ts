@@ -1,4 +1,5 @@
-import { Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { IsEmail } from "class-validator";
+import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Organisation } from "../../organisations/entities/organisation.entity";
 import { ShellOrganisation } from "../../shell-organisations/entities/shell-organisation.entity";
 import { User } from "../../users/entities/user.entity";
@@ -11,7 +12,10 @@ export class Contact {
     @Column()
     phoneNumber: string;
 
-    @Column()
+    @Column({
+        nullable: false
+    })
+    @IsEmail()
     email: string;
 
     @Column()
@@ -29,7 +33,7 @@ export class Contact {
     @OneToOne(() => User, (user) => user.contact)
     user: User | null;
 
-    @OneToOne(() => ShellOrganisation, shellOrganisation => shellOrganisation.contact)
+    @OneToOne(() => ShellOrganisation, shellOrganisation => shellOrganisation.contact, {onDelete: 'CASCADE'})
     @JoinColumn()
     shellOrganisation: ShellOrganisation
 

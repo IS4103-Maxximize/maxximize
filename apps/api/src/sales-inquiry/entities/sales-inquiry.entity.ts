@@ -25,7 +25,7 @@ export class SalesInquiry {
     @ManyToOne(() => Organisation, currentOrganisation => currentOrganisation.salesInquiries, {onDelete: 'SET NULL'})
     currentOrganisation: Organisation
 
-    @ManyToMany(() => ShellOrganisation, supplier => supplier.salesInquiries, {onDelete: 'SET NULL'})
+    @ManyToMany(() => ShellOrganisation, supplier => supplier.salesInquiries)
     suppliers: ShellOrganisation[]
 
     @OneToMany(() => Quotation, quotation => quotation.salesInquiry)
