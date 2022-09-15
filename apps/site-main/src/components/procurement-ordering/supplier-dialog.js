@@ -55,14 +55,14 @@ export const SupplierDialog = (props) =>{
     {
       field: "name",
       headerName: "Supplier Name",
-      flex: 2,
+      flex: 3,
     },
     {
       field: "email",
       headerName: "Email",
       flex: 2,
       valueGetter: (params) => {
-        return params.contact.email;
+        return params.contact ? params.contact.email : '';
       }
     },
     {
@@ -70,7 +70,7 @@ export const SupplierDialog = (props) =>{
       headerName: "Phone Number",
       flex: 2,
       valueGetter: (params) => {
-        return params.contact.phoneNumber;
+        return params.contact ? params.contact.phoneNumber : '';
       }
     },
   ]
@@ -78,6 +78,7 @@ export const SupplierDialog = (props) =>{
   return (
     <Dialog
       fullWidth
+      maxWidth="md"
       open={open}
       onClose={onClose}
     >
@@ -93,6 +94,7 @@ export const SupplierDialog = (props) =>{
           pageSize={5}
           rowsPerPageOptions={[5]}
           onSelectionModelChange={(ids) => setSelectedRows(ids)}
+          isRowSelectable={(params) => params.contact} // disable selection on Suppliers without contact information
         />
       </DialogContent>
       <DialogActions>
