@@ -1,9 +1,10 @@
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Contact } from "../../contacts/entities/contact.entity";
 import { Organisation } from "../../organisations/entities/organisation.entity";
 import { OrganisationType } from "../../organisations/enums/organisationType.enum";
 import { Quotation } from "../../quotations/entities/quotation.entity";
-import { PurchaseOrder } from "../../purchase-orders/entities/purchase-order.entity";
+import { RawMaterial } from "../../raw-materials/entities/raw-material.entity";
+import { SalesInquiry } from "../../sales-inquiry/entities/sales-inquiry.entity";
 
 @Entity()
 export class ShellOrganisation {
@@ -31,11 +32,18 @@ export class ShellOrganisation {
     contact: Contact
 
     @ManyToOne(() => Organisation, organisation => organisation.shellOrganisations)
-    organisation: Organisation
+    organisation?: Organisation
+
+    @ManyToOne(() => Organisation, organisation => organisation.shellOrganisations)
+    creator: Organisation
 
     @OneToMany(() => Quotation, quotation => quotation.shellOrganisation)
     quotations: Quotation[]
 
-    @OneToMany(() => PurchaseOrder, purchaseOrder => purchaseOrder.supplierOrganisation)
-    purchaseOrders: PurchaseOrder[];
+    @ManyToMany(() => SalesInquiry, salesInquiry => salesInquiry.suppliers)
+    salesInquiries: SalesInquiry[]
+
+    @ManyToMany(() => RawMaterial, rawMaterial => rawMaterial.suppliers)
+    rawMaterials: RawMaterial[]
+
 }

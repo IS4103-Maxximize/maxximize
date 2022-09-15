@@ -1,7 +1,10 @@
+/* eslint-disable prefer-const */
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Product } from '../products/entities/product.entity';
+import { PurchaseOrder } from '../purchase-orders/entities/purchase-order.entity';
+import { QuotationLineItem } from '../quotation-line-items/entities/quotation-line-item.entity';
+import { SalesInquiry } from '../sales-inquiry/entities/sales-inquiry.entity';
 import { ShellOrganisation } from '../shell-organisations/entities/shell-organisation.entity';
 import { CreateQuotationDto } from './dto/create-quotation.dto';
 import { UpdateQuotationDto } from './dto/update-quotation.dto';
@@ -10,27 +13,31 @@ import { Quotation } from './entities/quotation.entity';
 @Injectable()
 export class QuotationsService {
   constructor(
-    @InjectRepository(Product)
-    private readonly productsRepository: Repository<Product>,
+    @InjectRepository(PurchaseOrder)
+    private readonly purchaseOrdersRepository: Repository<PurchaseOrder>,
+    @InjectRepository(SalesInquiry)
+    private readonly salesInquiriesRepository: Repository<SalesInquiry>,
     @InjectRepository(ShellOrganisation)
     private readonly shellOrganisationsRepository: Repository<ShellOrganisation>,
     @InjectRepository(Quotation)
     private readonly quotationsRepository: Repository<Quotation>,
+    @InjectRepository(QuotationLineItem)
+    private readonly quotationLineItemsRepository: Repository<QuotationLineItem>,
   ) {}
 
   async create(createQuotationDto: CreateQuotationDto): Promise<Quotation> {
     try {
-      const { lotQuantity, lotPrice, productCode, shellOrganisationId, unit} = createQuotationDto
+      const { salesInquiry, shellOrganisation } = createQuotationDto
       let shellOrganisationToBeAdded: ShellOrganisation
-      let productToBeAdded: Product
-      shellOrganisationToBeAdded = await this.shellOrganisationsRepository.findOneByOrFail({id: shellOrganisationId})
-      productToBeAdded = await this.productsRepository.findOneByOrFail({id: productCode})
+      let salesInquiryToBeAdded: SalesInquiry
+      shellOrganisationToBeAdded = await this.shellOrganisationsRepository.findOneByOrFail({id: shellOrganisation.id})
+      salesInquiryToBeAdded = await this.salesInquiriesRepository.findOneByOrFail({id: salesInquiry.id})
       const newQuotation = this.quotationsRepository.create({
-        lotQuantity,
-        lotPrice,
-        unit,
+        created: new Date(),
+        totalPrice: 0,
+        salesInquiry: salesInquiryToBeAdded,
         shellOrganisation: shellOrganisationToBeAdded,
-        product: productToBeAdded
+        quotationLineItems: []
       })
       return this.quotationsRepository.save(newQuotation)
     } catch (error) {
@@ -38,25 +45,25 @@ export class QuotationsService {
     }
   }
 
-  findAll() {
+  findAll(): Promise<Quotation[]> {
     return this.quotationsRepository.find({
       relations: {
         shellOrganisation: true,
-        product: true
+        salesInquiry: true
       }
     })
   }
 
-  findOne(id: number) {
+  findOne(id: number): Promise<Quotation> {
     return this.quotationsRepository.findOne({where: {
       id
     }, relations: {
       shellOrganisation: true,
-      product: true
+      salesInquiry: true
     }})
   }
 
-  async update(id: number, updateQuotationDto: UpdateQuotationDto) {
+  async update(id: number, updateQuotationDto: UpdateQuotationDto): Promise<Quotation> {
     //update lot quantity, lot price, unit
     //shell org and product should remain the same!
 
@@ -68,7 +75,7 @@ export class QuotationsService {
     return this.quotationsRepository.save(quotationToUpdate)
   }
 
-  async remove(id: number) {
+  async remove(id: number): Promise<Quotation> {
     const quotationToRemove = await this.quotationsRepository.findOneBy({id})
     return this.quotationsRepository.remove(quotationToRemove)
   }

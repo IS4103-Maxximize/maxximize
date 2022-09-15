@@ -35,34 +35,32 @@ export class UsersService {
       );
     }
 
-    try {
-      const newUser = new User();
-      newUser.firstName = createUserDto.firstName;
-      newUser.lastName = createUserDto.lastName;
-      newUser.username = createUserDto.username;
-      newUser.role = createUserDto.role;
-      newUser.contact = createUserDto.contact;
+    const newUser = new User();
+    newUser.firstName = createUserDto.firstName;
+    newUser.lastName = createUserDto.lastName;
+    newUser.username = createUserDto.username;
+    newUser.role = createUserDto.role;
+    newUser.contact = createUserDto.contact;
 
-      const salt = await bcrypt.genSalt();
-      newUser.salt = salt;
-      const password = Math.random().toString(36).slice(-8);
-      newUser.password = await bcrypt.hash(password, salt);
+    const salt = await bcrypt.genSalt();
+    newUser.salt = salt;
+    const password = Math.random().toString(36).slice(-8);
+    newUser.password = await bcrypt.hash(password, salt);
 
-      const organisation = await this.organisationsService.findOne(
-        createUserDto.organisationId
-      );
-      if (organisation) {
-        newUser.organisation = organisation;
-      } else {
-        throw new NotFoundException(`organisation with id : ${createUserDto.organisationId} cannot be found!`)
-      }
-
-      await this.mailService.sendUserConfirmation(createUserDto.contact, organisation.name, newUser, password);
-      return this.usersRepository.save(newUser);
-    } catch (err) {
-      console.log(err);
-      throw err;
+    const organisation = await this.organisationsService.findOne(
+      createUserDto.organisationId
+    );
+    if (organisation) {
+      newUser.organisation = organisation;
+    } else {
+      throw new NotFoundException(`Organisation with id : ${createUserDto.organisationId} cannot be found!`)
     }
+    
+    const savedUser = await this.usersRepository.save(newUser);
+    if (savedUser) {
+      await this.mailService.sendUserConfirmation(createUserDto.contact, organisation.name, newUser, password, organisation.id);
+    }
+    return savedUser;
   }
 
   findAll(): Promise<User[]> {

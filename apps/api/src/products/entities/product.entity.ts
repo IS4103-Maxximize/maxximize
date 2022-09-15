@@ -1,8 +1,14 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn, TableInheritance } from "typeorm";
 import { Quotation } from "../../quotations/entities/quotation.entity";
 import { MeasurementUnit } from "../enums/measurementUnit.enum";
 
 @Entity()
+@TableInheritance({
+    column: {
+        type: "varchar",
+        name: "type"
+    }
+})
 export class Product {
     @PrimaryGeneratedColumn()
     id: number
@@ -27,7 +33,4 @@ export class Product {
 
     @Column({nullable: true})
     expiry: number;
-
-    @OneToMany(() => Quotation, quotation => quotation.product)
-    quotations: Quotation[]
 }
