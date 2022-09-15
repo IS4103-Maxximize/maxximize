@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateContactDto } from './dto/create-contact.dto';
@@ -12,7 +12,11 @@ export class ContactsService {
     private readonly contactsRepository: Repository<Contact>,
   ) {}
 
-  create(createContactDto: CreateContactDto): Promise<Contact> {
+  async create(createContactDto: CreateContactDto): Promise<Contact> {
+    const allContactsEmails = (await this.findAll()).map(contact => contact.email)
+    if (allContactsEmails.includes(createContactDto.email)) {
+      throw new NotFoundException('Email already exists!')
+    }
     const contact = new Contact();
     contact.phoneNumber = createContactDto.phoneNumber;
     contact.email = createContactDto.email;

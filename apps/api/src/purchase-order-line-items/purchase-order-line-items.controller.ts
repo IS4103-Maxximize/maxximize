@@ -17,38 +17,38 @@ export class PurchaseOrderLineItemsController {
     private readonly purchaseOrderLineItemsService: PurchaseOrderLineItemsService
   ) {}
 
-  @Post()
-  create(
-    @Body() createPurchaseOrderLineItemDto: CreatePurchaseOrderLineItemDto
-  ) {
-    return this.purchaseOrderLineItemsService.create(
-      createPurchaseOrderLineItemDto
-    );
-  }
+  // @Post()
+  // create(
+  //   @Body() createPurchaseOrderLineItemDto: CreatePurchaseOrderLineItemDto
+  // ) {
+  //   return this.purchaseOrderLineItemsService.create(
+  //     createPurchaseOrderLineItemDto
+  //   );
+  // }
 
-  @Get()
-  findAll() {
-    return this.purchaseOrderLineItemsService.findAll();
-  }
+  // @Get()
+  // findAll() {
+  //   return this.purchaseOrderLineItemsService.findAll();
+  // }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.purchaseOrderLineItemsService.findOne(+id);
-  }
+  // @Get(':id')
+  // findOne(@Param('id') id: string) {
+  //   return this.purchaseOrderLineItemsService.findOne(+id);
+  // }
 
-  @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updatePurchaseOrderLineItemDto: UpdatePurchaseOrderLineItemDto
-  ) {
-    return this.purchaseOrderLineItemsService.update(
-      +id,
-      updatePurchaseOrderLineItemDto
-    );
-  }
+  // @Patch(':id')
+  // update(
+  //   @Param('id') id: string,
+  //   @Body() updatePurchaseOrderLineItemDto: UpdatePurchaseOrderLineItemDto
+  // ) {
+  //   return this.purchaseOrderLineItemsService.update(
+  //     +id,
+  //     updatePurchaseOrderLineItemDto
+  //   );
+  // }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.purchaseOrderLineItemsService.remove(+id);
-  }
+  // @Delete(':id')
+  // remove(@Param('id') id: string) {
+  //   return this.purchaseOrderLineItemsService.remove(+id);
+  // }
 }

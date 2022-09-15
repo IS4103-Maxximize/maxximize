@@ -68,17 +68,18 @@ export class PurchaseOrderLineItemsService {
     }})
   }
 
-  async update(id: number, updatePurchaseOrderLineItemDto: UpdatePurchaseOrderLineItemDto): Promise<PurchaseOrderLineItem>{
-    const purchaseOrderLineItemToUpdate = await this.poLineItemsRepository.findOneBy({id})
-    const arrayOfKeyValues = Object.entries(updatePurchaseOrderLineItemDto)
-    arrayOfKeyValues.forEach(([key, value]) => {
-      purchaseOrderLineItemToUpdate[key] = value
-    })
-    return this.poLineItemsRepository.save(purchaseOrderLineItemToUpdate)
-  }
 
-  async remove(id: number): Promise<PurchaseOrderLineItem> {
-    const purchaseOrderLineItemToRemove = await this.poLineItemsRepository.findOneBy({id})
-    return this.poLineItemsRepository.remove(purchaseOrderLineItemToRemove)
-  }
+  // async update(id: number, updatePurchaseOrderLineItemDto: UpdatePurchaseOrderLineItemDto): Promise<PurchaseOrderLineItem>{
+  //   const purchaseOrderLineItemToUpdate = await this.poLineItemsRepository.findOneBy({id})
+  //   const arrayOfKeyValues = Object.entries(updatePurchaseOrderLineItemDto)
+  //   arrayOfKeyValues.forEach(([key, value]) => {
+  //     purchaseOrderLineItemToUpdate[key] = value
+  //   })
+  //   return this.poLineItemsRepository.save(purchaseOrderLineItemToUpdate)
+  // }
+
+  // async remove(id: number): Promise<PurchaseOrderLineItem> {
+  //   const purchaseOrderLineItemToRemove = await this.poLineItemsRepository.findOneBy({id})
+  //   return this.poLineItemsRepository.remove(purchaseOrderLineItemToRemove)
+  // }
 }

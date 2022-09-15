@@ -80,7 +80,7 @@ import com.android.build.OutputFile
 
 project.ext.react = [
     // the entry file for bundle generation
-    entryFile: "src/main.tsx",
+    entryFile: "src/index.js",
     enableHermes: false,  // clean and rebuild if changing
 ]
 

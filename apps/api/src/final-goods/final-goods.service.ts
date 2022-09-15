@@ -37,10 +37,8 @@ export class FinalGoodsService {
       organisation: organisationToBeAdded
     });
     const newFinalGood = await this.finalGoodRepository.save(newFinalGoodInstance);
-    return this.finalGoodRepository.save({
-      skuCode:`${newFinalGood.id}-${name.toUpperCase().substring(0, 3)}`,
-      ...newFinalGood
-    });
+    const skuCode = `${newFinalGood.id}-${name.toUpperCase().substring(0, 3)}`;
+    return this.update(newFinalGood.id, { skuCode: skuCode });
   }
 
   findAll(): Promise<FinalGood[]> {
@@ -84,9 +82,16 @@ export class FinalGoodsService {
             }
             else if (key === 'expiry') {
               product.expiry = value;
-            } else {
-            product[key] = value
-          }
+            } 
+            else if (key === 'skuCode') {
+              product.skuCode = value;
+            } 
+            else if (key === 'lotQuantity') {
+              product.lotQuantity = value;
+            } 
+          } 
+        else {
+          product[key] = value
         }
       }
       return this.finalGoodRepository.save(product)
