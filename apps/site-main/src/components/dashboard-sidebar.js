@@ -54,7 +54,7 @@ const items = [
     icon: <QuestionAnswerIcon fontSize="small" />,
     title: 'Sales Inquiry',
     access: [
-      'admin',
+      'superadmin',
       'manager',
     ],
   },
@@ -63,7 +63,7 @@ const items = [
     icon: <RequestQuoteIcon fontSize="small" />,
     title: 'Quotation Management',
     access: [
-      'admin',
+      'superadmin',
       'manager',
     ],
   }
