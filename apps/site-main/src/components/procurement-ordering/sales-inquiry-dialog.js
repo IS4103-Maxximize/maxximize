@@ -175,7 +175,7 @@ export const SalesInquiryDialog = (props) => {
         open={open}
         onClose={onClose}
       >
-         <AppBar sx={{ position: 'relative' }}>
+        <AppBar sx={{ position: 'relative' }}>
           <Toolbar>
             <IconButton
               edge="start"
