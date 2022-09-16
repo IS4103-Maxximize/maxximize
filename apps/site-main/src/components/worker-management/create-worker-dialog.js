@@ -7,9 +7,11 @@ import {
   MenuItem,
   useTheme,
   Box,
+  Typography,
 } from '@mui/material';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useFormik } from 'formik';
+import { useState } from 'react';
 import * as Yup from 'yup';
 
 export const CreateWorkerDialog = ({
@@ -20,6 +22,7 @@ export const CreateWorkerDialog = ({
 }) => {
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
+  const [error, setError] = useState('');
 
   //Handle dialog close from child dialog
   const handleDialogClose = () => {
@@ -27,13 +30,12 @@ export const CreateWorkerDialog = ({
     formik.resetForm();
   };
 
-  //Change this to retrieve local storage user organisation Id
-  const organisationId = '1';
+  //User organisation Id
+  const user = JSON.parse(localStorage.getItem('user'));
+  const organisationId = user.organisation.id;
 
   //Handle Formik submission
-  const handleOnSubmit = async (event) => {
-    event.preventDefault();
-
+  const handleOnSubmit = async () => {
     const min = 100000;
     const max = 1000000;
     const rand = Math.floor(min + Math.random() * (max - min));
@@ -51,7 +53,7 @@ export const CreateWorkerDialog = ({
         firstName: formik.values.firstName,
         lastName: formik.values.lastName,
         username: formik.values.username,
-        password: 'password',
+        password: '',
         role: formik.values.role,
         organisationId: organisationId,
         contact: {
@@ -63,16 +65,17 @@ export const CreateWorkerDialog = ({
       }),
     });
 
-    const result = await response.json();
+    if (response.status === 200 || response.status === 201) {
+      const result = await response.json();
 
-    const flattenResult = flattenObj(result);
-
-    //Rerender parent data grid compoennt
-    addWorker(flattenResult);
-
-    handleAlertOpen(`Created Worker ${result.id} successfully`);
-
-    handleDialogClose();
+      addWorker(result);
+      handleAlertOpen(`Created Worker ${result.id} successfully`);
+      setError('');
+      handleDialogClose();
+    } else {
+      const result = await response.json();
+      setError(result.message);
+    }
   };
 
   const formik = useFormik({
@@ -115,13 +118,14 @@ export const CreateWorkerDialog = ({
         .matches(new RegExp('[0-9]'), 'Phone number should only contain digits')
         .required('Phone Number is required'),
     }),
+    onSubmit: handleOnSubmit,
   });
 
   const workerRoles = [
-    { value: 'Admin', label: 'Admin' },
-    { value: 'Manager', label: 'Manager' },
-    { value: 'FactoryWorker', label: 'FactoryWorker' },
-    { value: 'Driver', label: 'Driver' },
+    { value: 'admin', label: 'Admin' },
+    { value: 'manager', label: 'Manager' },
+    { value: 'factoryWorker', label: 'Factory Worker' },
+    { value: 'driver', label: 'Driver' },
   ];
 
   return (
@@ -135,7 +139,7 @@ export const CreateWorkerDialog = ({
         {'Create Worker Account'}
       </DialogTitle>
       <DialogContent>
-        <form onSubmit={handleOnSubmit}>
+        <form onSubmit={formik.handleSubmit}>
           <TextField
             error={Boolean(formik.touched.firstName && formik.errors.firstName)}
             fullWidth
@@ -240,6 +244,11 @@ export const CreateWorkerDialog = ({
             variant="outlined"
             size="small"
           />
+
+          <Typography variant="caption" color="red">
+            {error}
+          </Typography>
+
           <Box
             mt={1}
             mb={1}
@@ -254,7 +263,7 @@ export const CreateWorkerDialog = ({
             </Button>
             <Button
               color="primary"
-              disabled={!(formik.dirty && formik.isValid)}
+              disabled={formik.isSubmitting}
               size="large"
               type="submit"
               variant="contained"

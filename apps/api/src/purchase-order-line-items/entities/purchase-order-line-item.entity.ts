@@ -21,7 +21,7 @@ export class PurchaseOrderLineItem {
     @ManyToOne(() => FinalGood, { nullable: true })
     finalGood?: FinalGood
 
-    @ManyToOne(() => PurchaseOrder, purchaseOrder => purchaseOrder.poLineItems, {onDelete: 'SET NULL'})
+    @ManyToOne(() => PurchaseOrder, purchaseOrder => purchaseOrder.poLineItems, {onDelete: 'CASCADE'})
     purchaseOrder: PurchaseOrder
 }
 

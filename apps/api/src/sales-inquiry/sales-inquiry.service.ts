@@ -2,10 +2,13 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { Contact } from '../contacts/entities/contact.entity';
+import { MailService } from '../mail/mail.service';
 import { Organisation } from '../organisations/entities/organisation.entity';
 import { Quotation } from '../quotations/entities/quotation.entity';
 import { SalesInquiryLineItem } from '../sales-inquiry-line-items/entities/sales-inquiry-line-item.entity';
 import { ShellOrganisation } from '../shell-organisations/entities/shell-organisation.entity';
+import { AddSupplierDto } from './dto/add-supplier.dto';
 import { CreateSalesInquiryDto } from './dto/create-sales-inquiry.dto';
 import { UpdateSalesInquiryDto } from './dto/update-sales-inquiry.dto';
 import { SalesInquiry } from './entities/sales-inquiry.entity';
@@ -24,6 +27,7 @@ export class SalesInquiryService {
     private readonly quotationsRepository: Repository<Quotation>,
     @InjectRepository(SalesInquiryLineItem)
     private readonly salesInquiryLineItemsRepository: Repository<SalesInquiryLineItem>,
+    private mailerService: MailService
   ) {}
 
   async create(createSalesInquiryDto: CreateSalesInquiryDto): Promise<SalesInquiry> {
@@ -50,7 +54,9 @@ export class SalesInquiryService {
     return this.salesInquiriesRepository.find({
       relations: {
         currentOrganisation: true,
-        suppliers: true
+        suppliers: true,
+        quotations: true,
+        salesInquiryLineItems: true
       }
     })
   }
@@ -62,7 +68,9 @@ export class SalesInquiryService {
       },
       relations: {
         currentOrganisation: true,
-        suppliers: true
+        suppliers: true,
+        quotations: true,
+        salesInquiryLineItems: true
       }
     })
   }
@@ -70,10 +78,12 @@ export class SalesInquiryService {
   findOne(id: number): Promise<SalesInquiry> {
     return this.salesInquiriesRepository.findOne({where: {
       id
-    }, relations: {
-      currentOrganisation: true,
-      suppliers: true
-    }})
+    }, relations: [
+      "currentOrganisation",
+      "suppliers",
+      "quotations",
+      "salesInquiryLineItems.rawMaterial"
+    ]})
   }
 
 
@@ -91,16 +101,27 @@ export class SalesInquiryService {
     return this.salesInquiriesRepository.remove(salesInquiryToRemove)
   }
 
-  async addSupplier(salesInquiryId: number, shellOrganisationId: number): Promise<SalesInquiry>{
+  async addSupplier(addSupplierDto: AddSupplierDto): Promise<SalesInquiry>{
+    console.log(addSupplierDto)
+    const { salesInquiryId, shellOrganisationId } = addSupplierDto
     let shellOrganisation: ShellOrganisation
-    shellOrganisation = await this.shellOrganisationsRepository.findOneByOrFail({id: shellOrganisationId})
+    
+    shellOrganisation = await this.shellOrganisationsRepository.findOne({
+      where: {
+        id: shellOrganisationId
+      }, relations: {
+        parentOrganisation: true,
+        contact: true
+      }
+    })
+    
     let salesInquiry: SalesInquiry
-    salesInquiry = await this.salesInquiriesRepository.findOneByOrFail({id: salesInquiryId})
+    salesInquiry = await this.findOne(salesInquiryId)
     salesInquiry.suppliers.push(shellOrganisation)
     if (salesInquiry.status == SalesInquiryStatus.DRAFT) {
       salesInquiry.status = SalesInquiryStatus.SENT
     }
-
+    this.mailerService.sendSalesInquiryEmail(shellOrganisation.contact.email, salesInquiry.currentOrganisation.name, shellOrganisation.name, salesInquiry.salesInquiryLineItems)
     return this.salesInquiriesRepository.save(salesInquiry)
   }
 

@@ -1,7 +1,9 @@
 import {
+  BadRequestException,
   HttpException,
   HttpStatus,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -16,7 +18,8 @@ import * as bcrypt from 'bcrypt';
 import { UpdateContactDto } from '../contacts/dto/update-contact.dto';
 import { MailService } from '../mail/mail.service';
 import { Organisation } from '../organisations/entities/organisation.entity';
-
+import { Contact } from '../contacts/entities/contact.entity';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
 
 @Injectable()
 export class UsersService {
@@ -41,12 +44,18 @@ export class UsersService {
     newUser.lastName = createUserDto.lastName;
     newUser.username = createUserDto.username;
     newUser.role = createUserDto.role;
-    newUser.contact = createUserDto.contact;
+
+    const contact = new Contact();
+    contact.address = createUserDto.contact.address;
+    contact.email = createUserDto.contact.email;
+    contact.phoneNumber = createUserDto.contact.phoneNumber;
+    contact.postalCode = createUserDto.contact.postalCode;
+    newUser.contact = contact;
 
     const salt = await bcrypt.genSalt();
     newUser.salt = salt;
     const password = Math.random().toString(36).slice(-8);
-    console.log(password)
+    console.log(password);
     newUser.password = await bcrypt.hash(password, salt);
 
     const organisation = await this.organisationsService.findOne(
@@ -55,20 +64,38 @@ export class UsersService {
     if (organisation) {
       newUser.organisation = organisation;
     } else {
-      throw new NotFoundException(`Organisation with id : ${createUserDto.organisationId} cannot be found!`)
+      throw new NotFoundException(
+        `Organisation with id : ${createUserDto.organisationId} cannot be found!`
+      );
     }
 
     //check contact email whether its unique in user's organisation
 
-    const allEmailsInOrganisation = await this.getAllEmailsInOrganisation(organisation)
+    const allEmailsInOrganisation = await this.getAllEmailsInOrganisation(
+      organisation
+    );
     if (allEmailsInOrganisation.includes(createUserDto.contact.email)) {
-      throw new NotFoundException('Email is already being used by another user or the organisation you are in!')
+      throw new NotFoundException(
+        'Email is already being used by another user or the organisation you are in!'
+      );
     }
-    
+
     const savedUser = await this.usersRepository.save(newUser);
-    if (savedUser) {
-      await this.mailService.sendUserConfirmation(createUserDto.contact, organisation.name, newUser, password, organisation.id);
+
+    try {
+      await this.mailService.sendPasswordEmail(
+        createUserDto.contact.email,
+        organisation.name,
+        newUser,
+        password,
+        organisation.id
+      );
+    } catch (err) {
+      throw new InternalServerErrorException(
+        'Unable to send email successfully'
+      );
     }
+
     return savedUser;
   }
 
@@ -85,8 +112,8 @@ export class UsersService {
   findOne(id: number): Promise<User> {
     try {
       return this.usersRepository.findOne({
-        where: { id }, 
-        relations: {contact: true, organisation: true}
+        where: { id },
+        relations: { contact: true, organisation: true },
       });
     } catch (err) {
       throw new NotFoundException('No user with id: ' + id + ' found!');
@@ -98,13 +125,13 @@ export class UsersService {
   }
 
   async getAllEmailsInOrganisation(organisation: Organisation) {
-    const users = organisation.users
-    const usersWithContactPromises = users.map(async user => {
-      return await this.findOne(user.id)
-    })
-    const usersWithContact = await Promise.all(usersWithContactPromises)
-    const usersEmail = usersWithContact.map(user => user.contact.email)
-    return [...usersEmail, organisation.contact.email]
+    const users = organisation.users;
+    const usersWithContactPromises = users.map(async (user) => {
+      return await this.findOne(user.id);
+    });
+    const usersWithContact = await Promise.all(usersWithContactPromises);
+    const usersEmail = usersWithContact.map((user) => user.contact.email);
+    return [...usersEmail, organisation.contact.email];
   }
 
   async update(id: number, updateUserDto: UpdateUserDto) {
@@ -137,12 +164,52 @@ export class UsersService {
     }
   }
 
-  async changePassword(id: number,updateUserDto: UpdateUserDto) {
+  async changePassword(id: number, updateUserDto: UpdateUserDto) {
     const user = await this.findOne(id);
     user.password = await bcrypt.hash(updateUserDto.password, user.salt);
     if (!user.passwordChanged) {
       user.passwordChanged = true;
     }
     return this.usersRepository.save(user);
+  }
+
+  async forgotPassword(forgotPasswordDto: ForgotPasswordDto) {
+    const email = forgotPasswordDto.email;
+    const organisationId = forgotPasswordDto.organisationId;
+    const organisation = await this.organisationsService.findOne(
+      organisationId
+    );
+    if (organisation) {
+      let user: User;
+      organisation.users.forEach((organisationUser) => {
+        if (organisationUser.contact.email == email) {
+          user = organisationUser;
+        }
+      });
+
+      if (user) {
+        const password = Math.random().toString(36).slice(-8);
+        console.log(password);
+        user.password = await bcrypt.hash(password, user.salt);
+        user.passwordChanged = false;
+        this.usersRepository.save(user);
+        try {
+          const name = user.firstName + " " + user.lastName;
+          await this.mailService.sendForgotPasswordEmail(email, password, name, organisationId, organisation.name);
+        } catch (err) {
+          throw new InternalServerErrorException(
+            'Unable to send email successfully'
+          );
+        }
+      } else {
+        throw new BadRequestException(
+          `User with email: ${email} cannot be found in organisation with id ${organisationId}`
+        );
+      }
+    } else {
+      throw new BadRequestException(
+        `Organisation: ${organisationId} cannot be found`
+      );
+    }
   }
 }

@@ -16,12 +16,15 @@ import ProcurementGoodReceipt from './pages/procurement/goodreceipt';
 import Products from './pages/products';
 import WorkerManagement from './pages/workermanagement';
 import BusinessRelations from './pages/businessRelations';
+import ForgotPassword from './pages/forgotPassword';
+import ProtectedRoute from './pages/protectedRoute';
+import ResetPassword from './pages/resetPassword';
 
 const ROLES = {
   Admin: 'admin',
   Manager: 'manager',
   FactoryWorker: 'factoryworker',
-  SuperAdmin: 'superadmin'
+  SuperAdmin: 'superadmin',
 };
 
 const App = () => {
@@ -34,6 +37,10 @@ const App = () => {
           element={<OrganisationSelection />}
         ></Route>
         <Route path="login/:orgId" element={<Login />}></Route>
+        <Route
+          path="forgotpassword/:orgId"
+          element={<ForgotPassword />}
+        ></Route>
         <Route path="unauthorized" element={<Unauthorized />}></Route>
 
         {/* Protected Routes */}
@@ -42,27 +49,50 @@ const App = () => {
         <Route
           element={
             <RequireAuth
-              requiredRoles={[ROLES.Admin, ROLES.Manager, ROLES.FactoryWorker, ROLES.SuperAdmin]}
+              requiredRoles={[
+                ROLES.Admin,
+                ROLES.Manager,
+                ROLES.FactoryWorker,
+                ROLES.SuperAdmin,
+              ]}
             />
           }
         >
+          {/*First time login, without dashboard layout*/}
+          <Route path="/resetpassword" element={<ProtectedRoute />}>
+            <Route path="/resetpassword" element={<ResetPassword />} />
+          </Route>
+
           <Route element={<DashboardLayout />}>
             {/* Dashboard */}
             <Route path="/" element={<Dashboard />}></Route>
 
             {/* Protected Routes for Admin Specifically */}
-            <Route element={<RequireAuth requiredRoles={[ROLES.Admin, ROLES.SuperAdmin]} />}>
+            <Route
+              element={
+                <RequireAuth requiredRoles={[ROLES.Admin, ROLES.SuperAdmin]} />
+              }
+            >
               {/* Worker Management */}
               <Route
                 path="workermanagement"
                 element={<WorkerManagement />}
               ></Route>
               {/* Business Relations */}
-              <Route path="businessrelations" element={<BusinessRelations />}></Route>
+              <Route
+                path="businessrelations"
+                element={<BusinessRelations />}
+              ></Route>
             </Route>
 
             {/* Protected Routes for Manager*/}
-            <Route element={<RequireAuth requiredRoles={[ROLES.Manager, ROLES.SuperAdmin]} />}>
+            <Route
+              element={
+                <RequireAuth
+                  requiredRoles={[ROLES.Manager, ROLES.SuperAdmin]}
+                />
+              }
+            >
               {/* Product Management */}
               <Route
                 path="raw-materials"
@@ -84,7 +114,11 @@ const App = () => {
             <Route
               element={
                 <RequireAuth
-                  requiredRoles={[ROLES.Manager, ROLES.FactoryWorker, ROLES.SuperAdmin]}
+                  requiredRoles={[
+                    ROLES.Manager,
+                    ROLES.FactoryWorker,
+                    ROLES.SuperAdmin,
+                  ]}
                 />
               }
             >
