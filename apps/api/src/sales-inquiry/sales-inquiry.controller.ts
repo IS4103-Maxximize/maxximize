@@ -10,7 +10,7 @@ import {
 import { SalesInquiryService } from './sales-inquiry.service';
 import { CreateSalesInquiryDto } from './dto/create-sales-inquiry.dto';
 import { UpdateSalesInquiryDto } from './dto/update-sales-inquiry.dto';
-import { AddSupplierDto } from './dto/add-supplier.dto';
+import { SendEmailDto } from './dto/send-email.dto';
 
 @Controller('sales-inquiry')
 export class SalesInquiryController {
@@ -49,10 +49,10 @@ export class SalesInquiryController {
     return this.salesInquiryService.remove(+id);
   }
 
-  @Post('addSupplier')
+  @Post('send')
   addSupplier(
-    @Body() addSupplierDto: AddSupplierDto
+    @Body() sendEmailDto: SendEmailDto
     ){
-      return this.salesInquiryService.addSupplier(addSupplierDto)
+      return this.salesInquiryService.sendEmail(sendEmailDto)
     }
 }
