@@ -138,7 +138,7 @@ const Quotation = (props) => {
 
   useEffect(() => {
     getQuotations();
-  }, [])
+  }, [formDialogOpen])
 
   useEffect(() => {
     setRows(quotations);

@@ -4,7 +4,7 @@ import { DataGrid } from '@mui/x-data-grid';
 import { useFormik } from "formik";
 import { useEffect, useState } from "react";
 import * as Yup from "yup";
-import { createQuotation, fetchSalesInquiries, fetchSuppliers } from "../../helpers/procurement-ordering";
+import { createQuotation, fetchSalesInquiries, updateQuotationLineItem } from "../../helpers/procurement-ordering";
 
 export const QuotationDialog = (props) => {
   const user = JSON.parse(localStorage.getItem('user'));
@@ -39,13 +39,15 @@ export const QuotationDialog = (props) => {
   })
 
   const handleOnSubmit = async (values) => {
+    console.log(values)
     if (action === 'POST') {
       // create quotation and lineitems
       const result = await createQuotation(
-        formik.values.salesInquiryId, 
-        formik.values.supplierId, 
-        formik.values.quotationLineItems
+        values.salesInquiryId, 
+        values.supplierId, 
+        values.quotationLineItems
       ).catch((err) => handleAlertOpen(`Error creating ${string}`, 'error'));
+      console.log(result);
       addQuotation(result);
       // const result = await createSalesInquiry(user.organisation.id, values.lineItems)
       //   .catch((err) => handleAlertOpen(`Error creating ${string}`, 'error'));
@@ -84,11 +86,13 @@ export const QuotationDialog = (props) => {
   
   useEffect(() => {
     const fetchData = async () => {
-      let salesInquiries = await fetchSalesInquiries(user.organisation.id);
+      const salesInquiries = await fetchSalesInquiries(user.organisation.id);
       setSalesInquiries(salesInquiries);
       setSalesInquiryOptions(salesInquiries.map(el => el.id));
     }
-    fetchData();
+    if (action === 'POST') {
+      fetchData();
+    }
     // Calculate total price
     formik.setFieldValue('totalPrice', 
     formik.values.quotationLineItems.reduce((a, b) => {
@@ -98,16 +102,19 @@ export const QuotationDialog = (props) => {
   }, [open, formik.values.quotationLineItems]);
 
   useEffect(() => {
-    const si = salesInquiries.find(inquiry => inquiry.id === formik.values.salesInquiryId)
-    console.log(si ? si.salesInquiryLineItems : [])
-    formik.setFieldValue('quotationLineItems', si ? si.salesInquiryLineItems : [])
+    if (action === 'POST') {
+      const si = salesInquiries.find(inquiry => inquiry.id === formik.values.salesInquiryId)
+      // console.log(si ? si.salesInquiryLineItems : [])
+      formik.setFieldValue('quotationLineItems', si ? si.salesInquiryLineItems : [])
+    }
   }, [formik.values.salesInquiryId])
 
   // DataGrid Helpers
   const [selectedRows, setSelectedRows] = useState([]);
 
   const handleRowUpdate = (newRow) => {
-    const updatedRow = {...newRow};
+    let updatedRow = {...newRow};
+    // console.log(updatedRow);
     formik.setFieldValue('quotationLineItems', 
       formik.values.quotationLineItems.map(item => {
         if (item.id === updatedRow.id) {
@@ -117,6 +124,14 @@ export const QuotationDialog = (props) => {
         return item;
       })
     )
+    console.log(formik.values.quotationLineItems)
+    if (action === 'PATCH') {
+      // console.log(updatedRow);
+      const updatedId = updatedRow.id
+      updatedRow = updateQuotationLineItem(updatedRow.id, updatedRow.price)
+        .then(() => handleAlertOpen(`Updated QuotationLineItem ${updatedId} successfully !`), 'success')
+        .catch(err => handleAlertOpen(`Error updating QuotationLineItem`, 'error'))
+    }
     return updatedRow;
   }
 
@@ -131,8 +146,13 @@ export const QuotationDialog = (props) => {
       flex: 1,
       editable: true,
       valueGetter: (params) => {
-        return params.row ? params.row.price : 1
-        // return quotation ? params.row.price : params.row.price ? params.row.price : 1
+        if (action === 'POST') {
+          return params.row.price ? params.row.price : params.row.indicativePrice
+        }
+        if (action === 'PATCH') {
+          // console.log(params.row)
+          return params.row.price
+        }
       }
     },
     {
@@ -183,16 +203,16 @@ export const QuotationDialog = (props) => {
               {`View `} */}
               {string}
             </Typography>
-              <Button 
-                variant="contained"
-                disabled={
-                  !formik.isValid || 
-                  formik.isSubmitting
-                }
-                onClick={formik.handleSubmit}
-              >
-                Submit
-              </Button>
+            {action === 'POST' && <Button 
+              variant="contained"
+              disabled={
+                !formik.isValid || 
+                formik.isSubmitting
+              }
+              onClick={formik.handleSubmit}
+            >
+              Submit
+            </Button>}
           </Toolbar>
         </AppBar>
         <DialogContent>
@@ -237,7 +257,7 @@ export const QuotationDialog = (props) => {
             disabled
           />
           <Stack direction="row" spacing={1}>
-            <Autocomplete 
+            {!quotation && <Autocomplete 
               id="sales-inquiry-selector"
               sx={{ width: 300, mb: 1 }}
               options={salesInquiryOptions}
@@ -247,23 +267,34 @@ export const QuotationDialog = (props) => {
                 console.log(newValue);
                 console.log(salesInquiries);
                 const si = salesInquiries.find(el => el.id === newValue);
+                console.log(si);
                 setSupplierOptions(si.suppliers);
               }}
               getOptionLabel={(option) => option.toString(10)}
               renderInput={(params) => <TextField {...params} label="Sales Inquiry ID"/>}
-            />
+            />}
             {/* Supplier Selection */}
-            <Autocomplete 
+            {!quotation && <Autocomplete 
               id="supplier-selector"
               sx={{ width: 300, mb: 1 }}
-              options={supplierOptions}
-              value={formik.values.supplierId}
+              options={supplierOptions.map(el => el.id.toString())}
               onChange={(event, newValue) => {
-                formik.setFieldValue('supplierId', newValue);
+                console.log(newValue);
+                formik.setFieldValue('supplierId', parseInt(newValue));
               }}
-              getOptionLabel={(option) => option.toString(10)}
               renderInput={(params) => <TextField {...params} label="Suppliers ID"/>}
-            />
+            />}
+            {quotation && <TextField
+              label="Sales Inquiry ID"
+              value={quotation.salesInquiry.id}
+              disabled={quotation}
+            />}
+            {quotation && <TextField
+              label="Supplier ID"
+              value={quotation.shellOrganisation.id}
+              disabled={quotation}
+            />}
+            
           </Stack>
           <DataGrid
             autoHeight

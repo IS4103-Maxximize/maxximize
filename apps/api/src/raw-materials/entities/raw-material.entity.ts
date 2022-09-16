@@ -6,6 +6,5 @@ import { ShellOrganisation } from '../../shell-organisations/entities/shell-orga
 @ChildEntity()
 export class RawMaterial extends Product {
   @ManyToMany(() => ShellOrganisation, (supplier) => supplier.rawMaterials)
-  @JoinTable()
   suppliers: ShellOrganisation[];
 }

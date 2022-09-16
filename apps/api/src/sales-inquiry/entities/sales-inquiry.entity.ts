@@ -26,7 +26,6 @@ export class SalesInquiry {
     currentOrganisation: Organisation
 
     @ManyToMany(() => ShellOrganisation, supplier => supplier.salesInquiries)
-    @JoinTable()
     suppliers: ShellOrganisation[]
 
     @OneToMany(() => Quotation, quotation => quotation.salesInquiry)

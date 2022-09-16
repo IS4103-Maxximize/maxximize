@@ -87,7 +87,9 @@ export const SupplierDialog = (props) =>{
           pageSize={5}
           rowsPerPageOptions={[5]}
           onSelectionModelChange={(ids) => setSelectedRows(ids)}
-          isRowSelectable={(params) => params.row.contact} // disable selection on Suppliers without contact information
+          isRowSelectable={(params) => {
+            return !inquiry.suppliers.map(supp => supp.id).includes(params.row.id);
+          }} // disable selection on Suppliers without contact information
         />
       </DialogContent>
       <DialogActions>

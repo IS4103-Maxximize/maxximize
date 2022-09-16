@@ -124,28 +124,29 @@ export class SalesInquiryService {
   ): Promise<SalesInquiry> {
     console.log(updateSalesInquiryDto);
     const salesInquiryToUpdate = await this.findOne(id);
-    salesInquiryToUpdate.status = updateSalesInquiryDto.status;
-    salesInquiryToUpdate.totalPrice = updateSalesInquiryDto.totalPrice;
-    salesInquiryToUpdate.quotations = updateSalesInquiryDto.quotations;
-    salesInquiryToUpdate.suppliers = updateSalesInquiryDto.suppliers;
-    salesInquiryToUpdate.chosenQuotation =
-      updateSalesInquiryDto.chosenQuotation;
+    updateSalesInquiryDto.status ? salesInquiryToUpdate.status = updateSalesInquiryDto.status : //;
+    updateSalesInquiryDto.totalPrice ? salesInquiryToUpdate.totalPrice = updateSalesInquiryDto.totalPrice : //;
+    updateSalesInquiryDto.quotations ? salesInquiryToUpdate.quotations = updateSalesInquiryDto.quotations : //;
+    updateSalesInquiryDto.suppliers ? salesInquiryToUpdate.suppliers = updateSalesInquiryDto.suppliers : //;
+    updateSalesInquiryDto.chosenQuotation ? salesInquiryToUpdate.chosenQuotation = updateSalesInquiryDto.chosenQuotation : //;
 
     salesInquiryToUpdate.salesInquiryLineItems.forEach((lineItems) => {
       this.salesInquiryLineItemsRepository.delete(lineItems.id);
     });
     const salesInquiryLineItems = [];
-    for (const dto of updateSalesInquiryDto.salesInquiryLineItemsDtos) {
-      const salesInquiryLineItem = new SalesInquiryLineItem();
-      salesInquiryLineItem.quantity = dto.quantity;
-      salesInquiryLineItem.rawMaterial =
-        await this.rawMaterialsRepository.findOne({
-          where: {
-            id: dto.rawMaterialId,
-          },
-        });
-      salesInquiryLineItem.indicativePrice = dto.indicativePrice;
-      salesInquiryLineItems.push(salesInquiryLineItem);
+    if (updateSalesInquiryDto.salesInquiryLineItemsDtos) {
+        for (const dto of updateSalesInquiryDto.salesInquiryLineItemsDtos) {
+        const salesInquiryLineItem = new SalesInquiryLineItem();
+        salesInquiryLineItem.quantity = dto.quantity;
+        salesInquiryLineItem.rawMaterial =
+          await this.rawMaterialsRepository.findOne({
+            where: {
+              id: dto.rawMaterialId,
+            },
+          });
+        salesInquiryLineItem.indicativePrice = dto.indicativePrice;
+        salesInquiryLineItems.push(salesInquiryLineItem);
+      }
     }
     salesInquiryToUpdate.salesInquiryLineItems = salesInquiryLineItems;
 
@@ -161,21 +162,27 @@ export class SalesInquiryService {
 
   async sendEmail(sendEmailDto: SendEmailDto): Promise<SalesInquiry> {
     const { salesInquiryId, shellOrganisationIds } = sendEmailDto;
-    let shellOrganisations: ShellOrganisation[];
-
+    let shellOrganisations: ShellOrganisation[] = [];
+    let salesInquiry: SalesInquiry;
+    salesInquiry = await this.findOne(salesInquiryId);
     for(let i=0;i<shellOrganisationIds.length;i++){
-      shellOrganisations.push(await this.shellOrganisationsRepository.findOne({
+      let supplier: ShellOrganisation = await this.shellOrganisationsRepository.findOne({
         where: {
           id: shellOrganisationIds[i],
         },
         relations: {
           parentOrganisation: true,
           contact: true,
+          salesInquiries: true
         },
-      }));
+      })
+      shellOrganisations.push(supplier);
+      salesInquiry.suppliers.push(supplier);
+      // supplier.salesInquiries.push(salesInquiry);
+      // this.shellOrganisationsRepository.save(supplier)
+      // console.log(salesInquiry)
     }
-    let salesInquiry: SalesInquiry;
-    salesInquiry = await this.findOne(salesInquiryId);
+    
     if (salesInquiry.status == SalesInquiryStatus.DRAFT) {
       salesInquiry.status = SalesInquiryStatus.SENT;
     }
@@ -190,6 +197,39 @@ export class SalesInquiryService {
     }
     return this.salesInquiriesRepository.save(salesInquiry);
   }
+
+  // async sendEmail(sendEmailDto: SendEmailDto): Promise<SalesInquiry> {
+  //   const { salesInquiryId, shellOrganisationIds } = sendEmailDto;
+  //   let shellOrganisations: ShellOrganisation[] = []
+
+  //   for(let i=0;i<shellOrganisationIds.length;i++){
+  //     shellOrganisations.push(await this.shellOrganisationsRepository.findOne({
+  //       where: {
+  //         id: shellOrganisationIds[i],
+  //       },
+  //       relations: {
+  //         parentOrganisation: true,
+  //         contact: true,
+  //       },
+  //     }));
+  //   }
+  //   let salesInquiry: SalesInquiry;
+  //   salesInquiry = await this.findOne(salesInquiryId);
+  //   if (salesInquiry.status == SalesInquiryStatus.DRAFT) {
+  //     salesInquiry.status = SalesInquiryStatus.SENT;
+  //   }
+  //   for (let i=0;i<shellOrganisations.length;i++){
+  //     this.mailerService.sendSalesInquiryEmail(
+  //       shellOrganisations[i].contact.email,
+  //       salesInquiry.currentOrganisation.name,
+  //       shellOrganisations[i].name,
+  //       salesInquiry.salesInquiryLineItems,
+  //       salesInquiry
+  //     )
+  //   }
+  //   console.log(salesInquiry)
+  //   return this.salesInquiriesRepository.save(salesInquiry);
+  // }
 
   /*async removeSupplier(
     salesInquiryId: number,
