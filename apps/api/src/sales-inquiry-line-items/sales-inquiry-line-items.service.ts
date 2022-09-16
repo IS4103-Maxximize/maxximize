@@ -71,7 +71,13 @@ export class SalesInquiryLineItemsService {
   }
 
   async remove(id: number): Promise<SalesInquiryLineItem> {
+    let salesInquiryLineItem: SalesInquiryLineItem
+    salesInquiryLineItem = await this.findOne(id)
+    let salesInquiry: SalesInquiry
+    salesInquiry = await this.salesInquiriesRepository.findOneByOrFail({id: salesInquiryLineItem.salesInquiry.id})
     const salesInquiryLineItemToRemove = await this.salesInquiryLineItemsRepository.findOneBy({id})
+    salesInquiry.totalPrice -= salesInquiryLineItem.indicativePrice*salesInquiryLineItem.quantity
+    this.salesInquiriesRepository.save(salesInquiry)
     return this.salesInquiryLineItemsRepository.remove(salesInquiryLineItemToRemove)
   }
 }

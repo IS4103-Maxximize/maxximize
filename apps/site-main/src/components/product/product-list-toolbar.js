@@ -20,7 +20,7 @@ export const ProductListToolbar = (props) => {
   } = props;
 
   return (
-    <Box {...props}>
+    <Box>
       <Box
         sx={{
           alignItems: 'center',

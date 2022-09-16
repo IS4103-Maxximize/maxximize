@@ -1,11 +1,11 @@
 import { apiHost, headers } from "../constants"
 
-export const fetchProducts = async (type) => {
-  const apiUrl = `${apiHost}/${type}`;
+export const fetchProducts = async (type, organisationId) => {
+  const apiUrl = `${apiHost}/${type}/orgId/${organisationId}`;
   return await fetch(apiUrl).then(response => response.json());
 }
 
-export const createProduct = async (type, values) => {
+export const createProduct = async (type, values, organisationId) => {
   const apiUrl = `${apiHost}/${type}`;
   let body = {
     name: values.name,
@@ -13,6 +13,7 @@ export const createProduct = async (type, values) => {
     unit: values.unit,
     unitPrice: values.unitPrice,
     expiry: values.expiry,
+    organisationId: organisationId
   };
 
   if (type === 'final-goods') {

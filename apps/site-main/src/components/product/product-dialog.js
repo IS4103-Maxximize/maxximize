@@ -1,29 +1,35 @@
 import {
-  Button, Dialog, DialogActions, DialogContent,
-  DialogContentText, DialogTitle, FormControlLabel,
-  Radio, RadioGroup, TextField, Typography
-} from "@mui/material";
-import { Stack } from "@mui/system";
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  FormControlLabel,
+  Radio,
+  RadioGroup,
+  TextField,
+  Typography,
+} from '@mui/material';
+import { Stack } from '@mui/system';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import { createProduct, updateProduct } from "../../helpers/products";
+import { createProduct, updateProduct } from '../../helpers/products';
 
-const options = [
-  'kilogram',
-  'litre',
-]
+const options = ['kilogram', 'litre'];
 
 export const ProductDialog = (props) => {
   const {
-    action, 
-    open, 
-    handleClose, 
+    action,
+    open,
+    handleClose,
     type,
     typeString,
-    product, 
+    product,
     addProduct,
-    updateProduct,
     handleAlertOpen,
+    organisationId,
+    updateProducts,
   } = props;
 
   let initialValues = {
@@ -34,23 +40,14 @@ export const ProductDialog = (props) => {
     unitPrice: product ? Number(product.unitPrice) : '',
     expiry: product ? Number(product.expiry) : '',
     skuCode: product ? product.skuCode : '',
-  }
+  };
   let schema = {
-    name: Yup
-      .string()
-      .max(255)
-      .required('Name is required'),
-    description: Yup
-      .string(),
-    unit: Yup
-      .string(),
-    unitPrice: Yup
-      .number()
-      .required('Unit Price is required'),
-    expiry: Yup
-      .number()
-      .required('Expiry (days) is required'),
-  }
+    name: Yup.string().max(255).required('Name is required'),
+    description: Yup.string(),
+    unit: Yup.string(),
+    unitPrice: Yup.number().required('Unit Price is required'),
+    expiry: Yup.number().required('Expiry (days) is required'),
+  };
 
   if (type === 'final-goods') {
     initialValues = {
@@ -59,41 +56,46 @@ export const ProductDialog = (props) => {
     };
     schema = {
       ...schema,
-      lotQuantity: Yup
-        .number()
-        .required('Lot quantity is required')
+      lotQuantity: Yup.number().required('Lot quantity is required'),
     };
   }
 
   const handleOnSubmit = async (values) => {
     if (action === 'POST') {
-      const result = await createProduct(type, values)
-        .catch((err) => handleAlertOpen(`Error creating ${typeString}`, 'error'));
+      const result = await createProduct(type, values, organisationId).catch(
+        (err) => handleAlertOpen(`Error creating ${typeString}`, 'error')
+      );
       addProduct(result);
     } else if (action === 'PATCH') {
-      updateProduct(values);
+      try {
+        const updatedProduct = await updateProduct(product.id, type, values);
+        updateProducts(updatedProduct);
+        handleAlertOpen(
+          `Updated ${typeString} ${updateProduct.id} successfully!`,
+          'success'
+        );
+      } catch (err) {
+        handleAlertOpen(`Error updateing ${typeString} product.id`, 'error');
+      }
     }
     onClose();
-  }
+  };
 
   const formik = useFormik({
     initialValues: initialValues,
     enableReinitialize: true,
     validationSchema: Yup.object(schema),
-    onSubmit: handleOnSubmit
+    onSubmit: handleOnSubmit,
   });
 
   const onClose = () => {
     formik.resetForm();
     handleClose();
-  }
+  };
 
   return (
     <form onSubmit={formik.handleSubmit}>
-      <Dialog
-        open={open}
-        onClose={onClose}
-      >
+      <Dialog open={open} onClose={onClose}>
         <DialogTitle>
           {action === 'POST' && 'Add '}
           {action === 'PATCH' && 'Edit '}
@@ -101,7 +103,8 @@ export const ProductDialog = (props) => {
         </DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Enter {typeString} Name, Description, Measurement Unit, Unit Price, Expiry (in days)
+            Enter {typeString} Name, Description, Measurement Unit, Unit Price,
+            Expiry (in days)
             {type === 'final-goods' && ', Lot Quantity'}
           </DialogContentText>
           <TextField
@@ -116,25 +119,28 @@ export const ProductDialog = (props) => {
             onChange={formik.handleChange}
             value={formik.values.name}
             variant="outlined"
-            autoFocus={action === 'POST'}
             disabled={action === 'PATCH'}
           />
-          {product && <TextField
-            required
-            error={Boolean(formik.touched.skuCode && formik.errors.skuCode)}
-            fullWidth
-            helperText={formik.touched.skuCode && formik.errors.skuCode}
-            label="SKU"
-            margin="normal"
-            name="skuCode"
-            onBlur={formik.handleBlur}
-            onChange={formik.handleChange}
-            value={formik.values.skuCode}
-            variant="outlined"
-            disabled
-          />}
+          {product && (
+            <TextField
+              required
+              error={Boolean(formik.touched.skuCode && formik.errors.skuCode)}
+              fullWidth
+              helperText={formik.touched.skuCode && formik.errors.skuCode}
+              label="SKU"
+              margin="normal"
+              name="skuCode"
+              onBlur={formik.handleBlur}
+              onChange={formik.handleChange}
+              value={formik.values.skuCode}
+              variant="outlined"
+              disabled
+            />
+          )}
           <TextField
-            error={Boolean(formik.touched.description && formik.errors.description)}
+            error={Boolean(
+              formik.touched.description && formik.errors.description
+            )}
             fullWidth
             helperText={formik.touched.description && formik.errors.description}
             label="Description"
@@ -148,28 +154,23 @@ export const ProductDialog = (props) => {
             minRows={4}
             autoFocus={action === 'PATCH'}
           />
-          <Stack 
-            direction="row"
-            spacing={1}
-            alignItems="center"
-          >
+          <Stack direction="row" spacing={1} alignItems="center">
             <Typography>Measurement Unit :</Typography>
             <RadioGroup
-              error={Boolean(formik.touched.unit && formik.errors.unit)}
-              fullWidth
               label="Unit"
               margin="normal"
               name="unit"
               onBlur={formik.handleBlur}
               onChange={formik.handleChange}
               value={formik.values.unit}
+              defaultValue={options[0]}
               row
             >
-              {options.map(option => (
-                <FormControlLabel 
-                  key={option} 
-                  value={option} 
-                  control={<Radio/>} 
+              {options.map((option) => (
+                <FormControlLabel
+                  key={option}
+                  value={option}
+                  control={<Radio />}
                   label={option}
                   disabled={action === 'PATCH'}
                 />
@@ -204,12 +205,16 @@ export const ProductDialog = (props) => {
             value={formik.values.expiry}
             variant="outlined"
           />
-          {type === 'final-goods' && 
+          {type === 'final-goods' && (
             <TextField
               required
-              error={Boolean(formik.touched.lotQuantity && formik.errors.lotQuantity)}
+              error={Boolean(
+                formik.touched.lotQuantity && formik.errors.lotQuantity
+              )}
               fullWidth
-              helperText={formik.touched.lotQuantity && formik.errors.lotQuantity}
+              helperText={
+                formik.touched.lotQuantity && formik.errors.lotQuantity
+              }
               label="Lot Quantity"
               margin="normal"
               name="lotQuantity"
@@ -219,22 +224,19 @@ export const ProductDialog = (props) => {
               value={formik.values.lotQuantity}
               variant="outlined"
             />
-          }
+          )}
         </DialogContent>
         <DialogActions>
-          <Button 
+          <Button
             disabled={!formik.isValid || formik.isSubmitting}
             variant="contained"
-            onClick={formik.handleSubmit}>
+            onClick={formik.handleSubmit}
+          >
             Submit
           </Button>
-          <Button 
-            onClick={onClose}
-          >
-            Cancel
-          </Button>
+          <Button onClick={onClose}>Cancel</Button>
         </DialogActions>
       </Dialog>
     </form>
-  )
-}
+  );
+};

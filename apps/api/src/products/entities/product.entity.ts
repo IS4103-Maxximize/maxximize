@@ -39,6 +39,9 @@ export class Product {
   @Column()
   unitPrice: number;
 
+  @Column()
+  type: string;
+
   @Column({ nullable: true })
   expiry: number;
 

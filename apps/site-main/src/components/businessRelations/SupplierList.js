@@ -10,6 +10,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { NotificationAlert } from '../notification-alert';
 import MoreVert from '@mui/icons-material/MoreVert';
 import { UpdateRelationsDialog } from './updateRelationsDialog';
+import { BusinessPartnerConfirmDialog } from './BusinessPartnerConfirmDialog';
 
 export const SuppliersList = ({orgId}) => {
   const [suppliers, setSuppliers] = useState([]);
@@ -65,6 +66,10 @@ export const SuppliersList = ({orgId}) => {
 
   const handleOpenDialog = () => {
     setOpenDialog(true);
+  };
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
   };
 
   // NotificationAlert helpers
@@ -224,7 +229,12 @@ export const SuppliersList = ({orgId}) => {
       width: 50,
       sortable: false,
       renderCell: menuButton
-    }
+    },
+    {
+      field: 'Raw Materials List',
+      headerName: 'Raw Materials List',
+      width: 150,
+    },
 
   ];
 
@@ -308,10 +318,20 @@ export const SuppliersList = ({orgId}) => {
             disabled={disabled}
               onClick={handleDelete}
             >
-              <DeleteIcon />
+              <DeleteIcon color="error" />
             </IconButton>
           </Badge>
         </Tooltip>
+        <BusinessPartnerConfirmDialog
+                  open={handleOpenDialog}
+                  handleClose={handleCloseDialog}
+                  dialogTitle={`Delete supplier(s)`}
+                  dialogContent={`Confirm deletion of supplier(s)?`}
+                  dialogAction={() => {
+                    const selectedIds = new Set(selectionModel);
+                    handleDelete(selectedIds);
+                  }}
+                />
       </Box>
 
       <Card>

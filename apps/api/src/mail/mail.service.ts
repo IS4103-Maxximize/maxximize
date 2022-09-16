@@ -39,7 +39,7 @@ export class MailService {
         });
     }
 
-    async sendSalesInquiryEmail(email: string, organisationName: string, supplierName: string, salesInquiryLineItems: SalesInquiryLineItem[]) {
+    async sendSalesInquiryEmail(email: string, organisationName: string, supplierName: string, salesInquiryLineItems: SalesInquiryLineItem[], salesInquiry: SalesInquiry) {
         await this.mailerService.sendMail({
             to: email,
             from: process.env.MAIL_FROM,
@@ -49,6 +49,7 @@ export class MailService {
                 organisationName: organisationName,
                 supplierName: supplierName,
                 salesInquiryLineItems: salesInquiryLineItems,
+                salesInquiry: salesInquiry
             },
         });
     }
