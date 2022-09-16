@@ -7,74 +7,74 @@ export const theme = createTheme({
       sm: 600,
       md: 1000,
       lg: 1200,
-      xl: 1920
-    }
+      xl: 1920,
+    },
   },
   components: {
     MuiButton: {
       defaultProps: {
-        disableElevation: true
+        disableElevation: true,
       },
       styleOverrides: {
         root: {
-          textTransform: 'none'
+          textTransform: 'none',
         },
         sizeSmall: {
-          padding: '6px 16px'
+          padding: '6px 16px',
         },
         sizeMedium: {
-          padding: '8px 20px'
+          padding: '8px 20px',
         },
         sizeLarge: {
-          padding: '11px 24px'
+          padding: '11px 24px',
         },
         textSizeSmall: {
-          padding: '7px 12px'
+          padding: '7px 12px',
         },
         textSizeMedium: {
-          padding: '9px 16px'
+          padding: '9px 16px',
         },
         textSizeLarge: {
-          padding: '12px 16px'
-        }
-      }
+          padding: '12px 16px',
+        },
+      },
     },
     MuiButtonBase: {
       defaultProps: {
-        disableRipple: true
-      }
+        disableRipple: true,
+      },
     },
     MuiCardContent: {
       styleOverrides: {
         root: {
           padding: '32px 24px',
           '&:last-child': {
-            paddingBottom: '32px'
-          }
-        }
-      }
+            paddingBottom: '32px',
+          },
+        },
+      },
     },
     MuiCardHeader: {
       defaultProps: {
         titleTypographyProps: {
-          variant: 'h6'
+          variant: 'h6',
         },
         subheaderTypographyProps: {
-          variant: 'body2'
-        }
+          variant: 'body2',
+        },
       },
       styleOverrides: {
         root: {
-          padding: '32px 24px'
-        }
-      }
+          padding: '32px 24px',
+        },
+      },
     },
     MuiCssBaseline: {
       styleOverrides: {
         '*': {
           boxSizing: 'border-box',
           margin: 0,
-          padding: 0
+          padding: 0,
         },
         html: {
           MozOsxFontSmoothing: 'grayscale',
@@ -82,37 +82,37 @@ export const theme = createTheme({
           display: 'flex',
           flexDirection: 'column',
           minHeight: '100%',
-          width: '100%'
+          width: '100%',
         },
         body: {
           display: 'flex',
           flex: '1 1 auto',
           flexDirection: 'column',
           minHeight: '100%',
-          width: '100%'
+          width: '100%',
         },
         '#__next': {
           display: 'flex',
           flex: '1 1 auto',
           flexDirection: 'column',
           height: '100%',
-          width: '100%'
-        }
-      }
+          width: '100%',
+        },
+      },
     },
     MuiOutlinedInput: {
       styleOverrides: {
         notchedOutline: {
-          borderColor: '#E6E8F0'
-        }
-      }
+          borderColor: '#E6E8F0',
+        },
+      },
     },
     MuiTableHead: {
       styleOverrides: {
         root: {
           backgroundColor: '#F3F4F6',
           '.MuiTableCell-root': {
-            color: '#374151'
+            color: '#374151',
           },
           borderBottom: 'none',
           '& .MuiTableCell-root': {
@@ -121,15 +121,15 @@ export const theme = createTheme({
             fontWeight: 600,
             lineHeight: 1,
             letterSpacing: 0.5,
-            textTransform: 'uppercase'
+            textTransform: 'uppercase',
           },
           '& .MuiTableCell-paddingCheckbox': {
             paddingTop: 4,
-            paddingBottom: 4
-          }
-        }
-      }
-    }
+            paddingBottom: 4,
+          },
+        },
+      },
+    },
   },
   palette: {
     neutral: {
@@ -141,7 +141,7 @@ export const theme = createTheme({
       600: '#4B5563',
       700: '#374151',
       800: '#1F2937',
-      900: '#111827'
+      900: '#111827',
     },
     action: {
       active: '#6B7280',
@@ -149,57 +149,57 @@ export const theme = createTheme({
       hover: 'rgba(55, 65, 81, 0.04)',
       selected: 'rgba(55, 65, 81, 0.08)',
       disabledBackground: 'rgba(55, 65, 81, 0.12)',
-      disabled: 'rgba(55, 65, 81, 0.26)'
+      disabled: 'rgba(55, 65, 81, 0.26)',
     },
     background: {
       default: '#F9FAFC',
-      paper: '#FFFFFF'
+      paper: '#FFFFFF',
     },
     divider: '#E6E8F0',
     primary: {
       main: '#5048E5',
       light: '#828DF8',
       dark: '#3832A0',
-      contrastText: '#FFFFFF'
+      contrastText: '#FFFFFF',
     },
     secondary: {
       main: '#10B981',
       light: '#3FC79A',
       dark: '#0B815A',
-      contrastText: '#FFFFFF'
+      contrastText: '#FFFFFF',
     },
     success: {
       main: '#14B8A6',
       light: '#43C6B7',
       dark: '#0E8074',
-      contrastText: '#FFFFFF'
+      contrastText: '#FFFFFF',
     },
     info: {
       main: '#2196F3',
       light: '#64B6F7',
       dark: '#0B79D0',
-      contrastText: '#FFFFFF'
+      contrastText: '#FFFFFF',
     },
     warning: {
       main: '#FFB020',
       light: '#FFBF4C',
       dark: '#B27B16',
-      contrastText: '#FFFFFF'
+      contrastText: '#FFFFFF',
     },
     error: {
       main: '#D14343',
       light: '#DA6868',
       dark: '#922E2E',
-      contrastText: '#FFFFFF'
+      contrastText: '#FFFFFF',
     },
     text: {
       primary: '#121828',
       secondary: '#65748B',
-      disabled: 'rgba(55, 65, 81, 0.48)'
-    }
+      disabled: 'rgba(55, 65, 81, 0.48)',
+    },
   },
   shape: {
-    borderRadius: 8
+    borderRadius: 8,
   },
   shadows: [
     'none',
@@ -226,74 +226,75 @@ export const theme = createTheme({
     '0px 25px 50px rgba(100, 116, 139, 0.25)',
     '0px 25px 50px rgba(100, 116, 139, 0.25)',
     '0px 25px 50px rgba(100, 116, 139, 0.25)',
-    '0px 25px 50px rgba(100, 116, 139, 0.25)'
+    '0px 25px 50px rgba(100, 116, 139, 0.25)',
   ],
   typography: {
     button: {
-      fontWeight: 600
+      fontWeight: 600,
     },
-    fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji"',
+    fontFamily:
+      '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji"',
     body1: {
       fontSize: '1rem',
       fontWeight: 400,
-      lineHeight: 1.5
+      lineHeight: 1.5,
     },
     body2: {
       fontSize: '0.875rem',
       fontWeight: 400,
-      lineHeight: 1.57
+      lineHeight: 1.57,
     },
     subtitle1: {
       fontSize: '1rem',
       fontWeight: 500,
-      lineHeight: 1.75
+      lineHeight: 1.75,
     },
     subtitle2: {
       fontSize: '0.875rem',
       fontWeight: 500,
-      lineHeight: 1.57
+      lineHeight: 1.57,
     },
     overline: {
       fontSize: '0.75rem',
       fontWeight: 600,
       letterSpacing: '0.5px',
       lineHeight: 2.5,
-      textTransform: 'uppercase'
+      textTransform: 'uppercase',
     },
     caption: {
       fontSize: '0.75rem',
       fontWeight: 400,
-      lineHeight: 1.66
+      lineHeight: 1.66,
     },
     h1: {
       fontWeight: 700,
       fontSize: '3.5rem',
-      lineHeight: 1.375
+      lineHeight: 1.375,
     },
     h2: {
       fontWeight: 700,
       fontSize: '3rem',
-      lineHeight: 1.375
+      lineHeight: 1.375,
     },
     h3: {
       fontWeight: 700,
       fontSize: '2.25rem',
-      lineHeight: 1.375
+      lineHeight: 1.375,
     },
     h4: {
       fontWeight: 700,
       fontSize: '2rem',
-      lineHeight: 1.375
+      lineHeight: 1.375,
     },
     h5: {
       fontWeight: 600,
       fontSize: '1.5rem',
-      lineHeight: 1.375
+      lineHeight: 1.375,
     },
     h6: {
       fontWeight: 600,
       fontSize: '1.125rem',
-      lineHeight: 1.375
-    }
-  }
+      lineHeight: 1.375,
+    },
+  },
 });

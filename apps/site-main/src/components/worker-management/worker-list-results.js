@@ -42,9 +42,7 @@ export const WorkerListResults = () => {
     );
     const result = await workersList.json();
 
-    const flattenResult = result.map((r) => flattenObj(r));
-
-    setWorkers(flattenResult);
+    setWorkers(result);
   };
 
   //Add a new worker entry to the list
@@ -54,7 +52,7 @@ export const WorkerListResults = () => {
 
       setWorkers(updatedWorkers);
     } catch {
-      console.log('An erorr occured please try again later');
+      console.log('An error occured please try again later');
     }
   };
 
@@ -108,7 +106,7 @@ export const WorkerListResults = () => {
         requestOptions
       )
         .then(() => {
-          handleAlertOpen('Deleted Worker successfully!', 'success');
+          handleAlertOpen('Deleted worker(s) successfully!', 'success');
         })
         .catch((error) => {
           handleAlertOpen(error, 'error');
@@ -203,11 +201,18 @@ export const WorkerListResults = () => {
 
         if (hasError) {
           handleAlertOpen(
-            'Phone Number is invalid (Cannot be blank or less than 8 digits), not updated.',
+            'Phone Number is invalid (Cannot be blank or less than 8 digits), not updated. Press Esc to exit editing mode',
             'error'
           );
         }
         return { ...params.props, error: hasError };
+      },
+      valueGetter: (params) => {
+        if (params.row.contact.phoneNumber) {
+          return params.row.contact.phoneNumber;
+        } else {
+          return '';
+        }
       },
     },
     {
@@ -223,12 +228,19 @@ export const WorkerListResults = () => {
 
         if (hasError) {
           handleAlertOpen(
-            'Email is invalid (Cannot be blank, must be in valid format), not updated.',
+            'Email is invalid (Cannot be blank, must be in valid format), not updated. Press Esc to exit editing mode',
             'error'
           );
         }
 
         return { ...params.props, error: hasError };
+      },
+      valueGetter: (params) => {
+        if (params.row.contact.email) {
+          return params.row.contact.email;
+        } else {
+          return '';
+        }
       },
     },
     {
@@ -240,11 +252,18 @@ export const WorkerListResults = () => {
         const hasError = params.props.value.length < 1;
         if (hasError) {
           handleAlertOpen(
-            'Address is invalid (Cannot be blank), not updated.',
+            'Address is invalid (Cannot be blank), not updated. Press Esc to exit editing mode',
             'error'
           );
         }
         return { ...params.props, error: hasError };
+      },
+      valueGetter: (params) => {
+        if (params.row.contact.address) {
+          return params.row.contact.address;
+        } else {
+          return '';
+        }
       },
     },
     {
@@ -257,11 +276,18 @@ export const WorkerListResults = () => {
           params.props.value.length !== 6 || isNaN(params.props.value);
         if (hasError) {
           handleAlertOpen(
-            'Postal Code is invalid (Must be 6 digits), not updated.',
+            'Postal Code is invalid (Must be 6 digits), not updated. Press Esc to exit editing mode',
             'error'
           );
         }
         return { ...params.props, error: hasError };
+      },
+      valueGetter: (params) => {
+        if (params.row.contact.postalCode) {
+          return params.row.contact.postalCode;
+        } else {
+          return '';
+        }
       },
     },
   ];
@@ -318,8 +344,9 @@ export const WorkerListResults = () => {
                       <IconButton
                         disabled={selectionModel.length === 0}
                         onClick={handleConfirmDialogOpen}
+                        color="error"
                       >
-                        <DeleteIcon color="error" />
+                        <DeleteIcon />
                       </IconButton>
                     </>
                   </Tooltip>
@@ -401,19 +428,6 @@ export const WorkerListResults = () => {
 };
 
 //Helper methods
-//Flatten the worker record retrieved
-const flattenObj = (obj, parent, res = {}) => {
-  for (let key in obj) {
-    let propName = key;
-    if (typeof obj[key] == 'object') {
-      flattenObj(obj[key], propName, res);
-    } else {
-      res[propName] = obj[key];
-    }
-  }
-  return res;
-};
-
 const jsonStructure = (worker) => {
   const updatedWorkerJSON = {
     id: worker.id,
