@@ -7,7 +7,6 @@ import { Stack } from "@mui/system";
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { createProduct, updateProduct } from "../../helpers/products";
-import { useEffect, useState } from "react";
 
 const options = [
   'kilogram',
@@ -23,8 +22,9 @@ export const ProductDialog = (props) => {
     typeString,
     product, 
     addProduct,
-    getProducts,
     handleAlertOpen,
+    organisationId,
+    updateProducts
   } = props;
 
   let initialValues = {
@@ -68,13 +68,17 @@ export const ProductDialog = (props) => {
 
   const handleOnSubmit = async (values) => {
     if (action === 'POST') {
-      const result = await createProduct(type, values)
+      const result = await createProduct(type, values, organisationId)
         .catch((err) => handleAlertOpen(`Error creating ${typeString}`, 'error'));
       addProduct(result);
     } else if (action === 'PATCH') {
-      updateProduct(product.id, type, values)
-        .then(() => getProducts)
-        .catch((err) => handleAlertOpen(`Error updateing ${typeString} product.id`, 'error'));
+      try {
+        const updatedProduct = await updateProduct(product.id, type, values)
+        updateProducts(updatedProduct)
+        handleAlertOpen(`Updated ${typeString} ${updateProduct.id} successfully!`, 'success');
+      } catch (err) {
+        handleAlertOpen(`Error updateing ${typeString} product.id`, 'error')
+      } 
     }
     onClose();
   }
@@ -119,7 +123,6 @@ export const ProductDialog = (props) => {
             onChange={formik.handleChange}
             value={formik.values.name}
             variant="outlined"
-            autoFocus={action === 'POST'}
             disabled={action === 'PATCH'}
           />
           {product && <TextField
@@ -158,14 +161,13 @@ export const ProductDialog = (props) => {
           >
             <Typography>Measurement Unit :</Typography>
             <RadioGroup
-              error={Boolean(formik.touched.unit && formik.errors.unit)}
-              fullWidth
               label="Unit"
               margin="normal"
               name="unit"
               onBlur={formik.handleBlur}
               onChange={formik.handleChange}
               value={formik.values.unit}
+              defaultValue={options[0]}
               row
             >
               {options.map(option => (
