@@ -4,14 +4,18 @@ import { useFormik } from "formik";
 import { useEffect, useState } from "react";
 import { v4 as uuid } from "uuid";
 import * as Yup from "yup";
-import { fetchSuppliers } from "../../helpers/procurement-ordering";
+import { fetchSalesInquiries, fetchSuppliers } from "../../helpers/procurement-ordering";
 import { fetchProducts } from "../../helpers/products";
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { DataGrid } from '@mui/x-data-grid';
 import { formatRelative } from 'date-fns';
+import EditIcon from '@mui/icons-material/Edit';
+import Edit from '@mui/icons-material/Edit';
 
 export const QuotationDialog = (props) => {
+  const user = JSON.parse(localStorage.getItem('user'));
+
   const {
     action, // POST || PATCH
     open,
@@ -26,12 +30,10 @@ export const QuotationDialog = (props) => {
   let initialValues = {
     id: quotation ? quotation.id : null,
     created: quotation ? quotation.created : null,
-    totalPrice: quotation ? quotation.totalPrice : 1,    
+    totalPrice: quotation ? quotation.totalPrice : 1,
     supplierId: quotation ? quotation.shellOrganisation.id : null,
-    skuCode: '',
-    numProd: 1,
-    salesInquiry: quotation ? quotation.salesInquiry : null,
-    lineItems: quotation ? quotation.quotationLineItems : [],
+    salesInquiryId: quotation ? quotation.salesInquiry.id : null,
+    quotationLineItems: quotation ? quotation.quotationLineItems : [],
   }
 
   let schema = Yup.object({
@@ -68,66 +70,97 @@ export const QuotationDialog = (props) => {
   const [suppliers, setSuppliers] = useState([]);
   const [supplierOptions, setSupplierOptions] = useState([]);
 
-  const [products, setProducts] = useState([]);
-  const [productOptions, setProductOptions] = useState([]);
-  const [productInputValue, setProductInputValue] = useState("");
+  const [salesInquiries, setSalesInquiries] = useState([]);
+  const [salesInquiryOptions, setSalesInquiryOptions] = useState([]);
+
+  // const [products, setProducts] = useState([]);
+  // const [productOptions, setProductOptions] = useState([]);
+  // // const [productInputValue, setProductInputValue] = useState("");
   
   useEffect(() => {
     const fetchData = async () => {
       let suppliers = await fetchSuppliers();
-      let products = await fetchProducts('raw-materials');
-
+      let salesInquiries = await fetchSalesInquiries(user.organisation.id);
+     
       setSuppliers(suppliers);
-      products = products.filter(el => formik.values.lineItems.map(item => item.rawMaterial.skuCode).includes(el.skuCode) ? null : el);
-      setProducts(products);
+      setSalesInquiries(salesInquiries);
 
       setSupplierOptions(suppliers.map(el => el.id));
-      setProductOptions(products.map(el => el.skuCode));
+      setSalesInquiryOptions(salesInquiries.map(el => el.id));
     }
     fetchData();
-    // console.log(products)
+    console.log(salesInquiries)
     // console.log(suppliers)
-  }, [open, formik.values.lineItems]);
+
+    // Calculate total price
+    formik.setFieldValue('totalPrice', [...formik.values.quotationLineItems].reduce((a, b) => {
+      const price = b.price ? b.price : 1
+      return a + b.quantity * price
+    }, 0))
+  }, [open, formik.values.quotationLineItems]);
+
+  useEffect(() => {
+    const si = salesInquiries.find(inquiry => inquiry.id === formik.values.salesInquiryId)
+    console.log(si ? si.salesInquiryLineItems : [])
+    formik.setFieldValue('quotationLineItems', si ? si.salesInquiryLineItems : [])
+  }, [formik.values.salesInquiryId])
 
   // DataGrid Helpers
   const [selectedRows, setSelectedRows] = useState([]);
 
-  const addLineItem = (quantity, input) => {
-    // console.log(input)
-    const product = products.find((option) => option.skuCode === input);
-    // console.log(product);
-    const newItem = {
-      id: uuid(),
-      quantity: quantity,
-      rawMaterial: product,
+  const handleRowUpdate = (newRow) => {
+    const updatedRow = {...newRow};
+    if (action === 'POST') {
+      formik.setFieldValue('quotationLineItems', 
+        formik.values.quotationLineItems.map(item => {
+          if (item.id === updatedRow.id) {
+            console.log(updatedRow)
+            return updatedRow;
+          }
+          return item;
+        })
+      )
+    } 
+    else if (action === 'PATCH') {
+      // 
     }
-    console.log(newItem);
-    formik.setFieldValue('lineItems', [...formik.values.lineItems, newItem]);
-    console.log(formik.values.lineItems);
-    setProductInputValue("");
-    formik.setFieldValue('numProd', 1);
-  };
-
-  const deleteLineItems = (ids) => {
-    const updatedLineItems = formik.values.lineItems.filter((el) => !ids.includes(el.id));
-    formik.setFieldValue('lineItems', [...updatedLineItems]);
+    return updatedRow;
   }
 
-  // useEffect(() => {
-  //   console.log(formik.values.lineItems);
-  // }, [formik.values.lineItems])
-
   const columns = [
+    {
+      field: 'price',
+      headerName: 'Quoted Price *',
+      flex: 1,
+      editable: true,
+      valueGetter: (params) => {
+        return quotation ? params.row.price : params.row.price ? params.row.price : 1
+      }
+    },
     {
       field: 'quantity',
       headerName: 'Quantity',
       flex: 1,
+      valueGetter: (params) => {
+        return params.row ? params.row.quantity : ''
+      }
     },
     {
-      field: 'price',
-      headerName: 'Price',
+      field: 'rawName',
+      headerName: 'Raw Material Name',
       flex: 1,
-    }
+      valueGetter: (params) => {
+        return params.row ? params.row.rawMaterial.name : ''
+      }
+    },
+    {
+      field: 'skuCode',
+      headerName: 'SKU',
+      flex: 1,
+      valueGetter: (params) => {
+        return params.row ? params.row.rawMaterial.skuCode : ''
+      }
+    },
   ]
 
   return (
@@ -137,11 +170,6 @@ export const QuotationDialog = (props) => {
         open={open}
         onClose={onClose}
       >
-        {/* <DialogTitle>
-          {action === 'POST' &&  'Add '}
-          {action === 'PATCH' &&  'Edit '}
-          {string}
-        </DialogTitle> */}
         <AppBar sx={{ position: 'relative' }}>
           <Toolbar>
             <IconButton
@@ -153,11 +181,10 @@ export const QuotationDialog = (props) => {
               <CloseIcon />
             </IconButton>
             <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
-              {action === 'POST' && 'Add '}
-              {action === 'PATCH' && 'Edit '}
+              {/* {`Create `}
+              {`View `} */}
               {string}
             </Typography>
-            {formik.values.status !== 'pending' &&
               <Button 
                 variant="contained"
                 disabled={
@@ -166,9 +193,8 @@ export const QuotationDialog = (props) => {
                 }
                 onClick={formik.handleSubmit}
               >
-                Save
+                Submit
               </Button>
-            }
           </Toolbar>
         </AppBar>
         <DialogContent>
@@ -210,84 +236,42 @@ export const QuotationDialog = (props) => {
             onChange={formik.handleChange}
             value={formik.values.totalPrice}
             variant="outlined"
+            disabled
           />
-          {/* Supplier Selection */}
-          <Autocomplete 
-            id="supplier-selector"
-            sx={{ width: 300, mb: 1 }}
-            options={supplierOptions}
-            value={formik.values.supplierId}
-            onChange={(event, newValue) => {
-              formik.setFieldValue('supplierId', newValue);
-            }}
-            getOptionLabel={(option) => option.toString(10)}
-            renderInput={(params) => <TextField {...params} label="Suppliers ID"/>}
-          />
-          {/* Line Item Management */}
-          <Box my={2} display="flex" justifyContent="space-between">
-              <Stack 
-                direction="row" 
-                spacing={1}
-              >
-                <Autocomplete
-                  disablePortal
-                  sx={{width: 300}}
-                  options={productOptions}
-                  value={formik.values.skuCode}
-                  onChange={(event, newValue) => {
-                    formik.setFieldValue('skuCode', newValue);
-                  }}
-                  inputValue={productInputValue}
-                  onInputChange={(event, newInputValue) => {
-                    setProductInputValue(newInputValue);
-                  }}
-                  renderInput={(params) => <TextField {...params} label="SKUs"/>}
-                />
-                <TextField
-                  error={Boolean(formik.touched.numProd && formik.errors.numProd)}
-                  helperText={formik.touched.numProd && formik.errors.numProd}
-                  label="Enter Number of Raw Materials"
-                  margin="normal"
-                  name="numProd"
-                  type="number"
-                  onBlur={formik.handleBlur}
-                  onChange={formik.handleChange}
-                  value={formik.values.numProd}
-                  variant="outlined"
-                />
-                <IconButton
-                  disabled={
-                    !formik.values.skuCode || 
-                    formik.values.numProd <= 0 || 
-                    formik.values.numProd === null
-                  }
-                  color="primary"
-                  onClick={() => {
-                    addLineItem(formik.values.numProd, productInputValue);
-                  }}
-                >
-                  <AddBoxIcon/>
-                </IconButton>
-              </Stack>
-              <IconButton
-                disabled={selectedRows.length === 0}
-                color="error"
-                onClick={() => deleteLineItems(selectedRows)}
-              >
-                <Badge badgeContent={selectedRows.length} color="error">
-                  <DeleteIcon/>
-                </Badge>
-              </IconButton>
-            </Box>
-            <DataGrid
+          <Stack direction="row" spacing={1}>
+            {/* Supplier Selection */}
+            <Autocomplete 
+              id="supplier-selector"
+              sx={{ width: 300, mb: 1 }}
+              options={supplierOptions}
+              value={formik.values.supplierId}
+              onChange={(event, newValue) => {
+                formik.setFieldValue('supplierId', newValue);
+              }}
+              getOptionLabel={(option) => option.toString(10)}
+              renderInput={(params) => <TextField {...params} label="Suppliers ID"/>}
+            />
+            <Autocomplete 
+              id="sales-inquiry-selector"
+              sx={{ width: 300, mb: 1 }}
+              options={salesInquiryOptions}
+              value={formik.values.salesInquiryId}
+              onChange={(event, newValue) => {
+                formik.setFieldValue('salesInquiryId', newValue);
+              }}
+              getOptionLabel={(option) => option.toString(10)}
+              renderInput={(params) => <TextField {...params} label="Sales Inquiry ID"/>}
+            />
+          </Stack>
+          <DataGrid
             autoHeight
-            rows={formik.values.lineItems}
+            rows={formik.values.quotationLineItems}
             columns={columns}
-            checkboxSelection={formik.values.status !== 'pending'}
-            disableSelectionOnClick={formik.values.status === 'pending'}
             pageSize={5}
             rowsPerPageOptions={[5]}
             onSelectionModelChange={(ids) => setSelectedRows(ids)}
+            experimentalFeatures={{ newEditingApi: true }}
+            processRowUpdate={handleRowUpdate}
           />
         </DialogContent>
       </Dialog>
