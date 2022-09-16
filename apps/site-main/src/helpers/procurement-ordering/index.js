@@ -217,12 +217,13 @@ export const createQuotation = async (
   shellOrganisationId,
   lineItems
 ) => {
-  // Create Sales Inquiry
+  // Create Quotation
   const apiUrl = `${apiHost}/quotations`;
   let body = {
     salesInquiryId: salesInquiryId,
     shellOrganisationId: shellOrganisationId,
   };
+  console.log(body);
   body = JSON.stringify(body);
   const requestOptions = {
     method: 'POST',
@@ -236,6 +237,7 @@ export const createQuotation = async (
   // Create LineItems
   const createdLineItems = await createQuotationLineItems(quotation.id, lineItems);
   const updatedQuotation = await fetchQuotation(quotation.id);
+  console.log(updatedQuotation);
   return updatedQuotation;
 }
 
@@ -279,7 +281,7 @@ const deleteQuotation = async (id) => {
 
 export const deleteQuotations = async (ids) => {
   ids.forEach((id) => {
-    deleteSalesInquiry(id);
+    deleteQuotation(id);
   });
 };
 // Suppliers

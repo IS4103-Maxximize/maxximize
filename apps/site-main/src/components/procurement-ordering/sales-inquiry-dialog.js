@@ -16,6 +16,7 @@ import {
 } from '@mui/material';
 import { Stack } from '@mui/system';
 import { DataGrid } from '@mui/x-data-grid';
+import { formatRelative } from 'date-fns';
 import { useFormik } from 'formik';
 import { useEffect, useState } from 'react';
 import { v4 as uuid } from 'uuid';
@@ -111,7 +112,7 @@ export const SalesInquiryDialog = (props) => {
           'Content-Type': 'application/json',
         },
         body: lineItemJSON,
-      });
+      }).then((res) => res.json());
 
       //   // create
       //   const result = await createSalesInquiry(
@@ -225,7 +226,7 @@ export const SalesInquiryDialog = (props) => {
       field: 'quantity',
       headerName: 'Quantity',
       flex: 1,
-      editable: true,
+      editable: formik.values.status === 'draft',
     },
     {
       field: 'name',

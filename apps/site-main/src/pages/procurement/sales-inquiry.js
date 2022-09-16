@@ -110,6 +110,7 @@ export const SalesInquiry = (props) => {
       <IconButton
         onClick={(event) => {
           setSelectedRow(params.row);
+          console.log(params.row);
           handleMenuClick(event);
         }}
       >
