@@ -102,7 +102,6 @@ export class SalesInquiryService {
   }
 
   async addSupplier(addSupplierDto: AddSupplierDto): Promise<SalesInquiry>{
-    console.log(addSupplierDto)
     const { salesInquiryId, shellOrganisationId } = addSupplierDto
     let shellOrganisation: ShellOrganisation
     
@@ -121,7 +120,7 @@ export class SalesInquiryService {
     if (salesInquiry.status == SalesInquiryStatus.DRAFT) {
       salesInquiry.status = SalesInquiryStatus.SENT
     }
-    this.mailerService.sendSalesInquiryEmail(shellOrganisation.contact.email, salesInquiry.currentOrganisation.name, shellOrganisation.name, salesInquiry.salesInquiryLineItems)
+    this.mailerService.sendSalesInquiryEmail(shellOrganisation.contact.email, salesInquiry.currentOrganisation.name, shellOrganisation.name, salesInquiry.salesInquiryLineItems, salesInquiry)
     return this.salesInquiriesRepository.save(salesInquiry)
   }
 

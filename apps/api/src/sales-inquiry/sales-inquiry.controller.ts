@@ -44,11 +44,10 @@ export class SalesInquiryController {
     return this.salesInquiryService.remove(+id);
   }
 
-  @Post('add')
+  @Post('addSupplier')
   addSupplier(
     @Body() addSupplierDto: AddSupplierDto
     ){
-      console.log(addSupplierDto)
       return this.salesInquiryService.addSupplier(addSupplierDto)
     }
 }
