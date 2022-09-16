@@ -1,5 +1,8 @@
 import { MailerService } from '@nestjs-modules/mailer';
 import { Injectable } from '@nestjs/common';
+import { RawMaterial } from '../raw-materials/entities/raw-material.entity';
+import { SalesInquiryLineItem } from '../sales-inquiry-line-items/entities/sales-inquiry-line-item.entity';
+import { SalesInquiry } from '../sales-inquiry/entities/sales-inquiry.entity';
 import { User } from '../users/entities/user.entity';
 
 @Injectable()
@@ -21,7 +24,7 @@ export class MailService {
         });
     }
 
-    async sendForgotPasswordEmail(email: string, password: string, name: string, id: number) {
+    async sendForgotPasswordEmail(email: string, password: string, name: string, id: number, organisation: string) {
         await this.mailerService.sendMail({
             to: email,
             from: process.env.MAIL_FROM,
@@ -30,7 +33,22 @@ export class MailService {
             context: {
                 password: password,
                 name: name,
-                id: id
+                id: id,
+                organisation: organisation
+            },
+        });
+    }
+
+    async sendSalesInquiryEmail(email: string, organisationName: string, supplierName: string, salesInquiryLineItems: SalesInquiryLineItem[]) {
+        await this.mailerService.sendMail({
+            to: email,
+            from: process.env.MAIL_FROM,
+            subject: "Sales Inquiry",
+            template: './salesInquiryMail', 
+            context: {
+                organisationName: organisationName,
+                supplierName: supplierName,
+                salesInquiryLineItems: salesInquiryLineItems,
             },
         });
     }

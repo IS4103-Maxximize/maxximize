@@ -46,7 +46,7 @@ const Onboarding = () => {
   return (
     <>
       <Helmet>
-        <title>{`Onboarding | ${user?.organisation?.name}`}</title>
+        <title>{`Onboarding | MaxxiMize`}</title>
       </Helmet>
       <NotificationAlert
         open={alertOpen}

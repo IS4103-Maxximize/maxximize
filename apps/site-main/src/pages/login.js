@@ -62,11 +62,9 @@ const Login = () => {
           localStorage.setItem('user', JSON.stringify(user));
           formik.values.username = '';
           formik.values.password = '';
-          console.log(user);
           if (user?.passwordChanged) {
             navigate(from, { replace: true });
           } else {
-            console.log(user);
             navigate('/resetpassword', { replace: true });
           }
         }
@@ -162,7 +160,7 @@ const Login = () => {
               >
                 Log in
               </Button>
-              <Link href={`forgetpassword/${currentOrgId}`} underline="none">
+              <Link href={`forgotpassword/${currentOrgId}`} underline="none">
                 Forgot your password?
               </Link>
             </Box>

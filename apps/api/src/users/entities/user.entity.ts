@@ -44,8 +44,7 @@ export class User {
     organisation: Organisation;
 
     @OneToOne(() => Contact, (contact) => contact.user, {
-        cascade: true,
-        onDelete: 'CASCADE'
+        cascade: true
     })
     @JoinColumn()
     contact: Contact;

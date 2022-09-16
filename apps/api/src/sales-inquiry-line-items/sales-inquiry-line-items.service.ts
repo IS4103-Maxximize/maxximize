@@ -54,7 +54,8 @@ export class SalesInquiryLineItemsService {
       id
     }, relations: {
       rawMaterial: true,
-      salesInquiry: true
+      salesInquiry: true,
+      
     }})
   }
 

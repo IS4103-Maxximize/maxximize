@@ -7,6 +7,9 @@ import Dashboard from './pages/dashboard';
 import NotFound from './pages/404';
 import RequireAuth from './components/RequireAuth';
 import Onboarding from './pages/onboarding';
+import ForgotPassword from './pages/forgotPassword';
+import ResetPassword from './pages/resetPassword';
+import ProtectedRoute from './pages/protectedRoute';
 
 const ROLES = {
   Admin: 'admin',
@@ -19,12 +22,18 @@ const App = () => {
       <Route path="/" element={<Layout />}>
         {/* Public Routes */}
         <Route path="login" element={<Login />}></Route>
+        <Route path="forgotpassword" element={<ForgotPassword />}></Route>
         <Route path="unauthorized" element={<Unauthorized />}></Route>
 
         {/* Protected Routes for all Roles */}
         <Route
           element={<RequireAuth requiredRoles={[ROLES.Admin, ROLES.Manager]} />}
         >
+          {/*First time login, without dashboard layout*/}
+          <Route path="/resetpassword" element={<ProtectedRoute />}>
+            <Route path="/resetpassword" element={<ResetPassword />} />
+          </Route>
+
           <Route element={<DashboardLayout />}>
             {/* Dashboard */}
             <Route path="/" element={<Dashboard />}></Route>

@@ -1,4 +1,11 @@
-import { Box, Button, Container, TextField, Typography } from '@mui/material';
+import {
+  Box,
+  Button,
+  Container,
+  Link,
+  TextField,
+  Typography,
+} from '@mui/material';
 import { useFormik } from 'formik';
 import { useLocation, useNavigate } from 'react-router-dom';
 import * as Yup from 'yup';
@@ -45,7 +52,11 @@ const Login = () => {
           localStorage.setItem('user', JSON.stringify(user));
           formik.values.username = '';
           formik.values.password = '';
-          navigate(from, { replace: true });
+          if (user?.passwordChanged) {
+            navigate(from, { replace: true });
+          } else {
+            navigate('/resetpassword', { replace: true });
+          }
         }
       }
       formik.values.authenticationError = 'You are unauthorised';
@@ -135,6 +146,9 @@ const Login = () => {
               >
                 Log in
               </Button>
+              <Link href={`forgotpassword`} underline="none">
+                Forgot your password?
+              </Link>
             </Box>
           </form>
         </Container>

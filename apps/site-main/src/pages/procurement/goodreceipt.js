@@ -229,7 +229,7 @@ const ProcurementGoodReceipt = () => {
           pb: 4,
         }}
       >
-        <Container maxWidth={false}>
+        {/* <Container maxWidth={false}>
           <GoodReceiptListToolbar
             disabled={disabled}
             numGoodReceipts={selectedRows.length}
@@ -268,7 +268,7 @@ const ProcurementGoodReceipt = () => {
               </Box>
             </Card>
           </Box>
-        </Container>
+        </Container> */}
       </Box>
     </>
   );
