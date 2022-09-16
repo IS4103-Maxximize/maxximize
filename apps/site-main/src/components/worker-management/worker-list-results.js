@@ -61,6 +61,12 @@ export const WorkerListResults = () => {
   const handleRowUpdate = (newRow) => {
     const updatedRow = { ...newRow };
 
+    const updatedWorkers = workers.map((worker) =>
+      worker.id === updatedRow.id ? updatedRow : worker
+    );
+    console.log(updatedWorkers);
+    setWorkers(updatedWorkers);
+
     const myHeaders = new Headers();
     myHeaders.append('Content-Type', 'application/json');
 
