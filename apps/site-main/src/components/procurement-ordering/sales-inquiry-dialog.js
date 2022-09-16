@@ -29,6 +29,7 @@ import { fetchProducts } from '../../helpers/products';
 
 export const SalesInquiryDialog = (props) => {
   const user = JSON.parse(localStorage.getItem('user'));
+
   const {
     action, // POST || PATCH
     open,
@@ -39,6 +40,15 @@ export const SalesInquiryDialog = (props) => {
     updateInquiry,
     handleAlertOpen,
   } = props;
+
+  const [updateTotalPrice, setUpdateTotalPrice] = useState(0);
+
+  useEffect(() => {
+    if (inquiry && inquiry.totalPrice) {
+      console.log(inquiry.totalPrice);
+      setUpdateTotalPrice(Number(inquiry.totalPrice));
+    }
+  });
 
   // Formik Helpers and Variables
   let initialValues = {
@@ -70,6 +80,7 @@ export const SalesInquiryDialog = (props) => {
   const handleOnSubmit = async (values) => {
     if (action === 'POST') {
       const newLineItems = values.lineItems;
+      let totalPrice = 0;
 
       const lineItems = [];
 
@@ -79,6 +90,7 @@ export const SalesInquiryDialog = (props) => {
           indicativePrice: newLineItem.rawMaterial.unitPrice,
           rawMaterialId: newLineItem.rawMaterial.id,
         };
+        totalPrice += lineItem.quantity * lineItem.indicativePrice;
 
         lineItems.push(lineItem);
       }
@@ -86,13 +98,12 @@ export const SalesInquiryDialog = (props) => {
       const currentOrganisationId = user.organisation.id;
 
       const salesInquiry = {
-        totalPrice: values.totalPrice,
+        totalPrice: totalPrice,
         currentOrganisationId: currentOrganisationId,
         salesInquiryLineItemsDtos: lineItems,
       };
 
       const lineItemJSON = JSON.stringify(salesInquiry);
-      console.log(lineItemJSON);
 
       const response = await fetch('http://localhost:3000/api/sales-inquiry', {
         method: 'POST',
@@ -108,12 +119,12 @@ export const SalesInquiryDialog = (props) => {
       //     user.organisation.id,
       //     values.lineItems
       //   ).catch((err) => handleAlertOpen(`Error creating ${string}`, 'error'));
-      console.log(response);
 
-      addSalesInquiry(response);
+      const result = await response.json();
+
+      addSalesInquiry(result);
     } else if (action === 'PATCH') {
       // update
-      console.log(values);
       const result = await updateSalesInquiry(inquiry, values);
       updateInquiry(result);
     }
@@ -139,7 +150,6 @@ export const SalesInquiryDialog = (props) => {
   useEffect(() => {
     const fetchData = async () => {
       const result = await fetchProducts('raw-materials', user.organisation.id);
-      console.log(result);
       // console.log(formik.values.lineItems)
       const data = result.filter((el) =>
         formik.values.lineItems
@@ -183,12 +193,22 @@ export const SalesInquiryDialog = (props) => {
 
   const updateLineItems = (newRow) => {
     const updatedRow = { ...newRow };
-
+    let totalPrice = 0;
     for (const lineItem of formik.values.lineItems) {
-      if (lineItem.id.toString() === updatedRow.id) {
+      if (lineItem.id == updatedRow.id) {
         lineItem.quantity = updatedRow.quantity;
       }
+
+      console.log(lineItem);
+
+      setUpdateTotalPrice(
+        (totalPrice +=
+          Number(lineItem.indicativePrice) * Number(lineItem.quantity))
+      );
+
+      inquiry.totalPrice = totalPrice;
     }
+    console.log(updateTotalPrice);
     return updatedRow;
   };
 
@@ -316,7 +336,7 @@ export const SalesInquiryDialog = (props) => {
               type="number"
               onBlur={formik.handleBlur}
               onChange={formik.handleChange}
-              value={formik.values.totalPrice}
+              value={updateTotalPrice}
               variant="outlined"
               disabled
             />

@@ -141,11 +141,15 @@ export const SalesInquiry = (props) => {
     );
   };
 
-  const handleRowUpdate = (newRow) => {
+  const handleRowUpdate = async (newRow) => {
     const updatedRow = { ...newRow };
+
+    const inquiry = await newRow.json();
+    console.log(inquiry);
+
     getSalesInquiries();
     handleAlertOpen(
-      `Updated Sales Inquiry ${newRow.id} successfully!`,
+      `Updated Sales Inquiry ${inquiry.id} successfully!`,
       'success'
     );
     return updatedRow;
@@ -260,7 +264,7 @@ export const SalesInquiry = (props) => {
                     return row;
                   } else {
                     return (
-                      row.id.toLowerCase().includes(search) ||
+                      row.id.includes(search) ||
                       row.status.toLowerCase().includes(search)
                     );
                   }
