@@ -180,7 +180,7 @@ export class UsersService {
         this.usersRepository.save(user);
         try {
           const name = user.firstName + " " + user.lastName;
-          await this.mailService.sendForgotPasswordEmail(email, password, name, organisationId);
+          await this.mailService.sendForgotPasswordEmail(email, password, name, organisationId, organisation.name);
         } catch (err) {
           throw new InternalServerErrorException("Unable to send email successfully");
         }
