@@ -24,7 +24,7 @@ export class MailService {
         });
     }
 
-    async sendForgotPasswordEmail(email: string, password: string, name: string, id: number) {
+    async sendForgotPasswordEmail(email: string, password: string, name: string, id: number, organisation: string) {
         await this.mailerService.sendMail({
             to: email,
             from: process.env.MAIL_FROM,
@@ -33,7 +33,8 @@ export class MailService {
             context: {
                 password: password,
                 name: name,
-                id: id
+                id: id,
+                organisation: organisation
             },
         });
     }
