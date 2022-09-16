@@ -6,6 +6,7 @@ import { Contact } from '../contacts/entities/contact.entity';
 import { MailService } from '../mail/mail.service';
 import { Organisation } from '../organisations/entities/organisation.entity';
 import { Quotation } from '../quotations/entities/quotation.entity';
+import { RawMaterial } from '../raw-materials/entities/raw-material.entity';
 import { SalesInquiryLineItem } from '../sales-inquiry-line-items/entities/sales-inquiry-line-item.entity';
 import { ShellOrganisation } from '../shell-organisations/entities/shell-organisation.entity';
 import { AddSupplierDto } from './dto/add-supplier.dto';
@@ -27,22 +28,36 @@ export class SalesInquiryService {
     private readonly quotationsRepository: Repository<Quotation>,
     @InjectRepository(SalesInquiryLineItem)
     private readonly salesInquiryLineItemsRepository: Repository<SalesInquiryLineItem>,
+    @InjectRepository(RawMaterial)
+    private readonly rawMaterialsRepository: Repository<RawMaterial>,
     private mailerService: MailService
   ) {}
 
   async create(createSalesInquiryDto: CreateSalesInquiryDto): Promise<SalesInquiry> {
     try {
-      const { currentOrganisationId } = createSalesInquiryDto
-      let organisationToBeAdded: Organisation
-      organisationToBeAdded = await this.organisationsRepository.findOneByOrFail({id: currentOrganisationId})
+      const { currentOrganisationId, totalPrice } = createSalesInquiryDto;
+      let organisationToBeAdded: Organisation;
+      organisationToBeAdded = await this.organisationsRepository.findOneByOrFail({id: currentOrganisationId});
+      const salesInquiryLineItems = [];
+
+      for (const dto of createSalesInquiryDto.salesInquiryLineItemsDtos) {
+        const salesInquiryLineItem = new SalesInquiryLineItem();
+        salesInquiryLineItem.quantity = dto.quantity;
+        salesInquiryLineItem.rawMaterial = await this.rawMaterialsRepository.findOne({
+          where: {
+            id: dto.rawMaterialId
+          }
+        });
+        salesInquiryLineItem.indicativePrice = dto.indicativePrice;
+        salesInquiryLineItems.push(salesInquiryLineItem);
+      }
+
       const newSalesInquiry = this.salesInquiriesRepository.create({
         status: SalesInquiryStatus.DRAFT,
-        totalPrice: 0,
+        totalPrice: totalPrice,
         created: new Date(),
         currentOrganisation: organisationToBeAdded,
-        suppliers: [],
-        quotations: [],
-        salesInquiryLineItems: []
+        salesInquiryLineItems: salesInquiryLineItems
       })
       return this.salesInquiriesRepository.save(newSalesInquiry)
     } catch (error) {
@@ -88,12 +103,31 @@ export class SalesInquiryService {
 
 
   async update(id: number, updateSalesInquiryDto: UpdateSalesInquiryDto): Promise<SalesInquiry> {
-    const salesInquiryToUpdate = await this.salesInquiriesRepository.findOneBy({id})
-    const arrayOfKeyValues = Object.entries(updateSalesInquiryDto)
-    arrayOfKeyValues.forEach(([key, value]) => {
-      salesInquiryToUpdate[key] = value
-    })
-    return this.salesInquiriesRepository.save(salesInquiryToUpdate)
+    const salesInquiryToUpdate = await this.findOne(id);
+    salesInquiryToUpdate.status = updateSalesInquiryDto.status;
+    salesInquiryToUpdate.totalPrice = updateSalesInquiryDto.totalPrice;
+    salesInquiryToUpdate.quotations = updateSalesInquiryDto.quotations;
+    salesInquiryToUpdate.suppliers = updateSalesInquiryDto.suppliers;
+    salesInquiryToUpdate.chosenQuotation = updateSalesInquiryDto.chosenQuotation;
+
+    salesInquiryToUpdate.salesInquiryLineItems.forEach((lineItems) => {
+      this.salesInquiryLineItemsRepository.delete(lineItems.id);
+    });
+    const salesInquiryLineItems = [];
+    for (const dto of updateSalesInquiryDto.salesInquiryLineItemsDtos) {
+      const salesInquiryLineItem = new SalesInquiryLineItem();
+        salesInquiryLineItem.quantity = dto.quantity;
+        salesInquiryLineItem.rawMaterial = await this.rawMaterialsRepository.findOne({
+          where: {
+            id: dto.rawMaterialId
+          }
+        });
+        salesInquiryLineItem.indicativePrice = dto.indicativePrice;
+        salesInquiryLineItems.push(salesInquiryLineItem);
+    }
+    salesInquiryToUpdate.salesInquiryLineItems = salesInquiryLineItems;
+    
+    return this.salesInquiriesRepository.save(salesInquiryToUpdate);
   }
 
   async remove(id: number): Promise<SalesInquiry> {

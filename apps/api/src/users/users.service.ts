@@ -63,6 +63,7 @@ export class UsersService {
     );
     if (organisation) {
       newUser.organisation = organisation;
+      console.log(newUser);
     } else {
       throw new NotFoundException(
         `Organisation with id : ${createUserDto.organisationId} cannot be found!`
