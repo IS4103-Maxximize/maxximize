@@ -16,26 +16,28 @@ export class SalesInquiryLineItemsService {
     @InjectRepository(SalesInquiry)
     private readonly salesInquiriesRepository: Repository<SalesInquiry>,
     @InjectRepository(RawMaterial)
-    private readonly rawMaterialsRepository: Repository<RawMaterial>,
-  ){}
+    private readonly rawMaterialsRepository: Repository<RawMaterial>
+  ) {}
 
-  async create(createSalesInquiryLineItemDto: CreateSalesInquiryLineItemDto): Promise<SalesInquiryLineItem> {
+  async create(
+    createSalesInquiryLineItemDto: CreateSalesInquiryLineItemDto
+  ): Promise<SalesInquiryLineItem> {
     try {
-      const { quantity, rawMaterialId, salesInquiryId} = createSalesInquiryLineItemDto
-      let rawMaterialToBeAdded: RawMaterial
-      let salesInquiryToBeAdded: SalesInquiry
-      rawMaterialToBeAdded = await this.rawMaterialsRepository.findOneByOrFail({id: rawMaterialId})
-      salesInquiryToBeAdded = await this.salesInquiriesRepository.findOneByOrFail({id: salesInquiryId})
-      const newSalesInquiryLineItem = this.salesInquiryLineItemsRepository.create({
-        quantity,
-        rawMaterial: rawMaterialToBeAdded,
-        salesInquiry: salesInquiryToBeAdded
-      })
-      salesInquiryToBeAdded.totalPrice += rawMaterialToBeAdded.unitPrice*quantity
-      this.salesInquiriesRepository.save(salesInquiryToBeAdded)
-      return this.salesInquiryLineItemsRepository.save(newSalesInquiryLineItem)
+      const { quantity, indicativePrice, rawMaterialId } =
+        createSalesInquiryLineItemDto;
+      let rawMaterialToBeAdded: RawMaterial;
+      rawMaterialToBeAdded = await this.rawMaterialsRepository.findOneByOrFail({
+        id: rawMaterialId,
+      });
+      const newSalesInquiryLineItem =
+        this.salesInquiryLineItemsRepository.create({
+          quantity,
+          indicativePrice,
+          rawMaterial: rawMaterialToBeAdded,
+        });
+      return this.salesInquiryLineItemsRepository.save(newSalesInquiryLineItem);
     } catch (error) {
-      throw new NotFoundException('The Entity cannot be found')
+      throw new NotFoundException('The Entity cannot be found');
     }
   }
 
@@ -43,41 +45,52 @@ export class SalesInquiryLineItemsService {
     return this.salesInquiryLineItemsRepository.find({
       relations: {
         rawMaterial: true,
-        salesInquiry: true
-      }
-    })
+        salesInquiry: true,
+      },
+    });
   }
 
   findOne(id: number): Promise<SalesInquiryLineItem> {
-    return this.salesInquiryLineItemsRepository.findOne({where: {
-      id
-    }, relations: {
-      rawMaterial: true,
-      salesInquiry: true,
-      
-    }})
+    return this.salesInquiryLineItemsRepository.findOne({
+      where: {
+        id,
+      },
+      relations: {
+        rawMaterial: true,
+        salesInquiry: true,
+      },
+    });
   }
 
   async update(
     id: number,
     updateSalesInquiryLineItemDto: UpdateSalesInquiryLineItemDto
   ): Promise<SalesInquiryLineItem> {
-    const salesInquiryLineItemToUpdate = await this.salesInquiryLineItemsRepository.findOneBy({id})
-    const arrayOfKeyValues = Object.entries(updateSalesInquiryLineItemDto)
+    const salesInquiryLineItemToUpdate =
+      await this.salesInquiryLineItemsRepository.findOneBy({ id });
+    const arrayOfKeyValues = Object.entries(updateSalesInquiryLineItemDto);
     arrayOfKeyValues.forEach(([key, value]) => {
-      salesInquiryLineItemToUpdate[key] = value
-    })
-    return this.salesInquiryLineItemsRepository.save(salesInquiryLineItemToUpdate)
+      salesInquiryLineItemToUpdate[key] = value;
+    });
+    return this.salesInquiryLineItemsRepository.save(
+      salesInquiryLineItemToUpdate
+    );
   }
 
   async remove(id: number): Promise<SalesInquiryLineItem> {
-    let salesInquiryLineItem: SalesInquiryLineItem
-    salesInquiryLineItem = await this.findOne(id)
-    let salesInquiry: SalesInquiry
-    salesInquiry = await this.salesInquiriesRepository.findOneByOrFail({id: salesInquiryLineItem.salesInquiry.id})
-    const salesInquiryLineItemToRemove = await this.salesInquiryLineItemsRepository.findOneBy({id})
-    salesInquiry.totalPrice -= salesInquiryLineItem.indicativePrice*salesInquiryLineItem.quantity
-    this.salesInquiriesRepository.save(salesInquiry)
-    return this.salesInquiryLineItemsRepository.remove(salesInquiryLineItemToRemove)
+    let salesInquiryLineItem: SalesInquiryLineItem;
+    salesInquiryLineItem = await this.findOne(id);
+    let salesInquiry: SalesInquiry;
+    salesInquiry = await this.salesInquiriesRepository.findOneByOrFail({
+      id: salesInquiryLineItem.salesInquiry.id,
+    });
+    const salesInquiryLineItemToRemove =
+      await this.salesInquiryLineItemsRepository.findOneBy({ id });
+    salesInquiry.totalPrice -=
+      salesInquiryLineItem.indicativePrice * salesInquiryLineItem.quantity;
+    this.salesInquiriesRepository.save(salesInquiry);
+    return this.salesInquiryLineItemsRepository.remove(
+      salesInquiryLineItemToRemove
+    );
   }
 }

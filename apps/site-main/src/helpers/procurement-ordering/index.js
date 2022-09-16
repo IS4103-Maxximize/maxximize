@@ -67,8 +67,6 @@ export const createSalesInquiry = async (orgId, lineItems) => {
 };
 
 export const updateSalesInquiry = async (inquiry, values) => {
-  const apiUrl = `${apiHost}/sales-inquiry-line-items`;
-
   const newLineItems = values.lineItems;
 
   const lineItems = [];
@@ -88,9 +86,27 @@ export const updateSalesInquiry = async (inquiry, values) => {
   const salesInquiry = {
     totalPrice: values.totalPrice,
     currentOrganisationId: currentOrganisationId,
+    salesInquiryLineItemsDtos: lineItems,
   };
 
   const lineItemJSON = JSON.stringify(salesInquiry);
+  console.log(lineItemJSON);
+
+  const response = await fetch(
+    `http://localhost:3000/api/sales-inquiry/${values.id}`,
+    {
+      method: 'PATCH',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: lineItemJSON,
+    }
+  );
+
+  console.log(response);
+
+  return response;
 
   //   const originalLineItemIds = inquiry.salesInquiryLineItems.map(
   //     (item) => item.id

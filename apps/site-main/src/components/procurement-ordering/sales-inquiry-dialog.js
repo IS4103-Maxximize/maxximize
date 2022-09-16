@@ -68,12 +68,48 @@ export const SalesInquiryDialog = (props) => {
 
   const handleOnSubmit = async (values) => {
     if (action === 'POST') {
-      // create
-      const result = await createSalesInquiry(
-        user.organisation.id,
-        values.lineItems
-      ).catch((err) => handleAlertOpen(`Error creating ${string}`, 'error'));
-      addSalesInquiry(result);
+      const newLineItems = values.lineItems;
+
+      const lineItems = [];
+
+      for (const newLineItem of newLineItems) {
+        let lineItem = {
+          quantity: newLineItem.quantity,
+          indicativePrice: newLineItem.rawMaterial.unitPrice,
+          rawMaterialId: newLineItem.rawMaterial.id,
+        };
+
+        lineItems.push(lineItem);
+      }
+      const user = JSON.parse(localStorage.getItem('user'));
+      const currentOrganisationId = user.organisation.id;
+
+      const salesInquiry = {
+        totalPrice: values.totalPrice,
+        currentOrganisationId: currentOrganisationId,
+        salesInquiryLineItemsDtos: lineItems,
+      };
+
+      const lineItemJSON = JSON.stringify(salesInquiry);
+      console.log(lineItemJSON);
+
+      const response = await fetch('http://localhost:3000/api/sales-inquiry', {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: lineItemJSON,
+      });
+
+      //   // create
+      //   const result = await createSalesInquiry(
+      //     user.organisation.id,
+      //     values.lineItems
+      //   ).catch((err) => handleAlertOpen(`Error creating ${string}`, 'error'));
+      console.log(response);
+
+      addSalesInquiry(response);
     } else if (action === 'PATCH') {
       // update
       console.log(values);
@@ -101,7 +137,8 @@ export const SalesInquiryDialog = (props) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const result = await fetchProducts('raw-materials');
+      const result = await fetchProducts('raw-materials', user.organisation.id);
+      console.log(result);
       // console.log(formik.values.lineItems)
       const data = result.filter((el) =>
         formik.values.lineItems
