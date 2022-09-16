@@ -62,6 +62,7 @@ export const SuppliersList = ({orgId}) => {
   };
 
   const [openDialog, setOpenDialog] = useState(false);
+  const [openConfirmationDialog, setOpenConfirmationDialog] = useState(false)
   
 
   const handleOpenDialog = () => {
@@ -71,6 +72,14 @@ export const SuppliersList = ({orgId}) => {
   const handleCloseDialog = () => {
     setOpenDialog(false);
   };
+
+  const handleCloseConfirmationDialog = () => {
+    setOpenConfirmationDialog(false)
+  }
+  
+  const handleOpenConfirmationDialog = () => {
+    setOpenConfirmationDialog(true)
+  }
 
   // NotificationAlert helpers
   const [alertOpen, setAlertOpen] = useState(false);
@@ -229,12 +238,7 @@ export const SuppliersList = ({orgId}) => {
       width: 50,
       sortable: false,
       renderCell: menuButton
-    },
-    {
-      field: 'Raw Materials List',
-      headerName: 'Raw Materials List',
-      width: 150,
-    },
+    }
 
   ];
 
@@ -306,7 +310,7 @@ export const SuppliersList = ({orgId}) => {
             orgId={orgId}
           />
 
-        <Tooltip title={'Update entry by clicking on the field to be updated'}>
+        <Tooltip title={'Update a supplier by clicking on the menu button at the end of the row'}>
           <IconButton>
             <HelpIcon />
           </IconButton>
@@ -316,15 +320,15 @@ export const SuppliersList = ({orgId}) => {
           <Badge badgeContent={selectionModel.length} color="error">
             <IconButton
             disabled={disabled}
-              onClick={handleDelete}
+              onClick={handleOpenConfirmationDialog}
             >
               <DeleteIcon color="error" />
             </IconButton>
           </Badge>
         </Tooltip>
         <BusinessPartnerConfirmDialog
-                  open={handleOpenDialog}
-                  handleClose={handleCloseDialog}
+                  open={openConfirmationDialog}
+                  handleClose={handleCloseConfirmationDialog}
                   dialogTitle={`Delete supplier(s)`}
                   dialogContent={`Confirm deletion of supplier(s)?`}
                   dialogAction={() => {
