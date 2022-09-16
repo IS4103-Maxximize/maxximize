@@ -1,16 +1,27 @@
-import MoreVert from "@mui/icons-material/MoreVert";
-import { Box, Card, CardContent, Container, IconButton, Typography } from "@mui/material";
-import { DataGrid, GridToolbar } from "@mui/x-data-grid";
-import { useEffect, useState } from "react";
-import { Helmet } from "react-helmet";
-import { DashboardLayout } from "../../components/dashboard-layout";
-import { NotificationAlert } from "../../components/notification-alert";
-import { SalesInquiryDialog } from "../../components/procurement-ordering/sales-inquiry-dialog";
-import { SalesInquiryMenu } from "../../components/procurement-ordering/sales-inquiry.menu";
-import { SupplierDialog } from "../../components/procurement-ordering/supplier-dialog";
-import { Toolbar } from "../../components/procurement-ordering/toolbar";
-import { ConfirmDialog } from "../../components/product/confirm-dialog";
-import { deleteSalesInquiries, fetchSalesInquiries, updateSalesInquiry } from "../../helpers/procurement-ordering";
+import MoreVert from '@mui/icons-material/MoreVert';
+import {
+  Box,
+  Card,
+  CardContent,
+  Container,
+  IconButton,
+  Typography,
+} from '@mui/material';
+import { DataGrid, GridToolbar } from '@mui/x-data-grid';
+import { useEffect, useState } from 'react';
+import { Helmet } from 'react-helmet';
+import { DashboardLayout } from '../../components/dashboard-layout';
+import { NotificationAlert } from '../../components/notification-alert';
+import { SalesInquiryDialog } from '../../components/procurement-ordering/sales-inquiry-dialog';
+import { SalesInquiryMenu } from '../../components/procurement-ordering/sales-inquiry.menu';
+import { SupplierDialog } from '../../components/procurement-ordering/supplier-dialog';
+import { Toolbar } from '../../components/procurement-ordering/toolbar';
+import { ConfirmDialog } from '../../components/product/confirm-dialog';
+import {
+  deleteSalesInquiries,
+  fetchSalesInquiries,
+  updateSalesInquiry,
+} from '../../helpers/procurement-ordering';
 
 export const SalesInquiry = (props) => {
   const user = JSON.parse(localStorage.getItem('user'));
@@ -31,7 +42,7 @@ export const SalesInquiry = (props) => {
   };
 
   // Search Helpers
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState('');
   const handleSearch = (event) => {
     setSearch(event.target.value.toLowerCase().trim());
   };
@@ -42,7 +53,7 @@ export const SalesInquiry = (props) => {
   const [deleteDisabled, setDeleteDisabled] = useState();
 
   useEffect(() => {
-    setDeleteDisabled(selectedRows.length === 0)
+    setDeleteDisabled(selectedRows.length === 0);
   }, [selectedRows]);
 
   // Confirm Dialog Helpers
@@ -50,10 +61,10 @@ export const SalesInquiry = (props) => {
 
   const handleConfirmDialogOpen = () => {
     setConfirmDialogOpen(true);
-  }
+  };
   const handleConfirmDialogClose = () => {
     setConfirmDialogOpen(false);
-  }
+  };
 
   // Form Dialog Helpers
   const [action, setAction] = useState();
@@ -65,21 +76,20 @@ export const SalesInquiry = (props) => {
   };
   const handleFormDialogOpen = () => {
     setFormDialogOpen(true);
-  }
+  };
   const handleFormDialogClose = () => {
     setFormDialogOpen(false);
-  }
+  };
 
   // Supplier Dialog Helpers
   const [supplierDialogOpen, setSupplierDialogOpen] = useState(false);
   const handleSupplierDialogOpen = () => {
-    console.log(selectedRow)
+    console.log(selectedRow);
     setSupplierDialogOpen(true);
-  }
+  };
   const handleSupplierDialogClose = () => {
     setSupplierDialogOpen(false);
-  }
-
+  };
 
   // Menu Helpers
   const [anchorEl, setAnchorEl] = useState(null);
@@ -97,11 +107,13 @@ export const SalesInquiry = (props) => {
 
   const menuButton = (params) => {
     return (
-      <IconButton onClick={(event) => {
-        setSelectedRow(params.row);
-        handleMenuClick(event);
-        }}>
-        <MoreVert/>
+      <IconButton
+        onClick={(event) => {
+          setSelectedRow(params.row);
+          handleMenuClick(event);
+        }}
+      >
+        <MoreVert />
       </IconButton>
     );
   };
@@ -111,23 +123,32 @@ export const SalesInquiry = (props) => {
 
   const getSalesInquiries = async () => {
     fetchSalesInquiries(user.organisation.id)
-    .then(result => setRows(result))
-    .catch(err => handleAlertOpen(`Failed to fetch Sales Inquiries`, 'error'))
-  }
+      .then((result) => setRows(result))
+      .catch((err) =>
+        handleAlertOpen(`Failed to fetch Sales Inquiries`, 'error')
+      );
+  };
 
   const addSalesInquiry = (inquiry) => {
     const updatedProducts = [...rows, inquiry];
+    console.log(updatedProducts);
     setRows(updatedProducts);
     console.log(inquiry);
-    handleAlertOpen(`Added Sales Inquiry ${inquiry.id} successfully!`, 'success');
-  } 
+    handleAlertOpen(
+      `Added Sales Inquiry ${inquiry.id} successfully!`,
+      'success'
+    );
+  };
 
   const handleRowUpdate = (newRow) => {
-    const updatedRow = {...newRow};
-    getSalesInquiries()
-    handleAlertOpen(`Updated Sales Inquiry ${newRow.id} successfully!`, 'success');
+    const updatedRow = { ...newRow };
+    getSalesInquiries();
+    handleAlertOpen(
+      `Updated Sales Inquiry ${newRow.id} successfully!`,
+      'success'
+    );
     return updatedRow;
-  }
+  };
 
   const handleDelete = (ids) => {
     deleteSalesInquiries(ids)
@@ -135,11 +156,11 @@ export const SalesInquiry = (props) => {
         handleAlertOpen(`Successfully deleted Sales Inquiry(s)`, 'success');
       })
       .then(() => getSalesInquiries());
-  }
+  };
 
   useEffect(() => {
     getSalesInquiries();
-  }, [])
+  }, []);
 
   const columns = [
     {
@@ -159,7 +180,7 @@ export const SalesInquiry = (props) => {
       sortable: false,
       renderCell: menuButton,
     },
-  ]
+  ];
 
   return (
     <>
@@ -187,13 +208,13 @@ export const SalesInquiry = (props) => {
           <SalesInquiryMenu
             anchorEl={anchorEl}
             menuOpen={menuOpen}
-            handleClickOpen={handleFormDialogOpen} 
+            handleClickOpen={handleFormDialogOpen}
             handleMenuClose={handleMenuClose}
             handleEdit={handleEdit}
             handleSupplierDialogOpen={handleSupplierDialogOpen}
           />
           <ConfirmDialog
-            open={confirmDialogOpen} 
+            open={confirmDialogOpen}
             handleClose={handleConfirmDialogClose}
             dialogTitle={`Delete Sales Inquiry(s)`}
             dialogContent={`Confirm deletion of Sales Inquiry(s)?`}
@@ -216,7 +237,7 @@ export const SalesInquiry = (props) => {
             inquiry={selectedRow}
             handleClose={handleSupplierDialogClose}
           />
-          <Toolbar 
+          <Toolbar
             name="Sales Inquiry"
             numRows={selectedRows.length}
             deleteDisabled={deleteDisabled}
@@ -230,15 +251,17 @@ export const SalesInquiry = (props) => {
               mt: 3,
             }}
           >
-            {rows.length > 0 ?
+            {rows.length > 0 ? (
               <DataGrid
                 autoHeight
                 rows={rows.filter((row) => {
-                  if (search === "") {
+                  if (search === '') {
                     return row;
                   } else {
-                    return row.id.toLowerCase().includes(search) || 
-                      row.status.toLowerCase().includes(search);
+                    return (
+                      row.id.toLowerCase().includes(search) ||
+                      row.status.toLowerCase().includes(search)
+                    );
                   }
                 })}
                 columns={columns}
@@ -254,20 +277,18 @@ export const SalesInquiry = (props) => {
                 // experimentalFeatures={{ newEditingApi: true }}
                 // processRowUpdate={handleRowUpdate}
               />
-              :
-              <Card 
+            ) : (
+              <Card
                 variant="outlined"
                 sx={{
-                  textAlign: "center",
+                  textAlign: 'center',
                 }}
               >
                 <CardContent>
-                  <Typography>
-                    {`No Sales Inquiries Found` }
-                  </Typography>
+                  <Typography>{`No Sales Inquiries Found`}</Typography>
                 </CardContent>
               </Card>
-            }
+            )}
           </Box>
         </Container>
       </Box>
@@ -275,10 +296,6 @@ export const SalesInquiry = (props) => {
   );
 };
 
-SalesInquiry.getLayout = (page) => (
-  <DashboardLayout>
-    {page}
-  </DashboardLayout>
-);
+SalesInquiry.getLayout = (page) => <DashboardLayout>{page}</DashboardLayout>;
 
 export default SalesInquiry;

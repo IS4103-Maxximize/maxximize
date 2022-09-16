@@ -15,7 +15,7 @@ export const SupplierDialog = (props) =>{
   // Formik Helpers
   let initialValues = {
     suppliers: inquiry ? inquiry.suppliers : [],
-  }
+  };
 
   const handleOnSubmit = async (values) => {
     // Submit
@@ -25,13 +25,13 @@ export const SupplierDialog = (props) =>{
   const formik = useFormik({
     initialValues: initialValues,
     enableReinitialize: true,
-    onSubmit: handleOnSubmit
-  })
+    onSubmit: handleOnSubmit,
+  });
 
   const onClose = () => {
     formik.resetForm();
     handleClose();
-  }
+  };
 
   // DataGrid Helpers
   const [rows, setRows] = useState([]);
@@ -39,9 +39,9 @@ export const SupplierDialog = (props) =>{
 
   const getSuppliers = async () => {
     fetchSuppliers()
-      .then(result => setRows(result))
-      // .catch(err)
-  }
+      .then((result) => setRows(result))
+      .catch((err) => console.log(err));
+  };
 
   useEffect(() => {
     getSuppliers();
@@ -49,44 +49,37 @@ export const SupplierDialog = (props) =>{
 
   useEffect(() => {
     console.log(rows);
-  }, [rows])
+  }, [rows]);
 
   const columns = [
     {
-      field: "name",
-      headerName: "Supplier Name",
+      field: 'name',
+      headerName: 'Supplier Name',
       flex: 3,
     },
     {
-      field: "email",
-      headerName: "Email",
+      field: 'email',
+      headerName: 'Email',
       flex: 2,
       valueGetter: (params) => {
         return params.row.contact ? params.row.contact.email : '';
-      }
+      },
     },
     {
-      field: "phoneNumber",
-      headerName: "Phone Number",
+      field: 'phoneNumber',
+      headerName: 'Phone Number',
       flex: 2,
       valueGetter: (params) => {
         return params.row.contact ? params.row.contact.phoneNumber : '';
-      }
+      },
     },
-  ]
+  ];
 
   return (
-    <Dialog
-      fullWidth
-      maxWidth="md"
-      open={open}
-      onClose={onClose}
-    >
-      <DialogTitle>
-        {`Send Inquiry ${inquiry?.id} to Suppliers`}
-      </DialogTitle>
+    <Dialog fullWidth maxWidth="md" open={open} onClose={onClose}>
+      <DialogTitle>{`Send Inquiry ${inquiry?.id} to Suppliers`}</DialogTitle>
       <DialogContent>
-        <DataGrid 
+        <DataGrid
           autoHeight
           rows={rows}
           columns={columns}
@@ -98,18 +91,15 @@ export const SupplierDialog = (props) =>{
         />
       </DialogContent>
       <DialogActions>
-        <Button 
+        <Button
           disabled={formik.isSubmitting || selectedRows.length === 0}
           variant="contained"
-          onClick={formik.handleSubmit}>
+          onClick={formik.handleSubmit}
+        >
           {`Send [${selectedRows.length}]`}
         </Button>
-        <Button 
-          onClick={onClose}
-        >
-          Back
-        </Button>
+        <Button onClick={onClose}>Back</Button>
       </DialogActions>
     </Dialog>
-  )
-}
+  );
+};
