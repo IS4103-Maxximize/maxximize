@@ -19,6 +19,7 @@ import BusinessRelations from './pages/businessRelations';
 import ForgotPassword from './pages/forgotPassword';
 import ProtectedRoute from './pages/protectedRoute';
 import ResetPassword from './pages/resetpassword';
+import ProtectedPublicRoute from './pages/protectedPublicRoute';
 
 const ROLES = {
   Admin: 'admin',
@@ -32,15 +33,21 @@ const App = () => {
     <Routes>
       <Route path="/" element={<Layout />}>
         {/* Public Routes */}
-        <Route
-          path="organisationSelection"
-          element={<OrganisationSelection />}
-        ></Route>
-        <Route path="login/:orgId" element={<Login />}></Route>
-        <Route
-          path="forgotpassword/:orgId"
-          element={<ForgotPassword />}
-        ></Route>
+        <Route path="/organisationselection" element={<ProtectedPublicRoute />}>
+          <Route
+            path="/organisationselection"
+            element={<OrganisationSelection />}
+          ></Route>
+        </Route>
+        <Route path="/login/:orgId" element={<ProtectedPublicRoute />}>
+          <Route path="/login/:orgId" element={<Login />}></Route>
+        </Route>
+        <Route path="/forgotpassword/:orgId" element={<ProtectedPublicRoute />}>
+          <Route
+            path="/forgotpassword/:orgId"
+            element={<ForgotPassword />}
+          ></Route>
+        </Route>
         <Route path="unauthorized" element={<Unauthorized />}></Route>
 
         {/* Protected Routes */}

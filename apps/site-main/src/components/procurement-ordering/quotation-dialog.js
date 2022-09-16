@@ -264,6 +264,7 @@ export const QuotationDialog = (props) => {
               options={salesInquiryOptions}
               value={formik.values.salesInquiryId}
               onChange={(event, newValue) => {
+				event.preventDefault()
                 formik.setFieldValue('salesInquiryId', newValue);
                 console.log(newValue);
                 console.log(salesInquiries);

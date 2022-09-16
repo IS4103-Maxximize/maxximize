@@ -71,7 +71,7 @@ export const ProductDialog = (props) => {
         const updatedProduct = await updateProduct(product.id, type, values);
         updateProducts(updatedProduct);
         handleAlertOpen(
-          `Updated ${typeString} ${updateProduct.id} successfully!`,
+          `Updated ${typeString} ${updatedProduct.id} successfully!`,
           'success'
         );
       } catch (err) {
