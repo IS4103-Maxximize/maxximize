@@ -1,8 +1,8 @@
 import { Box, Button, Container, TextField, Typography } from '@mui/material';
 import { useFormik } from 'formik';
-import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import * as Yup from 'yup';
+import { Helmet } from 'react-helmet';
 
 async function loginUser(credentials) {
   const res = await fetch('http://localhost:3000/api/auth/login', {
@@ -48,7 +48,7 @@ const Login = () => {
           navigate(from, { replace: true });
         }
       }
-      formik.values.authenticationError = 'You are Unauthorised';
+      formik.values.authenticationError = 'You are unauthorised';
     },
   });
 
@@ -69,6 +69,9 @@ const Login = () => {
 
   return (
     <>
+      <Helmet>
+        <title>{'Login | MaxxiMize'}</title>
+      </Helmet>
       <Box
         component="main"
         sx={{

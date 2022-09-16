@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Link from '@mui/material/Link';
 import * as Yup from 'yup';
+import { Helmet } from 'react-helmet';
 
 async function loginUser(credentials) {
   const res = await fetch('http://localhost:3000/api/auth/login', {
@@ -61,10 +62,16 @@ const Login = () => {
           localStorage.setItem('user', JSON.stringify(user));
           formik.values.username = '';
           formik.values.password = '';
-          navigate(from, { replace: true });
+          console.log(user);
+          if (user?.passwordChanged) {
+            navigate(from, { replace: true });
+          } else {
+            console.log(user);
+            navigate('/resetpassword', { replace: true });
+          }
         }
       }
-      formik.values.authenticationError = 'You are Unauthorised';
+      formik.values.authenticationError = 'You are unauthorised';
     },
   });
 
@@ -85,6 +92,9 @@ const Login = () => {
 
   return (
     <>
+      <Helmet>
+        <title>{`Login | ${organisation?.name}`}</title>
+      </Helmet>
       <Box
         component="main"
         sx={{
@@ -152,7 +162,7 @@ const Login = () => {
               >
                 Log in
               </Button>
-              <Link href={`forgetpassword/${currentOrgId}`}>
+              <Link href={`forgetpassword/${currentOrgId}`} underline="none">
                 Forgot your password?
               </Link>
             </Box>

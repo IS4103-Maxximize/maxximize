@@ -125,6 +125,9 @@ export const OnboardClientDialog = (props) => {
           const accountResult = await accountResponse.json();
           console.log(accountResult);
           setError('');
+          handleAlertOpen(
+            `Onboarded client organisation ${result.id} successfully`
+          );
           handleClose();
         } else {
           console.log('Account fail');
@@ -135,9 +138,12 @@ export const OnboardClientDialog = (props) => {
       } else {
         console.log('Organisation failed');
         console.log(response.message);
-        setError(response.message);
+        const result = await response.json();
+        setError(result.message);
       }
     }
+
+    formik.resetForm();
   };
 
   const onClose = () => {
@@ -171,6 +177,7 @@ export const OnboardClientDialog = (props) => {
         .min(9, 'UEN must be at least be 9 characters long')
         .max(10, 'UEN can at most be 10 characters long')
         .required('UEN is required'),
+      orgType: Yup.string().required('Organisation type is required'),
       orgEmail: Yup.string()
         .email('Email must be in a proper format [eg. user@email.com]')
         .min(7, 'Email must be at least be 7 characters long')
@@ -247,7 +254,7 @@ export const OnboardClientDialog = (props) => {
               Onboard Client
             </Typography>
             <Button
-              disabled={!(formik.dirty && formik.isValid)}
+              disabled={!formik.isValid || formik.isSubmitting}
               autoFocus
               color="inherit"
               size="medium"
@@ -491,7 +498,11 @@ export const OnboardClientDialog = (props) => {
               />
             </Box>
           </Box>
-          <Typography>Error: {error}</Typography>
+          <Box display="flex" justifyContent={'center'}>
+            <Typography variant="caption" color="red">
+              {error}
+            </Typography>
+          </Box>
         </DialogContent>
       </Dialog>
     </form>

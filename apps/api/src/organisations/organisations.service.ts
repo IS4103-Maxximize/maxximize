@@ -48,14 +48,11 @@ export class OrganisationsService {
 
   async findOne(id: number): Promise<Organisation> {
     try {
-      const organisation =  await this.organisationsRepository.findOneOrFail({where: {
-        id
-      }, relations: {
-        shellOrganisations: true,
-        contact: true,
-        users: true
-      }})
-      return organisation
+      const organisation =  await this.organisationsRepository.findOneOrFail({
+        where: {id}, 
+        relations: ["shellOrganisations", "contact", "users.contact"]
+      });
+      return organisation;
     } catch (err) {
       throw new NotFoundException(`findOne failed as Organization with id: ${id} cannot be found`)
     }

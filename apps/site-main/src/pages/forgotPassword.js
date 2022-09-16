@@ -1,16 +1,15 @@
 import { Box, Button, Container, TextField, Typography } from '@mui/material';
 import { useFormik } from 'formik';
 import { useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import * as Yup from 'yup';
 import { Helmet } from 'react-helmet';
 import { NotificationAlert } from '../components/notification-alert';
 
-const ResetPassword = () => {
+const ForgotPassword = () => {
   const location = useLocation();
-  const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem('user'));
-  const organisation = user.organisation;
+  const currentOrgId = location.pathname.split('/')[2];
+  const [organisation, setOrganisation] = useState({});
 
   // NotificationAlert helpers
   const [alertOpen, setAlertOpen] = useState(false);
@@ -27,12 +26,13 @@ const ResetPassword = () => {
     setAlertSeverity('success');
   };
 
-  const handleResetPassword = () => {
+  const handleForgotPassword = () => {
     const myHeaders = new Headers();
     myHeaders.append('Content-Type', 'application/json');
 
     const raw = JSON.stringify({
-      password: formik.values.confirmPassword,
+      organisationId: currentOrgId,
+      email: formik.values.email,
     });
 
     var requestOptions = {
@@ -41,54 +41,33 @@ const ResetPassword = () => {
       body: raw,
     };
 
-    let timer;
-
-    fetch(
-      `http://localhost:3000/api/users/changePassword/${user.id}`,
-      requestOptions
-    )
+    fetch(`http://localhost:3000/api/users/forgotPassword`, requestOptions)
       .then((response) => response.text())
-      .then(() => {
-        handleAlertOpen(
-          'Password changed successfully! Redirecting...',
-          'success'
-        );
-        user.passwordChanged = true;
-        localStorage.setItem('user', JSON.stringify(user));
-      })
-      .then(() => {
-        timer = setTimeout(() => navigate('/', { replace: true }), 3000);
-      })
-
+      .then(() => handleAlertOpen('Email sent successfully!', 'success'))
       .catch((error) =>
         handleAlertOpen(`An error was encountered: ${error}`, 'error')
       );
-
-    clearTimeout(timer);
 
     formik.resetForm();
   };
 
   const formik = useFormik({
     initialValues: {
-      password: '',
-      confirmPassword: '',
-      authenticationError: '',
+      email: '',
     },
     validationSchema: Yup.object({
-      password: Yup.string().max(255).required('New Password is required'),
-      confirmPassword: Yup.string()
-        .oneOf([Yup.ref('password'), null], 'Passwords must match')
+      email: Yup.string()
+        .email('Email must be in a proper format [eg. user@email.com]')
         .max(255)
-        .required('Confirm Password is required'),
+        .required('Email is required'),
     }),
-    onSubmit: handleResetPassword,
+    onSubmit: handleForgotPassword,
   });
 
   return (
     <>
       <Helmet>
-        <title>{`Reset Password | ${organisation?.name}`}</title>
+        <title>{`Forgot Password | ${organisation?.name}`}</title>
       </Helmet>
       <NotificationAlert
         open={alertOpen}
@@ -115,45 +94,25 @@ const ResetPassword = () => {
                 {organisation?.name}
               </Typography>
               <Typography color="textSecondary" gutterBottom variant="body2">
-                Reset Password
+                Forgot Password
               </Typography>
             </Box>
             <Typography color="textPrimary" variant="subtitle2">
-              Resetting password is required for new users
+              Enter the email for your account
             </Typography>
             <TextField
-              error={Boolean(formik.touched.password && formik.errors.password)}
+              error={Boolean(formik.touched.email && formik.errors.email)}
               fullWidth
-              helperText={formik.touched.password && formik.errors.password}
-              label="New Password"
+              helperText={formik.touched.email && formik.errors.email}
+              label="Email Address"
               margin="normal"
-              name="password"
+              name="email"
               onBlur={formik.handleBlur}
               onChange={formik.handleChange}
-              type="password"
-              value={formik.values.password}
+              type="email"
+              value={formik.values.email}
               variant="outlined"
             />
-            <TextField
-              error={Boolean(
-                formik.touched.confirmPassword && formik.errors.confirmPassword
-              )}
-              fullWidth
-              helperText={
-                formik.touched.confirmPassword && formik.errors.confirmPassword
-              }
-              label="Confirm Password"
-              margin="normal"
-              name="confirmPassword"
-              onBlur={formik.handleBlur}
-              onChange={formik.handleChange}
-              type="password"
-              value={formik.values.confirmPassword}
-              variant="outlined"
-            />
-            <Typography color="red" variant="subtitle2">
-              {formik.values.authenticationError}
-            </Typography>
 
             <Box sx={{ py: 2 }}>
               <Button
@@ -174,4 +133,4 @@ const ResetPassword = () => {
   );
 };
 
-export default ResetPassword;
+export default ForgotPassword;
