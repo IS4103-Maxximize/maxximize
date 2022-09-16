@@ -8,7 +8,4 @@ export class RawMaterial extends Product {
     @ManyToMany(() => ShellOrganisation, supplier => supplier.rawMaterials)
     @JoinTable()
     suppliers: ShellOrganisation[]
-
-    @ManyToOne(() => Organisation, organisation => organisation.rawMaterials)
-    organisation: Organisation
 }

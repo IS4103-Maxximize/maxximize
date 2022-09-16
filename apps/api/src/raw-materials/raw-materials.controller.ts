@@ -17,6 +17,11 @@ export class RawMaterialsController {
     return this.rawMaterialsService.findAll();
   }
 
+  @Get('orgId/:id')
+  findAllByOrg(@Param('id') id: string) {
+    return this.rawMaterialsService.findAllByOrg(+id)
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.rawMaterialsService.findOne(+id);
