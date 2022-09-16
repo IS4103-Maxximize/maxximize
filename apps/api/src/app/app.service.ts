@@ -1,18 +1,18 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { OrganisationsService } from '../organisations/organisations.service';
 import { UsersService } from '../users/users.service';
 import { OrganisationType } from '../organisations/enums/organisationType.enum';
 import { Role } from '../users/enums/role.enum';
 
 @Injectable()
-export class AppService {
+export class AppService implements OnApplicationBootstrap {
   constructor(private organisationsService: OrganisationsService,
     private usersService: UsersService) {}
   getData(): { message: string } {
     return { message: 'Welcome to api!' };
   }
 
-  async dataInit() {
+  async onApplicationBootstrap() {
     const maxximize = await this.organisationsService.findOrganisationByType(OrganisationType.MAXXIMIZE)
     if (maxximize.length === 0) {
       const maxximizeOrg = await this.organisationsService.create({
