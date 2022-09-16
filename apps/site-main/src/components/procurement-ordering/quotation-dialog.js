@@ -4,7 +4,7 @@ import { useFormik } from "formik";
 import { useEffect, useState } from "react";
 import { v4 as uuid } from "uuid";
 import * as Yup from "yup";
-import { fetchSalesInquiries, fetchSuppliers } from "../../helpers/procurement-ordering";
+import { createQuotation, fetchSalesInquiries, fetchSuppliers } from "../../helpers/procurement-ordering";
 import { fetchProducts } from "../../helpers/products";
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -23,7 +23,8 @@ export const QuotationDialog = (props) => {
     string,
     quotation,
     addQuotation,
-    updateQuotation
+    // updateQuotation
+    handleAlertOpen
   } = props;
 
   // Formik Helpers
@@ -46,12 +47,23 @@ export const QuotationDialog = (props) => {
 
   const handleOnSubmit = async (values) => {
     if (action === 'POST') {
-      // create
-    } else if (action === 'PATCH') {
-      // update
+      // create quotation and lineitems
+      const result = await createQuotation(
+        formik.values.salesInquiryId, 
+        formik.values.supplierId, 
+        formik.values.quotationLineItems
+      ).catch((err) => handleAlertOpen(`Error creating ${string}`, 'error'));
+      addQuotation(result);
+      // const result = await createSalesInquiry(user.organisation.id, values.lineItems)
+      //   .catch((err) => handleAlertOpen(`Error creating ${string}`, 'error'));
+      // addSalesInquiry(result);
+    } 
+    else if (action === 'PATCH') {
+      // update lineitems quantity and quotation totalPrice
+
     }
     console.log(formik.values)
-    // onClose();
+    onClose();
   };
 
   const onClose = () => {
@@ -110,20 +122,15 @@ export const QuotationDialog = (props) => {
 
   const handleRowUpdate = (newRow) => {
     const updatedRow = {...newRow};
-    if (action === 'POST') {
-      formik.setFieldValue('quotationLineItems', 
-        formik.values.quotationLineItems.map(item => {
-          if (item.id === updatedRow.id) {
-            console.log(updatedRow)
-            return updatedRow;
-          }
-          return item;
-        })
-      )
-    } 
-    else if (action === 'PATCH') {
-      // 
-    }
+    formik.setFieldValue('quotationLineItems', 
+      formik.values.quotationLineItems.map(item => {
+        if (item.id === updatedRow.id) {
+          console.log(updatedRow)
+          return updatedRow;
+        }
+        return item;
+      })
+    )
     return updatedRow;
   }
 

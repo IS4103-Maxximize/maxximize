@@ -9,7 +9,7 @@ import { QuotationDialog } from '../../components/procurement-ordering/quotation
 import { Toolbar } from '../../components/procurement-ordering/toolbar';
 import { ConfirmDialog } from '../../components/product/confirm-dialog';
 import { ProductMenu } from '../../components/product/product-menu';
-import { fetchQuotations } from '../../helpers/procurement-ordering';
+import { deleteQuotations, fetchQuotations } from '../../helpers/procurement-ordering';
 import { quotations } from '../../__mocks__/quotations';
 
 const Quotation = (props) => {
@@ -96,8 +96,27 @@ const Quotation = (props) => {
   };
 
   // CRUD helpers
-  const handleDelete = async (ids) => {
+  const addQuotation = (quotation) => {
+    const updatedProducts = [...rows, quotation];
+    setRows(updatedProducts);
+    console.log(quotation);
+    handleAlertOpen(`Added Quotation ${quotation.id} successfully!`, 'success');
+  }
+
+  // const handleRowUpdate = (newRow) => {
+  //   const updatedRow = {...newRow};
+  //   getQuotations();
+  //   handleAlertOpen(`Updated Quotation ${newRow.id} successfully!`, 'success');
+  //   return updatedRow;
+  // }
+
+  const handleDelete = (ids) => {
     // delete rows
+    deleteQuotations(ids)
+      .then(() => {
+        handleAlertOpen(`Successfully deleted Quotation(s)`, 'success');
+      })
+      .then(() => getQuotations());
   }
 
   // DataGrid Rows & Columns
@@ -105,7 +124,13 @@ const Quotation = (props) => {
 
   const getQuotations = async () => {
     fetchQuotations()
-    .then(result => setRows(result))
+    .then(result => {
+      // filter quotations which the user's organisation created
+      const filtered = result.filter((el) => {
+        return el.salesInquiry.currentOrganisation.id === user.organisation.id;
+      })
+      setRows(filtered);
+    })
     .catch(err => handleAlertOpen(`Failed to fetch Quotations`, 'error'))
   }
 
@@ -123,44 +148,6 @@ const Quotation = (props) => {
       headerName: "Quotation ID",
       flex: 1,
     },
-    {
-      field: "supplierName",
-      headerName: "Supplier Name",
-      flex: 3,
-      valueGetter: ((params) => {
-        return params.row.shellOrganisation.name;
-      })
-    },
-    {
-      field: "skuCode",
-      headerName: "Product SKU",
-      flex: 2,
-      valueGetter: ((params) => {
-        return params.row.product.skuCode;
-      })
-    },
-    {
-      field: "lotQuantity",
-      headerName: "Lot Quantity",
-      flex: 1,
-    },
-    {
-      field: "lotPrice",
-      headerName: "Lot Price",
-      flex: 1,
-    },
-    {
-      field: "unit",
-      headerName: "Unit",
-      flex: 1,
-    },
-    {
-      field: "actions",
-      headerName: "",
-      flex: 1,
-      sortable: false,
-      renderCell: menuButton,
-    }
   ]
 
   return (
@@ -208,9 +195,9 @@ const Quotation = (props) => {
             handleClose={handleFormDialogClose}
             string={'Quotation'}
             quotation={selectedRow}
-            // add
+            addQuotation={addQuotation}
             // update
-            // handleAlertOpen
+            handleAlertOpen={handleAlertOpen}
           />
           <Toolbar 
             name="Quotation"

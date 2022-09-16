@@ -4,6 +4,7 @@ import { QuotationLineItem } from '../../quotation-line-items/entities/quotation
 import { CreateQuotationDto } from './create-quotation.dto';
 
 export class UpdateQuotationDto extends PartialType(CreateQuotationDto) {
+    totalPrice?: number;
     purchaseOrder?: PurchaseOrder;
     quotationLineItems?: QuotationLineItem[];
 }

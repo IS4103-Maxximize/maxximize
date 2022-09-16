@@ -49,7 +49,9 @@ export class QuotationsService {
     return this.quotationsRepository.find({
       relations: {
         shellOrganisation: true,
-        salesInquiry: true
+        salesInquiry: {
+          currentOrganisation: true
+        }
       }
     })
   }
@@ -61,7 +63,9 @@ export class QuotationsService {
       },
       relations: {
         shellOrganisation: true,
-        salesInquiry: true
+        salesInquiry: {
+          currentOrganisation: true
+        }
       }
     })
   }

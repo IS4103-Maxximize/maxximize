@@ -121,10 +121,75 @@ export const deleteSalesInquiries = async (ids) => {
 // Get all, create, update, delete
 export const fetchQuotations = async () => {
   const apiUrl = `${apiHost}/quotations`;
-  return await fetch(apiUrl)
-    .then(response => response.json());
+  return await fetch(apiUrl).then(response => response.json());
 }
 
+const fetchQuotation = async (id) => {
+  const apiUrl = `${apiHost}/quotations/${id}`;
+  return await fetch(apiUrl).then(response => response.json());
+}
+
+const createQuotationLineItems = async (quotationId, lineItems) => {
+  const apiUrl = `${apiHost}/quotation-line-items`;
+  
+  const createPromises = lineItems.map(async (item) => {
+    let body = {
+      quantity: item.quantity,
+      price: item.price,
+      rawMaterialId: item.rawMaterial.id,
+      quotationId: quotationId
+    }
+    body = JSON.stringify(body);
+    const requestOptions = {
+      method: 'POST',
+      headers: headers,
+      body: body,
+    }
+    return fetch(apiUrl, requestOptions)
+      .then(response => response.json())
+      .catch(err => {throw new Error(err)});
+  });
+  
+  return await Promise.all(createPromises)
+    .catch(err => {throw new Error(err)});
+}
+
+export const createQuotation = async (salesInquiryId, shellOrganisationId, lineItems) => {
+  // Create Sales Inquiry
+  const apiUrl = `${apiHost}/quotations`;
+  let body = {
+    salesInquiryId: salesInquiryId,
+    shellOrganisationId: shellOrganisationId,
+  }
+  body = JSON.stringify(body);
+  const requestOptions = {
+    method: 'POST',
+    headers: headers,
+    body: body,
+  };
+  const quotation = await fetch(apiUrl, requestOptions)
+    .then(response => response.json())
+    .catch(err => {throw new Error(err)});
+
+  // Create LineItems
+  const createdLineItems = await createQuotationLineItems(quotation.id, lineItems);
+  const updatedQuotation = await fetchQuotation(quotation.id);
+  return updatedQuotation;
+}
+
+const deleteQuotation = async (id) => {
+  const apiUrl = `${apiHost}/quotations/${id}`;
+  const requestOptions = {
+    method: 'DELETE',
+  };
+  fetch(apiUrl, requestOptions);
+}
+
+export const deleteQuotations = async (ids) => {
+ids.forEach((id) => {
+  deleteSalesInquiry(id);
+});
+}
 // Suppliers
 // Get All
 export const fetchSuppliers = async () => {
