@@ -66,7 +66,9 @@ export class SalesInquiryService {
       relations: {
         currentOrganisation: true,
         suppliers: true,
-        salesInquiryLineItems: true,
+        salesInquiryLineItems: {
+          rawMaterial: true
+        },
       }
     })
   }

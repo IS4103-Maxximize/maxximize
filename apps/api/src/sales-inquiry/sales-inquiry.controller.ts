@@ -25,6 +25,11 @@ export class SalesInquiryController {
     return this.salesInquiryService.findAll();
   }
 
+  @Get('all/:id')
+  findAllByOrg(@Param('id') id: string) {
+    return this.salesInquiryService.findAllByOrg(+id);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.salesInquiryService.findOne(+id);

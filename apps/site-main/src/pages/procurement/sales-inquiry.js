@@ -110,7 +110,7 @@ export const SalesInquiry = (props) => {
   const [rows, setRows] = useState([]);
 
   const getSalesInquiries = async () => {
-    fetchSalesInquiries()
+    fetchSalesInquiries(user.organisation.id)
     .then(result => setRows(result))
     .catch(err => handleAlertOpen(`Failed to fetch Sales Inquiries`, 'error'))
   }

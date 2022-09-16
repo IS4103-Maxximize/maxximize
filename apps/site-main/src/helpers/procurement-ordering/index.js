@@ -1,8 +1,8 @@
 import { apiHost, headers } from "../constants"
 // Sales Inquiry
 // Get all, create, update, delete
-export const fetchSalesInquiries = async () => {
-  const apiUrl = `${apiHost}/sales-inquiry`;
+export const fetchSalesInquiries = async (orgId) => {
+  const apiUrl = `${apiHost}/sales-inquiry/all/${orgId}`;
   return await fetch(apiUrl).then(response => response.json());
 }
 
