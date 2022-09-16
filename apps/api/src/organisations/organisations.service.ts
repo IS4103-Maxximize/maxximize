@@ -8,6 +8,7 @@ import { User } from '../users/entities/user.entity';
 import { CreateOrganisationDto } from './dto/create-organisation.dto';
 import { UpdateOrganisationDto } from './dto/update-organisation.dto';
 import { Organisation } from './entities/organisation.entity';
+import { OrganisationType } from './enums/organisationType.enum';
 
 @Injectable()
 export class OrganisationsService {
@@ -98,6 +99,10 @@ export class OrganisationsService {
     } catch (err) {
       throw new NotFoundException(`Remove failed as Organization with id: ${id} cannot be found`)
     }
+  }
+
+  async findOrganisationByType(type: OrganisationType): Promise<Organisation[]> {
+    return this.organisationsRepository.findBy({type: type})
   }
 
   async findAllUensOfRegisterdOrgs() {
