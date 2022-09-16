@@ -276,17 +276,3 @@ export const CreateWorkerDialog = ({
     </Dialog>
   );
 };
-
-//Helper methods
-//Flatten the worker record retrieved, difficult to update with an inner object
-const flattenObj = (obj, parent, res = {}) => {
-  for (let key in obj) {
-    let propName = key;
-    if (typeof obj[key] == 'object' && key != 'organisation') {
-      flattenObj(obj[key], propName, res);
-    } else {
-      res[propName] = obj[key];
-    }
-  }
-  return res;
-};

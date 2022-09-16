@@ -20,7 +20,6 @@ const Products = (props) => {
 
   // Page View
   const { type } = props;
-  console.log(type);
   const typeString = type ==='raw-materials' ? 'Raw Material' : 'Final Good'
 
   // NotificationAlert helpers
@@ -105,20 +104,21 @@ const Products = (props) => {
       .then((result) => {
         handleAlertOpen(`Updated ${typeString} ${updatedRow.id} successfully!`, 'success');
       })
+      .then(() => getProducts())
+      .catch((err) => handleAlertOpen(`Error updating ${typeString} ${updatedRow.id}`, 'error'));
     return updatedRow;
   }
 
   useEffect(() => {
     getProducts();
-  }, [rows]);
+  }, [type]);
 
   useEffect(() => {
-    console.log(selectedRows);
     setDisabled(selectedRows.length === 0)
   }, [selectedRows]);
 
   const handleSearch = (event) => {
-    setSearch(event.target.value.toLowerCase())
+    setSearch(event.target.value.toLowerCase().trim());
   };
 
   const handleAddProductClick = () => {
@@ -126,22 +126,14 @@ const Products = (props) => {
     setSelectedRow(null);
   };
 
-  const handleDelete = async (ids) => {
+  const handleDelete = (ids) => {
     deleteProducts(type, ids)
       .then(() => {
         handleAlertOpen(`Successfully deleted ${typeString}(s)`, 'success');
       })
+      .then(() => getProducts())
   };
 
-  // Logging
-  // useEffect(() => {
-  //   console.log(selectedRow);
-  // }, [selectedRow])
-
-  // useEffect(() => {
-  //   console.log(selectedRows)
-  // }, [selectedRows]);
-  
   let columns = [
     {
       field: 'id',
@@ -223,7 +215,7 @@ const Products = (props) => {
             type={type}
             typeString={typeString}
             addProduct={addProduct}
-            updateProducts={handleRowUpdate}
+            updateProduct={handleRowUpdate}
             handleAlertOpen={handleAlertOpen}
           />
           <ConfirmDialog
@@ -263,7 +255,8 @@ const Products = (props) => {
                   if (search === "") {
                     return row;
                   } else {
-                    return row.name.toLowerCase().includes(search);
+                    return row.name.toLowerCase().includes(search) ||
+                      row.description.toLowerCase().includes(search);
                   }
                 })}
                 columns={columns}

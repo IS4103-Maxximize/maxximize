@@ -1,18 +1,18 @@
-import MoreVert from '@mui/icons-material/MoreVert';
-import { Box, Card, CardContent, Container, IconButton, Typography } from '@mui/material';
-import { DataGrid, GridToolbar } from '@mui/x-data-grid';
-import { useEffect, useState } from 'react';
-import { Helmet } from 'react-helmet';
-import { DashboardLayout } from '../../components/dashboard-layout';
-import { NotificationAlert } from '../../components/notification-alert';
-import { QuotationDialog } from '../../components/procurement-ordering/quotation-dialog';
-import { Toolbar } from '../../components/procurement-ordering/toolbar';
-import { ConfirmDialog } from '../../components/product/confirm-dialog';
-import { ProductMenu } from '../../components/product/product-menu';
-import { deleteQuotations, fetchQuotations } from '../../helpers/procurement-ordering';
-import { quotations } from '../../__mocks__/quotations';
+import MoreVert from "@mui/icons-material/MoreVert";
+import { Box, Card, CardContent, Container, IconButton, Typography } from "@mui/material";
+import { DataGrid, GridToolbar } from "@mui/x-data-grid";
+import { useEffect, useState } from "react";
+import { Helmet } from "react-helmet";
+import { DashboardLayout } from "../../components/dashboard-layout";
+import { NotificationAlert } from "../../components/notification-alert";
+import { SalesInquiryDialog } from "../../components/procurement-ordering/sales-inquiry-dialog";
+import { SalesInquiryMenu } from "../../components/procurement-ordering/sales-inquiry.menu";
+import { SupplierDialog } from "../../components/procurement-ordering/supplier-dialog";
+import { Toolbar } from "../../components/procurement-ordering/toolbar";
+import { ConfirmDialog } from "../../components/product/confirm-dialog";
+import { deleteSalesInquiries, fetchSalesInquiries, updateSalesInquiry } from "../../helpers/procurement-ordering";
 
-const Quotation = (props) => {
+export const SalesInquiry = (props) => {
   const user = JSON.parse(localStorage.getItem('user'));
 
   // NotificationAlert helpers
@@ -70,6 +70,17 @@ const Quotation = (props) => {
     setFormDialogOpen(false);
   }
 
+  // Supplier Dialog Helpers
+  const [supplierDialogOpen, setSupplierDialogOpen] = useState(false);
+  const handleSupplierDialogOpen = () => {
+    console.log(selectedRow)
+    setSupplierDialogOpen(true);
+  }
+  const handleSupplierDialogClose = () => {
+    setSupplierDialogOpen(false);
+  }
+
+
   // Menu Helpers
   const [anchorEl, setAnchorEl] = useState(null);
   const menuOpen = Boolean(anchorEl);
@@ -95,58 +106,58 @@ const Quotation = (props) => {
     );
   };
 
-  // CRUD helpers
-  const addQuotation = (quotation) => {
-    const updatedProducts = [...rows, quotation];
-    setRows(updatedProducts);
-    console.log(quotation);
-    handleAlertOpen(`Added Quotation ${quotation.id} successfully!`, 'success');
-  }
-
-  // const handleRowUpdate = (newRow) => {
-  //   const updatedRow = {...newRow};
-  //   getQuotations();
-  //   handleAlertOpen(`Updated Quotation ${newRow.id} successfully!`, 'success');
-  //   return updatedRow;
-  // }
-
-  const handleDelete = (ids) => {
-    // delete rows
-    deleteQuotations(ids)
-      .then(() => {
-        handleAlertOpen(`Successfully deleted Quotation(s)`, 'success');
-      })
-      .then(() => getQuotations());
-  }
-
   // DataGrid Rows & Columns
   const [rows, setRows] = useState([]);
 
-  const getQuotations = async () => {
-    fetchQuotations()
-    .then(result => {
-      // filter quotations which the user's organisation created
-      const filtered = result.filter((el) => {
-        return el.salesInquiry.currentOrganisation.id === user.organisation.id;
+  const getSalesInquiries = async () => {
+    fetchSalesInquiries(user.organisation.id)
+    .then(result => setRows(result))
+    .catch(err => handleAlertOpen(`Failed to fetch Sales Inquiries`, 'error'))
+  }
+
+  const addSalesInquiry = (inquiry) => {
+    const updatedProducts = [...rows, inquiry];
+    setRows(updatedProducts);
+    console.log(inquiry);
+    handleAlertOpen(`Added Sales Inquiry ${inquiry.id} successfully!`, 'success');
+  } 
+
+  const handleRowUpdate = (newRow) => {
+    const updatedRow = {...newRow};
+    getSalesInquiries()
+    handleAlertOpen(`Updated Sales Inquiry ${newRow.id} successfully!`, 'success');
+    return updatedRow;
+  }
+
+  const handleDelete = (ids) => {
+    deleteSalesInquiries(ids)
+      .then(() => {
+        handleAlertOpen(`Successfully deleted Sales Inquiry(s)`, 'success');
       })
-      setRows(filtered);
-    })
-    .catch(err => handleAlertOpen(`Failed to fetch Quotations`, 'error'))
+      .then(() => getSalesInquiries());
   }
 
   useEffect(() => {
-    getQuotations();
-  }, [])
-
-  useEffect(() => {
-    setRows(quotations);
+    getSalesInquiries();
   }, [])
 
   const columns = [
     {
-      field: "id",
-      headerName: "Quotation ID",
+      field: 'id',
+      headerName: 'ID',
       flex: 1,
+    },
+    {
+      field: 'status',
+      headerName: 'Status',
+      flex: 1,
+    },
+    {
+      field: 'actions',
+      headerName: '',
+      flex: 1,
+      sortable: false,
+      renderCell: menuButton,
     },
   ]
 
@@ -154,7 +165,7 @@ const Quotation = (props) => {
     <>
       <Helmet>
         <title>
-          Quotation
+          Sales Inquiry
           {user && ` | ${user?.organisation?.name}`}
         </title>
       </Helmet>
@@ -173,34 +184,40 @@ const Quotation = (props) => {
             text={alertText}
             handleClose={handleAlertClose}
           />
-          <ProductMenu
+          <SalesInquiryMenu
             anchorEl={anchorEl}
             menuOpen={menuOpen}
             handleClickOpen={handleFormDialogOpen} 
             handleMenuClose={handleMenuClose}
-            handleClickViewEdit={handleEdit}
+            handleEdit={handleEdit}
+            handleSupplierDialogOpen={handleSupplierDialogOpen}
           />
           <ConfirmDialog
             open={confirmDialogOpen} 
             handleClose={handleConfirmDialogClose}
-            dialogTitle={`Delete Quotation(s)`}
-            dialogContent={`Confirm deletion of Quotation(s)?`}
+            dialogTitle={`Delete Sales Inquiry(s)`}
+            dialogContent={`Confirm deletion of Sales Inquiry(s)?`}
             dialogAction={() => {
               handleDelete(selectedRows);
             }}
           />
-          <QuotationDialog
+          <SalesInquiryDialog
             action={action}
             open={formDialogOpen}
+            string={'Sales Inquiry'}
+            inquiry={selectedRow}
+            addSalesInquiry={addSalesInquiry}
+            updateInquiry={handleRowUpdate}
             handleClose={handleFormDialogClose}
-            string={'Quotation'}
-            quotation={selectedRow}
-            addQuotation={addQuotation}
-            // update
             handleAlertOpen={handleAlertOpen}
           />
+          <SupplierDialog
+            open={supplierDialogOpen}
+            inquiry={selectedRow}
+            handleClose={handleSupplierDialogClose}
+          />
           <Toolbar 
-            name="Quotation"
+            name="Sales Inquiry"
             numRows={selectedRows.length}
             deleteDisabled={deleteDisabled}
             handleSearch={handleSearch}
@@ -220,9 +237,8 @@ const Quotation = (props) => {
                   if (search === "") {
                     return row;
                   } else {
-                    return row.id.toLowerCase().includes(search) ||
-                      row.shellOrganisation.name.toLowerCase().includes(search) ||
-                      row.product.skuCode.toLowerCase().includes(search);
+                    return row.id.toLowerCase().includes(search) || 
+                      row.status.toLowerCase().includes(search);
                   }
                 })}
                 columns={columns}
@@ -247,7 +263,7 @@ const Quotation = (props) => {
               >
                 <CardContent>
                   <Typography>
-                    {`No Quotations Found` }
+                    {`No Sales Inquiries Found` }
                   </Typography>
                 </CardContent>
               </Card>
@@ -259,10 +275,10 @@ const Quotation = (props) => {
   );
 };
 
-Quotation.getLayout = (page) => (
+SalesInquiry.getLayout = (page) => (
   <DashboardLayout>
     {page}
   </DashboardLayout>
 );
 
-export default Quotation;
+export default SalesInquiry;

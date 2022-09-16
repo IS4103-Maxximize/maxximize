@@ -3,17 +3,17 @@ import { DashboardLayout } from './components/dashboard-layout';
 import Layout from './components/Layout';
 import RequireAuth from './components/RequireAuth';
 import NotFound from './pages/404';
-import Unauthorized from './pages/unauthorized';
 import Dashboard from './pages/dashboard';
 import Login from './pages/login';
 import OrganisationSelection from './pages/organisationSelection';
 import Procurement from './pages/procurement';
 import ProcurementForecast from './pages/procurement/forecast';
-import ProcurementSalesInquiry from './pages/procurement/salesinquiry';
 import ProcurementQuotation from './pages/procurement/quotation';
 import ProcurementPurchaseOrder from './pages/procurement/purchaseorder';
 import ProcurementGoodReceipt from './pages/procurement/goodreceipt';
 import Products from './pages/products';
+import SalesInquiry from './pages/procurement/sales-inquiry';
+import Unauthorized from './pages/unauthorized';
 import WorkerManagement from './pages/workermanagement';
 import BusinessRelations from './pages/businessRelations';
 import ForgotPassword from './pages/forgotPassword';
@@ -126,8 +126,8 @@ const App = () => {
               <Route path="procurement" element={<Procurement />}></Route>
               {/* Procurement Modules */}
               <Route
-                path="procurement/salesinquiry"
-                element={<ProcurementSalesInquiry />}
+                path="procurement/sales-inquiry"
+                element={<SalesInquiry />}
               ></Route>
               <Route
                 path="procurement/quotation"
