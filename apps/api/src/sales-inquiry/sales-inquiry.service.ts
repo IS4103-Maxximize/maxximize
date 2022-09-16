@@ -71,7 +71,9 @@ export class SalesInquiryService {
         currentOrganisation: true,
         suppliers: true,
         quotations: true,
-        salesInquiryLineItems: true
+        salesInquiryLineItems: {
+          rawMaterial: true
+        }
       }
     })
   }
@@ -85,7 +87,9 @@ export class SalesInquiryService {
         currentOrganisation: true,
         suppliers: true,
         quotations: true,
-        salesInquiryLineItems: true
+        salesInquiryLineItems: {
+          rawMaterial: true
+        }
       }
     })
   }

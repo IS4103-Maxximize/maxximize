@@ -18,7 +18,7 @@ import WorkerManagement from './pages/workermanagement';
 import BusinessRelations from './pages/businessRelations';
 import ForgotPassword from './pages/forgotPassword';
 import ProtectedRoute from './pages/protectedRoute';
-import ResetPassword from './pages/resetPassword';
+import ResetPassword from './pages/resetpassword';
 
 const ROLES = {
   Admin: 'admin',
@@ -96,11 +96,13 @@ const App = () => {
               {/* Product Management */}
               <Route
                 path="raw-materials"
-                element={<Products type="raw-materials" />}
+                element={<Products type="raw-materials" key={1}/>}
+                
               ></Route>
               <Route
                 path="final-goods"
-                element={<Products type="final-goods" />}
+                element={<Products type="final-goods" key={2} />}
+                
               ></Route>
 
               {/* Procurement Forecast */}

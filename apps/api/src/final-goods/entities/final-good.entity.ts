@@ -12,6 +12,4 @@ export class FinalGood extends Product {
     @OneToOne(() => BillOfMaterial, (billOfMaterial) => billOfMaterial.finalGood)
     billOfMaterial: BillOfMaterial
 
-    @OneToMany(() => Organisation, organisation => organisation.finalGoods)
-    organisation: Organisation
 }

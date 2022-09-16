@@ -1,4 +1,5 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn, TableInheritance } from "typeorm";
+import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, TableInheritance } from "typeorm";
+import { Organisation } from "../../organisations/entities/organisation.entity";
 import { Quotation } from "../../quotations/entities/quotation.entity";
 import { MeasurementUnit } from "../enums/measurementUnit.enum";
 
@@ -31,6 +32,13 @@ export class Product {
     @Column()
     unitPrice: number;
 
+    @Column() 
+    type: string;
+
     @Column({nullable: true})
     expiry: number;
+
+    @ManyToOne(() => Organisation, organisation => organisation.rawMaterials)
+    organisation: Organisation
+    
 }

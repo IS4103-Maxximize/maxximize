@@ -47,12 +47,14 @@ export class FinalGoodsService {
     }})
   }
 
-  async findAllByOrg(organisationId: number): Promise<FinalGood[]> {
-    return this.finalGoodRepository.find({
-      where: {
-        organisation: await this.organisationsRepository.findOneByOrFail({id: organisationId})
+  async findAllByOrg(organisationId: number): Promise<Product[]> {
+    const allProducts = await this.productRepository.find({
+      relations: {
+        organisation: true
       }
     })
+    return allProducts.filter(product => product.organisation.id === organisationId && product.type === 'FinalGood')
+    
   }
 
   async findOne(id: number): Promise<FinalGood> {
