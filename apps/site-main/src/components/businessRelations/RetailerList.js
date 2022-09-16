@@ -63,6 +63,17 @@ export const RetailersList = ({orgId}) => {
   };
 
   const [openDialog, setOpenDialog] = useState(false);
+  const [openConfirmationDialog, setOpenConfirmationDialog] = useState(false)
+
+
+  const handleCloseConfirmationDialog = () => {
+    setOpenConfirmationDialog(false)
+  }
+
+  const handleOpenConfirmationDialog = () => {
+    setOpenConfirmationDialog(true)
+  }
+
 
   const handleOpenDialog = () => {
     setOpenDialog(true);
@@ -301,7 +312,7 @@ export const RetailersList = ({orgId}) => {
             orgId={orgId}
           />
 
-        <Tooltip title={'Update entry by clicking on the field to be updated'}>
+        <Tooltip title={'Update a retailer by clicking on the menu button at the end of the row'}>
           <IconButton>
             <HelpIcon />
           </IconButton>
@@ -311,15 +322,15 @@ export const RetailersList = ({orgId}) => {
           <Badge badgeContent={selectionModel.length} color="error">
             <IconButton
             disabled={disabled}
-              onClick={handleDelete}
+              onClick={handleOpenConfirmationDialog}
             >
               <DeleteIcon color="error" />
             </IconButton>
           </Badge>
         </Tooltip>
         <BusinessPartnerConfirmDialog
-                  open={handleOpenDialog}
-                  handleClose={handleCloseDialog}
+                  open={openConfirmationDialog}
+                  handleClose={handleCloseConfirmationDialog}
                   dialogTitle={`Delete retailer(s)`}
                   dialogContent={`Confirm deletion of retailer(s)?`}
                   dialogAction={() => {
