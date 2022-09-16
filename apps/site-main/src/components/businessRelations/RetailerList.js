@@ -10,6 +10,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { NotificationAlert } from '../notification-alert';
 import { UpdateRelationsDialog } from './updateRelationsDialog';
 import MoreVert from '@mui/icons-material/MoreVert';
+import { BusinessPartnerConfirmDialog } from './BusinessPartnerConfirmDialog';
 
 
 export const RetailersList = ({orgId}) => {
@@ -65,6 +66,10 @@ export const RetailersList = ({orgId}) => {
 
   const handleOpenDialog = () => {
     setOpenDialog(true);
+  };
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
   };
 
   
@@ -302,17 +307,28 @@ export const RetailersList = ({orgId}) => {
           </IconButton>
         </Tooltip>
 
-        <Tooltip title={'Delete Retailer (Single/Multiple)'}>
+        <Tooltip title={'Delete retailer (Single/Multiple)'}>
           <Badge badgeContent={selectionModel.length} color="error">
             <IconButton
             disabled={disabled}
               onClick={handleDelete}
             >
-              <DeleteIcon />
+              <DeleteIcon color="error" />
             </IconButton>
           </Badge>
         </Tooltip>
+        <BusinessPartnerConfirmDialog
+                  open={handleOpenDialog}
+                  handleClose={handleCloseDialog}
+                  dialogTitle={`Delete retailer(s)`}
+                  dialogContent={`Confirm deletion of retailer(s)?`}
+                  dialogAction={() => {
+                    const selectedIds = new Set(selectionModel);
+                    handleDelete(selectedIds);
+                  }}
+                />
       </Box>
+
       <Card>
         <Box sx={{ minWidth: 1050 }}>
           <DataGrid
