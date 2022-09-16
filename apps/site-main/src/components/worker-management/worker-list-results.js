@@ -11,6 +11,8 @@ import {
   TextField,
   InputAdornment,
   SvgIcon,
+  Menu,
+  MenuItem,
 } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -21,14 +23,44 @@ import { CreateWorkerDialog } from './create-worker-dialog';
 import { Search as SearchIcon } from '../../icons/search';
 import { NotificationAlert } from '../notification-alert';
 import { WorkerConfirmDialog } from './worker-confirm-dialog';
+import { UpdateWorkerDialog } from './update-worker-dialog';
+import MoreVert from '@mui/icons-material/MoreVert';
 
 export const WorkerListResults = () => {
   const [workers, setWorkers] = useState([]);
   const [selectionModel, setSelectionModel] = useState([]);
+  const [rowToEdit, setRowToEdit] = useState('')
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [openUpdateDialog, setOpenUpdateDialog] = useState(false);
+  const open = Boolean(anchorEl);
 
   //User organisation Id
   const user = JSON.parse(localStorage.getItem('user'));
   const organisationId = user.organisation.id;
+
+  const menuButton = (params) => {
+    return (
+      <IconButton onClick={(event) => {
+        setRowToEdit(params.row);
+        handleMenuClick(event);
+        }}>
+        <MoreVert/>
+      </IconButton>
+    );
+  };
+
+  const handleMenuClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = (type) => {
+    if (type === 'update') {
+      if (rowToEdit) {
+        setOpenUpdateDialog(true)
+      }
+    }
+    setAnchorEl(null);
+  };
 
   //Load in list of workers, initial
   useEffect(() => {
@@ -56,41 +88,17 @@ export const WorkerListResults = () => {
     }
   };
 
-  //Updating a worker entry, calling update API
-  //Also alerts user of ourcome
-  const handleRowUpdate = (newRow) => {
-    const updatedRow = { ...newRow };
-
-    const myHeaders = new Headers();
-    myHeaders.append('Content-Type', 'application/json');
-
-    const updatedRowJSON = jsonStructure(updatedRow);
-
-    const raw = JSON.stringify(updatedRowJSON);
-
-    const requestOptions = {
-      method: 'PATCH',
-      headers: myHeaders,
-      body: raw,
-      redirect: 'follow',
-    };
-
-    fetch(
-      `http://localhost:3000/api/users/updateUser/${updatedRow.id}`,
-      requestOptions
-    )
-      .then((response) => {
-        handleAlertOpen(
-          `Updated Worker ${updatedRow.id} successfully!`,
-          'success'
-        );
-      })
-      .catch((error) => {
-        handleAlertOpen(error, 'error');
-      });
-
-    return updatedRow;
-  };
+  const updateWorker = (worker) => {
+    console.log(worker)
+    const indexOfEditWorker = workers.findIndex(currentWorker => currentWorker.id === worker.id)
+    const newWorkers = [...workers]
+    newWorkers[indexOfEditWorker] = worker
+    setWorkers(newWorkers)
+    handleAlertOpen(
+      `Updated Worker ${worker.id} successfully!`,
+      'success'
+    );
+  }
 
   //Deleting a worker entry, calling update API
   //Also alerts user of ourcome
@@ -166,35 +174,39 @@ export const WorkerListResults = () => {
       field: 'id',
       headerName: 'ID',
       width: 70,
+      flex: 1,
     },
     {
       field: 'firstName',
       headerName: 'First Name',
       width: 200,
+      flex: 2,
     },
     {
       field: 'lastName',
       headerName: 'Last Name',
       width: 150,
+      flex: 2,
     },
     {
       field: 'username',
       headerName: 'Username',
       width: 250,
+      flex: 2,
     },
     {
       field: 'role',
       headerName: 'Role',
       width: 150,
-      editable: true,
       type: 'singleSelect',
+      flex: 2,
       valueOptions: ['admin', 'manager', 'factoryworker', 'driver'],
     },
     {
       field: 'phoneNumber',
       headerName: 'Contact',
       width: 150,
-      editable: true,
+      flex: 2,
       preProcessEditCellProps: (params) => {
         const hasError =
           params.props.value.length < 8 || isNaN(params.props.value);
@@ -219,7 +231,7 @@ export const WorkerListResults = () => {
       field: 'email',
       headerName: 'Email',
       width: 200,
-      editable: true,
+      flex: 2,
       preProcessEditCellProps: (params) => {
         const emailRegex =
           /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -247,7 +259,7 @@ export const WorkerListResults = () => {
       field: 'address',
       headerName: 'Address',
       width: 500,
-      editable: true,
+      flex: 3,
       preProcessEditCellProps: (params) => {
         const hasError = params.props.value.length < 1;
         if (hasError) {
@@ -270,7 +282,7 @@ export const WorkerListResults = () => {
       field: 'postalCode',
       headerName: 'Postal Code',
       width: 200,
-      editable: true,
+      flex: 2,
       preProcessEditCellProps: (params) => {
         const hasError =
           params.props.value.length !== 6 || isNaN(params.props.value);
@@ -290,10 +302,15 @@ export const WorkerListResults = () => {
         }
       },
     },
+    {
+      field: 'actions',
+      headerName: '',
+      flex: 1,
+      sortable: false,
+      renderCell: menuButton
+    }
+    
   ];
-
-  //Row for datagrid, set the list returned from API
-  const rows = workers;
 
   return (
     <>
@@ -315,6 +332,17 @@ export const WorkerListResults = () => {
                 m: -1,
               }}
             >
+              <UpdateWorkerDialog 
+              selectedRow={rowToEdit}
+              openUpdateDialog={openUpdateDialog}
+              setOpenUpdateDialog={setOpenUpdateDialog}
+              handleAlertOpen={handleAlertOpen}
+              updateWorker={updateWorker}
+              />
+
+              <Menu anchorEl={anchorEl} open={open} onClose={handleMenuClose}>
+                <MenuItem onClick={() => handleMenuClose('update')}>Update</MenuItem>
+              </Menu>
               {/* Search Bar */}
               {/* <Stack direction="row" spacing={1}>
                 <TextField
@@ -396,7 +424,7 @@ export const WorkerListResults = () => {
           <Box sx={{ minWidth: 1050 }}>
             <DataGrid
               autoHeight
-              rows={rows}
+              rows={workers}
               //   {rows.filter((row) => {
               //     if (search === '') {
               //       return row;
@@ -418,7 +446,6 @@ export const WorkerListResults = () => {
               }}
               //editMode="row"
               experimentalFeatures={{ newEditingApi: true }}
-              processRowUpdate={handleRowUpdate}
             />
           </Box>
         </Card>

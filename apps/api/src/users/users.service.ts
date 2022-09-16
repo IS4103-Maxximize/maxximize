@@ -137,9 +137,6 @@ export class UsersService {
 
   async update(id: number, updateUserDto: UpdateUserDto) {
     const user = await this.findOne(id);
-    user.firstName = updateUserDto.firstName;
-    user.lastName = updateUserDto.lastName;
-    user.isActive = updateUserDto.isActive;
     user.role = updateUserDto.role;
 
     const updateContactDto = new UpdateContactDto();
@@ -147,7 +144,8 @@ export class UsersService {
     updateContactDto.email = updateUserDto.contact.email;
     updateContactDto.phoneNumber = updateUserDto.contact.phoneNumber;
     updateContactDto.postalCode = updateUserDto.contact.postalCode;
-    this.contactsService.update(user.contact.id, updateContactDto);
+    const newContact = await this.contactsService.update(user.contact.id, updateContactDto);
+    user.contact = newContact
 
     return this.usersRepository.save(user);
   }
