@@ -1,17 +1,16 @@
-import {
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-} from '@mui/material';
-import { DataGrid } from '@mui/x-data-grid';
-import { useFormik } from 'formik';
-import { useEffect, useState } from 'react';
-import { fetchSuppliers } from '../../helpers/procurement-ordering';
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material";
+import { DataGrid } from "@mui/x-data-grid";
+import { useFormik } from "formik";
+import { useEffect, useState } from "react";
+import { fetchSuppliers } from "../../helpers/procurement-ordering";
 
-export const SupplierDialog = (props) => {
-  const { action, open, handleClose, inquiry } = props;
+export const SupplierDialog = (props) =>{
+  const {
+    action,
+    open,
+    handleClose,
+    inquiry,
+  } = props
 
   // Formik Helpers
   let initialValues = {

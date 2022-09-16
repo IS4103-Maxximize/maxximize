@@ -57,12 +57,14 @@ export class QuotationsService {
     return this.quotationsRepository.find({
       relations: {
         shellOrganisation: true,
-        salesInquiry: true,
         quotationLineItems: {
-          rawMaterial: true,
+          rawMaterial: true
         },
-      },
-    });
+        salesInquiry: {
+          currentOrganisation: true
+        }
+      }
+    })
   }
 
   async findAllBySalesInquiry(salesInquiryId: number): Promise<Quotation[]> {
@@ -74,12 +76,14 @@ export class QuotationsService {
       },
       relations: {
         shellOrganisation: true,
-        salesInquiry: true,
         quotationLineItems: {
-          rawMaterial: true,
+          rawMaterial: true
         },
-      },
-    });
+        salesInquiry: {
+          currentOrganisation: true
+        }
+      }
+    })
   }
 
   findOne(id: number): Promise<Quotation> {

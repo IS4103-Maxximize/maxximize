@@ -1,5 +1,4 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { MeasurementUnit } from '../../products/enums/measurementUnit.enum';
 import { RawMaterial } from '../../raw-materials/entities/raw-material.entity';
 import { SalesInquiry } from '../../sales-inquiry/entities/sales-inquiry.entity';
 
