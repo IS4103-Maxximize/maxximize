@@ -86,7 +86,7 @@ export const SalesInquiryDialog = (props) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const result = await fetchProducts('raw-materials');
+      const result = await fetchProducts('raw-materials', user.organisation.id);
       // console.log(formik.values.lineItems)
       const data = result.filter(el => formik.values.lineItems.map((item) => item.rawMaterial.skuCode).includes(el.skuCode) ? null : el);
       setOptions(data);
