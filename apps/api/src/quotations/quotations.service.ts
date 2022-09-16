@@ -22,26 +22,34 @@ export class QuotationsService {
     @InjectRepository(Quotation)
     private readonly quotationsRepository: Repository<Quotation>,
     @InjectRepository(QuotationLineItem)
-    private readonly quotationLineItemsRepository: Repository<QuotationLineItem>,
+    private readonly quotationLineItemsRepository: Repository<QuotationLineItem>
   ) {}
 
   async create(createQuotationDto: CreateQuotationDto): Promise<Quotation> {
     try {
-      const { salesInquiryId, shellOrganisationId } = createQuotationDto
-      let shellOrganisationToBeAdded: ShellOrganisation
-      let salesInquiryToBeAdded: SalesInquiry
-      shellOrganisationToBeAdded = await this.shellOrganisationsRepository.findOneByOrFail({id: shellOrganisationId})
-      salesInquiryToBeAdded = await this.salesInquiriesRepository.findOneByOrFail({id: salesInquiryId})
+      const { salesInquiryId, shellOrganisationId } = createQuotationDto;
+      let shellOrganisationToBeAdded: ShellOrganisation;
+      let salesInquiryToBeAdded: SalesInquiry;
+      shellOrganisationToBeAdded =
+        await this.shellOrganisationsRepository.findOneByOrFail({
+          id: shellOrganisationId,
+        });
+      salesInquiryToBeAdded =
+        await this.salesInquiriesRepository.findOneByOrFail({
+          id: salesInquiryId,
+        });
       const newQuotation = this.quotationsRepository.create({
         created: new Date(),
         totalPrice: 0,
         salesInquiry: salesInquiryToBeAdded,
         shellOrganisation: shellOrganisationToBeAdded,
-        quotationLineItems: []
-      })
-      return this.quotationsRepository.save(newQuotation)
+        quotationLineItems: [],
+      });
+      return this.quotationsRepository.save(newQuotation);
     } catch (error) {
-      throw new NotFoundException('either product code or Shell org id cannot be found')
+      throw new NotFoundException(
+        'either product code or Shell org id cannot be found'
+      );
     }
   }
 
@@ -50,48 +58,62 @@ export class QuotationsService {
       relations: {
         shellOrganisation: true,
         salesInquiry: true,
-        quotationLineItems: true
-      }
-    })
+        quotationLineItems: {
+          rawMaterial: true,
+        },
+      },
+    });
   }
 
   async findAllBySalesInquiry(salesInquiryId: number): Promise<Quotation[]> {
     return this.quotationsRepository.find({
       where: {
-        salesInquiry: await this.salesInquiriesRepository.findOneByOrFail({id: salesInquiryId})
+        salesInquiry: await this.salesInquiriesRepository.findOneByOrFail({
+          id: salesInquiryId,
+        }),
       },
       relations: {
         shellOrganisation: true,
         salesInquiry: true,
-        quotationLineItems: true
-      }
-    })
+        quotationLineItems: {
+          rawMaterial: true,
+        },
+      },
+    });
   }
 
   findOne(id: number): Promise<Quotation> {
-    return this.quotationsRepository.findOne({where: {
-      id
-    }, relations: {
-      shellOrganisation: true,
-      salesInquiry: true,
-      quotationLineItems: true
-    }})
+    return this.quotationsRepository.findOne({
+      where: {
+        id,
+      },
+      relations: {
+        shellOrganisation: true,
+        salesInquiry: true,
+        quotationLineItems: {
+          rawMaterial: true,
+        },
+      },
+    });
   }
 
-  async update(id: number, updateQuotationDto: UpdateQuotationDto): Promise<Quotation> {
+  async update(
+    id: number,
+    updateQuotationDto: UpdateQuotationDto
+  ): Promise<Quotation> {
     //update lot quantity, lot price, unit
     //shell org and product should remain the same!
 
-    const quotationToUpdate = await this.quotationsRepository.findOneBy({id})
-    const arrayOfKeyValues = Object.entries(updateQuotationDto)
+    const quotationToUpdate = await this.quotationsRepository.findOneBy({ id });
+    const arrayOfKeyValues = Object.entries(updateQuotationDto);
     arrayOfKeyValues.forEach(([key, value]) => {
-      quotationToUpdate[key] = value
-    })
-    return this.quotationsRepository.save(quotationToUpdate)
+      quotationToUpdate[key] = value;
+    });
+    return this.quotationsRepository.save(quotationToUpdate);
   }
 
   async remove(id: number): Promise<Quotation> {
-    const quotationToRemove = await this.quotationsRepository.findOneBy({id})
-    return this.quotationsRepository.remove(quotationToRemove)
+    const quotationToRemove = await this.quotationsRepository.findOneBy({ id });
+    return this.quotationsRepository.remove(quotationToRemove);
   }
 }

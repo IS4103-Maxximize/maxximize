@@ -7,8 +7,15 @@ import { AppService } from './app.service';
 @Controller()
 export class AppController {
   constructor(
+    private appService: AppService,
     private authService: AuthService,
   ) {}
+
+  @Get()
+  async dataInit() {
+    await this.appService.dataInit()
+    return 'Data init completed'
+  }
 
   @UseGuards(LocalAuthGuard)
   @Post('auth/login')

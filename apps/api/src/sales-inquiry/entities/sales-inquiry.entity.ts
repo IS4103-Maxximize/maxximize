@@ -32,7 +32,9 @@ export class SalesInquiry {
     @OneToMany(() => Quotation, quotation => quotation.salesInquiry)
     quotations: Quotation[]
 
-    @OneToMany(() => SalesInquiryLineItem, salesInquiryLineItem => salesInquiryLineItem.salesInquiry)
+    @OneToMany(() => SalesInquiryLineItem, salesInquiryLineItem => salesInquiryLineItem.salesInquiry, {
+        cascade: true
+    })
     salesInquiryLineItems: SalesInquiryLineItem[]
 
     @OneToOne(() => Quotation, { nullable: true })

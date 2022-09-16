@@ -26,6 +26,11 @@ export class SalesInquiryController {
     return this.salesInquiryService.findAll();
   }
 
+  @Get('all/:id')
+  findAllByOrg(@Param('id') id: string) {
+    return this.salesInquiryService.findAllByOrg(+id);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.salesInquiryService.findOne(+id);
@@ -44,11 +49,10 @@ export class SalesInquiryController {
     return this.salesInquiryService.remove(+id);
   }
 
-  @Post('add')
+  @Post('addSupplier')
   addSupplier(
     @Body() addSupplierDto: AddSupplierDto
     ){
-      console.log(addSupplierDto)
       return this.salesInquiryService.addSupplier(addSupplierDto)
     }
 }

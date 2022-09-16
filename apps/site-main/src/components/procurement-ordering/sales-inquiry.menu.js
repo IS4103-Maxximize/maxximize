@@ -1,25 +1,27 @@
 import SearchIcon from "@mui/icons-material/Search";
+import SendIcon from '@mui/icons-material/Send';
 import { ListItemIcon, ListItemText, Menu, MenuItem, MenuList } from "@mui/material";
 
 
-export const ProductMenu = (props) => {
+export const SalesInquiryMenu = (props) => {
   const {
     anchorEl, 
     menuOpen, 
     handleClickOpen, 
-    handleMenuClose, 
-    handleClickViewEdit
+    handleMenuClose,
+    handleEdit,
+    handleSupplierDialogOpen,
   } = props;
+
   return (
     <Menu 
       anchorEl={anchorEl}
       open={menuOpen}
       onClose={handleMenuClose}
-      handleClickViewEdit={handleClickViewEdit}
     >
       <MenuList>
         <MenuItem onClick={() => {
-          handleClickViewEdit();
+          handleEdit();
           handleClickOpen();
           handleMenuClose();
         }}>
@@ -28,6 +30,17 @@ export const ProductMenu = (props) => {
           </ListItemIcon>
           <ListItemText>
             View/Edit Details
+          </ListItemText>
+        </MenuItem>
+        <MenuItem onClick={() => {
+          handleSupplierDialogOpen();
+          handleMenuClose();
+        }}>
+          <ListItemIcon>
+            <SendIcon />
+          </ListItemIcon>
+          <ListItemText>
+            Send Suppliers
           </ListItemText>
         </MenuItem>
       </MenuList>

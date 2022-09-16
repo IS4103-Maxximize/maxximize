@@ -1,11 +1,16 @@
-import { apiHost, headers } from "../constants"
+import { apiHost, headers } from '../constants';
 
-export const fetchProducts = async (type) => {
-  const apiUrl = `${apiHost}/${type}`;
-  return await fetch(apiUrl).then(response => response.json());
-}
+export const fetchProducts = async (type, organisationId) => {
+  console.log(organisationId);
+  const apiUrl = `${apiHost}/${type}/orgId/${organisationId}`;
+  const result = await fetch(apiUrl);
 
-export const createProduct = async (type, values) => {
+  const products = await result.json();
+
+  return products;
+};
+
+export const createProduct = async (type, values, organisationId) => {
   const apiUrl = `${apiHost}/${type}`;
   let body = {
     name: values.name,
@@ -13,23 +18,26 @@ export const createProduct = async (type, values) => {
     unit: values.unit,
     unitPrice: values.unitPrice,
     expiry: values.expiry,
+    organisationId: organisationId,
   };
 
   if (type === 'final-goods') {
     body = {
       ...body,
       lotQuantity: values.lotQuantity,
-    }
+    };
   }
 
   body = JSON.stringify(body);
-  
+
   const requestOptions = {
     method: 'POST',
     headers: headers,
     body: body,
   };
-  return await fetch(apiUrl, requestOptions).then(response => response.json());
+  return await fetch(apiUrl, requestOptions).then((response) =>
+    response.json()
+  );
 };
 
 export const updateProduct = async (id, type, values) => {
@@ -46,7 +54,7 @@ export const updateProduct = async (id, type, values) => {
     body = {
       ...body,
       lotQuantity: values.lotQuantity,
-    }
+    };
   }
 
   body = JSON.stringify(body);
@@ -56,7 +64,9 @@ export const updateProduct = async (id, type, values) => {
     headers: headers,
     body: body,
   };
-  return await fetch(apiUrl, requestOptions).then(response => response.json());
+  return await fetch(apiUrl, requestOptions).then((response) =>
+    response.json()
+  );
 };
 
 const deleteProduct = async (type, id) => {
@@ -64,11 +74,11 @@ const deleteProduct = async (type, id) => {
   const requestOptions = {
     method: 'DELETE',
   };
-  fetch(apiUrl, requestOptions)
-}
+  fetch(apiUrl, requestOptions);
+};
 
 export const deleteProducts = async (type, ids) => {
   ids.forEach((id) => {
     deleteProduct(type, id);
   });
-}
+};
