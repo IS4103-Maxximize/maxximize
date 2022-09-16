@@ -5,5 +5,4 @@ export class UpdateSalesInquiryLineItemDto extends PartialType(
   CreateSalesInquiryLineItemDto
 ) {
   quantity?: number;
-  indicativePrice?: number;
 }

@@ -2,6 +2,8 @@ import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import DoneAllIcon from '@mui/icons-material/DoneAll';
 import RawOnIcon from '@mui/icons-material/RawOn';
 import CorporateFareIcon from '@mui/icons-material/CorporateFare';
+import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
+import RequestQuoteIcon from '@mui/icons-material/RequestQuote';
 import {
   Box,
   Button,
@@ -47,6 +49,24 @@ const items = [
     title: 'Business Relations',
     access: ['admin', 'superadmin'],
   },
+  {
+    href: '/procurement/sales-inquiry',
+    icon: <QuestionAnswerIcon fontSize="small" />,
+    title: 'Sales Inquiry',
+    access: [
+      'superadmin',
+      'manager',
+    ],
+  },
+  {
+    href: '/procurement/quotation',
+    icon: <RequestQuoteIcon fontSize="small" />,
+    title: 'Quotation Management',
+    access: [
+      'superadmin',
+      'manager',
+    ],
+  }
 ];
 
 export const DashboardSidebar = (props) => {

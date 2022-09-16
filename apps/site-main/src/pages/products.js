@@ -1,27 +1,34 @@
 import MoreVert from '@mui/icons-material/MoreVert';
 import {
-  Box, Card, CardContent,
-  Container, IconButton, Typography
+  Box,
+  Card,
+  CardContent,
+  Container,
+  IconButton,
+  Typography,
 } from '@mui/material';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import { useEffect, useState } from 'react';
-import { Helmet } from "react-helmet";
+import { Helmet } from 'react-helmet';
 import { DashboardLayout } from '../components/dashboard-layout';
 import { NotificationAlert } from '../components/notification-alert';
 import { ConfirmDialog } from '../components/product/confirm-dialog';
 import { ProductDialog } from '../components/product/product-dialog';
 import { ProductListToolbar } from '../components/product/product-list-toolbar';
 import { ProductMenu } from '../components/product/product-menu';
-import { deleteProducts, fetchProducts, updateProduct } from '../helpers/products';
-
+import {
+  deleteProducts,
+  fetchProducts,
+  updateProduct,
+} from '../helpers/products';
 
 const Products = (props) => {
   const user = JSON.parse(localStorage.getItem('user'));
-  const organisationId = user.organisation.id
+  const organisationId = user.organisation.id;
 
   // Page View
   const { type } = props;
-  const typeString = type ==='raw-materials' ? 'Raw Material' : 'Final Good'
+  const typeString = type === 'raw-materials' ? 'Raw Material' : 'Final Good';
 
   // NotificationAlert helpers
   const [alertOpen, setAlertOpen] = useState(false);
@@ -52,10 +59,10 @@ const Products = (props) => {
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const handleConfirmDialogOpen = () => {
     setConfirmDialogOpen(true);
-  }
+  };
   const handleConfirmDialogClose = () => {
     setConfirmDialogOpen(false);
-  }
+  };
 
   // Menu helpers
   const [anchorEl, setAnchorEl] = useState(null);
@@ -72,65 +79,73 @@ const Products = (props) => {
 
   const menuButton = (params) => {
     return (
-      <IconButton onClick={(event) => {
-        setSelectedRow(params.row);
-        handleMenuClick(event);
-        }}>
-        <MoreVert/>
+      <IconButton
+        onClick={(event) => {
+          setSelectedRow(params.row);
+          handleMenuClick(event);
+        }}
+      >
+        <MoreVert />
       </IconButton>
     );
   };
-  
+
   const [rows, setRows] = useState([]);
   const [selectedRow, setSelectedRow] = useState();
   const [selectedRows, setSelectedRows] = useState([]);
   const [disabled, setDisabled] = useState();
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState('');
 
   const getProducts = async () => {
     fetchProducts(type, organisationId)
       .then((result) => setRows(result))
-      .catch((err) => handleAlertOpen(`Failed to fetch ${typeString}s`, 'error'));
-  }
+      .catch((err) =>
+        handleAlertOpen(`Failed to fetch ${typeString}s`, 'error')
+      );
+  };
 
   const addProduct = (product) => {
     const updatedProducts = [...rows, product];
     setRows(updatedProducts);
-    handleAlertOpen(`Added ${typeString} ${product.id} successfully!`, 'success');
-  } 
+    handleAlertOpen(
+      `Added ${typeString} ${product.id} successfully!`,
+      'success'
+    );
+  };
 
   const updateRow = (updatedProduct) => {
-    const currentIndex = rows.findIndex(row => row.id === updatedProduct.id)
-    const newRows = [...rows]
-    newRows[currentIndex] = updatedProduct
-    console.log(newRows)
-    setRows(newRows)
-  }
+    const currentIndex = rows.findIndex((row) => row.id === updatedProduct.id);
+    const newRows = [...rows];
+    newRows[currentIndex] = updatedProduct;
+    console.log(newRows);
+    setRows(newRows);
+  };
 
   useEffect(() => {
     getProducts();
   }, []);
 
   useEffect(() => {
-    setDisabled(selectedRows.length === 0)
+    setDisabled(selectedRows.length === 0);
   }, [selectedRows]);
 
   const handleSearch = (event) => {
-    setSearch(event.target.value.toLowerCase())
+    setSearch(event.target.value.toLowerCase().trim());
   };
 
   const handleAddProductClick = () => {
-    setAction('POST')
+    setAction('POST');
     setSelectedRow(null);
   };
 
   const handleDelete = async (ids) => {
-    const newRows = rows.filter(row => !ids.includes(row.id))
-    setRows(newRows)
+    const newRows = rows.filter((row) => !ids.includes(row.id));
+    setRows(newRows);
     deleteProducts(type, ids)
       .then(() => {
         handleAlertOpen(`Successfully deleted ${typeString}(s)`, 'success');
       })
+      .then(() => getProducts());
   };
 
   // Logging
@@ -141,7 +156,7 @@ const Products = (props) => {
   // useEffect(() => {
   //   console.log(selectedRows)
   // }, [selectedRows]);
-  
+
   let columnsForFinalGoods = [
     {
       field: 'id',
@@ -168,15 +183,15 @@ const Products = (props) => {
     },
     {
       field: 'unitPrice',
-      headerName: 'Unit Price'
+      headerName: 'Unit Price',
     },
     {
       field: 'expiry',
-      headerName: 'Expiry (days)'
-    }, 
+      headerName: 'Expiry (days)',
+    },
     {
       field: 'lotQuantity',
-      headerName: 'Lot Quantity'
+      headerName: 'Lot Quantity',
     },
     {
       field: 'actions',
@@ -213,12 +228,12 @@ const Products = (props) => {
     },
     {
       field: 'unitPrice',
-      headerName: 'Unit Price'
+      headerName: 'Unit Price',
     },
     {
       field: 'expiry',
-      headerName: 'Expiry (days)'
-    }, 
+      headerName: 'Expiry (days)',
+    },
     {
       field: 'actions',
       headerName: 'actions',
@@ -251,10 +266,10 @@ const Products = (props) => {
             text={alertText}
             handleClose={handleAlertClose}
           />
-          <ProductDialog 
+          <ProductDialog
             organisationId={organisationId}
             action={action}
-            open={open} 
+            open={open}
             handleClose={handleClose}
             product={selectedRow}
             type={type}
@@ -264,7 +279,7 @@ const Products = (props) => {
             handleAlertOpen={handleAlertOpen}
           />
           <ConfirmDialog
-            open={confirmDialogOpen} 
+            open={confirmDialogOpen}
             handleClose={handleConfirmDialogClose}
             dialogTitle={`Delete ${typeString}(s)`}
             dialogContent={`Confirm deletion of ${typeString}(s)?`}
@@ -272,14 +287,14 @@ const Products = (props) => {
               handleDelete(selectedRows);
             }}
           />
-          <ProductMenu 
+          <ProductMenu
             anchorEl={anchorEl}
             menuOpen={menuOpen}
             handleClickOpen={handleClickOpen}
             handleMenuClose={handleMenuClose}
             handleClickViewEdit={handleClickViewEdit}
           />
-          <ProductListToolbar 
+          <ProductListToolbar
             disabled={disabled}
             numProducts={selectedRows.length}
             type={type}
@@ -293,17 +308,24 @@ const Products = (props) => {
               mt: 3,
             }}
           >
-            {rows.length > 0 ?
+            {rows.length > 0 ? (
               <DataGrid
                 autoHeight
                 rows={rows.filter((row) => {
-                  if (search === "") {
+                  if (search === '') {
                     return row;
                   } else {
-                    return row.name.toLowerCase().includes(search);
+                    return (
+                      row.name.toLowerCase().includes(search) ||
+                      row.description.toLowerCase().includes(search)
+                    );
                   }
                 })}
-                columns={type === 'raw-materials' ? columnsForRawMaterials : columnsForFinalGoods}
+                columns={
+                  type === 'raw-materials'
+                    ? columnsForRawMaterials
+                    : columnsForFinalGoods
+                }
                 pageSize={10}
                 rowsPerPageOptions={[10]}
                 checkboxSelection
@@ -316,31 +338,25 @@ const Products = (props) => {
                 }}
                 experimentalFeatures={{ newEditingApi: true }}
               />
-              :
-              <Card 
+            ) : (
+              <Card
                 variant="outlined"
                 sx={{
-                  textAlign: "center",
+                  textAlign: 'center',
                 }}
               >
                 <CardContent>
-                  <Typography>
-                    {`No ${typeString}s Found` }
-                  </Typography>
+                  <Typography>{`No ${typeString}s Found`}</Typography>
                 </CardContent>
               </Card>
-            }
+            )}
           </Box>
         </Container>
       </Box>
     </>
-  )
+  );
 };
 
-Products.getLayout = (page) => (
-  <DashboardLayout>
-    {page}
-  </DashboardLayout>
-);
+Products.getLayout = (page) => <DashboardLayout>{page}</DashboardLayout>;
 
 export default Products;

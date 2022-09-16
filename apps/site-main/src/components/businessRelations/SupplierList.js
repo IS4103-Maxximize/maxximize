@@ -186,7 +186,7 @@ export const SuppliersList = ({orgId}) => {
       width: 200,
       editable: true,
       valueGetter: (params) => {
-        if (params.row.contact.address) {
+        if (params.row.contact) {
             return params.row.contact.address
         } else {
             return ''
@@ -199,10 +199,10 @@ export const SuppliersList = ({orgId}) => {
       width: 150,
       editable: true,
       valueGetter: (params) => {
-        if (params.row?.contact?.phoneNumber) {
+        if (params.row.contact) {
             return params.row.contact.phoneNumber
         } else {
-            ''
+            return ''
         }
       }
     },
@@ -212,7 +212,7 @@ export const SuppliersList = ({orgId}) => {
       width: 200,
       editable: true,
       valueGetter: (params) => {
-        if (params.row.contact.email) {
+        if (params.row.contact) {
             return params.row.contact.email
         } else {
             return ''
@@ -225,7 +225,7 @@ export const SuppliersList = ({orgId}) => {
       width: 200,
       editable: true,
       valueGetter: (params) => {
-        if (params.row.contact.postalCode) {
+        if (params.row.contact) {
             return params.row.contact.postalCode
         } else {
             return ''

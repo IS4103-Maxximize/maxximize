@@ -8,19 +8,19 @@ import {
 import { Search as SearchIcon } from '../../icons/search';
 
 
-export const ProductListToolbar = (props) => {
+export const Toolbar = (props) => {
   const {
-    disabled,
-    numProducts,
-    type,
-    handleClickOpen,
-    handleConfirmDialogOpen,
+    name,
+    numRows,
+    deleteDisabled,
     handleSearch,
-    handleAddProductClick,
+    handleAdd,
+    handleFormDialogOpen,
+    handleConfirmDialogOpen,
   } = props;
 
   return (
-    <Box>
+    <Box {...props}>
       <Box
         sx={{
           alignItems: 'center',
@@ -34,8 +34,7 @@ export const ProductListToolbar = (props) => {
           sx={{ m: 1 }}
           variant="h4"
         >
-          {type === 'raw-materials' && 'Raw Materials'}
-          {type === 'final-goods' && 'Final Goods'}
+          {name}
         </Typography>
       </Box>
       <Box sx={{ mt: 3 }}>
@@ -67,7 +66,7 @@ export const ProductListToolbar = (props) => {
                     </InputAdornment>
                   )
                 }}
-                placeholder="Search product"
+                placeholder={`Search ${name}`}
                 variant="outlined"
                 type="search"
                 onChange={handleSearch}
@@ -76,13 +75,13 @@ export const ProductListToolbar = (props) => {
               
               <Box sx={{ m: 1 }}>
                 <Tooltip 
-                  title={`Add ${type === 'raw-materials' ? 'Raw Material' : 'Final Good'}`}
+                  title={`Add ${name}`}
                 >
                   <IconButton
                     color="primary"
                     onClick={() => {
-                      handleAddProductClick();
-                      handleClickOpen();
+                      handleAdd();
+                      handleFormDialogOpen();
                     }}
                     sx={{ mr: 1}}
                   >
@@ -90,14 +89,15 @@ export const ProductListToolbar = (props) => {
                   </IconButton>
                 </Tooltip>
                 <Tooltip
-                  title={`Delete ${type === 'raw-materials' ? 'Raw Material(s)' : 'Final Good(s)'}`}
+                  title={`Delete ${name}(s)`}
+                  disableHoverListener={deleteDisabled}
                 >
                   <IconButton
-                    disabled={disabled}
                     color="error"
+                    disabled={deleteDisabled}
                     onClick={handleConfirmDialogOpen}
                   >
-                    <Badge badgeContent={numProducts} color="error">
+                    <Badge badgeContent={numRows} color="error">
                       <DeleteIcon />
                     </Badge>
                   </IconButton>
