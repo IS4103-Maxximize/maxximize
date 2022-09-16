@@ -35,7 +35,12 @@ const Login = () => {
       );
       if (res.status === 200 || res.status === 201) {
         const result = await res.json();
-        setOrganisation(result);
+        if (localStorage.getItem('user')) {
+          //user is already logged in
+          navigate('/', { replace: true });
+        } else {
+          setOrganisation(result);
+        }
       } else {
         navigate('/organisationSelection', { replace: true });
       }
