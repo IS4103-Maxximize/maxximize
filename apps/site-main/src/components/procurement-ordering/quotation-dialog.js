@@ -84,19 +84,11 @@ export const QuotationDialog = (props) => {
   
   useEffect(() => {
     const fetchData = async () => {
-      let suppliers = await fetchSuppliers();
       let salesInquiries = await fetchSalesInquiries(user.organisation.id);
-     
-      setSuppliers(suppliers);
       setSalesInquiries(salesInquiries);
-
-      setSupplierOptions(suppliers.map(el => el.id));
       setSalesInquiryOptions(salesInquiries.map(el => el.id));
     }
     fetchData();
-    // console.log(salesInquiries)
-    // console.log(suppliers)
-
     // Calculate total price
     formik.setFieldValue('totalPrice', 
     formik.values.quotationLineItems.reduce((a, b) => {
@@ -245,6 +237,21 @@ export const QuotationDialog = (props) => {
             disabled
           />
           <Stack direction="row" spacing={1}>
+            <Autocomplete 
+              id="sales-inquiry-selector"
+              sx={{ width: 300, mb: 1 }}
+              options={salesInquiryOptions}
+              value={formik.values.salesInquiryId}
+              onChange={(event, newValue) => {
+                formik.setFieldValue('salesInquiryId', newValue);
+                console.log(newValue);
+                console.log(salesInquiries);
+                const si = salesInquiries.find(el => el.id === newValue);
+                setSupplierOptions(si.suppliers);
+              }}
+              getOptionLabel={(option) => option.toString(10)}
+              renderInput={(params) => <TextField {...params} label="Sales Inquiry ID"/>}
+            />
             {/* Supplier Selection */}
             <Autocomplete 
               id="supplier-selector"
@@ -256,17 +263,6 @@ export const QuotationDialog = (props) => {
               }}
               getOptionLabel={(option) => option.toString(10)}
               renderInput={(params) => <TextField {...params} label="Suppliers ID"/>}
-            />
-            <Autocomplete 
-              id="sales-inquiry-selector"
-              sx={{ width: 300, mb: 1 }}
-              options={salesInquiryOptions}
-              value={formik.values.salesInquiryId}
-              onChange={(event, newValue) => {
-                formik.setFieldValue('salesInquiryId', newValue);
-              }}
-              getOptionLabel={(option) => option.toString(10)}
-              renderInput={(params) => <TextField {...params} label="Sales Inquiry ID"/>}
             />
           </Stack>
           <DataGrid
