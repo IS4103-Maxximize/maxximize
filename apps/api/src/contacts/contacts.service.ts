@@ -13,10 +13,6 @@ export class ContactsService {
   ) {}
 
   async create(createContactDto: CreateContactDto): Promise<Contact> {
-    const allContactsEmails = (await this.findAll()).map(contact => contact.email)
-    if (allContactsEmails.includes(createContactDto.email)) {
-      throw new NotFoundException('Email already exists!')
-    }
     const contact = new Contact();
     contact.phoneNumber = createContactDto.phoneNumber;
     contact.email = createContactDto.email;
