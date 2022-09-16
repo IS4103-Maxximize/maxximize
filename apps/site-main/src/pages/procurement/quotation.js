@@ -88,6 +88,7 @@ const Quotation = (props) => {
   const menuButton = (params) => {
     return (
       <IconButton onClick={(event) => {
+        console.log(params.row)
         setSelectedRow(params.row);
         handleMenuClick(event);
         }}>
@@ -143,6 +144,10 @@ const Quotation = (props) => {
     setRows(quotations);
   }, [])
 
+  useEffect(() => {
+    console.log(rows);
+  }, [rows])
+
   const columns = [
     {
       field: "id",
@@ -170,6 +175,11 @@ const Quotation = (props) => {
       headerName: "Quotation Total Price",
       flex: 2,
     },
+    {
+      field: "actions",
+      flex: 1,
+      renderCell: menuButton
+    }
   ]
 
   return (
