@@ -2,20 +2,12 @@ import { Controller, Get, Post, Request, UseGuards } from '@nestjs/common';
 import { AuthService } from '../auth/auth.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { LocalAuthGuard } from '../auth/local-auth.guard';
-import { AppService } from './app.service';
 
 @Controller()
 export class AppController {
   constructor(
-    private appService: AppService,
     private authService: AuthService,
   ) {}
-
-  @Get()
-  async dataInit() {
-    await this.appService.dataInit()
-    return 'Data init completed'
-  }
 
   @UseGuards(LocalAuthGuard)
   @Post('auth/login')

@@ -169,21 +169,25 @@ export const SuppliersList = ({orgId}) => {
       field: 'id',
       headerName: 'Supplier ID',
       width: 150,
+      flex: 1
     },
     {
       field: 'name',
       headerName: 'Name',
       width: 200,
+      flex: 2
     },
     {
       field: 'uen',
       headerName: 'UEN',
       width: 200,
+      flex: 1
     },
     {
       field: 'address',
       headerName: 'Address',
       width: 200,
+      flex: 3,
       editable: true,
       valueGetter: (params) => {
         if (params.row.contact) {
@@ -197,6 +201,7 @@ export const SuppliersList = ({orgId}) => {
       field: 'phoneNumber',
       headerName: 'Contact',
       width: 150,
+      flex: 2,
       editable: true,
       valueGetter: (params) => {
         if (params.row.contact) {
@@ -210,6 +215,7 @@ export const SuppliersList = ({orgId}) => {
       field: 'email',
       headerName: 'Email',
       width: 200,
+      flex: 3,
       editable: true,
       valueGetter: (params) => {
         if (params.row.contact) {
@@ -223,6 +229,7 @@ export const SuppliersList = ({orgId}) => {
       field: 'postalCode',
       headerName: 'Postal Code',
       width: 200,
+      flex: 1,
       editable: true,
       valueGetter: (params) => {
         if (params.row.contact) {
