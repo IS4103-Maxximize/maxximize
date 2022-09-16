@@ -163,6 +163,14 @@ const Quotation = (props) => {
       }
     },
     {
+      field: "supplierId",
+      headerName: "Supplier ID",
+      flex: 1,
+      valueGetter: (params) => {
+        return params.row.shellOrganisation.id;
+      }
+    },
+    {
       field: "supplierName",
       headerName: "Supplier Name",
       flex: 3,
