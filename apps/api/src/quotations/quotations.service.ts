@@ -50,7 +50,9 @@ export class QuotationsService {
       relations: {
         shellOrganisation: true,
         salesInquiry: true,
-        quotationLineItems: true
+        quotationLineItems: {
+          rawMaterial: true
+        }
       }
     })
   }
@@ -63,7 +65,9 @@ export class QuotationsService {
       relations: {
         shellOrganisation: true,
         salesInquiry: true,
-        quotationLineItems: true
+        quotationLineItems: {
+          rawMaterial: true
+        }
       }
     })
   }
@@ -74,7 +78,9 @@ export class QuotationsService {
     }, relations: {
       shellOrganisation: true,
       salesInquiry: true,
-      quotationLineItems: true
+      quotationLineItems: {
+        rawMaterial: true
+      }
     }})
   }
 
