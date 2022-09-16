@@ -9,7 +9,7 @@ import { Quotation } from '../quotations/entities/quotation.entity';
 import { RawMaterial } from '../raw-materials/entities/raw-material.entity';
 import { SalesInquiryLineItem } from '../sales-inquiry-line-items/entities/sales-inquiry-line-item.entity';
 import { ShellOrganisation } from '../shell-organisations/entities/shell-organisation.entity';
-import { AddSupplierDto } from './dto/add-supplier.dto';
+import { SendEmailDto } from './dto/send-email.dto';
 import { CreateSalesInquiryDto } from './dto/create-sales-inquiry.dto';
 import { UpdateSalesInquiryDto } from './dto/update-sales-inquiry.dto';
 import { SalesInquiry } from './entities/sales-inquiry.entity';
@@ -160,37 +160,39 @@ export class SalesInquiryService {
     return this.salesInquiriesRepository.remove(salesInquiryToRemove);
   }
 
-  async addSupplier(addSupplierDto: AddSupplierDto): Promise<SalesInquiry> {
-    const { salesInquiryId, shellOrganisationId } = addSupplierDto;
-    let shellOrganisation: ShellOrganisation;
+  async sendEmail(sendEmailDto: SendEmailDto): Promise<SalesInquiry> {
+    const { salesInquiryId, shellOrganisationIds } = sendEmailDto;
+    let shellOrganisations: ShellOrganisation[];
 
-    shellOrganisation = await this.shellOrganisationsRepository.findOne({
-      where: {
-        id: shellOrganisationId,
-      },
-      relations: {
-        parentOrganisation: true,
-        contact: true,
-      },
-    });
-
+    for(let i=0;i<shellOrganisationIds.length;i++){
+      shellOrganisations.push(await this.shellOrganisationsRepository.findOne({
+        where: {
+          id: shellOrganisationIds[i],
+        },
+        relations: {
+          parentOrganisation: true,
+          contact: true,
+        },
+      }));
+    }
     let salesInquiry: SalesInquiry;
     salesInquiry = await this.findOne(salesInquiryId);
-    salesInquiry.suppliers.push(shellOrganisation);
     if (salesInquiry.status == SalesInquiryStatus.DRAFT) {
       salesInquiry.status = SalesInquiryStatus.SENT;
     }
-    this.mailerService.sendSalesInquiryEmail(
-      shellOrganisation.contact.email,
-      salesInquiry.currentOrganisation.name,
-      shellOrganisation.name,
-      salesInquiry.salesInquiryLineItems,
-      salesInquiry
-    );
+    for (let i=0;i<shellOrganisations.length;i++){
+      this.mailerService.sendSalesInquiryEmail(
+        shellOrganisations[i].contact.email,
+        salesInquiry.currentOrganisation.name,
+        shellOrganisations[i].name,
+        salesInquiry.salesInquiryLineItems,
+        salesInquiry
+      )
+    }
     return this.salesInquiriesRepository.save(salesInquiry);
   }
 
-  async removeSupplier(
+  /*async removeSupplier(
     salesInquiryId: number,
     shellOrganisationId: number
   ): Promise<SalesInquiry> {
@@ -205,5 +207,5 @@ export class SalesInquiryService {
     let index = salesInquiry.suppliers.indexOf(shellOrganisation);
     salesInquiry.suppliers.splice(index, 1);
     return this.salesInquiriesRepository.save(salesInquiry);
-  }
+  }*/
 }
