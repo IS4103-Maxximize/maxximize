@@ -11,6 +11,7 @@ import { ConfirmDialog } from '../../components/product/confirm-dialog';
 import { ProductMenu } from '../../components/product/product-menu';
 import { deleteQuotations, fetchQuotations } from '../../helpers/procurement-ordering';
 import { quotations } from '../../__mocks__/quotations';
+import format from 'date-fns/format';
 
 const Quotation = (props) => {
   const user = JSON.parse(localStorage.getItem('user'));
@@ -147,6 +148,27 @@ const Quotation = (props) => {
       field: "id",
       headerName: "Quotation ID",
       flex: 1,
+    },
+    {
+      field: "created",
+      headerName: "Date Created",
+      flex: 2,
+      valueGetter: (params) => {
+        return format(new Date(params.row.created), 'dd MMMM yyyy')
+      }
+    },
+    {
+      field: "supplierName",
+      headerName: "Supplier Name",
+      flex: 3,
+      valueGetter: (params) => {
+        return params.row.shellOrganisation.name;
+      }
+    },
+    {
+      field: "totalPrice",
+      headerName: "Quotation Total Price",
+      flex: 2,
     },
   ]
 

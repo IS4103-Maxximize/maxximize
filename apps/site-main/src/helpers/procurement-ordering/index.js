@@ -177,6 +177,36 @@ export const createQuotation = async (salesInquiryId, shellOrganisationId, lineI
   return updatedQuotation;
 }
 
+export const updateQuotationLineItem = async (id, price) => {
+  const apiUrl = `${apiHost}/quotation-line-items/${id}`;
+  let body = {
+    price: price
+  }
+  body = JSON.stringify(body);
+  const requestOptions = {
+    method: 'PATCH',
+    headers: headers,
+    body: body,
+  };
+  return await fetch(apiUrl, requestOptions)
+    .then(response => response.json())
+}
+
+export const updateQuotation = async (id, totalPrice) => {
+  const apiUrl = `${apiHost}/quotations/${id}`;
+  let body = {
+    totalPrice: totalPrice
+  }
+  body = JSON.stringify(body);
+  const requestOptions = {
+    method: 'PATCH',
+    headers: headers,
+    body: body,
+  };
+  return await fetch(apiUrl, requestOptions)
+    .then(response => response.json())
+}
+
 const deleteQuotation = async (id) => {
   const apiUrl = `${apiHost}/quotations/${id}`;
   const requestOptions = {
@@ -187,7 +217,7 @@ const deleteQuotation = async (id) => {
 
 export const deleteQuotations = async (ids) => {
 ids.forEach((id) => {
-  deleteSalesInquiry(id);
+  deleteQuotation(id);
 });
 }
 // Suppliers
