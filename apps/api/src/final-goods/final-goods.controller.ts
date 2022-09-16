@@ -22,6 +22,11 @@ export class FinalGoodsController {
     return this.finalGoodsService.findOne(+id);
   }
 
+  @Get('orgId/:id')
+  findAllByOrg(@Param('id') id: string) {
+    return this.finalGoodsService.findAllByOrg(+id)
+  }
+
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateFinalGoodDto: UpdateFinalGoodDto) {
     return this.finalGoodsService.update(+id, updateFinalGoodDto);

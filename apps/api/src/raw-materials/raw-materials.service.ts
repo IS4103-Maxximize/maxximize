@@ -38,22 +38,28 @@ export class RawMaterialsService {
   }
 
   findAll(): Promise<RawMaterial[]> {
-    return this.rawMaterialRepository.find({})
+    return this.rawMaterialRepository.find({relations: {
+      organisation: true}
+    })
   }
 
-  async findAllByOrg(organisationId: number): Promise<RawMaterial[]> {
-    return this.rawMaterialRepository.find({
-      where: {
-        organisation: await this.organisationsRepository.findOneByOrFail({id: organisationId})
-      }
-    })
+  async findAllByOrg(organisationId: number): Promise<Product[]> {
+      const allProducts = await this.productRepository.find({
+        relations: {
+          organisation: true
+        }
+      })
+      return allProducts.filter(product => product.organisation.id === organisationId && product.type === 'RawMaterial')
+
   }
 
   async findOne(id: number): Promise<RawMaterial> {
     try {
       const product =  await this.rawMaterialRepository.findOne({where: {
         id
-      }})
+      }, relations: {
+        organisation: true
+    }})
       return product
     } catch (err) {
       throw new NotFoundException(`findOne failed as Raw Material with id: ${id} cannot be found`)

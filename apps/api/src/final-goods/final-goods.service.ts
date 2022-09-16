@@ -42,21 +42,27 @@ export class FinalGoodsService {
   }
 
   findAll(): Promise<FinalGood[]> {
-    return this.finalGoodRepository.find({})
+    return this.finalGoodRepository.find({relations: {
+      organisation: true
+    }})
   }
 
-  async findAllByOrg(organisationId: number): Promise<FinalGood[]> {
-    return this.finalGoodRepository.find({
-      where: {
-        organisation: await this.organisationsRepository.findOneByOrFail({id: organisationId})
+  async findAllByOrg(organisationId: number): Promise<Product[]> {
+    const allProducts = await this.productRepository.find({
+      relations: {
+        organisation: true
       }
     })
+    return allProducts.filter(product => product.organisation.id === organisationId && product.type === 'FinalGood')
+    
   }
 
   async findOne(id: number): Promise<FinalGood> {
     try {
       const finalGood =  await this.finalGoodRepository.findOne({where: {
         id
+      }, relations: {
+        organisation: true
       }})
       return finalGood
     } catch (err) {

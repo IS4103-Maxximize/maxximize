@@ -17,6 +17,7 @@ import { deleteProducts, fetchProducts, updateProduct } from '../helpers/product
 
 const Products = (props) => {
   const user = JSON.parse(localStorage.getItem('user'));
+  const organisationId = user.organisation.id
 
   // Page View
   const { type } = props;
@@ -87,7 +88,7 @@ const Products = (props) => {
   const [search, setSearch] = useState("");
 
   const getProducts = async () => {
-    fetchProducts(type)
+    fetchProducts(type, organisationId)
       .then((result) => setRows(result))
       .catch((err) => handleAlertOpen(`Failed to fetch ${typeString}s`, 'error'));
   }
@@ -98,20 +99,17 @@ const Products = (props) => {
     handleAlertOpen(`Added ${typeString} ${product.id} successfully!`, 'success');
   } 
 
-  const handleRowUpdate = (newRow) => {
-    const updatedRow = {...newRow};
-    updateProduct(updatedRow.id, type, updatedRow)
-      .then((result) => {
-        handleAlertOpen(`Updated ${typeString} ${updatedRow.id} successfully!`, 'success');
-      })
-      .then(() => getProducts())
-      .catch((err) => handleAlertOpen(`Error updating ${typeString} ${updatedRow.id}`, 'error'));
-    return updatedRow;
+  const updateRow = (updatedProduct) => {
+    const currentIndex = rows.findIndex(row => row.id === updatedProduct.id)
+    const newRows = [...rows]
+    newRows[currentIndex] = updatedProduct
+    console.log(newRows)
+    setRows(newRows)
   }
 
   useEffect(() => {
     getProducts();
-  }, [type]);
+  }, []);
 
   useEffect(() => {
     setDisabled(selectedRows.length === 0)
@@ -126,7 +124,9 @@ const Products = (props) => {
     setSelectedRow(null);
   };
 
-  const handleDelete = (ids) => {
+  const handleDelete = async (ids) => {
+    const newRows = rows.filter(row => !ids.includes(row.id))
+    setRows(newRows)
     deleteProducts(type, ids)
       .then(() => {
         handleAlertOpen(`Successfully deleted ${typeString}(s)`, 'success');
@@ -134,7 +134,16 @@ const Products = (props) => {
       .then(() => getProducts())
   };
 
-  let columns = [
+  // Logging
+  // useEffect(() => {
+  //   console.log(selectedRow);
+  // }, [selectedRow])
+
+  // useEffect(() => {
+  //   console.log(selectedRows)
+  // }, [selectedRows]);
+  
+  let columnsForFinalGoods = [
     {
       field: 'id',
       headerName: 'ID',
@@ -148,7 +157,6 @@ const Products = (props) => {
       field: 'description',
       headerName: 'Description',
       width: 300,
-      editable: true,
     },
     {
       field: 'skuCode',
@@ -161,24 +169,61 @@ const Products = (props) => {
     },
     {
       field: 'unitPrice',
-      headerName: 'Unit Price',
-      editable: true,
+      headerName: 'Unit Price'
     },
     {
       field: 'expiry',
-      headerName: 'Expiry (days)',
-      editable: true,
-    },
-    type === 'final-goods' ? 
+      headerName: 'Expiry (days)'
+    }, 
     {
       field: 'lotQuantity',
-      headerName: 'Lot Quantity',
-      editable: true,
-    } : {},
+      headerName: 'Lot Quantity'
+    },
     {
       field: 'actions',
-      headerName: '',
-      width: 50,
+      headerName: 'actions',
+      width: 100,
+      sortable: false,
+      renderCell: menuButton,
+    },
+  ];
+
+  let columnsForRawMaterials = [
+    {
+      field: 'id',
+      headerName: 'ID',
+    },
+    {
+      field: 'name',
+      headerName: 'Name',
+      width: 300,
+    },
+    {
+      field: 'description',
+      headerName: 'Description',
+      width: 300,
+    },
+    {
+      field: 'skuCode',
+      headerName: 'SKU',
+      width: 200,
+    },
+    {
+      field: 'unit',
+      headerName: 'Unit',
+    },
+    {
+      field: 'unitPrice',
+      headerName: 'Unit Price'
+    },
+    {
+      field: 'expiry',
+      headerName: 'Expiry (days)'
+    }, 
+    {
+      field: 'actions',
+      headerName: 'actions',
+      width: 100,
       sortable: false,
       renderCell: menuButton,
     },
@@ -208,6 +253,7 @@ const Products = (props) => {
             handleClose={handleAlertClose}
           />
           <ProductDialog 
+            organisationId={organisationId}
             action={action}
             open={open} 
             handleClose={handleClose}
@@ -215,7 +261,7 @@ const Products = (props) => {
             type={type}
             typeString={typeString}
             addProduct={addProduct}
-            updateProduct={handleRowUpdate}
+            updateProducts={updateRow}
             handleAlertOpen={handleAlertOpen}
           />
           <ConfirmDialog
@@ -259,7 +305,7 @@ const Products = (props) => {
                       row.description.toLowerCase().includes(search);
                   }
                 })}
-                columns={columns}
+                columns={type === 'raw-materials' ? columnsForRawMaterials : columnsForFinalGoods}
                 pageSize={10}
                 rowsPerPageOptions={[10]}
                 checkboxSelection
@@ -271,7 +317,6 @@ const Products = (props) => {
                   // setSelectedRows(ids.map((id) => rows.find((row) => row.id === id)));
                 }}
                 experimentalFeatures={{ newEditingApi: true }}
-                processRowUpdate={handleRowUpdate}
               />
               :
               <Card 

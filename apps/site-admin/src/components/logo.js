@@ -4,7 +4,7 @@ import { styled } from '@mui/material/styles';
 export const Logo = styled((props) => {
   const { variant, ...other } = props;
 
-  const color = variant === 'light' ? '#C1C4D6' : '#5048E5';
+  const color = variant === 'light' ? '#C1C4D6' : '#14B8A6';
 
   return (
     <svg
@@ -12,7 +12,8 @@ export const Logo = styled((props) => {
       height="42"
       viewBox="0 0 42 42"
       xmlns="http://www.w3.org/2000/svg"
-      {...other}>
+      {...other}
+    >
       <path
         fillRule="evenodd"
         clipRule="evenodd"
@@ -34,9 +35,9 @@ export const Logo = styled((props) => {
 })``;
 
 Logo.defaultProps = {
-  variant: 'primary'
+  variant: 'primary',
 };
 
 Logo.propTypes = {
-  variant: PropTypes.oneOf(['light', 'primary'])
+  variant: PropTypes.oneOf(['light', 'primary']),
 };

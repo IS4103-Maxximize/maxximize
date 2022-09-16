@@ -10,6 +10,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { NotificationAlert } from '../notification-alert';
 import { UpdateRelationsDialog } from './updateRelationsDialog';
 import MoreVert from '@mui/icons-material/MoreVert';
+import { BusinessPartnerConfirmDialog } from './BusinessPartnerConfirmDialog';
 
 
 export const RetailersList = ({orgId}) => {
@@ -62,9 +63,24 @@ export const RetailersList = ({orgId}) => {
   };
 
   const [openDialog, setOpenDialog] = useState(false);
+  const [openConfirmationDialog, setOpenConfirmationDialog] = useState(false)
+
+
+  const handleCloseConfirmationDialog = () => {
+    setOpenConfirmationDialog(false)
+  }
+
+  const handleOpenConfirmationDialog = () => {
+    setOpenConfirmationDialog(true)
+  }
+
 
   const handleOpenDialog = () => {
     setOpenDialog(true);
+  };
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
   };
 
   
@@ -296,23 +312,34 @@ export const RetailersList = ({orgId}) => {
             orgId={orgId}
           />
 
-        <Tooltip title={'Update entry by clicking on the field to be updated'}>
+        <Tooltip title={'Update a retailer by clicking on the menu button at the end of the row'}>
           <IconButton>
             <HelpIcon />
           </IconButton>
         </Tooltip>
 
-        <Tooltip title={'Delete Retailer (Single/Multiple)'}>
+        <Tooltip title={'Delete retailer (Single/Multiple)'}>
           <Badge badgeContent={selectionModel.length} color="error">
             <IconButton
             disabled={disabled}
-              onClick={handleDelete}
+              onClick={handleOpenConfirmationDialog}
             >
-              <DeleteIcon />
+              <DeleteIcon color="error" />
             </IconButton>
           </Badge>
         </Tooltip>
+        <BusinessPartnerConfirmDialog
+                  open={openConfirmationDialog}
+                  handleClose={handleCloseConfirmationDialog}
+                  dialogTitle={`Delete retailer(s)`}
+                  dialogContent={`Confirm deletion of retailer(s)?`}
+                  dialogAction={() => {
+                    const selectedIds = new Set(selectionModel);
+                    handleDelete(selectedIds);
+                  }}
+                />
       </Box>
+
       <Card>
         <Box sx={{ minWidth: 1050 }}>
           <DataGrid

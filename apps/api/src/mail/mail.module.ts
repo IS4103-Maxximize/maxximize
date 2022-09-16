@@ -4,6 +4,13 @@ import { Module } from '@nestjs/common';
 import { MailService } from './mail.service';
 import { join } from 'path';
 
+const notEqualsOne = (id: number) => {
+  if (id != 1) {
+    return `<p>Login here: http://localhost:4200/login/${id}</p>`;
+  } else {
+    return "<p>Login here: http://localhost:4200/login";
+  }
+};
 @Module({
   imports: [
     MailerModule.forRoot({
@@ -17,7 +24,9 @@ import { join } from 'path';
       },
       template: {
         dir: join(__dirname, '/assets'),
-        adapter: new HandlebarsAdapter(),
+        adapter: new HandlebarsAdapter({
+          'notEqualsOne': notEqualsOne
+        }),
         options: {
           strict: true,
         },

@@ -37,7 +37,7 @@ export class GoodsReceiptsService {
       const createGrLineDto = new CreateGrLineItemDto();
       createGrLineDto.rawMaterialId = dto.rawMaterialId;
       createGrLineDto.subtotal = dto.subtotal;
-      createGrLineDto.quantity = dto.quantity
+      createGrLineDto.quantity = dto.quantity;
       const grLineItem = await this.grLineItemService.create(createGrLineDto);
       goodsReceiptLineItems.push(grLineItem);
 
@@ -49,45 +49,49 @@ export class GoodsReceiptsService {
     });
 
     goodReceipt.goodReceiptLineItems = goodsReceiptLineItems;
-    
+
     //const purchaseOrder = this.purchaseOrderSerivce.findOne(createGoodsReceiptDto.purchaseOrderId);
     //goodReceipt.purchaseOrder = purchaseOrder;
 
-    const recipient = await this.userService.findOne(createGoodsReceiptDto.recipientId);
-    goodReceipt.recipientName = recipient.firstName + " " + recipient.lastName;
-    
+    const recipient = await this.userService.findOne(
+      createGoodsReceiptDto.recipientId
+    );
+    goodReceipt.recipientName = recipient.firstName + ' ' + recipient.lastName;
+
     createBatchDto.batchNumber = randomUUID() + new Date().toLocaleDateString();
     const batch = await this.batchService.create(createBatchDto);
     goodReceipt.batch = batch;
-    return this.goodsReceiptRepository.save(goodReceipt);;
+    return this.goodsReceiptRepository.save(goodReceipt);
   }
 
   findAll() {
     return this.goodsReceiptRepository.find({
-      relations: ["goodReceiptLineItems", "purchaseOrder"]
+      relations: ['goodReceiptLineItems'],
     });
   }
 
   findOne(id: number) {
     return this.goodsReceiptRepository.findOne({
       where: {
-        id: id
+        id: id,
       },
-      relations: ["goodReceiptLineItems", "purchaseOrder"]
+      relations: ['goodReceiptLineItems'],
     });
   }
 
   async update(id: number, updateGoodsReceiptDto: UpdateGoodsReceiptDto) {
     const goodReceipt = await this.findOne(id);
-    const recipient = await this.userService.findOne(updateGoodsReceiptDto.recipientId);
-   // const purchaseOrder = await this.purchaseOrderSerivce.findOne(updateGoodsReceiptDto.purchaseOrderId);
+    const recipient = await this.userService.findOne(
+      updateGoodsReceiptDto.recipientId
+    );
+    // const purchaseOrder = await this.purchaseOrderSerivce.findOne(updateGoodsReceiptDto.purchaseOrderId);
 
     //goodReceipt.purchaseOrder = purchaseOrder;
-    goodReceipt.recipientName = recipient.firstName + " " + recipient.lastName;
+    goodReceipt.recipientName = recipient.firstName + ' ' + recipient.lastName;
     // goodReceipt.goodReceiptLineItems = updateGoodsReceiptDto.goodsReceiptLineItems;
 
     // update batch line items
-    
+
     return this.goodsReceiptRepository.save(goodReceipt);
   }
 

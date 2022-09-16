@@ -81,7 +81,10 @@ export class QuotationsService {
       id
     }, relations: {
       shellOrganisation: true,
-      salesInquiry: true
+      salesInquiry: true,
+      quotationLineItems: {
+        rawMaterial: true
+      }
     }})
   }
 

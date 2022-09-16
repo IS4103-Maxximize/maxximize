@@ -30,7 +30,9 @@ export class Contact {
     @JoinColumn()
     organisation: Organisation | null;
 
-    @OneToOne(() => User, (user) => user.contact)
+    @OneToOne(() => User, (user) => user.contact, {
+        onDelete: 'CASCADE'
+    })
     user: User | null;
 
     @OneToOne(() => ShellOrganisation, shellOrganisation => shellOrganisation.contact, {onDelete: 'CASCADE'})

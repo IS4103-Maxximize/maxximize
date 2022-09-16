@@ -2,6 +2,7 @@ import { Box, Button, Container, TextField, Typography } from '@mui/material';
 import * as Yup from 'yup';
 import { useFormik } from 'formik';
 import { useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet';
 
 export default function OrganisationSelection() {
   const navigate = useNavigate();
@@ -31,7 +32,10 @@ export default function OrganisationSelection() {
     },
   });
   return (
-    <div>
+    <>
+      <Helmet>
+        <title>{'Organisation Selection'}</title>
+      </Helmet>
       <Box
         component="main"
         sx={{
@@ -87,6 +91,6 @@ export default function OrganisationSelection() {
           </form>
         </Container>
       </Box>
-    </div>
+    </>
   );
 }

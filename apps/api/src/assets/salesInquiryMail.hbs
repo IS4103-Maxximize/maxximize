@@ -1,0 +1,22 @@
+<p>Dear sir/mdm,</p>
+<p>We would like to order the following products from your company, {{ supplierName }}.</p>
+<table style="border:1px solid black;">
+    <tr style="border:1px solid black;">
+        <th style="border:1px solid black;">Product Name</th>
+        <th style="border:1px solid black;">Product Description</th>
+        <th style="border:1px solid black;">Quantity</th>
+        <th style="border:1px solid black;">Indicative Price</th>
+    </tr>
+    {{#each salesInquiryLineItems}}
+    <tr style="border:1px solid black;">
+        <td style="border:1px solid black;">{{rawMaterial.name}}</td>
+        <td style="border:1px solid black;">{{rawMaterial.description}}</td>
+        <td style="border:1px solid black;">{{quantity}}</td>
+        <td style="border:1px solid black;">${{indicativePrice}}</td>
+    </tr>   
+    {{/each}}
+</table>
+<p>Total Price: ${{salesInquiry.totalPrice}}</p>
+
+<p>Regards,</p>
+<p>{{organisationName}}</p>
