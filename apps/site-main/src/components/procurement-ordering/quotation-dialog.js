@@ -1,17 +1,10 @@
 import CloseIcon from '@mui/icons-material/Close';
-import { AppBar, Autocomplete, Badge, Box, Button, Dialog, DialogContent, IconButton, Stack, TextField, Toolbar, Typography } from "@mui/material";
+import { AppBar, Autocomplete, Button, Dialog, DialogContent, IconButton, Stack, TextField, Toolbar, Typography } from "@mui/material";
+import { DataGrid } from '@mui/x-data-grid';
 import { useFormik } from "formik";
 import { useEffect, useState } from "react";
-import { v4 as uuid } from "uuid";
 import * as Yup from "yup";
 import { createQuotation, fetchSalesInquiries, fetchSuppliers } from "../../helpers/procurement-ordering";
-import { fetchProducts } from "../../helpers/products";
-import AddBoxIcon from '@mui/icons-material/AddBox';
-import DeleteIcon from '@mui/icons-material/Delete';
-import { DataGrid } from '@mui/x-data-grid';
-import { formatRelative } from 'date-fns';
-import EditIcon from '@mui/icons-material/Edit';
-import Edit from '@mui/icons-material/Edit';
 
 export const QuotationDialog = (props) => {
   const user = JSON.parse(localStorage.getItem('user'));
@@ -91,21 +84,14 @@ export const QuotationDialog = (props) => {
   
   useEffect(() => {
     const fetchData = async () => {
-      let suppliers = await fetchSuppliers();
       let salesInquiries = await fetchSalesInquiries(user.organisation.id);
-     
-      setSuppliers(suppliers);
       setSalesInquiries(salesInquiries);
-
-      setSupplierOptions(suppliers.map(el => el.id));
       setSalesInquiryOptions(salesInquiries.map(el => el.id));
     }
     fetchData();
-    console.log(salesInquiries)
-    // console.log(suppliers)
-
     // Calculate total price
-    formik.setFieldValue('totalPrice', [...formik.values.quotationLineItems].reduce((a, b) => {
+    formik.setFieldValue('totalPrice', 
+    formik.values.quotationLineItems.reduce((a, b) => {
       const price = b.price ? b.price : 1
       return a + b.quantity * price
     }, 0))
@@ -134,6 +120,10 @@ export const QuotationDialog = (props) => {
     return updatedRow;
   }
 
+  // useEffect(() => {
+  //   console.log(quotation);
+  // }, [open])
+
   const columns = [
     {
       field: 'price',
@@ -141,7 +131,8 @@ export const QuotationDialog = (props) => {
       flex: 1,
       editable: true,
       valueGetter: (params) => {
-        return quotation ? params.row.price : params.row.price ? params.row.price : 1
+        return params.row ? params.row.price : 1
+        // return quotation ? params.row.price : params.row.price ? params.row.price : 1
       }
     },
     {
@@ -246,6 +237,21 @@ export const QuotationDialog = (props) => {
             disabled
           />
           <Stack direction="row" spacing={1}>
+            <Autocomplete 
+              id="sales-inquiry-selector"
+              sx={{ width: 300, mb: 1 }}
+              options={salesInquiryOptions}
+              value={formik.values.salesInquiryId}
+              onChange={(event, newValue) => {
+                formik.setFieldValue('salesInquiryId', newValue);
+                console.log(newValue);
+                console.log(salesInquiries);
+                const si = salesInquiries.find(el => el.id === newValue);
+                setSupplierOptions(si.suppliers);
+              }}
+              getOptionLabel={(option) => option.toString(10)}
+              renderInput={(params) => <TextField {...params} label="Sales Inquiry ID"/>}
+            />
             {/* Supplier Selection */}
             <Autocomplete 
               id="supplier-selector"
@@ -257,17 +263,6 @@ export const QuotationDialog = (props) => {
               }}
               getOptionLabel={(option) => option.toString(10)}
               renderInput={(params) => <TextField {...params} label="Suppliers ID"/>}
-            />
-            <Autocomplete 
-              id="sales-inquiry-selector"
-              sx={{ width: 300, mb: 1 }}
-              options={salesInquiryOptions}
-              value={formik.values.salesInquiryId}
-              onChange={(event, newValue) => {
-                formik.setFieldValue('salesInquiryId', newValue);
-              }}
-              getOptionLabel={(option) => option.toString(10)}
-              renderInput={(params) => <TextField {...params} label="Sales Inquiry ID"/>}
             />
           </Stack>
           <DataGrid

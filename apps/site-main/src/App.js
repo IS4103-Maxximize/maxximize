@@ -18,7 +18,7 @@ import WorkerManagement from './pages/workermanagement';
 import BusinessRelations from './pages/businessRelations';
 import ForgotPassword from './pages/forgotPassword';
 import ProtectedRoute from './pages/protectedRoute';
-import ResetPassword from './pages/resetPassword';
+import ResetPassword from './pages/resetpassword';
 
 const ROLES = {
   Admin: 'admin',
