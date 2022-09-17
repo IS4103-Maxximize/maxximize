@@ -18,7 +18,7 @@ const orderingModules = [
     description1: 'Raise Sales Inquiry',
     description2: 'Receive quotation replies from suppliers',
     title: 'Sales Inquiry',
-    href: 'salesinquiry',
+    href: 'sales-inquiry',
     access: ['manager', 'factoryworker'],
   },
   {
@@ -30,27 +30,27 @@ const orderingModules = [
     href: 'quotation',
     access: ['manager', 'factoryworker'],
   },
-  {
-    id: 3,
-    media: '../assets/images/procurement/procurement-purchase-order.jpg',
-    description1: 'Handle purchase orders',
-    description2: 'Send purchase order to supplier',
-    title: 'Purchase Order',
-    href: 'purchaseorder',
-    access: ['manager', 'factoryworker'],
-  },
+  //   {
+  //     id: 3,
+  //     media: '../assets/images/procurement/procurement-purchase-order.jpg',
+  //     description1: 'Handle purchase orders',
+  //     description2: 'Send purchase order to supplier',
+  //     title: 'Purchase Order',
+  //     href: 'purchaseorder',
+  //     access: ['manager', 'factoryworker'],
+  //   },
 ];
 
 const receivingModules = [
-  {
-    id: 1,
-    media: '../assets/images/procurement/procurement-good-receipt.jpg',
-    description1: 'Handle Good Receipt',
-    description2: 'For incoming supply',
-    title: 'Good Receipt',
-    href: 'goodreceipt',
-    access: ['manager', 'factoryworker'],
-  },
+  //   {
+  //     id: 1,
+  //     media: '../assets/images/procurement/procurement-good-receipt.jpg',
+  //     description1: 'Handle Good Receipt',
+  //     description2: 'For incoming supply',
+  //     title: 'Good Receipt',
+  //     href: 'goodreceipt',
+  //     access: ['manager', 'factoryworker'],
+  //   },
 ];
 
 const analyticsModules = [
@@ -98,7 +98,8 @@ const Procurement = () => {
                   </Grid>
                 ))}
             </Grid>
-            {user.role === 'manager' || user.role === 'factoryworker' ? (
+            {(user.role === 'manager' || user.role === 'factoryworker') &&
+            receivingModules.length > 0 ? (
               <Typography sx={{ m: 1 }} variant="h4">
                 Receiving
               </Typography>

@@ -66,7 +66,7 @@ export const createSalesInquiry = async (orgId, lineItems) => {
   return si;
 };
 
-export const updateSalesInquiry = async (inquiry, values) => {
+export const updateSalesInquiry = async (updateTotalPrice, values) => {
   const newLineItems = values.lineItems;
 
   const lineItems = [];
@@ -84,7 +84,7 @@ export const updateSalesInquiry = async (inquiry, values) => {
   const currentOrganisationId = user.organisation.id;
 
   const salesInquiry = {
-    totalPrice: values.totalPrice,
+    totalPrice: updateTotalPrice,
     currentOrganisationId: currentOrganisationId,
     salesInquiryLineItemsDtos: lineItems,
   };
@@ -231,45 +231,52 @@ export const createQuotation = async (
     body: body,
   };
   const quotation = await fetch(apiUrl, requestOptions)
-    .then(response => response.json())
-    .catch(err => {throw new Error(err)});
+    .then((response) => response.json())
+    .catch((err) => {
+      throw new Error(err);
+    });
 
   // Create LineItems
-  const createdLineItems = await createQuotationLineItems(quotation.id, lineItems);
+  const createdLineItems = await createQuotationLineItems(
+    quotation.id,
+    lineItems
+  );
   const updatedQuotation = await fetchQuotation(quotation.id);
   console.log(updatedQuotation);
   return updatedQuotation;
-}
+};
 
 export const updateQuotationLineItem = async (id, price) => {
   const apiUrl = `${apiHost}/quotation-line-items/${id}`;
   let body = {
-    price: price
-  }
+    price: price,
+  };
   body = JSON.stringify(body);
   const requestOptions = {
     method: 'PATCH',
     headers: headers,
     body: body,
   };
-  return await fetch(apiUrl, requestOptions)
-    .then(response => response.json())
-}
+  return await fetch(apiUrl, requestOptions).then((response) =>
+    response.json()
+  );
+};
 
 export const updateQuotation = async (id, totalPrice) => {
   const apiUrl = `${apiHost}/quotations/${id}`;
   let body = {
-    totalPrice: totalPrice
-  }
+    totalPrice: totalPrice,
+  };
   body = JSON.stringify(body);
   const requestOptions = {
     method: 'PATCH',
     headers: headers,
     body: body,
   };
-  return await fetch(apiUrl, requestOptions)
-    .then(response => response.json())
-}
+  return await fetch(apiUrl, requestOptions).then((response) =>
+    response.json()
+  );
+};
 
 const deleteQuotation = async (id) => {
   const apiUrl = `${apiHost}/quotations/${id}`;

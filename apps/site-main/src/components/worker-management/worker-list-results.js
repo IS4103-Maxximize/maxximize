@@ -29,7 +29,7 @@ import MoreVert from '@mui/icons-material/MoreVert';
 export const WorkerListResults = () => {
   const [workers, setWorkers] = useState([]);
   const [selectionModel, setSelectionModel] = useState([]);
-  const [rowToEdit, setRowToEdit] = useState('')
+  const [rowToEdit, setRowToEdit] = useState('');
   const [anchorEl, setAnchorEl] = useState(null);
   const [openUpdateDialog, setOpenUpdateDialog] = useState(false);
   const open = Boolean(anchorEl);
@@ -40,11 +40,13 @@ export const WorkerListResults = () => {
 
   const menuButton = (params) => {
     return (
-      <IconButton onClick={(event) => {
-        setRowToEdit(params.row);
-        handleMenuClick(event);
-        }}>
-        <MoreVert/>
+      <IconButton
+        onClick={(event) => {
+          setRowToEdit(params.row);
+          handleMenuClick(event);
+        }}
+      >
+        <MoreVert />
       </IconButton>
     );
   };
@@ -56,7 +58,7 @@ export const WorkerListResults = () => {
   const handleMenuClose = (type) => {
     if (type === 'update') {
       if (rowToEdit) {
-        setOpenUpdateDialog(true)
+        setOpenUpdateDialog(true);
       }
     }
     setAnchorEl(null);
@@ -89,16 +91,15 @@ export const WorkerListResults = () => {
   };
 
   const updateWorker = (worker) => {
-    console.log(worker)
-    const indexOfEditWorker = workers.findIndex(currentWorker => currentWorker.id === worker.id)
-    const newWorkers = [...workers]
-    newWorkers[indexOfEditWorker] = worker
-    setWorkers(newWorkers)
-    handleAlertOpen(
-      `Updated Worker ${worker.id} successfully!`,
-      'success'
+    console.log(worker);
+    const indexOfEditWorker = workers.findIndex(
+      (currentWorker) => currentWorker.id === worker.id
     );
-  }
+    const newWorkers = [...workers];
+    newWorkers[indexOfEditWorker] = worker;
+    setWorkers(newWorkers);
+    handleAlertOpen(`Updated Worker ${worker.id} successfully!`, 'success');
+  };
 
   //Deleting a worker entry, calling update API
   //Also alerts user of ourcome
@@ -307,9 +308,8 @@ export const WorkerListResults = () => {
       headerName: '',
       flex: 1,
       sortable: false,
-      renderCell: menuButton
-    }
-    
+      renderCell: menuButton,
+    },
   ];
 
   return (
@@ -332,16 +332,18 @@ export const WorkerListResults = () => {
                 m: -1,
               }}
             >
-              <UpdateWorkerDialog 
-              selectedRow={rowToEdit}
-              openUpdateDialog={openUpdateDialog}
-              setOpenUpdateDialog={setOpenUpdateDialog}
-              handleAlertOpen={handleAlertOpen}
-              updateWorker={updateWorker}
+              <UpdateWorkerDialog
+                selectedRow={rowToEdit}
+                openUpdateDialog={openUpdateDialog}
+                setOpenUpdateDialog={setOpenUpdateDialog}
+                handleAlertOpen={handleAlertOpen}
+                updateWorker={updateWorker}
               />
 
               <Menu anchorEl={anchorEl} open={open} onClose={handleMenuClose}>
-                <MenuItem onClick={() => handleMenuClose('update')}>Update</MenuItem>
+                <MenuItem onClick={() => handleMenuClose('update')}>
+                  Update
+                </MenuItem>
               </Menu>
               {/* Search Bar */}
               {/* <Stack direction="row" spacing={1}>
