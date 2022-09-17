@@ -241,6 +241,7 @@ export const SalesInquiry = (props) => {
             open={supplierDialogOpen}
             inquiry={selectedRow}
             handleClose={handleSupplierDialogClose}
+            handleAlertOpen={handleAlertOpen}
           />
           <Toolbar
             name="Sales Inquiry"

@@ -23,6 +23,7 @@ import { v4 as uuid } from 'uuid';
 import * as Yup from 'yup';
 import {
   createSalesInquiry,
+  fetchSalesInquiries,
   updateSalesInquiry,
 } from '../../helpers/procurement-ordering';
 import { fetchProducts } from '../../helpers/products';
@@ -44,11 +45,21 @@ export const SalesInquiryDialog = (props) => {
   const [updateTotalPrice, setUpdateTotalPrice] = useState(0);
 
   useEffect(() => {
-    if (inquiry && inquiry.totalPrice) {
-      console.log(inquiry.totalPrice);
-      setUpdateTotalPrice(Number(inquiry.totalPrice));
-    }
-  });
+    const retrieveSalesInquiry = async () => {
+      if (action === 'POST') {
+        formik.setFieldValue('lineItems', []);
+      }
+      if (inquiry) {
+        const response = await fetch(
+          `http://localhost:3000/api/sales-inquiry/${inquiry.id}`
+        );
+        const result = await response.json();
+        setUpdateTotalPrice(result.totalPrice);
+        formik.setFieldValue('lineItems', result.salesInquiryLineItems);
+      }
+    };
+    retrieveSalesInquiry();
+  }, [open, inquiry]);
 
   // Formik Helpers and Variables
   let initialValues = {
@@ -120,18 +131,19 @@ export const SalesInquiryDialog = (props) => {
       //     values.lineItems
       //   ).catch((err) => handleAlertOpen(`Error creating ${string}`, 'error'));
 
-      const result = await response.json();
+      const result = await response;
 
       addSalesInquiry(result);
     } else if (action === 'PATCH') {
       // update
-      const result = await updateSalesInquiry(inquiry, values);
+      const result = await updateSalesInquiry(updateTotalPrice, values);
       updateInquiry(result);
     }
     onClose();
   };
 
   const onClose = () => {
+    setUpdateTotalPrice(0);
     formik.resetForm();
     handleClose();
   };
@@ -178,8 +190,15 @@ export const SalesInquiryDialog = (props) => {
       id: uuid(),
       quantity: quantity,
       rawMaterial: rawMaterial,
+      indicativePrice: rawMaterial.unitPrice,
     };
-    formik.setFieldValue('lineItems', [...formik.values.lineItems, newItem]);
+    const updatedLineItems = [...formik.values.lineItems, newItem];
+    formik.setFieldValue('lineItems', updatedLineItems);
+    setUpdateTotalPrice(
+      updatedLineItems.reduce((a, b) => {
+        return a + b.quantity * b.indicativePrice;
+      }, 0)
+    );
     setInputValue('');
     formik.setFieldValue('numProd', 1);
   };
@@ -188,7 +207,13 @@ export const SalesInquiryDialog = (props) => {
     const updatedLineItems = formik.values.lineItems.filter(
       (el) => !ids.includes(el.id)
     );
-    formik.setFieldValue('lineItems', [...updatedLineItems]);
+    formik.setFieldValue('lineItems', updatedLineItems);
+    const updatedTotalPrice = updatedLineItems.reduce((a, b) => {
+      return a + b.quantity * b.indicativePrice;
+    }, 0);
+    setUpdateTotalPrice(updatedTotalPrice);
+    setInputValue('');
+    inquiry.total = updatedTotalPrice;
   };
 
   const updateLineItems = (newRow) => {
@@ -200,15 +225,10 @@ export const SalesInquiryDialog = (props) => {
       }
 
       console.log(lineItem);
-
-      setUpdateTotalPrice(
-        (totalPrice +=
-          Number(lineItem.indicativePrice) * Number(lineItem.quantity))
-      );
-
-      inquiry.totalPrice = totalPrice;
+      totalPrice += lineItem.indicativePrice * lineItem.quantity;
     }
-    console.log(updateTotalPrice);
+    console.log(totalPrice);
+    setUpdateTotalPrice(totalPrice);
     return updatedRow;
   };
 

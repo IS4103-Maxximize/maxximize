@@ -1,16 +1,18 @@
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material";
-import { DataGrid } from "@mui/x-data-grid";
-import { useFormik } from "formik";
-import { useEffect, useState } from "react";
-import { fetchSuppliers } from "../../helpers/procurement-ordering";
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+} from '@mui/material';
+import { DataGrid } from '@mui/x-data-grid';
+import { useFormik } from 'formik';
+import { useEffect, useState } from 'react';
+import { apiHost, headers } from '../../helpers/constants';
+import { fetchSuppliers } from '../../helpers/procurement-ordering';
 
-export const SupplierDialog = (props) =>{
-  const {
-    action,
-    open,
-    handleClose,
-    inquiry,
-  } = props
+export const SupplierDialog = (props) => {
+  const { action, open, handleClose, inquiry, handleAlertOpen } = props;
 
   // Formik Helpers
   let initialValues = {
@@ -19,6 +21,23 @@ export const SupplierDialog = (props) =>{
 
   const handleOnSubmit = async (values) => {
     // Submit
+    const salesInquiryId = inquiry.id;
+    const shellOrganisationIds = selectedRows;
+    const body = {
+      salesInquiryId: salesInquiryId,
+      shellOrganisationIds: shellOrganisationIds,
+    };
+    const requestOptions = {
+      method: 'POST',
+      headers: headers,
+      body: JSON.stringify(body),
+    };
+    const apiUrl = `${apiHost}/sales-inquiry/send`;
+    const result = await fetch(apiUrl, requestOptions)
+      .then((response) => response.json())
+      .then(() =>
+        handleAlertOpen('Successfully sent to Suppliers!', 'success')
+      );
     onClose();
   };
 
@@ -88,7 +107,9 @@ export const SupplierDialog = (props) =>{
           rowsPerPageOptions={[5]}
           onSelectionModelChange={(ids) => setSelectedRows(ids)}
           isRowSelectable={(params) => {
-            return !inquiry.suppliers.map(supp => supp.id).includes(params.row.id);
+            return !inquiry.suppliers
+              .map((supp) => supp.id)
+              .includes(params.row.id);
           }} // disable selection on Suppliers without contact information
         />
       </DialogContent>

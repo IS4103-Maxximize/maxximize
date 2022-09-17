@@ -1,5 +1,12 @@
 import MoreVert from '@mui/icons-material/MoreVert';
-import { Box, Card, CardContent, Container, IconButton, Typography } from '@mui/material';
+import {
+  Box,
+  Card,
+  CardContent,
+  Container,
+  IconButton,
+  Typography,
+} from '@mui/material';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
@@ -9,7 +16,10 @@ import { QuotationDialog } from '../../components/procurement-ordering/quotation
 import { Toolbar } from '../../components/procurement-ordering/toolbar';
 import { ConfirmDialog } from '../../components/product/confirm-dialog';
 import { ProductMenu } from '../../components/product/product-menu';
-import { deleteQuotations, fetchQuotations } from '../../helpers/procurement-ordering';
+import {
+  deleteQuotations,
+  fetchQuotations,
+} from '../../helpers/procurement-ordering';
 import { quotations } from '../../__mocks__/quotations';
 import format from 'date-fns/format';
 
@@ -32,7 +42,7 @@ const Quotation = (props) => {
   };
 
   // Search Helpers
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState('');
   const handleSearch = (event) => {
     setSearch(event.target.value.toLowerCase().trim());
   };
@@ -43,7 +53,7 @@ const Quotation = (props) => {
   const [deleteDisabled, setDeleteDisabled] = useState();
 
   useEffect(() => {
-    setDeleteDisabled(selectedRows.length === 0)
+    setDeleteDisabled(selectedRows.length === 0);
   }, [selectedRows]);
 
   // Confirm Dialog Helpers
@@ -51,10 +61,10 @@ const Quotation = (props) => {
 
   const handleConfirmDialogOpen = () => {
     setConfirmDialogOpen(true);
-  }
+  };
   const handleConfirmDialogClose = () => {
     setConfirmDialogOpen(false);
-  }
+  };
 
   // Form Dialog Helpers
   const [action, setAction] = useState();
@@ -66,16 +76,17 @@ const Quotation = (props) => {
   };
   const handleFormDialogOpen = () => {
     setFormDialogOpen(true);
-  }
+  };
   const handleFormDialogClose = () => {
     setFormDialogOpen(false);
-  }
+  };
 
   // Menu Helpers
   const [anchorEl, setAnchorEl] = useState(null);
   const menuOpen = Boolean(anchorEl);
 
   const handleMenuClick = (event) => {
+    setAction('PATCH');
     setAnchorEl(event.currentTarget);
   };
   const handleMenuClose = () => {
@@ -87,12 +98,14 @@ const Quotation = (props) => {
 
   const menuButton = (params) => {
     return (
-      <IconButton onClick={(event) => {
-        console.log(params.row)
-        setSelectedRow(params.row);
-        handleMenuClick(event);
-        }}>
-        <MoreVert/>
+      <IconButton
+        onClick={(event) => {
+          console.log(params.row);
+          setSelectedRow(params.row);
+          handleMenuClick(event);
+        }}
+      >
+        <MoreVert />
       </IconButton>
     );
   };
@@ -103,7 +116,7 @@ const Quotation = (props) => {
     setRows(updatedProducts);
     console.log(quotation);
     handleAlertOpen(`Added Quotation ${quotation.id} successfully!`, 'success');
-  }
+  };
 
   // const handleRowUpdate = (newRow) => {
   //   const updatedRow = {...newRow};
@@ -119,76 +132,78 @@ const Quotation = (props) => {
         handleAlertOpen(`Successfully deleted Quotation(s)`, 'success');
       })
       .then(() => getQuotations());
-  }
+  };
 
   // DataGrid Rows & Columns
   const [rows, setRows] = useState([]);
 
   const getQuotations = async () => {
     fetchQuotations()
-    .then(result => {
-      // filter quotations which the user's organisation created
-      const filtered = result.filter((el) => {
-        return el.salesInquiry.currentOrganisation.id === user.organisation.id;
+      .then((result) => {
+        // filter quotations which the user's organisation created
+        const filtered = result.filter((el) => {
+          return (
+            el.salesInquiry.currentOrganisation.id === user.organisation.id
+          );
+        });
+        setRows(filtered);
       })
-      setRows(filtered);
-    })
-    .catch(err => handleAlertOpen(`Failed to fetch Quotations`, 'error'))
-  }
+      .catch((err) => handleAlertOpen(`Failed to fetch Quotations`, 'error'));
+  };
 
   useEffect(() => {
     getQuotations();
-  }, [formDialogOpen])
+  }, [formDialogOpen]);
 
   useEffect(() => {
     setRows(quotations);
-  }, [])
+  }, []);
 
   useEffect(() => {
     console.log(rows);
-  }, [rows])
+  }, [rows]);
 
   const columns = [
     {
-      field: "id",
-      headerName: "Quotation ID",
+      field: 'id',
+      headerName: 'Quotation ID',
       flex: 1,
     },
     {
-      field: "created",
-      headerName: "Date Created",
+      field: 'created',
+      headerName: 'Date Created',
       flex: 2,
       valueGetter: (params) => {
-        return format(new Date(params.row.created), 'dd MMMM yyyy')
-      }
+        return format(new Date(params.row.created), 'dd MMMM yyyy');
+      },
     },
     {
-      field: "supplierId",
-      headerName: "Supplier ID",
+      field: 'supplierId',
+      headerName: 'Supplier ID',
       flex: 1,
       valueGetter: (params) => {
         return params.row.shellOrganisation.id;
-      }
+      },
     },
     {
-      field: "supplierName",
-      headerName: "Supplier Name",
+      field: 'supplierName',
+      headerName: 'Supplier Name',
       flex: 3,
       valueGetter: (params) => {
         return params.row.shellOrganisation.name;
-      }
+      },
     },
     {
-      field: "totalPrice",
-      headerName: "Quotation Total Price",
+      field: 'totalPrice',
+      headerName: 'Quotation Total Price',
       flex: 2,
     },
     {
-      field: "actions",
+      field: 'actions',
       flex: 1,
-      renderCell: menuButton
-    }
-  ]
+      renderCell: menuButton,
+    },
+  ];
 
   return (
     <>
@@ -216,12 +231,12 @@ const Quotation = (props) => {
           <ProductMenu
             anchorEl={anchorEl}
             menuOpen={menuOpen}
-            handleClickOpen={handleFormDialogOpen} 
+            handleClickOpen={handleFormDialogOpen}
             handleMenuClose={handleMenuClose}
             handleClickViewEdit={handleEdit}
           />
           <ConfirmDialog
-            open={confirmDialogOpen} 
+            open={confirmDialogOpen}
             handleClose={handleConfirmDialogClose}
             dialogTitle={`Delete Quotation(s)`}
             dialogContent={`Confirm deletion of Quotation(s)?`}
@@ -239,7 +254,7 @@ const Quotation = (props) => {
             // update
             handleAlertOpen={handleAlertOpen}
           />
-          <Toolbar 
+          <Toolbar
             name="Quotation"
             numRows={selectedRows.length}
             deleteDisabled={deleteDisabled}
@@ -253,16 +268,20 @@ const Quotation = (props) => {
               mt: 3,
             }}
           >
-            {rows.length > 0 ?
+            {rows.length > 0 ? (
               <DataGrid
                 autoHeight
                 rows={rows.filter((row) => {
-                  if (search === "") {
+                  if (search === '') {
                     return row;
                   } else {
-                    return row.id.toLowerCase().includes(search) ||
-                      row.shellOrganisation.name.toLowerCase().includes(search) ||
-                      row.product.skuCode.toLowerCase().includes(search);
+                    return (
+                      row.id.toLowerCase().includes(search) ||
+                      row.shellOrganisation.name
+                        .toLowerCase()
+                        .includes(search) ||
+                      row.product.skuCode.toLowerCase().includes(search)
+                    );
                   }
                 })}
                 columns={columns}
@@ -278,20 +297,18 @@ const Quotation = (props) => {
                 // experimentalFeatures={{ newEditingApi: true }}
                 // processRowUpdate={handleRowUpdate}
               />
-              :
-              <Card 
+            ) : (
+              <Card
                 variant="outlined"
                 sx={{
-                  textAlign: "center",
+                  textAlign: 'center',
                 }}
               >
                 <CardContent>
-                  <Typography>
-                    {`No Quotations Found` }
-                  </Typography>
+                  <Typography>{`No Quotations Found`}</Typography>
                 </CardContent>
               </Card>
-            }
+            )}
           </Box>
         </Container>
       </Box>
@@ -299,10 +316,6 @@ const Quotation = (props) => {
   );
 };
 
-Quotation.getLayout = (page) => (
-  <DashboardLayout>
-    {page}
-  </DashboardLayout>
-);
+Quotation.getLayout = (page) => <DashboardLayout>{page}</DashboardLayout>;
 
 export default Quotation;
