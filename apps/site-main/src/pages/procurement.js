@@ -19,7 +19,7 @@ const orderingModules = [
     description2: 'Receive quotation replies from suppliers',
     title: 'Sales Inquiry',
     href: 'sales-inquiry',
-    access: ['manager', 'factoryworker'],
+    access: ['manager', 'factoryworker', 'superadmin'],
   },
   {
     id: 2,
@@ -28,7 +28,7 @@ const orderingModules = [
     description2: 'Handle quotation records from supplier',
     title: 'Quotation',
     href: 'quotation',
-    access: ['manager', 'factoryworker'],
+    access: ['manager', 'factoryworker', 'superadmin'],
   },
   //   {
   //     id: 3,
@@ -61,7 +61,7 @@ const analyticsModules = [
     description2: 'Compare forecast with actual demand',
     title: 'Forecast',
     href: 'forecast',
-    access: ['manager'],
+    access: ['manager', 'superadmin'],
   },
 ];
 
@@ -82,7 +82,7 @@ const Procurement = () => {
       >
         <Container maxWidth={false}>
           <Box sx={{ pt: 1 }}>
-            {user.role === 'manager' || user.role === 'factoryworker' ? (
+            {user.role === 'manager' || user.role === 'factoryworker' || user.role === 'superadmin' ? (
               <Typography sx={{ m: 1 }} variant="h4">
                 Ordering
               </Typography>
@@ -98,7 +98,7 @@ const Procurement = () => {
                   </Grid>
                 ))}
             </Grid>
-            {(user.role === 'manager' || user.role === 'factoryworker') &&
+            {(user.role === 'manager' || user.role === 'factoryworker' || user.role === 'superadmin') &&
             receivingModules.length > 0 ? (
               <Typography sx={{ m: 1 }} variant="h4">
                 Receiving
@@ -115,7 +115,7 @@ const Procurement = () => {
                   </Grid>
                 ))}
             </Grid>
-            {user.role === 'manager' ? (
+            {user.role === 'manager' || user.role === 'superadmin' ? (
               <Typography sx={{ m: 1 }} variant="h4">
                 Analytics
               </Typography>
