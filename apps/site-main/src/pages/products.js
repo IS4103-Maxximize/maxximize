@@ -141,6 +141,7 @@ const Products = (props) => {
   const handleDelete = async (ids) => {
     const newRows = rows.filter((row) => !ids.includes(row.id));
     setRows(newRows);
+    setSelectedRows([])
     deleteProducts(type, ids)
       .then(() => {
         handleAlertOpen(`Successfully deleted ${typeString}(s)`, 'success');
