@@ -4,4 +4,5 @@ export class CreateProductionLineDto {
     finalGoodId: number
     productionCostPerLot: number
     changeOverTime: number
+    organisationId: number
 }

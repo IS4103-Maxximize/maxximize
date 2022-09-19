@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
 import { FinalGoodsService } from '../final-goods/final-goods.service';
+import { OrganisationsService } from '../organisations/organisations.service';
 import { CreateProductionLineDto } from './dto/create-production-line.dto';
 import { UpdateProductionLineDto } from './dto/update-production-line.dto';
 import { ProductionLine } from './entities/production-line.entity';
@@ -12,12 +13,13 @@ export class ProductionLinesService {
     @InjectRepository(ProductionLine)
     private readonly productionLineRepository: Repository<ProductionLine>,
     private finalGoodService: FinalGoodsService,
+    private organisationService: OrganisationsService
   ) {}
   async create(createProductionLineDto: CreateProductionLineDto): Promise<ProductionLine> {
     try {
-      const {name, description, finalGoodId, productionCostPerLot, changeOverTime} = createProductionLineDto
+      const {name, description, finalGoodId, productionCostPerLot, changeOverTime, organisationId} = createProductionLineDto
   
-
+      const organisation = await this.organisationService.findOne(organisationId)
       const finalGood = await this.finalGoodService.findOne(finalGoodId)
       const newProductionLine = this.productionLineRepository.create({
         name,
@@ -28,7 +30,8 @@ export class ProductionLinesService {
         nextAvailableDateTime: new Date(),
         finalGoodId: finalGood.id,
         isAvailable: true,
-        lastStopped: null
+        lastStopped: null,
+        organisationId: organisation.id
       })
       return this.productionLineRepository.save(newProductionLine)
     } catch (error) {
@@ -41,7 +44,8 @@ export class ProductionLinesService {
     return this.productionLineRepository.find({
       relations: {
         finalGood: true,
-        schedules: true
+        schedules: true,
+        organisation: true
       }
     })
   }
@@ -51,7 +55,17 @@ export class ProductionLinesService {
       id
     }, relations: {
       finalGood: true,
-      schedules: true
+      schedules: true,
+      organisation: true
+    }})
+  }
+
+  async findAllByOrg(id: number): Promise<ProductionLine[]> {
+    return this.productionLineRepository.find({where: {
+      organisationId: id
+    }, relations: {
+      finalGood: true,
+      schedules: true,
     }})
   }
 

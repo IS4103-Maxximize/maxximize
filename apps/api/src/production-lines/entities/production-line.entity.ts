@@ -1,5 +1,6 @@
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { FinalGood } from "../../final-goods/entities/final-good.entity";
+import { Organisation } from "../../organisations/entities/organisation.entity";
 import { Schedule } from "../../schedules/entities/schedule.entity";
 
 @Entity()
@@ -42,4 +43,11 @@ export class ProductionLine {
     schedules: Schedule[]
 
     //machines
+
+    //organisation
+    @Column()
+    organisationId: number
+    @ManyToOne(() => Organisation, organisation => organisation.productionLines)
+    @JoinColumn({name: 'organisationId'})
+    organisation: Organisation
 }

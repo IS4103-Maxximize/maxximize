@@ -17,6 +17,11 @@ export class ProductionLinesController {
     return this.productionLinesService.findAll();
   }
 
+  @Get('orgId/:id')
+  findAllByOrg(@Param('id') id: string) {
+    return this.productionLinesService.findAllByOrg(+id)
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.productionLinesService.findOne(+id);
