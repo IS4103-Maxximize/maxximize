@@ -165,7 +165,7 @@ export const SalesInquiry = (props) => {
 
   useEffect(() => {
     getSalesInquiries();
-  }, []);
+  }, [rows]);
 
   const columns = [
     {
@@ -245,7 +245,7 @@ export const SalesInquiry = (props) => {
           />
           <Toolbar
             name="Sales Inquiry"
-            numRows={selectedRows.length}
+            // numRows={selectedRows.length}
             deleteDisabled={deleteDisabled}
             handleSearch={handleSearch}
             handleAdd={handleAdd}

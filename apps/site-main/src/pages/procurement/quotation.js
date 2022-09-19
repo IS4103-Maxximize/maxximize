@@ -148,6 +148,7 @@ const Quotation = (props) => {
         });
         setRows(filtered);
       })
+      .then(() => setSelectedRows([]))
       .catch((err) => handleAlertOpen(`Failed to fetch Quotations`, 'error'));
   };
 
@@ -256,7 +257,7 @@ const Quotation = (props) => {
           />
           <Toolbar
             name="Quotation"
-            numRows={selectedRows.length}
+            // numRows={selectedRows.length}
             deleteDisabled={deleteDisabled}
             handleSearch={handleSearch}
             handleAdd={handleAdd}
