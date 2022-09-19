@@ -36,9 +36,6 @@ export abstract class Machine {
     })
     organisation: Organisation;
 
-    @OneToMany(() => Schedule, (schedule) => schedule.machine)
-    schedules: Schedule[];
-
     @OneToOne(() => Sensor, (sensor) => sensor.machine)
     sensor: Sensor;
 }

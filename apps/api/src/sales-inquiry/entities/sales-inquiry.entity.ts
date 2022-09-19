@@ -22,7 +22,10 @@ export class SalesInquiry {
     @Column()
     created: Date
 
+    @Column({nullable: true})
+    currentOrganisationId: number
     @ManyToOne(() => Organisation, currentOrganisation => currentOrganisation.salesInquiries, {onDelete: 'SET NULL'})
+    @JoinColumn({name: 'currentOrganisationId'})
     currentOrganisation: Organisation
 
     @ManyToMany(() => ShellOrganisation, supplier => supplier.salesInquiries)

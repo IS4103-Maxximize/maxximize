@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { ShellOrganisation } from "../../shell-organisations/entities/shell-organisation.entity";
 import { QuotationLineItem } from "../../quotation-line-items/entities/quotation-line-item.entity";
 import { PurchaseOrder } from "../../purchase-orders/entities/purchase-order.entity";
@@ -18,7 +18,10 @@ export class Quotation {
     @OneToOne(() => PurchaseOrder, purchaseOrder => purchaseOrder.quotation, { nullable: true })
     purchaseOrder?: PurchaseOrder
 
+    @Column()
+    salesInquiryId: number
     @ManyToOne(() => SalesInquiry, salesInquiry => salesInquiry.quotations)
+    @JoinColumn({name: 'salesInquiryId'})
     salesInquiry: SalesInquiry
 
     @ManyToOne(() => ShellOrganisation, shellOrganisation => shellOrganisation.quotations, {onDelete: 'SET NULL'})

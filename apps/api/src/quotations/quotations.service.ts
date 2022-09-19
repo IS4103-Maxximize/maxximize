@@ -70,9 +70,7 @@ export class QuotationsService {
   async findAllBySalesInquiry(salesInquiryId: number): Promise<Quotation[]> {
     return this.quotationsRepository.find({
       where: {
-        salesInquiry: await this.salesInquiriesRepository.findOneByOrFail({
-          id: salesInquiryId,
-        }),
+        salesInquiryId: salesInquiryId
       },
       relations: {
         shellOrganisation: true,

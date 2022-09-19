@@ -1,4 +1,5 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { ProductionLine } from "../../production-lines/entities/production-line.entity";
 import { Machine } from "../../vehicles/entities/vehicle.entity";
 import { ScheduleType } from "../enums/scheduleType.enum";
 
@@ -17,10 +18,11 @@ export class Schedule {
         type: 'enum',
         enum: ScheduleType
     })
-    type: ScheduleType;
+    status: ScheduleType
 
-    @ManyToOne(() => Machine, (machine) => machine.schedules, {
-        onDelete: 'CASCADE'
-    })
-    machine: Machine;
+    @Column({nullable: true})
+    productionLineId: number
+    @ManyToOne(() => ProductionLine, productionLine => productionLine.schedules)
+    @JoinColumn({name: 'productionLineId'})
+    productionLine: ProductionLine
 }
