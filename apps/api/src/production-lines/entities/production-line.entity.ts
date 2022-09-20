@@ -1,4 +1,5 @@
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { FactoryMachine } from "../../factory-machines/entities/factory-machine.entity";
 import { FinalGood } from "../../final-goods/entities/final-good.entity";
 import { Organisation } from "../../organisations/entities/organisation.entity";
 import { Schedule } from "../../schedules/entities/schedule.entity";
@@ -43,6 +44,8 @@ export class ProductionLine {
     schedules: Schedule[]
 
     //machines
+    @OneToMany(() => FactoryMachine, factoryMachine => factoryMachine.productionLine)
+    machines: FactoryMachine[]
 
     //organisation
     @Column()

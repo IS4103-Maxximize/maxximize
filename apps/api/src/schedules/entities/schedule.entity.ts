@@ -25,4 +25,6 @@ export class Schedule {
     @ManyToOne(() => ProductionLine, productionLine => productionLine.schedules)
     @JoinColumn({name: 'productionLineId'})
     productionLine: ProductionLine
+
+    //TODO: ADD Production Order
 }

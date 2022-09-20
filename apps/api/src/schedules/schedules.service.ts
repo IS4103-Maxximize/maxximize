@@ -67,6 +67,7 @@ export class SchedulesService {
   }
 
   async remove(id: number) {
+    //dont anyhow remove schedules
     const scheduleToRemove = await this.findOne(id)
     return this.scheduleRepository.remove(scheduleToRemove)
   }
