@@ -22,7 +22,7 @@ export class SchedulesService {
       //need to update the nextAvailableDateTime in the production Line so wrap it in transaction
       await this.datasource.manager.transaction(async (transactionalEntityManager) => {
         if (productionLineId) {
-          productionLineToBeAdded = await transactionalEntityManager.findOneBy(ProductionLine, {
+          productionLineToBeAdded = await transactionalEntityManager.findOneByOrFail(ProductionLine, {
             id: productionLineId
           })
           //pass in the new end date into the service method
@@ -47,22 +47,30 @@ export class SchedulesService {
     })
   }
 
-  findOne(id: number) {
-    return this.scheduleRepository.findOne({where: {
-      id
-    }, relations: {
-      productionLine: true
-    }})
+  async findOne(id: number) {
+    try {
+      const schedule = await this.scheduleRepository.findOne({where: {
+        id
+      }, relations: {
+        productionLine: true
+      }})
+      return schedule
+    } catch (error) {
+      throw new NotFoundException(`schedule with id: ${id} cannot be found!`)
+    }
+    
   }
 
   async update(id: number, updateScheduleDto: UpdateScheduleDto) {
     const keyValuePairs = Object.entries(updateScheduleDto)
     const scheduleToUpdate = await this.findOne(id)
-    keyValuePairs.forEach(([key, value]) => {
-      if (value) {
-        scheduleToUpdate[key] = value
+    for (const [key, value] of keyValuePairs){
+      if (key === 'productionLineId') {
+        await this.productionLineService.findOne(value)
       }
-    })
+      scheduleToUpdate[key] = value
+      
+    }
     return this.scheduleRepository.save(scheduleToUpdate) 
   }
 

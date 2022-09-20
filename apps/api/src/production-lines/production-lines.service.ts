@@ -17,28 +17,23 @@ export class ProductionLinesService {
     private organisationService: OrganisationsService
   ) {}
   async create(createProductionLineDto: CreateProductionLineDto): Promise<ProductionLine> {
-    try {
-      const {name, description, finalGoodId, productionCostPerLot, changeOverTime, organisationId} = createProductionLineDto
-  
-      const organisation = await this.organisationService.findOne(organisationId)
-      const finalGood = await this.finalGoodService.findOne(finalGoodId)
-      const newProductionLine = this.productionLineRepository.create({
-        name,
-        description,
-        productionCostPerLot,
-        changeOverTime: changeOverTime,
-        created: new Date(),
-        nextAvailableDateTime: new Date(),
-        finalGoodId: finalGood.id,
-        isAvailable: true,
-        lastStopped: null,
-        organisationId: organisation.id
-      })
-      return this.productionLineRepository.save(newProductionLine)
-    } catch (error) {
-      throw new NotFoundException(`Final good with id: ${createProductionLineDto.finalGoodId} provided cannot be found!`)
-    }
-   
+    const {name, description, finalGoodId, productionCostPerLot, changeOverTime, organisationId} = createProductionLineDto
+
+    const organisation = await this.organisationService.findOne(organisationId)
+    const finalGood = await this.finalGoodService.findOne(finalGoodId)
+    const newProductionLine = this.productionLineRepository.create({
+      name,
+      description,
+      productionCostPerLot,
+      changeOverTime: changeOverTime,
+      created: new Date(),
+      nextAvailableDateTime: new Date(),
+      finalGoodId: finalGood.id,
+      isAvailable: true,
+      lastStopped: null,
+      organisationId: organisation.id
+    })
+    return this.productionLineRepository.save(newProductionLine)
   }
 
   async findAll(): Promise<ProductionLine[]> {
@@ -52,15 +47,19 @@ export class ProductionLinesService {
     })
   }
 
-  findOne(id: number): Promise<ProductionLine> {
-    return this.productionLineRepository.findOne({where: {
-      id
-    }, relations: {
-      finalGood: true,
-      schedules: true,
-      organisation: true,
-      machines: true
-    }})
+  async findOne(id: number): Promise<ProductionLine> {
+    try {
+      return await this.productionLineRepository.findOneOrFail({where: {
+        id
+      }, relations: {
+        finalGood: true,
+        schedules: true,
+        organisation: true,
+        machines: true
+      }})
+    } catch (error) {
+      throw new NotFoundException(`findOne failed as ProductionLine with id: ${id} cannot be found`)
+    }
   }
 
   async findAllByOrg(id: number): Promise<ProductionLine[]> {
@@ -121,7 +120,7 @@ export class ProductionLinesService {
     //check if there are other machines that are false, 
     //If there are, do nothing
     //if this is the only one, update status of PL to true and update all schdules with the time elapsed 
-    const productionLine = await entityManager.findOne(ProductionLine, {
+    const productionLine = await entityManager.findOneOrFail(ProductionLine, {
       where: {
         id: productionLineId
       },
