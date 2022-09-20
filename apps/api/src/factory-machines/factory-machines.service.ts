@@ -43,13 +43,19 @@ export class FactoryMachinesService {
     })
   }
 
-  findOne(id: number): Promise<FactoryMachine> {
-    return this.factoryMachineRepository.findOne({where: {
-      id
-    }, relations: {
-      organisation: true,
-      productionLine: true
-    }})
+  async findOne(id: number): Promise<FactoryMachine> {
+    try {
+      const factoryMachine = await this.factoryMachineRepository.findOneOrFail({where: {
+        id
+      }, relations: {
+        organisation: true,
+        productionLine: true
+      }})
+      return factoryMachine
+    } catch (error) {
+      throw new NotFoundException(`factory machine with id: ${id} cannot be found`)
+    }
+    
   }
 
   findAllByOrg(id: number): Promise<FactoryMachine[]> {
@@ -71,8 +77,11 @@ export class FactoryMachinesService {
       const productionLineId = factoryMachineToUpdate.productionLineId
       const keyValuePairs = Object.entries(updateFactoryMachineDto)
       for (const [key, value] of keyValuePairs) {
-        if (key === 'isOperating') {
+        if (key === 'isOperating' && factoryMachineToUpdate.productionLineId) {
           await this.productionLineService.machineTriggerChange(value, factoryMachineToUpdate.id, productionLineId, transactionalEntityManager)
+        }
+        if (key === 'productionLineId') {
+          await this.productionLineService.findOne(value)
         }
         factoryMachineToUpdate[key] = value
       }
