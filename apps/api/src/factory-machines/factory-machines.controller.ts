@@ -17,6 +17,11 @@ export class FactoryMachinesController {
     return this.factoryMachinesService.findAll();
   }
 
+  @Get('orgId/:id')
+  findAllByOrg(@Param('id') id: string) {
+    return this.factoryMachinesService.findAllByOrg(+id)
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.factoryMachinesService.findOne(+id);

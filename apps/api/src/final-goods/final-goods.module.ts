@@ -11,6 +11,7 @@ import { Organisation } from '../organisations/entities/organisation.entity';
 @Module({
   imports: [TypeOrmModule.forFeature([FinalGood, Product, BillOfMaterial, Organisation])],
   controllers: [FinalGoodsController],
-  providers: [FinalGoodsService]
+  providers: [FinalGoodsService],
+  exports: [FinalGoodsService]
 })
 export class FinalGoodsModule {}
