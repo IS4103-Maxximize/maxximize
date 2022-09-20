@@ -76,10 +76,22 @@ export class ProductionLinesService {
   async update(id: number, updateProductionLineDto: UpdateProductionLineDto): Promise<ProductionLine> {
     const productionLineToUpdate = await this.findOne(id)
     const keyValuePairs = Object.entries(updateProductionLineDto)
-    keyValuePairs.forEach(([key, value]) => {
+    for (const [key, value] of keyValuePairs) {
+      if (key === 'changeOverTime') {
+        //need to update the nextAvailableDateTime
+        await this.updateNextAvailableDateTimeFromCOT(value, productionLineToUpdate)
+      }
       productionLineToUpdate[key] = value
-    })
+    }
     return this.productionLineRepository.save(productionLineToUpdate)
+  }
+
+  async updateNextAvailableDateTimeFromCOT(newCotValue: number, productionLine: ProductionLine) {
+    const currentCOT = productionLine.changeOverTime
+    const difference  = newCotValue - currentCOT
+    const newNextAvailableDateTime = new Date(new Date(productionLine.nextAvailableDateTime).getTime() + difference)
+    productionLine.nextAvailableDateTime = newNextAvailableDateTime
+    return this.productionLineRepository.save(productionLine)
   }
 
   async remove(id: number): Promise<ProductionLine> {
