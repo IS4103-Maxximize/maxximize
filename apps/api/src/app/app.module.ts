@@ -37,7 +37,9 @@ import { VehiclesModule } from '../vehicles/vehicles.module';
 import { WarehousesModule } from '../warehouses/warehouses.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { FollowUpLineItemsModule } from '../follow-up-line-items/follow-up-line-items.module';
 import { ProductionLinesModule } from '../production-lines/production-lines.module';
+
 
 @Module({
   imports: [
@@ -86,6 +88,7 @@ import { ProductionLinesModule } from '../production-lines/production-lines.modu
     GoodsReceiptsModule,
     GrLineItemsModule,
     BinsModule,
+    FollowUpLineItemsModule
     ProductionLinesModule
   ],
   controllers: [AppController],

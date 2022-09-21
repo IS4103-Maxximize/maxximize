@@ -4,4 +4,5 @@ import { ShellOrganisation } from "../../shell-organisations/entities/shell-orga
 export class CreateQuotationDto {
     salesInquiryId: number;
     shellOrganisationId: number;
+    leadTime: number;
 }

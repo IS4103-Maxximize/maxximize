@@ -22,6 +22,6 @@ export class QuotationLineItem {
     @ManyToOne(() => FinalGood, { nullable: true })
     finalGood?: FinalGood
 
-    @ManyToOne(() => Quotation, quotation => quotation.quotationLineItems, {onDelete: 'CASCADE'})
+    @ManyToOne(() => Quotation, quotation => quotation.quotationLineItems, {onDelete: 'CASCADE', cascade: true})
     quotation: Quotation
 }

@@ -4,7 +4,7 @@ import { PurchaseOrder } from "../../purchase-orders/entities/purchase-order.ent
 import { RawMaterial } from "../../raw-materials/entities/raw-material.entity";
 
 @Entity()
-export class PurchaseOrderLineItem {
+export class FollowUpLineItem {
     @PrimaryGeneratedColumn()
     id: number
 
@@ -20,7 +20,6 @@ export class PurchaseOrderLineItem {
     @ManyToOne(() => FinalGood, { nullable: true })
     finalGood?: FinalGood
 
-    @ManyToOne(() => PurchaseOrder, purchaseOrder => purchaseOrder.poLineItems, {onDelete: 'CASCADE', nullable:true})
-    purchaseOrder: PurchaseOrder
+    @ManyToOne(() => PurchaseOrder, purchaseOrder => purchaseOrder.followUpLineItems, {onDelete: 'CASCADE'})
+    purchaseOrder?: PurchaseOrder
 }
-
