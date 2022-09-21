@@ -1,9 +1,14 @@
-import { Organisation } from "../../organisations/entities/organisation.entity";
-import { Quotation } from "../../quotations/entities/quotation.entity";
+import { CreatePurchaseOrderLineItemDto } from "../../purchase-order-line-items/dto/create-purchase-order-line-item.dto";
 
 export class CreatePurchaseOrderDto {
     deliveryAddress: string;
-    totalPrice?: number;
-    currentOrganisation: Organisation;
-    quotation: Quotation;
+    totalPrice: number;
+    deliveryDate: Date;
+    currentOrganisationId: number;
+    quotationId: number;
+    orgContactId: number;
+    userContactId: number;
+    supplierContact: number;
+    poLineItemDtos: CreatePurchaseOrderLineItemDto[];
+
 }

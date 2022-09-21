@@ -38,6 +38,7 @@ import { VehiclesModule } from '../vehicles/vehicles.module';
 import { WarehousesModule } from '../warehouses/warehouses.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { FollowUpLineItemsModule } from '../follow-up-line-items/follow-up-line-items.module';
 
 @Module({
   imports: [
@@ -86,7 +87,8 @@ import { AppService } from './app.service';
     BatchLineItemsModule,
     GoodsReceiptsModule,
     GrLineItemsModule,
-    BinsModule
+    BinsModule,
+    FollowUpLineItemsModule
   ],
   controllers: [AppController],
   providers: [AppService],

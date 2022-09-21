@@ -7,7 +7,6 @@ import { ShellOrganisation } from '../shell-organisations/entities/shell-organis
 import { Quotation } from '../quotations/entities/quotation.entity';
 import { Organisation } from '../organisations/entities/organisation.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { MailService } from '../mail/mail.service';
 import { MailModule } from '../mail/mail.module';
 import { RawMaterial } from '../raw-materials/entities/raw-material.entity';
 
