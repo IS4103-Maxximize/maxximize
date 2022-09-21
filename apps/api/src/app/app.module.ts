@@ -39,6 +39,7 @@ import { AppService } from './app.service';
 import { ProductionLinesModule } from '../production-lines/production-lines.module';
 import { QaRulesModule } from '../qa-rules/qa-rules.module';
 import { QaChecklistsModule } from '../qa-checklists/qa-checklists.module';
+import { FollowUpLineItemsModule } from '../follow-up-line-items/follow-up-line-items.module';
 
 @Module({
   imports: [
@@ -88,7 +89,8 @@ import { QaChecklistsModule } from '../qa-checklists/qa-checklists.module';
     BinsModule,
     ProductionLinesModule,
     QaRulesModule,
-    QaChecklistsModule
+    QaChecklistsModule,
+    FollowUpLineItemsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
