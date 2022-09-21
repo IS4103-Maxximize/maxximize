@@ -1,16 +1,16 @@
-import { React, useState, useEffect } from 'react';
-import { Card, Box, Alert, Collapse, Tooltip, Stack, TextField, InputAdornment, SvgIcon, Badge, Menu, MenuItem } from '@mui/material';
-import IconButton from '@mui/material/IconButton';
-import HelpIcon from '@mui/icons-material/Help';
-import { DataGrid, GridToolbar } from '@mui/x-data-grid';
-import DomainAddIcon from '@mui/icons-material/DomainAdd';
-import { RelationsDialog } from './RelationsDialog';
-import { Search as SearchIcon } from '../../icons/search';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { NotificationAlert } from '../notification-alert';
+import DomainAddIcon from '@mui/icons-material/DomainAdd';
+import HelpIcon from '@mui/icons-material/Help';
 import MoreVert from '@mui/icons-material/MoreVert';
-import { UpdateRelationsDialog } from './updateRelationsDialog';
+import { Badge, Box, Card, InputAdornment, Menu, MenuItem, Stack, SvgIcon, TextField, Tooltip } from '@mui/material';
+import IconButton from '@mui/material/IconButton';
+import { DataGrid, GridToolbar } from '@mui/x-data-grid';
+import { useEffect, useState } from 'react';
+import { Search as SearchIcon } from '../../icons/search';
+import { NotificationAlert } from '../notification-alert';
 import { BusinessPartnerConfirmDialog } from './BusinessPartnerConfirmDialog';
+import { RelationsDialog } from './RelationsDialog';
+import { UpdateRelationsDialog } from './updateRelationsDialog';
 
 export const SuppliersList = ({orgId}) => {
   const [suppliers, setSuppliers] = useState([]);
@@ -122,7 +122,7 @@ export const SuppliersList = ({orgId}) => {
 
 //   Search functionality
   const handleSearch = (event) => {
-    setSearch(event.target.value.toLowerCase())
+    setSearch(event.target.value.toLowerCase().trim())
   };
 
   useEffect(() => {
@@ -298,13 +298,19 @@ export const SuppliersList = ({orgId}) => {
 
       </Box>
     
-      <Box mb={2} 
-      sx={{ m: 1 }} 
-      display="flex" 
-      justifyContent="end">
+      <Box 
+        mb={2} 
+        sx={{ m: 1 }} 
+        display="flex" 
+        justifyContent="end"
+        alignItems="baseline"
+      >
       
           <Tooltip title={'Add new supplier'}>
-            <IconButton onClick={handleOpenDialog}>
+            <IconButton 
+              color="primary"
+              onClick={handleOpenDialog}
+            >
               <DomainAddIcon />
             </IconButton>
           </Tooltip>
@@ -318,32 +324,34 @@ export const SuppliersList = ({orgId}) => {
           />
 
         <Tooltip title={'Update a supplier by clicking on the menu button at the end of the row'}>
-          <IconButton>
+          <span>
             <HelpIcon />
-          </IconButton>
+          </span>
         </Tooltip>
 
         <Tooltip title={'Delete Supplier (Single/Multiple)'}>
-          <Badge badgeContent={selectionModel.length} color="error">
-            <IconButton
+          <IconButton
             disabled={disabled}
-              onClick={handleOpenConfirmationDialog}
-            >
-              <DeleteIcon color="error" />
-            </IconButton>
-          </Badge>
+            onClick={handleOpenConfirmationDialog}
+            color="error"
+          >
+            <Badge badgeContent={selectionModel.length} color="error">
+              <DeleteIcon />
+            </Badge>
+          </IconButton>
         </Tooltip>
-        <BusinessPartnerConfirmDialog
-                  open={openConfirmationDialog}
-                  handleClose={handleCloseConfirmationDialog}
-                  dialogTitle={`Delete supplier(s)`}
-                  dialogContent={`Confirm deletion of supplier(s)?`}
-                  dialogAction={() => {
-                    const selectedIds = new Set(selectionModel);
-                    handleDelete(selectedIds);
-                  }}
-                />
       </Box>
+
+      <BusinessPartnerConfirmDialog
+        open={openConfirmationDialog}
+        handleClose={handleCloseConfirmationDialog}
+        dialogTitle={`Delete supplier(s)`}
+        dialogContent={`Confirm deletion of supplier(s)?`}
+        dialogAction={() => {
+          const selectedIds = new Set(selectionModel);
+          handleDelete(selectedIds);
+        }}
+      />
 
       <Card>
         <Box sx={{ minWidth: 1050 }}>
