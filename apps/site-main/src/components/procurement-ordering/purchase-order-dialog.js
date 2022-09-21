@@ -5,6 +5,8 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useState, useEffect } from "react";
 import { fetchQuotations } from "../../helpers/procurement-ordering";
+import { DatePicker } from "@mui/x-date-pickers";
+import { addDays } from "date-fns";
 
 export const PODialog = (props) => {
   const {
@@ -24,6 +26,7 @@ export const PODialog = (props) => {
 
   const handleOnSubmit = async (values) => {
     // submit
+    console.log(values);
   };
 
   const [quotations, setQuotations] = useState([]);
@@ -33,22 +36,15 @@ export const PODialog = (props) => {
         quotation.salesInquiry.currentOrganisation.id === organisationId));
     setQuotations(data);
   }
-  useEffect(() => {
-    // fetch when opening create dialog
-    if (open && action === 'POST') { 
-      getQuotations();
-    }
-  }, [open])
 
   const formik = useFormik({
     initialValues: {
       id: purchaseOrder ? purchaseOrder.id : null,
       status: purchaseOrder ? purchaseOrder.status : 'pending',
-      deliveryAddres: purchaseOrder ? purchaseOrder.deliveryAddres : '',
+      deliveryAddress: purchaseOrder ? purchaseOrder.deliveryAddress : null,
       totalPrice: purchaseOrder ? purchaseOrder.totalPrice : 0,
       created: purchaseOrder ? purchaseOrder.created : null,
-      deliveryDate: purchaseOrder ? purchaseOrder.deliveryDate : new Date(),
-      unfulfilledQuantity: purchaseOrder ? purchaseOrder.unfulfilledQuantity : 0,
+      deliveryDate: purchaseOrder ? purchaseOrder.deliveryDate : null,
       currentOrganisation: purchaseOrder ? purchaseOrder.currentOrganisation : user.organisation,
       orgContact: purchaseOrder ? purchaseOrder.orgContact : null,
       userContact: purchaseOrder ? purchaseOrder.userContact : null,
@@ -65,13 +61,27 @@ export const PODialog = (props) => {
   // Select Quotation -> populate poLineItems, calculate totalPrice
   // Clear Quotation selection -> clear poLineItems, set totalPrice to 0
   useEffect(() => {
+    // create PO
+    if (action === 'POST') {
       formik.setFieldValue('poLineItems', 
         formik.values.quotation ? 
           formik.values.quotation.quotationLineItems : []);
       formik.setFieldValue('totalPrice', 
         formik.values.quotation ? 
           formik.values.quotation.totalPrice : 0);
+      formik.setFieldValue('deliveryDate', 
+        formik.values.quotation ? 
+          addDays(new Date(), formik.values.quotation.leadTime) : new Date());
+    }      
   }, [formik.values.quotation])
+
+  useEffect(() => {
+    // fetch when opening create dialog
+    if (open && action === 'POST') { 
+      formik.setFieldValue('deliveryDate', new Date())
+      getQuotations();
+    }
+  }, [open])
 
   const onClose = () => {
     formik.resetForm();
@@ -161,6 +171,7 @@ export const PODialog = (props) => {
                 sx={{ width: 300 }}
                 options={quotations}
                 getOptionLabel={(option) => option.id.toString()}
+                isOptionEqualToValue={(option, value) => option.id === value.id}
                 value={formik.values.quotation}
                 onChange={(e, value) => formik.setFieldValue('quotation', value)}
                 renderInput={(params) => (
@@ -175,6 +186,16 @@ export const PODialog = (props) => {
                 disabled={purchaseOrder}
               />
             )}
+            <DatePicker
+              disabled={!formik.values.quotation || purchaseOrder}
+              renderInput={(props) => <TextField {...props} />}
+              label="Delivery Date"
+              value={formik.values.deliveryDate}
+              minDate={formik.values.deliveryDate} // earliest date is current + leadTime OR purchaseOrder.deliveryDate
+              onChange={(newValue) => {
+                formik.setFieldValue('deliveryDate', newValue);
+              }}
+            />
           </Stack>
           <DataGrid
             autoHeight
