@@ -12,24 +12,15 @@ export const fetchProducts = async (type, organisationId) => {
 
 export const createProduct = async (type, values, organisationId) => {
   const apiUrl = `${apiHost}/${type}`;
-  let body = {
+  const body = JSON.stringify({
     name: values.name,
     description: values.description,
     unit: values.unit,
     unitPrice: values.unitPrice,
     expiry: values.expiry,
     organisationId: organisationId,
-  };
-
-  if (type === 'final-goods') {
-    body = {
-      ...body,
-      lotQuantity: values.lotQuantity,
-    };
-  }
-
-  body = JSON.stringify(body);
-
+    lotQuantity: values.lotQuantity,
+  });
   const requestOptions = {
     method: 'POST',
     headers: headers,
@@ -42,23 +33,14 @@ export const createProduct = async (type, values, organisationId) => {
 
 export const updateProduct = async (id, type, values) => {
   const apiUrl = `${apiHost}/${type}/${id}`;
-  let body = {
+  const body = JSON.stringify({
     name: values.name,
     description: values.description,
     unit: values.unit,
     unitPrice: values.unitPrice,
     expiry: values.expiry,
-  };
-
-  if (type === 'final-goods') {
-    body = {
-      ...body,
-      lotQuantity: values.lotQuantity,
-    };
-  }
-
-  body = JSON.stringify(body);
-
+    lotQuantity: values.lotQuantity,
+  });
   const requestOptions = {
     method: 'PATCH',
     headers: headers,

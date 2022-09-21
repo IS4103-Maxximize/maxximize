@@ -30,15 +30,15 @@ const orderingModules = [
     href: 'quotation',
     access: ['manager', 'factoryworker', 'superadmin'],
   },
-  //   {
-  //     id: 3,
-  //     media: '../assets/images/procurement/procurement-purchase-order.jpg',
-  //     description1: 'Handle purchase orders',
-  //     description2: 'Send purchase order to supplier',
-  //     title: 'Purchase Order',
-  //     href: 'purchaseorder',
-  //     access: ['manager', 'factoryworker'],
-  //   },
+    {
+      id: 3,
+      media: '../assets/images/procurement/procurement-purchase-order.jpg',
+      description1: 'Handle purchase orders',
+      description2: 'Send purchase order to supplier',
+      title: 'Purchase Order',
+      href: 'purchase-order',
+      access: ['manager', 'factoryworker', 'superadmin'],
+    },
 ];
 
 const receivingModules = [
