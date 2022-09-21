@@ -278,6 +278,7 @@ export const SalesInquiry = (props) => {
                 pageSize={10}
                 rowsPerPageOptions={[10]}
                 checkboxSelection
+                isRowSelectable={(params) => params.row.status === 'draft'}
                 components={{
                   Toolbar: GridToolbar,
                 }}
