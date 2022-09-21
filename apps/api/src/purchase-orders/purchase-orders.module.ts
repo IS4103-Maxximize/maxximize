@@ -18,5 +18,6 @@ import { FollowUpLineItem } from '../follow-up-line-items/entities/follow-up-lin
   imports: [TypeOrmModule.forFeature([Organisation, PurchaseOrder, PurchaseOrderLineItem, Quotation, FollowUpLineItem, RawMaterial, FinalGood]), PurchaseOrderLineItemsModule, OrganisationsModule, QuotationsModule, MailModule],
   controllers: [PurchaseOrdersController],
   providers: [PurchaseOrdersService],
+  exports: [PurchaseOrdersService]
 })
 export class PurchaseOrdersModule {}
