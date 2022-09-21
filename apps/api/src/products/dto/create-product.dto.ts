@@ -6,4 +6,5 @@ export class CreateProductDto {
     unit?: MeasurementUnit;
     unitPrice: number;
     expiry: number;
+    lotQuantity: number
 }

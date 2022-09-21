@@ -1,16 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { randomUUID } from 'crypto';
-import { Repository } from 'typeorm';
-import { BatchLineItem } from '../batch-line-items/entities/batch-line-item.entity';
+import { DataSource, Repository } from 'typeorm';
 import { BatchesService } from '../batches/batches.service';
 import { CreateBatchDto } from '../batches/dto/create-batch.dto';
-import { Batch } from '../batches/entities/batch.entity';
-import { CreateGrLineItemDto } from '../gr-line-items/dto/create-gr-line-item.dto';
 import { GrLineItemsService } from '../gr-line-items/gr-line-items.service';
 import { UsersService } from '../users/users.service';
 import { CreateGoodsReceiptDto } from './dto/create-goods-receipt.dto';
-import { UpdateGoodsReceiptDto } from './dto/update-goods-receipt.dto';
 import { GoodsReceipt } from './entities/goods-receipt.entity';
 
 @Injectable()
@@ -21,64 +17,80 @@ export class GoodsReceiptsService {
     /*private purchaseOrderSerivce: PurchaseOrderService,*/
     private userService: UsersService,
     private grLineItemService: GrLineItemsService,
-    private batchService: BatchesService
+    private batchService: BatchesService,
+    private dataSource: DataSource
   ) {}
 
   async create(createGoodsReceiptDto: CreateGoodsReceiptDto) {
-    const goodReceipt = new GoodsReceipt();
-    goodReceipt.createdDateTime = createGoodsReceiptDto.createdDateTime;
-    const createGrLineDtos = createGoodsReceiptDto.goodsReceiptLineItemsDtos;
-    const goodsReceiptLineItems = [];
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
 
-    const createBatchDto = new CreateBatchDto();
-    createBatchDto.batchLineItems = [];
+    try {
+      const goodReceipt = new GoodsReceipt();
+      goodReceipt.createdDateTime = createGoodsReceiptDto.createdDateTime;
+      goodReceipt.description = createGoodsReceiptDto.description;
+      const createGrLineDtos = createGoodsReceiptDto.goodsReceiptLineItemsDtos;
+      const goodsReceiptLineItems = [];
 
-    createGrLineDtos.forEach(async (dto) => {
-      const createGrLineDto = new CreateGrLineItemDto();
-      createGrLineDto.rawMaterialId = dto.rawMaterialId;
-      createGrLineDto.subtotal = dto.subtotal;
-      createGrLineDto.quantity = dto.quantity;
-      const grLineItem = await this.grLineItemService.create(createGrLineDto);
-      goodsReceiptLineItems.push(grLineItem);
+      const createBatchDto = new CreateBatchDto();
+      createBatchDto.batchLineItems = [];
 
-      const batchLineItem = new BatchLineItem();
-      batchLineItem.product = grLineItem.product;
-      batchLineItem.subTotal = grLineItem.subTotal;
-      batchLineItem.quantity = grLineItem.quantity;
-      createBatchDto.batchLineItems.push(batchLineItem);
-    });
+      for (const dto of createGrLineDtos) {
+        const createdGrLineItem = await this.grLineItemService.createWithExistingTransaction(dto, queryRunner);
+        goodsReceiptLineItems.push(createdGrLineItem);
+      }
 
-    goodReceipt.goodReceiptLineItems = goodsReceiptLineItems;
+      goodReceipt.goodReceiptLineItems = goodsReceiptLineItems;
 
-    //const purchaseOrder = this.purchaseOrderSerivce.findOne(createGoodsReceiptDto.purchaseOrderId);
-    //goodReceipt.purchaseOrder = purchaseOrder;
+      //const purchaseOrder = this.purchaseOrderSerivce.findOne(createGoodsReceiptDto.purchaseOrderId);
+      //goodReceipt.purchaseOrder = purchaseOrder;
 
-    const recipient = await this.userService.findOne(
-      createGoodsReceiptDto.recipientId
-    );
-    goodReceipt.recipientName = recipient.firstName + ' ' + recipient.lastName;
+      const recipient = await this.userService.findOne(createGoodsReceiptDto.recipientId);
+      goodReceipt.recipientName = recipient.firstName + ' ' + recipient.lastName;
 
-    createBatchDto.batchNumber = randomUUID() + new Date().toLocaleDateString();
-    const batch = await this.batchService.create(createBatchDto);
-    goodReceipt.batch = batch;
-    return this.goodsReceiptRepository.save(goodReceipt);
+      createBatchDto.batchNumber = "B-" + randomUUID().substring(0, 5) + "-" + 
+        new Date().toLocaleDateString() + "-" + new Date().toLocaleTimeString();
+      const batch = await this.batchService.createWithExistingTransaction(createBatchDto, goodsReceiptLineItems, queryRunner);
+      goodReceipt.batch = batch;
+
+      const createdGr = await queryRunner.manager.save(goodReceipt);
+      await queryRunner.commitTransaction();
+
+      return createdGr;
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+      throw new InternalServerErrorException(err);
+    } finally {
+      await queryRunner.release();
+    }
   }
 
-  findAll() {
-    return this.goodsReceiptRepository.find({
-      relations: ['goodReceiptLineItems'],
+  async findAll() {
+    const goodsReceipts = await this.goodsReceiptRepository.find({
+      relations: ['goodReceiptLineItems']
     });
+    if (goodsReceipts.length === 0 || goodsReceipts === undefined) {
+      throw new NotFoundException("No goods receipt(s) found");
+    }
+    return goodsReceipts;
   }
 
-  findOne(id: number) {
-    return this.goodsReceiptRepository.findOne({
+  async findOne(id: number) {
+    const goodsReceipt = await this.goodsReceiptRepository.findOne({
       where: {
         id: id,
       },
-      relations: ['goodReceiptLineItems'],
+      relations: ['goodReceiptLineItems']
     });
+    if (goodsReceipt) {
+      return goodsReceipt;
+    } else {
+      throw new NotFoundException(`Good receipt with ${id} is not found`);
+    }
   }
 
+  /*
   async update(id: number, updateGoodsReceiptDto: UpdateGoodsReceiptDto) {
     const goodReceipt = await this.findOne(id);
     const recipient = await this.userService.findOne(
@@ -94,8 +106,9 @@ export class GoodsReceiptsService {
 
     return this.goodsReceiptRepository.save(goodReceipt);
   }
+  */
 
   remove(id: number) {
-    return this.goodsReceiptRepository.delete(id);
+    return this.goodsReceiptRepository.softDelete(id);
   }
 }

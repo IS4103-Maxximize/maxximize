@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, DeleteDateColumn, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Batch } from "../../batches/entities/batch.entity";
 import { GrLineItem } from "../../gr-line-items/entities/gr-line-item.entity";
 
@@ -13,6 +13,12 @@ export class GoodsReceipt {
 
     @Column()
     recipientName: string
+
+    @Column()
+    description: string;
+
+    @DeleteDateColumn()
+    deletedDateTime: Date;
 
     @OneToMany(() => GrLineItem, grLineItem => grLineItem.goodReceipt)
     goodReceiptLineItems: GrLineItem[];
