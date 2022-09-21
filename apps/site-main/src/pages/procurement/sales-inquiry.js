@@ -5,7 +5,7 @@ import {
   CardContent,
   Container,
   IconButton,
-  Typography,
+  Typography
 } from '@mui/material';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import { useEffect, useState } from 'react';
@@ -19,8 +19,7 @@ import { Toolbar } from '../../components/procurement-ordering/toolbar';
 import { ConfirmDialog } from '../../components/product/confirm-dialog';
 import {
   deleteSalesInquiries,
-  fetchSalesInquiries,
-  updateSalesInquiry,
+  fetchSalesInquiries
 } from '../../helpers/procurement-ordering';
 
 export const SalesInquiry = (props) => {
@@ -109,8 +108,8 @@ export const SalesInquiry = (props) => {
     return (
       <IconButton
         onClick={(event) => {
+          // console.log(params.row);
           setSelectedRow(params.row);
-          console.log(params.row);
           handleMenuClick(event);
         }}
       >
@@ -165,13 +164,18 @@ export const SalesInquiry = (props) => {
 
   useEffect(() => {
     getSalesInquiries();
-  }, [rows]);
+  }, []);
 
   const columns = [
     {
       field: 'id',
       headerName: 'ID',
       flex: 1,
+    },
+    {
+      field: 'totalPrice',
+      headerName: 'Total Price',
+      flex: 2,
     },
     {
       field: 'status',
@@ -245,7 +249,7 @@ export const SalesInquiry = (props) => {
           />
           <Toolbar
             name="Sales Inquiry"
-            // numRows={selectedRows.length}
+            numRows={selectedRows.length}
             deleteDisabled={deleteDisabled}
             handleSearch={handleSearch}
             handleAdd={handleAdd}

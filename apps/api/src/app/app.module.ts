@@ -88,7 +88,7 @@ import { ProductionLinesModule } from '../production-lines/production-lines.modu
     GoodsReceiptsModule,
     GrLineItemsModule,
     BinsModule,
-    FollowUpLineItemsModule
+    FollowUpLineItemsModule,
     ProductionLinesModule
   ],
   controllers: [AppController],
