@@ -17,6 +17,7 @@ import { PurchaseOrder } from '../../purchase-orders/entities/purchase-order.ent
 import { SalesInquiry } from '../../sales-inquiry/entities/sales-inquiry.entity';
 import { RawMaterial } from '../../raw-materials/entities/raw-material.entity';
 import { FinalGood } from '../../final-goods/entities/final-good.entity';
+import { ProductionLine } from '../../production-lines/entities/production-line.entity';
 
 @Entity()
 export class Organisation {
@@ -82,4 +83,7 @@ export class Organisation {
 
   @OneToMany(() => FinalGood, (finalGood) => finalGood.organisation)
   finalGoods: FinalGood[];
+
+  @OneToMany(() => ProductionLine, productionLine => productionLine.organisation)
+  productionLines: ProductionLine[]
 }

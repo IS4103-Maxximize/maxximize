@@ -6,7 +6,6 @@ import { Organisation } from '../organisations/entities/organisation.entity';
 import { QualityReview } from '../quality-reviews/entities/quality-review.entity';
 import { Invoice } from '../invoices/entities/invoice.entity';
 import { OrderLineItem } from '../order-line-items/entities/order-line-item.entity';
-import { OrderProcess } from '../order-processes/entities/order-process.entity';
 import { DeliveryRequest } from '../delivery-requests/entities/delivery-request.entity';
 
 @Module({
@@ -15,7 +14,6 @@ import { DeliveryRequest } from '../delivery-requests/entities/delivery-request.
     QualityReview, 
     Invoice, 
     OrderLineItem,
-    OrderProcess,
     DeliveryRequest,
   ])],
   controllers: [OrdersController],
