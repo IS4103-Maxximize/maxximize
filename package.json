@@ -9,7 +9,9 @@
     "dev": "nx run-many --target=serve --projects=api,site-main",
     "api": "nx run api:serve",
     "site": "nx run site-main:serve",
-    "site-b2b": "nx run site-b2b:serve"
+    "site-admin": "nx run site-admin:serve",
+    "site-b2b": "nx run site-b2b:serve",
+    "site-all": "nx run-many --target=serve --projects=site-main,site-admin,site-b2b"
   },
   "private": true,
   "dependencies": {
