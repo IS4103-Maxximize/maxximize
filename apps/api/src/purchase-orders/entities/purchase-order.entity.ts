@@ -51,5 +51,6 @@ export class PurchaseOrder {
     followUpLineItems: FollowUpLineItem[]
 
     @OneToOne(() => Quotation, quotation => quotation.purchaseOrder, {onDelete: 'CASCADE'})
+    @JoinColumn()
     quotation: Quotation
 }

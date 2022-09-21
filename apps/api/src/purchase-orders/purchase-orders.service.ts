@@ -34,7 +34,7 @@ export class PurchaseOrdersService {
     private quotationsService: QuotationsService
   ) {}
   async create(createPurchaseOrderDto: CreatePurchaseOrderDto): Promise<PurchaseOrder> {
-    // try {
+    try {
       const { deliveryAddress, totalPrice, deliveryDate, currentOrganisationId, quotationId, userContactId, poLineItemDtos} = createPurchaseOrderDto
       let quotationToBeAdded: Quotation
       let orgContact: Contact
@@ -94,16 +94,15 @@ export class PurchaseOrdersService {
           poLineItems,
           followUpLineItems: []
         })
-        console.log(newPurchaseOrder)
         return transactionalEntityManager.save(newPurchaseOrder)
         
       })
       
       
       return newPurchaseOrder
-  //   } catch (error) {
-  //     throw new NotFoundException('The Entity cannot be found')
-  //   }
+    } catch (error) {
+      throw new NotFoundException('The Entity cannot be found')
+    }
    }
 
   findAll(): Promise<PurchaseOrder[]> {
@@ -144,6 +143,11 @@ export class PurchaseOrdersService {
   }
 
   async remove(id: number): Promise<PurchaseOrder> {
+    const purchaseOrderToRemove = await this.purchaseOrdersRepository.findOneBy({id})
+    return this.purchaseOrdersRepository.remove(purchaseOrderToRemove)
+  }
+
+  async cancel(id: number): Promise<PurchaseOrder> {
     const purchaseOrderToRemove = await this.purchaseOrdersRepository.findOneBy({id})
     return this.purchaseOrdersRepository.remove(purchaseOrderToRemove)
   }
