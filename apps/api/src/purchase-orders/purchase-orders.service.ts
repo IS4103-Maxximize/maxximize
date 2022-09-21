@@ -15,6 +15,7 @@ import { PurchaseOrderLineItemsService } from '../purchase-order-line-items/purc
 import { RawMaterial } from '../raw-materials/entities/raw-material.entity';
 import { FinalGood } from '../final-goods/entities/final-good.entity';
 import { PurchaseOrderStatus } from './enums/purchaseOrderStatus.enum';
+import { MailService } from '../mail/mail.service';
 
 
 @Injectable()
@@ -31,7 +32,8 @@ export class PurchaseOrdersService {
     private datasource: DataSource,
     private organisationsService: OrganisationsService,
     private purchaseOrderLineItemsService: PurchaseOrderLineItemsService,
-    private quotationsService: QuotationsService
+    private quotationsService: QuotationsService,
+    private mailService: MailService
   ) {}
   async create(createPurchaseOrderDto: CreatePurchaseOrderDto): Promise<PurchaseOrder> {
     try {
@@ -97,7 +99,10 @@ export class PurchaseOrdersService {
         return transactionalEntityManager.save(newPurchaseOrder)
         
       })
-      
+      const organisation = await this.organisationsService.findOne(currentOrganisationId)
+      const supplier = (await this.quotationsService.findOne(quotationId)).shellOrganisation
+      const deliveryTime = newPurchaseOrder.deliveryDate.toLocaleDateString()
+      this.mailService.sendPurchaseOrderEmail(supplierContact.email, organisation.name, supplier.name, poLineItems, newPurchaseOrder, deliveryTime)
       
       return newPurchaseOrder
     } catch (error) {
@@ -122,15 +127,15 @@ export class PurchaseOrdersService {
   findOne(id: number): Promise<PurchaseOrder> {
     return this.purchaseOrdersRepository.findOne({where: {
       id
-    }, relations: {
-      quotation: true,
-      poLineItems: true,
-      currentOrganisation: true,
-      followUpLineItems: true,
-      orgContact: true,
-      userContact: true,
-      supplierContact: true
-    }})
+    }, relations: [
+      'quotation',
+      'poLineItems.rawMaterial',
+      'currentOrganisation',
+      'followUpLineItems.rawMaterial',
+      'orgContact',
+      'userContact',
+      'supplierContact'
+    ]})
   }
 
   async update(id: number, updatePurchaseOrderDto: UpdatePurchaseOrderDto): Promise<PurchaseOrder> {
@@ -143,11 +148,6 @@ export class PurchaseOrdersService {
   }
 
   async remove(id: number): Promise<PurchaseOrder> {
-    const purchaseOrderToRemove = await this.purchaseOrdersRepository.findOneBy({id})
-    return this.purchaseOrdersRepository.remove(purchaseOrderToRemove)
-  }
-
-  async cancel(id: number): Promise<PurchaseOrder> {
     const purchaseOrderToRemove = await this.purchaseOrdersRepository.findOneBy({id})
     return this.purchaseOrdersRepository.remove(purchaseOrderToRemove)
   }

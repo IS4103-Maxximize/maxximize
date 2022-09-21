@@ -1,5 +1,4 @@
-import { ChildEntity, Entity, ManyToMany, ManyToOne, JoinTable } from 'typeorm';
-import { Organisation } from '../../organisations/entities/organisation.entity';
+import { ChildEntity, ManyToMany } from 'typeorm';
 import { Product } from '../../products/entities/product.entity';
 import { ShellOrganisation } from '../../shell-organisations/entities/shell-organisation.entity';
 

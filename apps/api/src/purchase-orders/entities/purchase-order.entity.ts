@@ -31,7 +31,7 @@ export class PurchaseOrder {
 
     @Column()
     organisationId: number
-    @ManyToOne(() => Organisation, currentOrganisation => currentOrganisation.purchaseOrders, {onDelete: "CASCADE"})
+    @ManyToOne(() => Organisation, currentOrganisation => currentOrganisation.purchaseOrders)
     @JoinColumn({name: 'organisationId'})
     currentOrganisation: Organisation
 

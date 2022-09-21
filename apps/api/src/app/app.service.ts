@@ -3,11 +3,18 @@ import { OrganisationsService } from '../organisations/organisations.service';
 import { UsersService } from '../users/users.service';
 import { OrganisationType } from '../organisations/enums/organisationType.enum';
 import { Role } from '../users/enums/role.enum';
+import { DataSource } from "typeorm"
+import { Organisation } from '../organisations/entities/organisation.entity';
+import { Contact } from '../contacts/entities/contact.entity';
+import { User } from '../users/entities/user.entity';
+import { ContactsService } from '../contacts/contacts.service';
 
 @Injectable()
 export class AppService implements OnApplicationBootstrap {
   constructor(private organisationsService: OrganisationsService,
-    private usersService: UsersService) {}
+    private usersService: UsersService,
+    private contactService: ContactsService,
+    private dataSource: DataSource) {}
   getData(): { message: string } {
     return { message: 'Welcome to api!' };
   }
@@ -15,7 +22,7 @@ export class AppService implements OnApplicationBootstrap {
   async onApplicationBootstrap() {
     const maxximize = await this.organisationsService.findOrganisationByType(OrganisationType.MAXXIMIZE)
     if (maxximize.length === 0) {
-      const maxximizeOrg = await this.organisationsService.create({
+      await this.organisationsService.create({
         name: "MaxxiMize",
         type: OrganisationType.MAXXIMIZE,
         uen: "999999999",
@@ -25,7 +32,32 @@ export class AppService implements OnApplicationBootstrap {
           address: "Serangoon Gardens",
           postalCode: "789273"
         }
-      })
+      });
+
+      await this.organisationsService.create({
+        name: "manufacturing1",
+        type: OrganisationType.MANUFACTURER,
+        uen: "124233122",
+        contact: {
+          phoneNumber: "94893849",
+          email: "m1@gmail.com",
+          address: "ManuAddress1",
+          postalCode: "723123"
+        }
+      });
+
+      await this.organisationsService.create({
+        name: "retailer1",
+        type: OrganisationType.RETAILER,
+        uen: "612763873",
+        contact: {
+          phoneNumber: "93492348",
+          email: "r1@gmail.com",
+          address: "RetailAddress1",
+          postalCode: "371839"
+        }
+      });
+
       await this.usersService.create({
         firstName: 'Max',
         lastName: 'Admin',
@@ -38,8 +70,82 @@ export class AppService implements OnApplicationBootstrap {
 
         },
         username: 'maxadmin',
-        organisationId: maxximizeOrg.id
-      })
+        organisationId: 1
+      });
+
+      await this.dataSource
+        .createQueryBuilder()
+        .insert()
+        .into(Contact)
+        .values([
+          {
+            id: 5,
+            phoneNumber: "93894938",
+            email: "mc1@gmail.com",
+            address: "ManuCusAddress1",
+            postalCode: "423423"
+          },
+          {
+            id: 6,
+            phoneNumber: "92390489",
+            email: "rc1@gmail.com",
+            address: "RetailCusAddress1",
+            postalCode: "534523"
+          },
+          {
+            id: 7,
+            phoneNumber: "82949238",
+            email: "maxxiuser@gmail.com",
+            address: "maxximiseAddress",
+            postalCode: "839849"
+          }
+        ]).execute();
+
+      await this.dataSource
+        .createQueryBuilder()
+        .insert()
+        .into(User)
+        .values([
+          {
+            id: 2,
+            firstName: "manuUser1",
+            lastName: "lee",
+            username: "manuSuperAdmin",
+            password: "$2b$10$f6h95DOKlOa4967NYpF4y.ef5vkNYh9zJkl7LajmU7mFP86FU0k5K",
+            isActive: "true",
+            salt: "$2b$10$f6h95DOKlOa4967NYpF4y.",
+            passwordChanged: false,
+            role: Role.SUPERADMIN,
+            organisation: await this.organisationsService.findOne(2),
+            contact: await this.contactService.findOne(5)
+          },
+          {
+            id: 3,
+            firstName: "retailUser1",
+            lastName: "tan",
+            username: "retailAdmin",
+            password: "$2b$10$f6h95DOKlOa4967NYpF4y.ef5vkNYh9zJkl7LajmU7mFP86FU0k5K",
+            isActive: "true",
+            salt: "$2b$10$f6h95DOKlOa4967NYpF4y.",
+            passwordChanged: false,
+            role: Role.ADMIN,
+            organisation: await this.organisationsService.findOne(3),
+            contact: await this.contactService.findOne(6)
+          },
+          {
+            id: 4,
+            firstName: "adminUser1",
+            lastName: "lim",
+            username: "maxximizeAdmin",
+            password: "$2b$10$f6h95DOKlOa4967NYpF4y.ef5vkNYh9zJkl7LajmU7mFP86FU0k5K",
+            isActive: "true",
+            salt: "$2b$10$f6h95DOKlOa4967NYpF4y.",
+            passwordChanged: false,
+            role: Role.ADMIN,
+            organisation: await this.organisationsService.findOne(1),
+            contact: await this.contactService.findOne(7)
+          }
+        ]).execute();
     }
   }
 }

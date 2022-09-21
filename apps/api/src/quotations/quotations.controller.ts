@@ -22,6 +22,11 @@ export class QuotationsController {
     return this.quotationsService.findOne(+id);
   }
 
+  @Get('all/:id')
+  findAllByOrg(@Param('id') id: string) {
+    return this.quotationsService.findAllByOrg(+id);
+  }
+
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateQuotationDto: UpdateQuotationDto) {
     return this.quotationsService.update(+id, updateQuotationDto);
