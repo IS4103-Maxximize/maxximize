@@ -101,8 +101,8 @@ export class PurchaseOrdersService {
       })
       const organisation = await this.organisationsService.findOne(currentOrganisationId)
       const supplier = (await this.quotationsService.findOne(quotationId)).shellOrganisation
-      const deliveryTime = newPurchaseOrder.deliveryDate.toLocaleDateString()
-      this.mailService.sendPurchaseOrderEmail(supplierContact.email, organisation.name, supplier.name, poLineItems, newPurchaseOrder, deliveryTime)
+      // const deliveryTime = newPurchaseOrder.deliveryDate.toLocaleDateString()
+      // this.mailService.sendPurchaseOrderEmail(supplierContact.email, organisation.name, supplier.name, poLineItems, newPurchaseOrder, deliveryTime)
       
       return newPurchaseOrder
     } catch (error) {
