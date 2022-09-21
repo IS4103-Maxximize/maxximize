@@ -2,9 +2,7 @@ import { Column, Entity, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn 
 import { DeliveryRequest } from "../../delivery-requests/entities/delivery-request.entity";
 import { Invoice } from "../../invoices/entities/invoice.entity";
 import { OrderLineItem } from "../../order-line-items/entities/order-line-item.entity";
-import { OrderProcess } from "../../order-processes/entities/order-process.entity";
 import { Organisation } from "../../organisations/entities/organisation.entity";
-import { QualityReview } from "../../quality-reviews/entities/quality-review.entity";
 import { DeliveryType } from "../enums/DeliveryType.enum";
 import { OrderStatus } from "../enums/OrderStatus.enum";
 import { PaymentType } from "../enums/PaymentType.enum";
@@ -59,17 +57,11 @@ export class Order {
     @ManyToOne(() => Organisation, organisation => organisation.purchaseOrders)
     customer: Organisation
 
-    @OneToOne(() => QualityReview, qualityReview => qualityReview.order)
-    qualityReview: QualityReview
-
     @OneToOne(() => Invoice, invoice => invoice.order)
     invoice: Invoice
 
     @OneToMany(() => OrderLineItem, orderLineItem => orderLineItem.order)
     orderLineItems: OrderLineItem[]
-
-    @OneToOne(() => OrderProcess, orderProcess => orderProcess.order)
-    orderProcess: OrderProcess
 
     @OneToOne(() => DeliveryRequest, deliveryRequest => deliveryRequest.order)
     deliveryRequest: DeliveryRequest

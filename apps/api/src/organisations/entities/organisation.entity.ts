@@ -17,6 +17,9 @@ import { PurchaseOrder } from '../../purchase-orders/entities/purchase-order.ent
 import { SalesInquiry } from '../../sales-inquiry/entities/sales-inquiry.entity';
 import { RawMaterial } from '../../raw-materials/entities/raw-material.entity';
 import { FinalGood } from '../../final-goods/entities/final-good.entity';
+import { ProductionLine } from '../../production-lines/entities/production-line.entity';
+import { QaRule } from '../../qa-rules/entities/qa-rule.entity';
+import { QaChecklist } from '../../qa-checklists/entities/qa-checklist.entity';
 
 @Entity()
 export class Organisation {
@@ -82,4 +85,13 @@ export class Organisation {
 
   @OneToMany(() => FinalGood, (finalGood) => finalGood.organisation)
   finalGoods: FinalGood[];
+
+  @OneToMany(() => ProductionLine, productionLine => productionLine.organisation)
+  productionLines: ProductionLine[]
+
+  @OneToMany(() => QaRule, qaRule => qaRule.organisation)
+  qaRules: QaRule[]
+
+  @OneToMany(() => QaChecklist, qaChecklist => qaChecklist.organisation)
+  qaChecklists: QaChecklist[]
 }

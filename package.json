@@ -42,6 +42,7 @@
     "class-validator": "^0.13.2",
     "core-js": "^3.6.5",
     "date-fns": "^2.29.2",
+    "dayjs": "^1.11.5",
     "formik": "^2.2.9",
     "handlebars": "^4.7.7",
     "history": "^5.3.0",
@@ -143,5 +144,17 @@
     "ts-jest": "27.1.4",
     "ts-node": "10.9.1",
     "typescript": "~4.7.2"
-  }
+  },
+  "description": "This project was generated using [Nx](https://nx.dev).",
+  "main": "jest.preset.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/IS4103-Maxximize/maxximize.git"
+  },
+  "keywords": [],
+  "author": "",
+  "bugs": {
+    "url": "https://github.com/IS4103-Maxximize/maxximize/issues"
+  },
+  "homepage": "https://github.com/IS4103-Maxximize/maxximize#readme"
 }
