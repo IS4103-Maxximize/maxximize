@@ -91,7 +91,6 @@ export const QuotationDialog = (props) => {
   });
 
   // Autocomplete Helpers
-  const [suppliers, setSuppliers] = useState([]);
   const [supplierOptions, setSupplierOptions] = useState([]);
 
   const [salesInquiries, setSalesInquiries] = useState([]);
@@ -105,7 +104,11 @@ export const QuotationDialog = (props) => {
     const fetchData = async () => {
       const salesInquiries = await fetchSalesInquiries(user.organisation.id);
       setSalesInquiries(salesInquiries);
-      setSalesInquiryOptions(salesInquiries.map((el) => el.id));
+      // Should only be allowed to select sales inquiries which
+      // have status 'sent'
+      setSalesInquiryOptions(
+        salesInquiries.filter((el) => el.status === 'sent').map((el) => el.id)
+      );
     };
 
     if (action === 'POST') {

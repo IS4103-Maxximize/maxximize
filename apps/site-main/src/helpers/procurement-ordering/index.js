@@ -6,7 +6,7 @@ export const fetchSalesInquiries = async (orgId) => {
   return await fetch(apiUrl).then((response) => response.json());
 };
 
-const fetchSalesInquiry = async (id) => {
+export const fetchSalesInquiry = async (id) => {
   const apiUrl = `${apiHost}/sales-inquiry/${id}`;
   return await fetch(apiUrl).then((response) => response.json());
 };

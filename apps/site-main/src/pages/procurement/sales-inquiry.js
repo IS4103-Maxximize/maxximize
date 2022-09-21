@@ -90,6 +90,14 @@ export const SalesInquiry = (props) => {
     setSupplierDialogOpen(false);
   };
 
+  // Fetch again after sending SI out to
+  // refresh updated status
+  useEffect(() => {
+    if (!supplierDialogOpen) {
+      setRows(getSalesInquiries());
+    }
+  }, [supplierDialogOpen]);
+
   // Menu Helpers
   const [anchorEl, setAnchorEl] = useState(null);
   const menuOpen = Boolean(anchorEl);
@@ -108,7 +116,7 @@ export const SalesInquiry = (props) => {
     return (
       <IconButton
         onClick={(event) => {
-          // console.log(params.row);
+          console.log(params.row);
           setSelectedRow(params.row);
           handleMenuClick(event);
         }}
@@ -130,6 +138,7 @@ export const SalesInquiry = (props) => {
   };
 
   const addSalesInquiry = (inquiry) => {
+    console.log(inquiry);
     const updatedProducts = [...rows, inquiry];
     console.log(updatedProducts);
     setRows(updatedProducts);
@@ -165,6 +174,11 @@ export const SalesInquiry = (props) => {
   useEffect(() => {
     getSalesInquiries();
   }, []);
+
+  useEffect(() => {
+    // reset selectedRows to [] upon updating rows
+    setSelectedRows([]); 
+  }, [rows])
 
   const columns = [
     {

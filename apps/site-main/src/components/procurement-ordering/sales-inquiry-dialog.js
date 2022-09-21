@@ -21,7 +21,8 @@ import { useEffect, useState } from 'react';
 import { v4 as uuid } from 'uuid';
 import * as Yup from 'yup';
 import {
-  updateSalesInquiry
+  updateSalesInquiry,
+  fetchSalesInquiry
 } from '../../helpers/procurement-ordering';
 import { fetchProducts } from '../../helpers/products';
 
@@ -129,9 +130,12 @@ export const SalesInquiryDialog = (props) => {
       //     values.lineItems
       //   ).catch((err) => handleAlertOpen(`Error creating ${string}`, 'error'));
 
-      const result = await response;
+      // newly created SI doesn't return relations
+      // fetch SI with relations
+      const result = await response; 
+      const inquiry = await fetchSalesInquiry(result.id);
 
-      addSalesInquiry(result);
+      addSalesInquiry(inquiry);
     } else if (action === 'PATCH') {
       // update
       const result = await updateSalesInquiry(updateTotalPrice, values);
