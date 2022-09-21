@@ -215,13 +215,16 @@ const createQuotationLineItems = async (quotationId, lineItems) => {
 export const createQuotation = async (
   salesInquiryId,
   shellOrganisationId,
-  lineItems
+  lineItems,
+  leadTime,
+  totalPrice
 ) => {
   // Create Quotation
   const apiUrl = `${apiHost}/quotations`;
   let body = {
     salesInquiryId: salesInquiryId,
     shellOrganisationId: shellOrganisationId,
+    leadTime: leadTime,
   };
   console.log(body);
   body = JSON.stringify(body);
@@ -241,7 +244,8 @@ export const createQuotation = async (
     quotation.id,
     lineItems
   );
-  const updatedQuotation = await fetchQuotation(quotation.id);
+  console.log(totalPrice);
+  const updatedQuotation = await updateQuotation(quotation.id, totalPrice)
   console.log(updatedQuotation);
   return updatedQuotation;
 };

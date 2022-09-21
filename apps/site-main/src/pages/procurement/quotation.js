@@ -20,7 +20,6 @@ import {
   deleteQuotations,
   fetchQuotations,
 } from '../../helpers/procurement-ordering';
-import { quotations } from '../../__mocks__/quotations';
 import format from 'date-fns/format';
 
 const Quotation = (props) => {
@@ -153,12 +152,10 @@ const Quotation = (props) => {
   };
 
   useEffect(() => {
-    getQuotations();
+    if (!formDialogOpen) {
+      getQuotations();
+    }
   }, [formDialogOpen]);
-
-  useEffect(() => {
-    setRows(quotations);
-  }, []);
 
   useEffect(() => {
     console.log(rows);
@@ -257,7 +254,7 @@ const Quotation = (props) => {
           />
           <Toolbar
             name="Quotation"
-            // numRows={selectedRows.length}
+            numRows={selectedRows.length}
             deleteDisabled={deleteDisabled}
             handleSearch={handleSearch}
             handleAdd={handleAdd}
