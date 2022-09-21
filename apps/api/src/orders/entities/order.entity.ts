@@ -3,7 +3,6 @@ import { DeliveryRequest } from "../../delivery-requests/entities/delivery-reque
 import { Invoice } from "../../invoices/entities/invoice.entity";
 import { OrderLineItem } from "../../order-line-items/entities/order-line-item.entity";
 import { Organisation } from "../../organisations/entities/organisation.entity";
-import { QualityReview } from "../../quality-reviews/entities/quality-review.entity";
 import { DeliveryType } from "../enums/DeliveryType.enum";
 import { OrderStatus } from "../enums/OrderStatus.enum";
 import { PaymentType } from "../enums/PaymentType.enum";
@@ -57,9 +56,6 @@ export class Order {
 
     @ManyToOne(() => Organisation, organisation => organisation.purchaseOrders)
     customer: Organisation
-
-    @OneToOne(() => QualityReview, qualityReview => qualityReview.order)
-    qualityReview: QualityReview
 
     @OneToOne(() => Invoice, invoice => invoice.order)
     invoice: Invoice
