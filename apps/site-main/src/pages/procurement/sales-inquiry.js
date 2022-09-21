@@ -265,7 +265,7 @@ export const SalesInquiry = (props) => {
                     return row;
                   } else {
                     return (
-                      row.id.includes(search) ||
+                      row.id.toString().includes(search) ||
                       row.status.toLowerCase().includes(search)
                     );
                   }

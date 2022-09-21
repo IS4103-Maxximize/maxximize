@@ -40,6 +40,7 @@ export const SalesInquiryDialog = (props) => {
     addSalesInquiry,
     updateInquiry,
     handleAlertOpen,
+    ...rest
   } = props;
 
   const [updateTotalPrice, setUpdateTotalPrice] = useState(0);

@@ -34,6 +34,7 @@ export const QuotationDialog = (props) => {
     addQuotation,
     // updateQuotation
     handleAlertOpen,
+    ...rest
   } = props;
 
   // Formik Helpers

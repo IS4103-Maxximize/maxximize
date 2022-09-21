@@ -277,11 +277,8 @@ const Quotation = (props) => {
                     return row;
                   } else {
                     return (
-                      row.id.toLowerCase().includes(search) ||
-                      row.shellOrganisation.name
-                        .toLowerCase()
-                        .includes(search) ||
-                      row.product.skuCode.toLowerCase().includes(search)
+                      row.id.toString().includes(search) ||
+                      row.shellOrganisation.name.toLowerCase().includes(search)
                     );
                   }
                 })}
