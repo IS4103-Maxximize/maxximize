@@ -5,6 +5,7 @@ import { DataSource, Repository } from 'typeorm';
 import { BatchesService } from '../batches/batches.service';
 import { CreateBatchDto } from '../batches/dto/create-batch.dto';
 import { GrLineItemsService } from '../gr-line-items/gr-line-items.service';
+import { PurchaseOrdersService } from '../purchase-orders/purchase-orders.service';
 import { UsersService } from '../users/users.service';
 import { CreateGoodsReceiptDto } from './dto/create-goods-receipt.dto';
 import { GoodsReceipt } from './entities/goods-receipt.entity';
@@ -14,7 +15,7 @@ export class GoodsReceiptsService {
   constructor(
     @InjectRepository(GoodsReceipt)
     private readonly goodsReceiptRepository: Repository<GoodsReceipt>,
-    /*private purchaseOrderSerivce: PurchaseOrderService,*/
+    private purchaseOrderSerivce: PurchaseOrdersService,
     private userService: UsersService,
     private grLineItemService: GrLineItemsService,
     private batchService: BatchesService,
@@ -43,8 +44,8 @@ export class GoodsReceiptsService {
 
       goodReceipt.goodReceiptLineItems = goodsReceiptLineItems;
 
-      //const purchaseOrder = this.purchaseOrderSerivce.findOne(createGoodsReceiptDto.purchaseOrderId);
-      //goodReceipt.purchaseOrder = purchaseOrder;
+      const purchaseOrder = await this.purchaseOrderSerivce.findOne(createGoodsReceiptDto.purchaseOrderId);
+      goodReceipt.purchaseOrder = purchaseOrder;
 
       const recipient = await this.userService.findOne(createGoodsReceiptDto.recipientId);
       goodReceipt.recipientName = recipient.firstName + ' ' + recipient.lastName;
