@@ -52,6 +52,7 @@ import { FollowUpLineItemsModule } from '../follow-up-line-items/follow-up-line-
       database: 'maxximize',
       autoLoadEntities: true,
       synchronize: true, // shouldn't be set to 'true' in production
+      logging: true
     }),
     AuthModule,
     // Entitiy Modules

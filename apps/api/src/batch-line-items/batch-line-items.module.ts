@@ -5,9 +5,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { BatchLineItem } from './entities/batch-line-item.entity';
 import { Batch } from '../batches/entities/batch.entity';
 import { LineItem } from '../line-Items/LineItem';
+import { Bin } from '../bins/entities/bin.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([BatchLineItem, Batch, LineItem])],
+  imports: [TypeOrmModule.forFeature([BatchLineItem, Batch, LineItem, Bin])],
   controllers: [BatchLineItemsController],
   providers: [BatchLineItemsService]
 })

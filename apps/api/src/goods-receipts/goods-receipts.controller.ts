@@ -22,10 +22,12 @@ export class GoodsReceiptsController {
     return this.goodsReceiptsService.findOne(+id);
   }
 
+  /*
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateGoodsReceiptDto: UpdateGoodsReceiptDto) {
     return this.goodsReceiptsService.update(+id, updateGoodsReceiptDto);
   }
+  */
 
   @Delete(':id')
   remove(@Param('id') id: string) {

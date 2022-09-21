@@ -21,7 +21,7 @@ export class RawMaterialsService {
   ){}
 
   async create(createRawMaterialDto: CreateRawMaterialDto): Promise<RawMaterial> {
-    const {name, description, unit, unitPrice, expiry, organisationId} = createRawMaterialDto;
+    const {name, description, unit, unitPrice, expiry, organisationId, lotQuantity} = createRawMaterialDto;
     let organisationToBeAdded: Organisation
     organisationToBeAdded = await this.organisationsRepository.findOneByOrFail({id: organisationId})
     const newRawmaterialInstance = this.rawMaterialRepository.create({
@@ -30,6 +30,7 @@ export class RawMaterialsService {
       unit,
       unitPrice,
       expiry,
+      lotQuantity,
       organisation: organisationToBeAdded
     })
     const newRawmaterial = await this.rawMaterialRepository.save(newRawmaterialInstance);
