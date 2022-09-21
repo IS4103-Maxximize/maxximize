@@ -14,5 +14,6 @@ import { RawMaterial } from '../raw-materials/entities/raw-material.entity';
   imports: [TypeOrmModule.forFeature([SalesInquiry, SalesInquiryLineItem, ShellOrganisation, Quotation, Organisation, RawMaterial]), MailModule],
   controllers: [SalesInquiryController],
   providers: [SalesInquiryService],
+  exports: [SalesInquiryService]
 })
 export class SalesInquiryModule {}
