@@ -164,7 +164,7 @@ export const PODialog = (props) => {
                 value={formik.values.quotation}
                 onChange={(e, value) => formik.setFieldValue('quotation', value)}
                 renderInput={(params) => (
-                  <TextField {...params} label="Suppliers ID" />
+                  <TextField {...params} label="Quotation ID" />
                 )}
               />
             )}
@@ -186,6 +186,16 @@ export const PODialog = (props) => {
             // experimentalFeatures={{ newEditingApi: true }}
             // processRowUpdate={handleRowUpdate}
           />
+          {/* <DataGrid
+            autoHeight
+            rows={formik.values.followUpPoLineItems}
+            columns={columns}
+            pageSize={5}
+            rowsPerPageOptions={[5]}
+            // onSelectionModelChange={(ids) => setSelectedRows(ids)}
+            // experimentalFeatures={{ newEditingApi: true }}
+            // processRowUpdate={handleRowUpdate}
+          /> */}
         </DialogContent>
       </Dialog>
     </form>
