@@ -4,6 +4,7 @@ import RawOnIcon from '@mui/icons-material/RawOn';
 import CorporateFareIcon from '@mui/icons-material/CorporateFare';
 import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
 import RequestQuoteIcon from '@mui/icons-material/RequestQuote';
+import ListAltIcon from '@mui/icons-material/ListAlt';
 import {
   Box,
   Button,
@@ -49,24 +50,33 @@ const items = [
     title: 'Business Relations',
     access: ['admin', 'superadmin'],
   },
-  //   {
-  //     href: '/procurement/sales-inquiry',
-  //     icon: <QuestionAnswerIcon fontSize="small" />,
-  //     title: 'Sales Inquiry',
-  //     access: [
-  //       'superadmin',
-  //       'manager',
-  //     ],
-  //   },
-  //   {
-  //     href: '/procurement/quotation',
-  //     icon: <RequestQuoteIcon fontSize="small" />,
-  //     title: 'Quotation Management',
-  //     access: [
-  //       'superadmin',
-  //       'manager',
-  //     ],
-  //   }
+  {
+    href: '/procurement/sales-inquiry',
+    icon: <QuestionAnswerIcon fontSize="small" />,
+    title: 'Sales Inquiry',
+    access: [
+      'superadmin',
+      // 'manager',
+    ],
+  },
+  {
+    href: '/procurement/quotation',
+    icon: <RequestQuoteIcon fontSize="small" />,
+    title: 'Quotation Management',
+    access: [
+      'superadmin',
+      // 'manager',
+    ],
+  },
+  {
+    href: '/procurement/purchase-order',
+    icon: <ListAltIcon fontSize="small" />,
+    title: 'Purchase Order',
+    access: [
+      'superadmin',
+      // 'manager',
+    ],
+  },
 ];
 
 export const DashboardSidebar = (props) => {

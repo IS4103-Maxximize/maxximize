@@ -3,23 +3,23 @@ import { DashboardLayout } from './components/dashboard-layout';
 import Layout from './components/Layout';
 import RequireAuth from './components/RequireAuth';
 import NotFound from './pages/404';
+import BusinessRelations from './pages/businessRelations';
 import Dashboard from './pages/dashboard';
+import ForgotPassword from './pages/forgotPassword';
 import Login from './pages/login';
 import OrganisationSelection from './pages/organisationSelection';
 import Procurement from './pages/procurement';
 import ProcurementForecast from './pages/procurement/forecast';
-import ProcurementQuotation from './pages/procurement/quotation';
-import ProcurementPurchaseOrder from './pages/procurement/purchaseorder';
 import ProcurementGoodReceipt from './pages/procurement/goodreceipt';
-import Products from './pages/products';
+import PurchaseOrder from './pages/procurement/purchase-order';
+import Quotation from './pages/procurement/quotation';
 import SalesInquiry from './pages/procurement/sales-inquiry';
-import Unauthorized from './pages/unauthorized';
-import WorkerManagement from './pages/workermanagement';
-import BusinessRelations from './pages/businessRelations';
-import ForgotPassword from './pages/forgotPassword';
+import Products from './pages/products';
+import ProtectedPublicRoute from './pages/protectedPublicRoute';
 import ProtectedRoute from './pages/protectedRoute';
 import ResetPassword from './pages/resetpassword';
-import ProtectedPublicRoute from './pages/protectedPublicRoute';
+import Unauthorized from './pages/unauthorized';
+import WorkerManagement from './pages/workermanagement';
 
 const ROLES = {
   Admin: 'admin',
@@ -138,11 +138,11 @@ const App = () => {
               ></Route>
               <Route
                 path="procurement/quotation"
-                element={<ProcurementQuotation />}
+                element={<Quotation />}
               ></Route>
               <Route
-                path="procurement/purchaseorder"
-                element={<ProcurementPurchaseOrder />}
+                path="procurement/purchase-order"
+                element={<PurchaseOrder />}
               ></Route>
               <Route
                 path="procurement/goodreceipt"
