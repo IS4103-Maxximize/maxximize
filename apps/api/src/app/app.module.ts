@@ -15,7 +15,6 @@ import { GoodsReceiptsModule } from '../goods-receipts/goods-receipts.module';
 import { GrLineItemsModule } from '../gr-line-items/gr-line-items.module';
 import { InvoicesModule } from '../invoices/invoices.module';
 import { OrderLineItemsModule } from '../order-line-items/order-line-items.module';
-import { OrderProcessesModule } from '../order-processes/order-processes.module';
 import { OrdersModule } from '../orders/orders.module';
 import { OrganisationsModule } from '../organisations/organisations.module';
 import { ProductsModule } from '../products/products.module';
@@ -38,6 +37,9 @@ import { VehiclesModule } from '../vehicles/vehicles.module';
 import { WarehousesModule } from '../warehouses/warehouses.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { FollowUpLineItemsModule } from '../follow-up-line-items/follow-up-line-items.module';
+import { ProductionLinesModule } from '../production-lines/production-lines.module';
+
 
 @Module({
   imports: [
@@ -63,7 +65,6 @@ import { AppService } from './app.service';
     FinalGoodsModule,
     InvoicesModule,
     OrderLineItemsModule,
-    OrderProcessesModule,
     OrdersModule,
     OrganisationsModule,
     ProductsModule,
@@ -86,7 +87,9 @@ import { AppService } from './app.service';
     BatchLineItemsModule,
     GoodsReceiptsModule,
     GrLineItemsModule,
-    BinsModule
+    BinsModule,
+    FollowUpLineItemsModule
+    ProductionLinesModule
   ],
   controllers: [AppController],
   providers: [AppService],

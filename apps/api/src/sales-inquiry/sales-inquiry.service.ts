@@ -91,9 +91,7 @@ export class SalesInquiryService {
   async findAllByOrg(organisationId: number): Promise<SalesInquiry[]> {
     return this.salesInquiriesRepository.find({
       where: {
-        currentOrganisation: await this.organisationsRepository.findOneByOrFail(
-          { id: organisationId }
-        ),
+        currentOrganisationId: organisationId
       },
       relations: {
         currentOrganisation: true,

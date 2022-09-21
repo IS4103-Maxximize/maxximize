@@ -27,7 +27,7 @@ export class QuotationsService {
 
   async create(createQuotationDto: CreateQuotationDto): Promise<Quotation> {
     try {
-      const { salesInquiryId, shellOrganisationId } = createQuotationDto;
+      const { salesInquiryId, shellOrganisationId, leadTime } = createQuotationDto;
       let shellOrganisationToBeAdded: ShellOrganisation;
       let salesInquiryToBeAdded: SalesInquiry;
       shellOrganisationToBeAdded =
@@ -43,6 +43,7 @@ export class QuotationsService {
         totalPrice: 0,
         salesInquiry: salesInquiryToBeAdded,
         shellOrganisation: shellOrganisationToBeAdded,
+        leadTime,
         quotationLineItems: [],
       });
       return this.quotationsRepository.save(newQuotation);
@@ -70,9 +71,7 @@ export class QuotationsService {
   async findAllBySalesInquiry(salesInquiryId: number): Promise<Quotation[]> {
     return this.quotationsRepository.find({
       where: {
-        salesInquiry: await this.salesInquiriesRepository.findOneByOrFail({
-          id: salesInquiryId,
-        }),
+        salesInquiryId: salesInquiryId
       },
       relations: {
         shellOrganisation: true,
@@ -92,7 +91,9 @@ export class QuotationsService {
         id,
       },
       relations: {
-        shellOrganisation: true,
+        shellOrganisation: {
+          contact: true
+        },
         salesInquiry: true,
         quotationLineItems: {
           rawMaterial: true,

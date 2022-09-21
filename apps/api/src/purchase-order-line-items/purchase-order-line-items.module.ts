@@ -11,5 +11,6 @@ import { RawMaterial } from '../raw-materials/entities/raw-material.entity';
   imports: [TypeOrmModule.forFeature([PurchaseOrderLineItem, PurchaseOrder, FinalGood, RawMaterial])],
   controllers: [PurchaseOrderLineItemsController],
   providers: [PurchaseOrderLineItemsService],
+  exports: [PurchaseOrderLineItemsService]
 })
 export class PurchaseOrderLineItemsModule {}

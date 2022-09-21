@@ -4,10 +4,12 @@ import { SchedulesController } from './schedules.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Schedule } from './entities/schedule.entity';
 import { Machine } from '../vehicles/entities/vehicle.entity';
+import { ProductionLinesModule } from '../production-lines/production-lines.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Schedule, Machine])],
+  imports: [TypeOrmModule.forFeature([Schedule]), ProductionLinesModule],
   controllers: [SchedulesController],
-  providers: [SchedulesService]
+  providers: [SchedulesService],
+  exports: [SchedulesService]
 })
 export class SchedulesModule {}
