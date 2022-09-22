@@ -49,6 +49,17 @@ export class WarehousesService {
     }
   }
 
+  async findAllByOrgId(organisationId: number): Promise<Warehouse[]> {
+    return await this.warehouseRepository.find({
+      where: {
+        organisation: {
+          id: organisationId
+        }
+      },
+      relations: ["organisation", "bins"]
+    });
+  }
+
   async findOne(id: number) {
     const warehouse = await this.warehouseRepository.findOne({
       where: {

@@ -26,7 +26,7 @@ export const POMenu = (props) => {
             <SearchIcon />
           </ListItemIcon>
           <ListItemText>
-            View/Edit Details
+            View Details
           </ListItemText>
         </MenuItem>
       </MenuList>
