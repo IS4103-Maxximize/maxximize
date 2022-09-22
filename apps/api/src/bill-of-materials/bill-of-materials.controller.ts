@@ -22,11 +22,6 @@ export class BillOfMaterialsController {
     return this.billOfMaterialsService.findOne(+id);
   }
 
-  @Get('orgId/:id')
-  findAllByOrg(@Param('id') id: string) {
-    return this.billOfMaterialsService.findAllByOrg(+id)
-  }
-
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateBillOfMaterialDto: UpdateBillOfMaterialDto) {
     return this.billOfMaterialsService.update(+id, updateBillOfMaterialDto);
