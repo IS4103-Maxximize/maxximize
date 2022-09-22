@@ -1,12 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { BomLineItem } from '../bom-line-items/entities/bom-line-item.entity';
 import { FinalGood } from '../final-goods/entities/final-good.entity';
 import { CreateBillOfMaterialDto } from './dto/create-bill-of-material.dto';
 import { UpdateBillOfMaterialDto } from './dto/update-bill-of-material.dto';
 import { BillOfMaterial } from './entities/bill-of-material.entity';
 import { NotFoundException } from '@nestjs/common';
+import { RawMaterial } from '../raw-materials/entities/raw-material.entity';
 
 @Injectable()
 export class BillOfMaterialsService {
@@ -15,27 +16,56 @@ export class BillOfMaterialsService {
     private readonly billOfMaterialRepository: Repository<BillOfMaterial>,
     @InjectRepository(BomLineItem)
     private readonly bomLineItemRepository: Repository<BomLineItem>,
+    private datasource: DataSource
   ){}
 
   async create(createBillOfMaterialDto: CreateBillOfMaterialDto): Promise<BillOfMaterial> {
-    const {finalGood, bomLineItems} = createBillOfMaterialDto
-    if (bomLineItems) {
-      for (let i=0;i<bomLineItems.length;i++){
-        await this.bomLineItemRepository.save(bomLineItems[i])
-      }
+    try{
+      const {finalGoodId, bomLineItemDtos} = createBillOfMaterialDto
+      let finalGoodToBeAdded: FinalGood
+      let newBillOfMaterial: BillOfMaterial
+      let bomLineItems: BomLineItem[] = []
+      await this.datasource.manager.transaction(async (transactionalEntityManager) => {
+        if (finalGoodId) {
+          finalGoodToBeAdded = await transactionalEntityManager.findOneByOrFail(FinalGood, {
+            id: finalGoodId
+          })
+        }
+        for (const dto of bomLineItemDtos) {
+          const { quantity, price, rawMaterialId } = dto
+          let rawMaterialToBeAdded: RawMaterial
+          let newBomLineItem: BomLineItem
+          if (rawMaterialId) {
+            rawMaterialToBeAdded = await transactionalEntityManager.findOneByOrFail(RawMaterial, {
+              id: rawMaterialId
+            })
+          }
+          newBomLineItem = transactionalEntityManager.create(BomLineItem, {
+            quantity,
+            price,
+            rawMaterial: rawMaterialToBeAdded,
+          })
+          bomLineItems.push(newBomLineItem)
+        }
+        newBillOfMaterial = transactionalEntityManager.create(BillOfMaterial, {
+          finalGood: finalGoodToBeAdded,
+          bomLineItems
+        })
+        return transactionalEntityManager.save(newBillOfMaterial)
+      })
+      return newBillOfMaterial
+
+    } catch (error) {
+      throw new NotFoundException('The Entity cannot be found')
     }
-    const newBillOfMaterial = this.billOfMaterialRepository.create({
-      finalGood,
-      bomLineItems
-    })
-    return this.billOfMaterialRepository.save(newBillOfMaterial);
   }
 
   async findAll(): Promise<BillOfMaterial[]> {
     return this.billOfMaterialRepository.find({
-      relations: {
-        finalGood: true,
-      }
+      relations: [
+        "finalGood",
+        "bomLineItems.rawMaterial"
+      ]
     });
   }
 
@@ -45,9 +75,10 @@ export class BillOfMaterialsService {
     try {
       const billOfMaterial =  await this.billOfMaterialRepository.findOne({where: {
         id
-      }, relations: {
-        finalGood: true
-      }})
+      }, relations: [
+        "finalGood",
+        "bomLineItems.rawMaterial"
+      ]})
       return billOfMaterial
     } catch (err) {
       throw new NotFoundException(`findOne failed as Bill Of Material with id: ${id} cannot be found`)
@@ -55,40 +86,17 @@ export class BillOfMaterialsService {
   }
 
   async update(id: number, updateBillOfMaterialDto: UpdateBillOfMaterialDto): Promise<BillOfMaterial> {
-    try {
-      const billOfMaterial = await this.billOfMaterialRepository.findOne({where: {
-        id
-      }})
-      const keyValuePairs = Object.entries(updateBillOfMaterialDto)
-      for (let i = 0; i < keyValuePairs.length; i++) {
-        const key = keyValuePairs[i][0]
-        const value = keyValuePairs[i][1]
-        if (value) {
-          if (key === 'bomLineItems') {
-            const bomLineItems = []
-            for (let i=0;i<updateBillOfMaterialDto.bomLineItems.length;i++){
-              await this.bomLineItemRepository.save(updateBillOfMaterialDto.bomLineItems[i])
-              bomLineItems.push(updateBillOfMaterialDto.bomLineItems[i])
-            }
-            billOfMaterial['bomLineItems'] = bomLineItems
-          } else {
-            billOfMaterial[key] = value
-          }
-        }
-      }
-      return this.bomLineItemRepository.save(billOfMaterial)
-    } catch (err) {
-      throw new NotFoundException(`update Failed as Bill Of Material with id: ${id} cannot be found`)
-    }
+    const billOfMaterialToUpdate = await this.billOfMaterialRepository.findOneBy({id})
+    const arrayOfKeyValues = Object.entries(updateBillOfMaterialDto)
+    arrayOfKeyValues.forEach(([key, value]) => {
+      billOfMaterialToUpdate[key] = value
+    })
+    return this.billOfMaterialRepository.save(billOfMaterialToUpdate)
   }
 
   async remove(id: number): Promise<BillOfMaterial> {
-    try {
-      const billOfMaterial = await this.billOfMaterialRepository.findOneBy({id})
-      return this.billOfMaterialRepository.remove(billOfMaterial);
-    } catch (err) {
-      throw new NotFoundException(`Remove failed as Bill Of Material with id: ${id} cannot be found`)
-    }
+    const billOfMaterialToRemove = await this.billOfMaterialRepository.findOneBy({id})
+    return this.billOfMaterialRepository.remove(billOfMaterialToRemove)
   }
 
 }
