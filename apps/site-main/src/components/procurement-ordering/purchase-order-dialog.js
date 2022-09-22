@@ -1,14 +1,13 @@
 import CloseIcon from "@mui/icons-material/Close";
 import { AppBar, Autocomplete, Button, Dialog, DialogContent, IconButton, Stack, TextField, Toolbar, Typography } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
-import { useFormik } from "formik";
-import * as Yup from "yup";
-import { useState, useEffect } from "react";
-import { fetchQuotations } from "../../helpers/procurement-ordering";
 import { DatePicker } from "@mui/x-date-pickers";
-import { addDays } from "date-fns";
+import { addDays, parseISO } from "date-fns";
+import { useFormik } from "formik";
+import { useEffect, useState } from "react";
+import * as Yup from "yup";
+import { fetchQuotations } from "../../helpers/procurement-ordering";
 import { createPurchaseOrder, fetchWarehouses } from "../../helpers/procurement-ordering/purchase-order";
-import { parseISO } from "date-fns";
 
 
 export const PODialog = (props) => {
@@ -59,7 +58,7 @@ export const PODialog = (props) => {
       createPurchaseOrder(submitValues, poLineItems)
         .then((res) => {
           onClose();
-          handleAlertOpen(`Successfully Created Purchase Order ${res.id}!`, 'success');
+          handleAlertOpen(`Successfully Created and Sent Purchase Order ${res.id}!`, 'success');
         })
         .catch(err => handleAlertOpen('Failed to Create Purchase Order', 'error'));
     }
@@ -77,7 +76,7 @@ export const PODialog = (props) => {
         quotation.salesInquiry.currentOrganisation.id === organisationId &&
         !quotation.purchaseOrder
       ));
-    console.log(data);
+    // console.log(data);
     setQuotations(data);
   }
 
@@ -119,6 +118,7 @@ export const PODialog = (props) => {
   useEffect(() => {
     // create PO
     if (action === 'POST') {
+      // console.log('post')
       formik.setFieldValue('poLineItems', 
         formik.values.quotation ? 
           formik.values.quotation.quotationLineItems : []);
@@ -138,15 +138,16 @@ export const PODialog = (props) => {
       getQuotations();
       getWarehouses();
     }
-    // console.log(action);
-    // console.log(purchaseOrder);
+    // if (open &&  action === 'PATCH') {
+    //   console.log(purchaseOrder)
+    // }
   }, [open])
 
   const onClose = () => {
     setQuotations([]);
     setWarehouses([]);
-    formik.resetForm();
     handleClose();
+    formik.resetForm();
   }
 
   const columns = [
@@ -165,7 +166,7 @@ export const PODialog = (props) => {
       headerName: "Raw Material Name",
       flex: 2,
       valueGetter: (params) => {
-        return params.row.rawMaterial.name;
+        return params.row ? params.row.rawMaterial.name : '';
       }
     },
     {
@@ -173,7 +174,7 @@ export const PODialog = (props) => {
       headerName: "SKU",
       flex: 1,
       valueGetter: (params) => {
-        return params.row.rawMaterial.skuCode;
+        return params.row ? params.row.rawMaterial.skuCode : '';
       }
     },
   ]
@@ -233,7 +234,7 @@ export const PODialog = (props) => {
                 options={quotations}
                 getOptionLabel={(option) => option.id.toString()}
                 isOptionEqualToValue={(option, value) => option.id === value.id}
-                value={formik.values.quotation}
+                // value={formik.values.quotation}
                 onChange={(e, value) => formik.setFieldValue('quotation', value)}
                 renderInput={(params) => (<TextField {...params} label="Quotation ID" />)}
               />
@@ -259,18 +260,14 @@ export const PODialog = (props) => {
             {!purchaseOrder && (
               <Autocomplete
                 id="warehouse-selector"
-                sx={{ width: 300 }}
+                sx={{ width: 600 }}
                 options={warehouses}
-                getOptionLabel={(option) => option.name}
+                getOptionLabel={(option) => `[${option.name}] : ${option.address}`}
                 isOptionEqualToValue={(option, value) => option.id === value.id}
-                // value={warehouse}
                 onChange={(e, value) => {
-                  // setWarehouse(value);
                   formik.setFieldValue('deliveryAddress', value ? value.address : null);
                 }}
-                renderInput={(params) => (
-                  <TextField {...params} label="Deliver To" />
-                )}
+                renderInput={(params) => (<TextField {...params} label="Deliver To" />)}
               />
             )}
             {purchaseOrder && (
@@ -283,7 +280,7 @@ export const PODialog = (props) => {
           </Stack>
           <DataGrid
             autoHeight
-            rows={formik.values.poLineItems}
+            rows={purchaseOrder ? purchaseOrder.poLineItems : formik.values.poLineItems}
             columns={columns}
             pageSize={5}
             rowsPerPageOptions={[5]}

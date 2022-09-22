@@ -91,7 +91,6 @@ export const Toolbar = (props) => {
                 </Tooltip>
                 <Tooltip
                   title={`Delete ${name}(s)`}
-                  disableHoverListener={deleteDisabled}
                 >
                   <IconButton
                     color="error"

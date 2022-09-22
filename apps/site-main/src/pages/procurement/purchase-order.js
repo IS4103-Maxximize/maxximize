@@ -93,6 +93,7 @@ export const PurchaseOrder = (props) => {
     return (
       <IconButton
         onClick={(event) => {
+          console.log(params.row)
           setSelectedRow(params.row);
           // setSelectedRows([params.row]);
           handleMenuClick(event);
@@ -117,6 +118,9 @@ export const PurchaseOrder = (props) => {
     if (!formDialogOpen) {
       setLoading(true);
       getPOs();
+    }
+    if (formDialogOpen) {
+      console.log(selectedRow);
     }
   }, [formDialogOpen]);
 
