@@ -25,6 +25,11 @@ export class PurchaseOrdersController {
     return this.purchaseOrdersService.findAll();
   }
 
+  @Get('all/:id')
+  findAllByOrgId(@Param('id') id: string) {
+    return this.purchaseOrdersService.findAllByOrgId(+id);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.purchaseOrdersService.findOne(+id);

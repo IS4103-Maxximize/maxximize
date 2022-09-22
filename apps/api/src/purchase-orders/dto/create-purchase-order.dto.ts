@@ -8,5 +8,4 @@ export class CreatePurchaseOrderDto {
     quotationId: number;
     userContactId: number;
     poLineItemDtos: CreatePurchaseOrderLineItemDto[];
-
 }
