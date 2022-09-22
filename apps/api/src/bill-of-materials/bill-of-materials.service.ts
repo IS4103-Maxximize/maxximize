@@ -68,7 +68,16 @@ export class BillOfMaterialsService {
     });
   }
 
-
+  async findAllByOrg(organisationId: number): Promise<BillOfMaterial[]> {
+    const billOfMaterials = await this.billOfMaterialRepository.find({
+      relations: [
+        "finalGood.organisation",
+        "bomLineItems.rawMaterial"
+      ]
+    })
+    return billOfMaterials.filter(bom => bom.finalGood.organisation.id === organisationId)
+    
+  }
 
   async findOne(id: number): Promise<BillOfMaterial> {
     try {
