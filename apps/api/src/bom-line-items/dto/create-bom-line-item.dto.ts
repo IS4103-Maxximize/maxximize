@@ -3,6 +3,7 @@ import { RawMaterial } from "../../raw-materials/entities/raw-material.entity";
 
 export class CreateBomLineItemDto{
     quantity: number;
+    price: number;
     rawMaterialId: number;
     billOfMaterialId?: number;
 }
