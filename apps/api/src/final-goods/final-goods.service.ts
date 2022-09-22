@@ -59,7 +59,7 @@ export class FinalGoodsService {
 
   async findOne(id: number): Promise<FinalGood> {
     try {
-      const finalGood =  await this.finalGoodRepository.findOne({where: {
+      const finalGood =  await this.finalGoodRepository.findOneOrFail({where: {
         id
       }, relations: {
         organisation: true

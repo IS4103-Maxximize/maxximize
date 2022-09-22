@@ -1,5 +1,7 @@
 import { MailerService } from '@nestjs-modules/mailer';
 import { Injectable } from '@nestjs/common';
+import { PurchaseOrderLineItem } from '../purchase-order-line-items/entities/purchase-order-line-item.entity';
+import { PurchaseOrder } from '../purchase-orders/entities/purchase-order.entity';
 import { RawMaterial } from '../raw-materials/entities/raw-material.entity';
 import { SalesInquiryLineItem } from '../sales-inquiry-line-items/entities/sales-inquiry-line-item.entity';
 import { SalesInquiry } from '../sales-inquiry/entities/sales-inquiry.entity';
@@ -50,6 +52,22 @@ export class MailService {
                 supplierName: supplierName,
                 salesInquiryLineItems: salesInquiryLineItems,
                 salesInquiry: salesInquiry
+            },
+        });
+    }
+
+    async sendPurchaseOrderEmail(email: string, organisationName: string, supplierName: string, purchaseOrderLineItems: PurchaseOrderLineItem[], purchaseOrder: PurchaseOrder, deliveryTime) {
+        await this.mailerService.sendMail({
+            to: email,
+            from: process.env.MAIL_FROM,
+            subject: "Purchase Order",
+            template: './purchaseOrderMail', 
+            context: {
+                organisationName: organisationName,
+                supplierName: supplierName,
+                purchaseOrderLineItems: purchaseOrderLineItems,
+                purchaseOrder: purchaseOrder,
+                deliveryTime: deliveryTime
             },
         });
     }

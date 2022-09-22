@@ -4,9 +4,13 @@ import RawOnIcon from '@mui/icons-material/RawOn';
 import CorporateFareIcon from '@mui/icons-material/CorporateFare';
 import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
 import RequestQuoteIcon from '@mui/icons-material/RequestQuote';
+<<<<<<< HEAD
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import PrecisionManufacturingIcon from '@mui/icons-material/PrecisionManufacturing';
 import AddRoadIcon from '@mui/icons-material/AddRoad';
+=======
+import ListAltIcon from '@mui/icons-material/ListAlt';
+>>>>>>> ba3440b1ba213b5733c34ce5a759c892d6d3fec8
 import {
   Box,
   Button,
@@ -53,6 +57,7 @@ const items = [
     access: ['admin', 'superadmin'],
   },
   {
+<<<<<<< HEAD
     href: '/assetManagement/machineManagement',
     icon: <PrecisionManufacturingIcon fontSize="small" />,
     title: 'Machine Management',
@@ -71,6 +76,34 @@ const items = [
     access: ['manager', 'factoryworker', 'superadmin'],
   },
 
+=======
+    href: '/procurement/sales-inquiry',
+    icon: <QuestionAnswerIcon fontSize="small" />,
+    title: 'Sales Inquiry',
+    access: [
+      'superadmin',
+      // 'manager',
+    ],
+  },
+  {
+    href: '/procurement/quotation',
+    icon: <RequestQuoteIcon fontSize="small" />,
+    title: 'Quotation Management',
+    access: [
+      'superadmin',
+      // 'manager',
+    ],
+  },
+  {
+    href: '/procurement/purchase-order',
+    icon: <ListAltIcon fontSize="small" />,
+    title: 'Purchase Order',
+    access: [
+      'superadmin',
+      // 'manager',
+    ],
+  },
+>>>>>>> ba3440b1ba213b5733c34ce5a759c892d6d3fec8
 ];
 
 export const DashboardSidebar = (props) => {

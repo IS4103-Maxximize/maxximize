@@ -7,7 +7,6 @@ import {
 } from '@mui/material';
 import { Search as SearchIcon } from '../../icons/search';
 
-
 export const Toolbar = (props) => {
   const {
     name,

@@ -4,10 +4,10 @@ import { BillOfMaterialsController } from './bill-of-materials.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BillOfMaterial } from './entities/bill-of-material.entity';
 import { BomLineItem } from '../bom-line-items/entities/bom-line-item.entity';
-import { OrderProcess } from '../order-processes/entities/order-process.entity';
+import { RawMaterial } from '../raw-materials/entities/raw-material.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([BillOfMaterial, BomLineItem, OrderProcess])],
+  imports: [TypeOrmModule.forFeature([BillOfMaterial, BomLineItem, RawMaterial])],
   controllers: [BillOfMaterialsController],
   providers: [BillOfMaterialsService]
 })

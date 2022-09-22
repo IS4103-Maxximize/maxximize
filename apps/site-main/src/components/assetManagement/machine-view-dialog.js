@@ -12,7 +12,7 @@ import {
   
   export const MachineViewDialog = (props) => {
 
-      // DataGrid Helpers
+// DataGrid Helpers
   const [rows, setRows] = useState([]);
   const [selectedRows, setSelectedRows] = useState([]);
 

@@ -1,10 +1,11 @@
 import { PartialType } from '@nestjs/mapped-types';
-import { PurchaseOrderLineItem } from '../../purchase-order-line-items/entities/purchase-order-line-item.entity';
+import { CreateFollowUpLineItemDto } from '../../follow-up-line-items/dto/create-follow-up-line-item.dto';
+import { PurchaseOrderStatus } from '../enums/purchaseOrderStatus.enum';
 import { CreatePurchaseOrderDto } from './create-purchase-order.dto';
 
 export class UpdatePurchaseOrderDto extends PartialType(
   CreatePurchaseOrderDto
 ) {
-  deliveryAddress?: string;
-  poLineItems?: PurchaseOrderLineItem[];
+  followUpLineItemDtos?: CreateFollowUpLineItemDto[];
+  status?: PurchaseOrderStatus;
 }

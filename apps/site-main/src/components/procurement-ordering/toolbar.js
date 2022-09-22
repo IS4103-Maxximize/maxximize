@@ -17,6 +17,7 @@ export const Toolbar = (props) => {
     handleAdd,
     handleFormDialogOpen,
     handleConfirmDialogOpen,
+    ...rest
   } = props;
 
   return (

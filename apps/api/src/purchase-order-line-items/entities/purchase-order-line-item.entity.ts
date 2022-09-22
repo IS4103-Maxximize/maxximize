@@ -1,6 +1,5 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { FinalGood } from "../../final-goods/entities/final-good.entity";
-import { MeasurementUnit } from "../../products/enums/measurementUnit.enum";
 import { PurchaseOrder } from "../../purchase-orders/entities/purchase-order.entity";
 import { RawMaterial } from "../../raw-materials/entities/raw-material.entity";
 
@@ -21,7 +20,7 @@ export class PurchaseOrderLineItem {
     @ManyToOne(() => FinalGood, { nullable: true })
     finalGood?: FinalGood
 
-    @ManyToOne(() => PurchaseOrder, purchaseOrder => purchaseOrder.poLineItems, {onDelete: 'CASCADE'})
+    @ManyToOne(() => PurchaseOrder, purchaseOrder => purchaseOrder.poLineItems, {onDelete: 'CASCADE', nullable:true})
     purchaseOrder: PurchaseOrder
 }
 

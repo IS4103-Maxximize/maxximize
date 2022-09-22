@@ -171,7 +171,7 @@ import {
                 onChange={formik.handleChange}
                 value={formik.values.make}
                 variant="outlined"
-                disabled
+                
               />
             <TextField
                 required
@@ -185,7 +185,7 @@ import {
                 onChange={formik.handleChange}
                 value={formik.values.model}
                 variant="outlined"
-                disabled
+                
               />
             <TextField
                 required
@@ -199,7 +199,7 @@ import {
                 onChange={formik.handleChange}
                 value={formik.values.year}
                 variant="outlined"
-                disabled
+                
               />         
             <TextField
               required
@@ -213,7 +213,7 @@ import {
               onChange={formik.handleChange}
               value={formik.values.remarks}
               variant="outlined"
-              disabled={action === 'PATCH'}
+              
             />
             <Stack direction="row" spacing={1} alignItems="center">
               <Typography>Last Serviced Date :</Typography>
@@ -266,7 +266,7 @@ import {
                     value={option}
                     control={<Radio />}
                     label={option}
-                    disabled={action === 'PATCH'}
+                    
                   />
                 ))}
               </RadioGroup>

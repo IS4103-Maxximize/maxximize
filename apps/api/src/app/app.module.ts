@@ -11,19 +11,20 @@ import { ContactsModule } from '../contacts/contacts.module';
 import { DeliveryRequestsModule } from '../delivery-requests/delivery-requests.module';
 import { FactoryMachinesModule } from '../factory-machines/factory-machines.module';
 import { FinalGoodsModule } from '../final-goods/final-goods.module';
+import { FollowUpLineItemsModule } from '../follow-up-line-items/follow-up-line-items.module';
 import { GoodsReceiptsModule } from '../goods-receipts/goods-receipts.module';
 import { GrLineItemsModule } from '../gr-line-items/gr-line-items.module';
 import { InvoicesModule } from '../invoices/invoices.module';
 import { OrderLineItemsModule } from '../order-line-items/order-line-items.module';
-import { OrderProcessesModule } from '../order-processes/order-processes.module';
 import { OrdersModule } from '../orders/orders.module';
 import { OrganisationsModule } from '../organisations/organisations.module';
+import { ProductionLinesModule } from '../production-lines/production-lines.module';
 import { ProductsModule } from '../products/products.module';
-import { PurchaseOrderLineItemsModule } from '../purchase-order-line-items/purchase-order-line-items.module';
-import { PurchaseOrder } from '../purchase-orders/entities/purchase-order.entity';
 import { PurchaseOrderLineItem } from '../purchase-order-line-items/entities/purchase-order-line-item.entity';
+import { PurchaseOrderLineItemsModule } from '../purchase-order-line-items/purchase-order-line-items.module';
 import { PurchaseOrdersModule } from '../purchase-orders/purchase-orders.module';
-import { QualityReviewsModule } from '../quality-reviews/quality-reviews.module';
+import { QaChecklistsModule } from '../qa-checklists/qa-checklists.module';
+import { QaRulesModule } from '../qa-rules/qa-rules.module';
 import { QuotationLineItemsModule } from '../quotation-line-items/quotation-line-items.module';
 import { QuotationsModule } from '../quotations/quotations.module';
 import { RawMaterialsModule } from '../raw-materials/raw-materials.module';
@@ -50,6 +51,7 @@ import { AppService } from './app.service';
       database: 'maxximize',
       autoLoadEntities: true,
       synchronize: true, // shouldn't be set to 'true' in production
+      logging: true
     }),
     AuthModule,
     // Entitiy Modules
@@ -63,11 +65,9 @@ import { AppService } from './app.service';
     FinalGoodsModule,
     InvoicesModule,
     OrderLineItemsModule,
-    OrderProcessesModule,
     OrdersModule,
     OrganisationsModule,
     ProductsModule,
-    QualityReviewsModule,
     RawMaterialsModule,
     RecipesModule,
     SchedulesModule,
@@ -86,7 +86,11 @@ import { AppService } from './app.service';
     BatchLineItemsModule,
     GoodsReceiptsModule,
     GrLineItemsModule,
-    BinsModule
+    BinsModule,
+    ProductionLinesModule,
+    QaRulesModule,
+    QaChecklistsModule,
+    FollowUpLineItemsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

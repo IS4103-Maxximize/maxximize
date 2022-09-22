@@ -1,13 +1,10 @@
 import {
   Column,
   Entity,
-  ManyToOne,
-  OneToMany,
-  PrimaryGeneratedColumn,
-  TableInheritance,
+  ManyToOne, PrimaryGeneratedColumn,
+  TableInheritance
 } from 'typeorm';
 import { Organisation } from '../../organisations/entities/organisation.entity';
-import { Quotation } from '../../quotations/entities/quotation.entity';
 import { MeasurementUnit } from '../enums/measurementUnit.enum';
 
 @Entity()
@@ -38,6 +35,9 @@ export class Product {
 
   @Column()
   unitPrice: number;
+
+  @Column()
+  lotQuantity: number;
 
   @Column()
   type: string;

@@ -2,6 +2,6 @@ import { CreateBomLineItemDto } from "../../bom-line-items/dto/create-bom-line-i
 import { FinalGood } from "../../final-goods/entities/final-good.entity";
 
 export class CreateBillOfMaterialDto {
-    finalGood: FinalGood;
-    bomLineItems: CreateBomLineItemDto[];
+    finalGoodId: number;
+    bomLineItemDtos: CreateBomLineItemDto[];
 }

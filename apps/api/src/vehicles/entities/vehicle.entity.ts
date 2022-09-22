@@ -1,7 +1,6 @@
-import { Column, Entity, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { DeliveryRequest } from "../../delivery-requests/entities/delivery-request.entity";
 import { Organisation } from "../../organisations/entities/organisation.entity";
-import { Schedule } from "../../schedules/entities/schedule.entity";
 import { Sensor } from "../../sensors/entities/sensor.entity";
 import { VehicleStatus } from "../enums/vehicleStatus.enum";
 
@@ -23,7 +22,7 @@ export abstract class Machine {
     model: string;
 
     @Column()
-    year: Date;
+    year: String;
 
     @Column()
     lastServiced: Date;
@@ -31,13 +30,13 @@ export abstract class Machine {
     @Column()
     remarks: string;
 
+    @Column()
+    organisationId: number
     @ManyToOne(() => Organisation, (organisation) => organisation.machines, {
         onDelete: 'CASCADE'
     })
+    @JoinColumn()
     organisation: Organisation;
-
-    @OneToMany(() => Schedule, (schedule) => schedule.machine)
-    schedules: Schedule[];
 
     @OneToOne(() => Sensor, (sensor) => sensor.machine)
     sensor: Sensor;
