@@ -42,7 +42,6 @@ export class BillOfMaterialsService {
           }
           newBomLineItem = transactionalEntityManager.create(BomLineItem, {
             quantity,
-            price,
             rawMaterial: rawMaterialToBeAdded,
           })
           bomLineItems.push(newBomLineItem)
