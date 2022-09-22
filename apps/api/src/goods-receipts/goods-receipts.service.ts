@@ -44,8 +44,8 @@ export class GoodsReceiptsService {
 
       goodReceipt.goodReceiptLineItems = goodsReceiptLineItems;
 
-      // const purchaseOrder = await this.purchaseOrderSerivce.findOne(createGoodsReceiptDto.purchaseOrderId);
-      // goodReceipt.purchaseOrder = purchaseOrder;
+      const purchaseOrder = await this.purchaseOrderSerivce.findOne(createGoodsReceiptDto.purchaseOrderId);
+      goodReceipt.purchaseOrder = purchaseOrder;
 
       const recipient = await this.userService.findOne(createGoodsReceiptDto.recipientId);
       goodReceipt.recipientName = recipient.firstName + ' ' + recipient.lastName;
@@ -69,7 +69,7 @@ export class GoodsReceiptsService {
 
   async findAll() {
     const goodsReceipts = await this.goodsReceiptRepository.find({
-      relations: ['goodReceiptLineItems']
+      relations: ['goodReceiptLineItems.product']
     });
     if (goodsReceipts.length === 0 || goodsReceipts === undefined) {
       throw new NotFoundException("No goods receipt(s) found");
