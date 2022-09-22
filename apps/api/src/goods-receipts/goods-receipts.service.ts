@@ -44,8 +44,8 @@ export class GoodsReceiptsService {
 
       goodReceipt.goodReceiptLineItems = goodsReceiptLineItems;
 
-      const purchaseOrder = await this.purchaseOrderSerivce.findOne(createGoodsReceiptDto.purchaseOrderId);
-      goodReceipt.purchaseOrder = purchaseOrder;
+      // const purchaseOrder = await this.purchaseOrderSerivce.findOne(createGoodsReceiptDto.purchaseOrderId);
+      // goodReceipt.purchaseOrder = purchaseOrder;
 
       const recipient = await this.userService.findOne(createGoodsReceiptDto.recipientId);
       goodReceipt.recipientName = recipient.firstName + ' ' + recipient.lastName;
