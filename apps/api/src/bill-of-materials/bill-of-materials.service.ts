@@ -32,7 +32,7 @@ export class BillOfMaterialsService {
           })
         }
         for (const dto of bomLineItemDtos) {
-          const { quantity, price, rawMaterialId } = dto
+          const { quantity, rawMaterialId } = dto
           let rawMaterialToBeAdded: RawMaterial
           let newBomLineItem: BomLineItem
           if (rawMaterialId) {

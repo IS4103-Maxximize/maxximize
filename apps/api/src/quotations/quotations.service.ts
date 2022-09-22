@@ -104,9 +104,9 @@ export class QuotationsService {
       where: {
         id,
       },
-      relations: {
-        shellOrganisation: true,
-      },
+      relations: [
+        "shellOrganisation.contact"
+      ]
     });
   }
 
