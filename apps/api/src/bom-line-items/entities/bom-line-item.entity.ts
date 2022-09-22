@@ -8,9 +8,6 @@ export class BomLineItem{
     id: number;
 
     @Column()
-    price: number;
-
-    @Column()
     quantity: number;
 
     @ManyToOne(() => RawMaterial)

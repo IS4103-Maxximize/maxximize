@@ -21,7 +21,7 @@ export class BomLineItemsService {
   ){}
 
   async create(createBomLineItemDto: CreateBomLineItemDto): Promise<BomLineItem> {
-    const {quantity, price, rawMaterialId, billOfMaterialId} = createBomLineItemDto
+    const {quantity, rawMaterialId, billOfMaterialId} = createBomLineItemDto
 
     let rawMaterialToBeAdded: RawMaterial
     let billOfMaterialToBeAdded: BillOfMaterial
@@ -31,7 +31,6 @@ export class BomLineItemsService {
     }
     const newBomLineItem = this.bomLineItemRepository.create({
       quantity,
-      price,
       rawMaterial: rawMaterialToBeAdded,
       billOfMaterial: billOfMaterialToBeAdded
     })
