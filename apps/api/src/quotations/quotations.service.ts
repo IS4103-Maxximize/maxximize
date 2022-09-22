@@ -65,7 +65,8 @@ export class QuotationsService {
         },
         salesInquiry: {
           currentOrganisation: true
-        }
+        },
+        purchaseOrder: true
       }
     })
   }
