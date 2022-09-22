@@ -6,9 +6,10 @@ import { BomLineItem } from '../bom-line-items/entities/bom-line-item.entity';
 import { BillOfMaterial } from '../bill-of-materials/entities/bill-of-material.entity';
 import { Batch } from '../batches/entities/batch.entity';
 import { LineItem } from '../line-Items/LineItem';
+import { RawMaterial } from '../raw-materials/entities/raw-material.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([BomLineItem, Batch, BillOfMaterial, LineItem])],
+  imports: [TypeOrmModule.forFeature([BomLineItem, Batch, BillOfMaterial, LineItem, RawMaterial])],
   controllers: [BomLineItemsController],
   providers: [BomLineItemsService]
 })
