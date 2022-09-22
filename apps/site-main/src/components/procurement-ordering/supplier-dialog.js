@@ -12,7 +12,13 @@ import { apiHost, headers } from '../../helpers/constants';
 import { fetchSuppliers } from '../../helpers/procurement-ordering';
 
 export const SupplierDialog = (props) => {
-  const { action, open, handleClose, inquiry, handleAlertOpen } = props;
+  const { 
+    open, 
+    handleClose, 
+    inquiry, 
+    handleAlertOpen,
+    ...rest
+  } = props;
 
   // Formik Helpers
   let initialValues = {

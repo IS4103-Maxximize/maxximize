@@ -22,7 +22,7 @@
     "@mui/material": "^5.10.2",
     "@mui/styles": "^5.10.2",
     "@mui/x-data-grid": "^5.17.1",
-    "@mui/x-date-pickers": "^5.0.0-beta.7",
+    "@mui/x-date-pickers": "^5.0.2",
     "@nestjs-modules/mailer": "^1.8.1",
     "@nestjs/cli": "^9.0.0",
     "@nestjs/common": "^9.0.0",

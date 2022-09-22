@@ -12,25 +12,19 @@ import { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { DashboardLayout } from '../components/dashboard-layout';
 import { NotificationAlert } from '../components/notification-alert';
-import { ConfirmDialog } from '../components/product/confirm-dialog';
-import { ProductDialog } from '../components/product/product-dialog';
-import { ProductListToolbar } from '../components/product/product-list-toolbar';
-import { ProductMenu } from '../components/product/product-menu';
+import { ConfirmDialog } from '../components/assetManagement/confirm-dialog';
+import { MachineDialog } from '../components/assetManagement/machine-dialog';
+import { Toolbar } from '../components/assetManagement/toolbar';
+import { MachineMenu } from '../components/assetManagement/machine-menu';
 import {
-  deleteProducts,
-  fetchProducts,
-  updateProduct,
-} from '../helpers/products';
+  deleteMachines,
+  fetchMachines,
+} from '../../helpers/assetManagement';
 
-const Products = (props) => {
+const MachineManagement = (props) => {
   const user = JSON.parse(localStorage.getItem('user'));
   const organisationId = user.organisation.id;
 
-  // Page View
-  const { type } = props;
-  const typeString = type === 'raw-materials' ? 'Raw Material' : 'Final Good';
-
-  // NotificationAlert helpers
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertText, setAlertText] = useState();
   const [alertSeverity, setAlertSeverity] = useState('success');
@@ -45,7 +39,6 @@ const Products = (props) => {
     setAlertSeverity('success');
   };
 
-  // Dialog helpers
   const [action, setAction] = useState();
 
   const [open, setOpen] = useState(false);
@@ -64,7 +57,6 @@ const Products = (props) => {
     setConfirmDialogOpen(false);
   };
 
-  // Menu helpers
   const [anchorEl, setAnchorEl] = useState(null);
   const menuOpen = Boolean(anchorEl);
   const handleMenuClick = (event) => {
@@ -96,33 +88,39 @@ const Products = (props) => {
   const [disabled, setDisabled] = useState();
   const [search, setSearch] = useState('');
 
-  const getProducts = async () => {
-    fetchProducts(type, organisationId)
+  const getMachines = async () => {
+    fetchMachines(organisationId)
       .then((result) => setRows(result))
       .catch((err) =>
-        handleAlertOpen(`Failed to fetch ${typeString}s`, 'error')
+        handleAlertOpen(`Failed to fetch any Machines`, 'error')
       );
   };
 
-  const addProduct = (product) => {
-    const updatedProducts = [...rows, product];
-    setRows(updatedProducts);
+  const addMachine = (machine) => {
+    const updatedMachines = [...rows, machine];
+    setRows(updatedMachines);
     handleAlertOpen(
-      `Added ${typeString} ${product.id} successfully!`,
+      `Added Machine ${machine.id} successfully!`,
       'success'
     );
   };
 
-  const updateRow = (updatedProduct) => {
-    const currentIndex = rows.findIndex((row) => row.id === updatedProduct.id);
-    const newRows = [...rows];
-    newRows[currentIndex] = updatedProduct;
-    console.log(newRows);
-    setRows(newRows);
+  const updateRow = async (newRow) => {
+    const updatedRow = { ...newRow };
+
+    const inquiry = await newRow.json();
+    console.log(inquiry);
+
+    getMachines();
+    handleAlertOpen(
+      `Updated Machine ${inquiry.id} successfully!`,
+      'success'
+    );
+    return updatedRow;
   };
 
   useEffect(() => {
-    getProducts();
+    getMachines();
   }, []);
 
   useEffect(() => {
@@ -133,76 +131,70 @@ const Products = (props) => {
     setSearch(event.target.value.toLowerCase().trim());
   };
 
-  const handleAddProductClick = () => {
-    setAction('POST');
-    setSelectedRow(null);
-  };
 
   const handleDelete = async (ids) => {
-    const newRows = rows.filter((row) => !ids.includes(row.id));
-    setRows(newRows);
-    setSelectedRows([])
-    deleteProducts(type, ids)
+    deleteMachines(ids)
       .then(() => {
-        handleAlertOpen(`Successfully deleted ${typeString}(s)`, 'success');
+        handleAlertOpen(`Successfully deleted Machine(s)`, 'success');
       })
-      .then(() => getProducts());
+      .then(() => getMachines());
   };
 
-  // Logging
-  // useEffect(() => {
-  //   console.log(selectedRow);
-  // }, [selectedRow])
-
-  // useEffect(() => {
-  //   console.log(selectedRows)
-  // }, [selectedRows]);
-
-  const columns = [
+  let columns = [
     {
       field: 'id',
       headerName: 'ID',
-      flex: 1,
     },
     {
-      field: 'name',
-      headerName: 'Name',
-      flex: 2,
+      field: 'serialNumber',
+      headerName: 'Serial Number',
+      width: 300,
     },
     {
-      field: 'description',
-      headerName: 'Description',
-      flex: 3,
+        field: 'description',
+        headerName: 'Description',
+        width: 300,
+      },
+    {
+        field: 'make',
+        headerName: 'Make',
+        width: 300,
+      },
+    {
+        field: 'model',
+        headerName: 'Model',
+        width: 300,
+      },
+    {
+        field: 'year',
+        headerName: 'Year',
+        width: 300,
+      },
+    {
+        field: 'lastServiced',
+        headerName: 'Last Serviced',
+        width: 300,
+      },
+    {
+      field: 'isOperating',
+      headerName: 'Status',
+      width: 300,
     },
     {
-      field: 'skuCode',
-      headerName: 'SKU',
-      flex: 1,
+      field: 'remarks',
+      headerName: 'Remarks',
+      width: 300,
     },
     {
-      field: 'unit',
-      headerName: 'Unit',
-      flex: 1,
+      field: 'productionLineId',
+      headerName: 'Production Line Id',
+      width: 300,
     },
-    {
-      field: 'unitPrice',
-      headerName: 'Unit Price',
-      flex: 1,
-    },
-    {
-      field: 'expiry',
-      headerName: 'Expiry (days)',
-      flex: 1,
-    },
-    {
-      field: 'lotQuantity',
-      headerName: 'Lot Quantity',
-      flex: 1,
-    },
+
     {
       field: 'actions',
       headerName: 'actions',
-      flex: 1,
+      width: 100,
       sortable: false,
       renderCell: menuButton,
     },
@@ -212,7 +204,7 @@ const Products = (props) => {
     <>
       <Helmet>
         <title>
-          {`${typeString}s`}
+          Machine Management Module
           {user && ` | ${user?.organisation?.name}`}
         </title>
       </Helmet>
@@ -231,42 +223,38 @@ const Products = (props) => {
             text={alertText}
             handleClose={handleAlertClose}
           />
-          <ProductDialog
-            organisationId={organisationId}
+          <MachineDialog
             action={action}
-            open={open}
-            handleClose={handleClose}
-            product={selectedRow}
-            type={type}
-            typeString={typeString}
-            addProduct={addProduct}
-            updateProducts={updateRow}
+            open={formDialogOpen}
+            string={'ProductionLine'}
+            inquiry={selectedRow}
+            addMachine={addMachine}
+            updateMachine={handleRowUpdate}
+            handleClose={handleFormDialogClose}
             handleAlertOpen={handleAlertOpen}
           />
           <ConfirmDialog
             open={confirmDialogOpen}
             handleClose={handleConfirmDialogClose}
-            dialogTitle={`Delete ${typeString}(s)`}
-            dialogContent={`Confirm deletion of ${typeString}(s)?`}
+            dialogTitle={`Delete Machine(s)`}
+            dialogContent={`Confirm deletion of Machine(s)?`}
             dialogAction={() => {
               handleDelete(selectedRows);
             }}
           />
-          <ProductMenu
+        <MachineMenu
             anchorEl={anchorEl}
             menuOpen={menuOpen}
             handleClickOpen={handleClickOpen}
             handleMenuClose={handleMenuClose}
-            handleClickViewEdit={handleClickViewEdit}
-          />
-          <ProductListToolbar
-            disabled={disabled}
-            numProducts={selectedRows.length}
-            type={type}
-            handleClickOpen={handleClickOpen}
-            handleConfirmDialogOpen={handleConfirmDialogOpen}
+            handleClickView={handleOpenViewDialog}
+         />
+          <Toolbar
+            deleteDisabled={deleteDisabled}
             handleSearch={handleSearch}
-            handleAddProductClick={handleAddProductClick}
+            handleAdd={handleAdd}
+            handleFormDialogOpen={handleFormDialogOpen}
+            handleConfirmDialogOpen={handleConfirmDialogOpen}
           />
           <Box
             sx={{
@@ -295,7 +283,6 @@ const Products = (props) => {
                 }}
                 onSelectionModelChange={(ids) => {
                   setSelectedRows(ids);
-                  // setSelectedRows(ids.map((id) => rows.find((row) => row.id === id)));
                 }}
                 experimentalFeatures={{ newEditingApi: true }}
               />
@@ -307,7 +294,7 @@ const Products = (props) => {
                 }}
               >
                 <CardContent>
-                  <Typography>{`No ${typeString}s Found`}</Typography>
+                  <Typography>{`No Machine Found`}</Typography>
                 </CardContent>
               </Card>
             )}
@@ -318,6 +305,6 @@ const Products = (props) => {
   );
 };
 
-Products.getLayout = (page) => <DashboardLayout>{page}</DashboardLayout>;
+MachineManagement.getLayout = (page) => <DashboardLayout>{page}</DashboardLayout>;
 
-export default Products;
+export default MachineManagement;

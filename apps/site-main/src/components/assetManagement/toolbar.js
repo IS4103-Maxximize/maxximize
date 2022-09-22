@@ -7,7 +7,6 @@ import {
 } from '@mui/material';
 import { Search as SearchIcon } from '../../icons/search';
 
-
 export const Toolbar = (props) => {
   const {
     name,
@@ -17,7 +16,6 @@ export const Toolbar = (props) => {
     handleAdd,
     handleFormDialogOpen,
     handleConfirmDialogOpen,
-    ...rest
   } = props;
 
   return (

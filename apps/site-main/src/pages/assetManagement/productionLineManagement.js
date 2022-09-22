@@ -12,20 +12,20 @@ import { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { DashboardLayout } from '../../components/dashboard-layout';
 import { NotificationAlert } from '../../components/notification-alert';
-import { QuotationDialog } from '../../components/procurement-ordering/quotation-dialog';
-import { Toolbar } from '../../components/procurement-ordering/toolbar';
-import { ConfirmDialog } from '../../components/product/confirm-dialog';
-import { ProductMenu } from '../../components/product/product-menu';
+import { ProductionLineDialog } from '../../components/assetManagement/production-line-management-dialog';
+import { ProductionLineManagementMenu } from '../../components/assetManagement/production-line-management-menu';
+import { Toolbar } from '../../components/assetManagement/toolbar';
+import { MachineViewDialog } from '../../components/assetManagement/machine-view-dialog';
+import { ScheduleViewDialog } from '../../components/assetManagement/schedule-view-dialog';
+import { ConfirmDialog } from '../../components/assetManagement/confirm-dialog';
 import {
-  deleteQuotations,
-  fetchQuotations,
-} from '../../helpers/procurement-ordering';
-import format from 'date-fns/format';
+  deleteProductionLines,
+  fetchProductionLines,
+} from '../../helpers/assetManagement';
 
-const Quotation = (props) => {
+export const ProductionLineManagement = (props) => {
   const user = JSON.parse(localStorage.getItem('user'));
 
-  // NotificationAlert helpers
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertText, setAlertText] = useState();
   const [alertSeverity, setAlertSeverity] = useState('success');
@@ -40,12 +40,11 @@ const Quotation = (props) => {
     setAlertSeverity('success');
   };
 
-  // Search Helpers
   const [search, setSearch] = useState('');
   const handleSearch = (event) => {
     setSearch(event.target.value.toLowerCase().trim());
   };
-
+  
   // DataGrid Row and Toolbar helpers
   const [selectedRow, setSelectedRow] = useState(null);
   const [selectedRows, setSelectedRows] = useState([]);
@@ -55,7 +54,6 @@ const Quotation = (props) => {
     setDeleteDisabled(selectedRows.length === 0);
   }, [selectedRows]);
 
-  // Confirm Dialog Helpers
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
 
   const handleConfirmDialogOpen = () => {
@@ -65,7 +63,6 @@ const Quotation = (props) => {
     setConfirmDialogOpen(false);
   };
 
-  // Form Dialog Helpers
   const [action, setAction] = useState();
   const [formDialogOpen, setFormDialogOpen] = useState(false);
 
@@ -80,12 +77,29 @@ const Quotation = (props) => {
     setFormDialogOpen(false);
   };
 
-  // Menu Helpers
+    // Machine Dialog Helpers
+    const [machineDialogOpen, setMachineDialogOpen] = useState(false);
+    const handleMachineDialogOpen = () => {
+      console.log(selectedRow);
+      setMachineDialogOpen(true);
+    };
+    const handleMachineDialogClose = () => {
+      setMachineDialogOpen(false);
+    };
+
+    const [scheduleDialogOpen, setScheduleDialogOpen] = useState(false);
+    const handleScheduleDialogOpen = () => {
+      console.log(selectedRow);
+      setScheduleDialogOpen(true);
+    };
+    const handleScheduleDialogClose = () => {
+      setScheduleDialogOpen(false);
+    };
+
   const [anchorEl, setAnchorEl] = useState(null);
   const menuOpen = Boolean(anchorEl);
 
   const handleMenuClick = (event) => {
-    setAction('PATCH');
     setAnchorEl(event.currentTarget);
   };
   const handleMenuClose = () => {
@@ -99,8 +113,8 @@ const Quotation = (props) => {
     return (
       <IconButton
         onClick={(event) => {
-          console.log(params.row);
           setSelectedRow(params.row);
+          console.log(params.row);
           handleMenuClick(event);
         }}
       >
@@ -109,96 +123,104 @@ const Quotation = (props) => {
     );
   };
 
-  // CRUD helpers
-  const addQuotation = (quotation) => {
-    const updatedProducts = [...rows, quotation];
-    setRows(updatedProducts);
-    console.log(quotation);
-    handleAlertOpen(`Added Quotation ${quotation.id} successfully!`, 'success');
-  };
-
-  // const handleRowUpdate = (newRow) => {
-  //   const updatedRow = {...newRow};
-  //   getQuotations();
-  //   handleAlertOpen(`Updated Quotation ${newRow.id} successfully!`, 'success');
-  //   return updatedRow;
-  // }
-
-  const handleDelete = (ids) => {
-    // delete rows
-    deleteQuotations(ids)
-      .then(() => {
-        handleAlertOpen(`Successfully deleted Quotation(s)`, 'success');
-      })
-      .then(() => getQuotations());
-  };
-
-  // DataGrid Rows & Columns
   const [rows, setRows] = useState([]);
 
-  const getQuotations = async () => {
-    fetchQuotations()
-      .then((result) => {
-        // filter quotations which the user's organisation created
-        const filtered = result.filter((el) => {
-          return (
-            el.salesInquiry.currentOrganisation.id === user.organisation.id
-          );
-        });
-        setRows(filtered);
+  const getProductionLines = async () => {
+    fetchProductionLines(user.organisation.id)
+      .then((result) => setRows(result))
+      .catch((err) =>
+        handleAlertOpen(`Failed to fetch any Production Lines`, 'error')
+      );
+  };
+
+  const addProductionLine = (productionLine) => {
+    const updatedProductionLine = [...rows, productionLine];
+    console.log(updatedProductionLine);
+    setRows(updatedProductionLine);
+    console.log(productionLine);
+    handleAlertOpen(
+      `Added Production Line ${productionLine.id} successfully!`,
+      'success'
+    );
+  };
+
+  const handleRowUpdate = async (newRow) => {
+    const updatedRow = { ...newRow };
+
+    const inquiry = await newRow.json();
+    console.log(inquiry);
+
+    getProductionLines();
+    handleAlertOpen(
+      `Updated Production Line ${inquiry.id} successfully!`,
+      'success'
+    );
+    return updatedRow;
+  };
+
+  const handleDelete = (ids) => {
+    deleteProductionLines(ids)
+      .then(() => {
+        handleAlertOpen(`Successfully deleted Production Line(s)`, 'success');
       })
-      .then(() => setSelectedRows([]))
-      .catch((err) => handleAlertOpen(`Failed to fetch Quotations`, 'error'));
+      .then(() => getProductionLines());
   };
 
   useEffect(() => {
-    if (!formDialogOpen) {
-      getQuotations();
-    }
-  }, [formDialogOpen]);
-
-  useEffect(() => {
-    console.log(rows);
+    getProductionLines();
   }, [rows]);
 
   const columns = [
     {
       field: 'id',
-      headerName: 'Quotation ID',
+      headerName: 'ID',
       flex: 1,
     },
     {
-      field: 'created',
-      headerName: 'Date Created',
-      flex: 2,
-      valueGetter: (params) => {
-        return format(new Date(params.row.created), 'dd MMMM yyyy');
-      },
+        field: 'productionLineName',
+        headerName: 'Production Line Name',
+        flex: 1,
     },
     {
-      field: 'supplierId',
-      headerName: 'Supplier ID',
+      field: 'description',
+      headerName: 'Description',
       flex: 1,
-      valueGetter: (params) => {
-        return params.row.shellOrganisation.id;
-      },
+  },
+    {
+      field: 'isAvailable',
+      headerName: 'Status',
+      flex: 1,
     },
     {
-      field: 'supplierName',
-      headerName: 'Supplier Name',
-      flex: 3,
-      valueGetter: (params) => {
-        return params.row.shellOrganisation.name;
-      },
+        field: 'finalGood',
+        headerName: 'Final Good',
+        flex: 1,
     },
     {
-      field: 'totalPrice',
-      headerName: 'Quotation Total Price',
-      flex: 2,
+      field: 'lastStopped',
+      headerName: 'Last Stopped',
+      flex: 1,
+    },
+    {
+        field: 'changeOverTime',
+        headerName: 'Change Over Time',
+        flex: 1,
+    },
+    {
+        field: 'nextAvailableDateTime',
+        headerName: 'Estimated Next Available Date Time',
+        flex: 1,
+    },
+    {
+        field: 'productionCostPerLot',
+        headerName: 'Production Cost Per Lot',
+        flex: 1,
     },
     {
       field: 'actions',
+      headerName: '',
       flex: 1,
+      sortable: false,
       renderCell: menuButton,
     },
   ];
@@ -207,7 +229,7 @@ const Quotation = (props) => {
     <>
       <Helmet>
         <title>
-          Quotation
+          Production Line Management Module
           {user && ` | ${user?.organisation?.name}`}
         </title>
       </Helmet>
@@ -226,35 +248,48 @@ const Quotation = (props) => {
             text={alertText}
             handleClose={handleAlertClose}
           />
-          <ProductMenu
+          <ProductionLineManagementMenu
             anchorEl={anchorEl}
             menuOpen={menuOpen}
             handleClickOpen={handleFormDialogOpen}
             handleMenuClose={handleMenuClose}
-            handleClickViewEdit={handleEdit}
+            handleEdit={handleEdit}
+            handleMachineDialogOpen={handleMachineDialogOpen}
+            handleScheduleDialogOpen={handleScheduleDialogOpen}
           />
           <ConfirmDialog
             open={confirmDialogOpen}
             handleClose={handleConfirmDialogClose}
-            dialogTitle={`Delete Quotation(s)`}
-            dialogContent={`Confirm deletion of Quotation(s)?`}
+            dialogTitle={`Delete Production Line(s)`}
+            dialogContent={`Confirm deletion of Production Line(s)?`}
             dialogAction={() => {
               handleDelete(selectedRows);
             }}
           />
-          <QuotationDialog
+          <ProductionLineDialog
             action={action}
             open={formDialogOpen}
+            string={'ProductionLine'}
+            inquiry={selectedRow}
+            addProductionLine={addProductionLine}
+            updateProductionLine={handleRowUpdate}
             handleClose={handleFormDialogClose}
-            string={'Quotation'}
-            quotation={selectedRow}
-            addQuotation={addQuotation}
-            // update
+            handleAlertOpen={handleAlertOpen}
+          />
+          <MachineViewDialog
+            open={machineDialogOpen}
+            inquiry={selectedRow}
+            handleClose={handleMachineDialogClose}
+            handleAlertOpen={handleAlertOpen}
+          />
+          <ScheduleViewDialog
+            open={scheduleDialogOpen}
+            inquiry={selectedRow}
+            handleClose={handleScheduleDialogClose}
             handleAlertOpen={handleAlertOpen}
           />
           <Toolbar
-            name="Quotation"
-            numRows={selectedRows.length}
+            name="Production Line"
             deleteDisabled={deleteDisabled}
             handleSearch={handleSearch}
             handleAdd={handleAdd}
@@ -274,8 +309,8 @@ const Quotation = (props) => {
                     return row;
                   } else {
                     return (
-                      row.id.toString().includes(search) ||
-                      row.shellOrganisation.name.toLowerCase().includes(search)
+                      row.id.includes(search) ||
+                      row.status.toLowerCase().includes(search)
                     );
                   }
                 })}
@@ -289,8 +324,6 @@ const Quotation = (props) => {
                 onSelectionModelChange={(ids) => {
                   setSelectedRows(ids);
                 }}
-                // experimentalFeatures={{ newEditingApi: true }}
-                // processRowUpdate={handleRowUpdate}
               />
             ) : (
               <Card
@@ -300,7 +333,7 @@ const Quotation = (props) => {
                 }}
               >
                 <CardContent>
-                  <Typography>{`No Quotations Found`}</Typography>
+                  <Typography>{`No Production Line Found`}</Typography>
                 </CardContent>
               </Card>
             )}
@@ -311,6 +344,6 @@ const Quotation = (props) => {
   );
 };
 
-Quotation.getLayout = (page) => <DashboardLayout>{page}</DashboardLayout>;
+ProductionLineManagement.getLayout = (page) => <DashboardLayout>{page}</DashboardLayout>;
 
-export default Quotation;
+export default ProductionLineManagement;

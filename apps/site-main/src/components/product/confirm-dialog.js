@@ -11,6 +11,7 @@ export const ConfirmDialog = (props) => {
     dialogTitle, 
     dialogContent,
     dialogAction,
+    ...rest
   } = props;
 
   return (
