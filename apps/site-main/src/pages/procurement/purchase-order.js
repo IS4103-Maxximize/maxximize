@@ -1,7 +1,7 @@
 import MoreVert from "@mui/icons-material/MoreVert";
 import { Box, Card, CardContent, Container, IconButton, Typography } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
-import format from "date-fns/format";
+import { format, parseISO } from "date-fns";
 import { useEffect, useState } from "react";
 import Helmet from "react-helmet";
 import { DashboardLayout } from "../../components/dashboard-layout";
@@ -10,7 +10,8 @@ import { PODialog } from "../../components/procurement-ordering/purchase-order-d
 import { POMenu } from "../../components/procurement-ordering/purchase-order-menu";
 import { Toolbar } from "../../components/procurement-ordering/toolbar";
 import { ConfirmDialog } from "../../components/product/confirm-dialog";
-import { purchaseOrders } from "../../__mocks__/purchase-orders";
+import { fetchPurchaseOrders, deletePurchaseOrders } from "../../helpers/procurement-ordering/purchase-order";
+// import { purchaseOrders } from "../../__mocks__/purchase-orders";
 
 export const PurchaseOrder = (props) => {
   const user = JSON.parse(localStorage.getItem('user'));
@@ -24,19 +25,22 @@ export const PurchaseOrder = (props) => {
   const [selectedRows, setSelectedRows] = useState([]); // Selected Row IDs
   const [selectedRow, setSelectedRow] = useState();
 
-  const getPOs = () => {
-    return purchaseOrders; // API call TBD
+  const getPOs = async () => {
+    // return purchaseOrders;
+    fetchPurchaseOrders(organisationId)
+      .then(res => setRows(res))
+      .catch(err => handleAlertOpen('Failed to fetch Purchase Orders', 'error'))
   }
 
   useEffect(() => {
     // get Purchase Orders
     setLoading(true);
-    setRows(getPOs());
-    // setRows(fetchPurchaseOrders(organisationId));
+    getPOs();
   }, []);
 
   useEffect(() => {
     // show page after fetching data
+    console.log(rows);
     setLoading(false);
   }, [rows]);
 
@@ -45,7 +49,9 @@ export const PurchaseOrder = (props) => {
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertSeverity, setAlertSeverity] = useState('error'); // success || error
   const [alertText, setAlertText] = useState('');
-  const handleAlertOpen = () => {
+  const handleAlertOpen = (text, severity) => {
+    setAlertSeverity(severity);
+    setAlertText(text);
     setAlertOpen(true);
   }
   const handleAlertClose = () => {
@@ -110,7 +116,7 @@ export const PurchaseOrder = (props) => {
   useEffect(() => {
     if (!formDialogOpen) {
       setLoading(true);
-      setRows(getPOs());
+      getPOs();
     }
   }, [formDialogOpen]);
 
@@ -127,17 +133,24 @@ export const PurchaseOrder = (props) => {
   
   // CRUD handlerss
   const handleDelete = async (ids) => {
-    const newRows = rows.filter(row => !ids.includes(row.id));
-    // API deletePurchaseOrders
-    setRows(newRows);
+    // const newRows = rows.filter(row => !ids.includes(row.id));
+    // setRows(newRows);
     setSelectedRows([]);
+    deletePurchaseOrders(ids)
+      .then(() => handleAlertOpen('Successfully deleted Purchase Order(s)!', 'success'))
+      .then(() => getPOs());
   }
 
   // DataGrid Columns
   const columns = [
     {
       field: 'id',
-      headerName: 'Purchase Order ID',
+      headerName: 'PO ID',
+      flex: 1,
+    },
+    {
+      field: 'status',
+      headerName: 'Status',
       flex: 1,
     },
     {
@@ -145,7 +158,15 @@ export const PurchaseOrder = (props) => {
       headerName: 'Date Created',
       flex: 1,
       valueGetter: (params) => {
-        return format(params.row.created, 'dd MMMM yyyy');
+        return format(parseISO(params.row.created), 'dd/MM/yyyy');
+      }
+    },
+    {
+      field: 'deliveryDate',
+      headerName: 'Delivery Date',
+      flex: 1,
+      valueGetter: (params) => {
+        return format(parseISO(params.row.deliveryDate), 'dd/MM/yyyy');
       }
     },
     {
