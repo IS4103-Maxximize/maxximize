@@ -104,9 +104,9 @@ export class PurchaseOrdersService {
       // const deliveryTime = newPurchaseOrder.deliveryDate.toLocaleDateString()
       // this.mailService.sendPurchaseOrderEmail(supplierContact.email, organisation.name, supplier.name, poLineItems, newPurchaseOrder, deliveryTime)
       
-      return newPurchaseOrder
+      return this.findOne(newPurchaseOrder.id);
     } catch (error) {
-      throw new NotFoundException('The Entity cannot be found')
+      throw new NotFoundException(error)
     }
    }
 
@@ -115,6 +115,24 @@ export class PurchaseOrdersService {
       relations: {
         quotation: true,
         poLineItems: true,
+        currentOrganisation: true,
+        followUpLineItems: true,
+        orgContact: true,
+        userContact: true,
+        supplierContact: true
+      }
+    })
+  }
+
+  findAllByOrgId(organisationId: number): Promise<PurchaseOrder[]> {
+    return this.purchaseOrdersRepository.find({
+      where: {
+        organisationId
+      }, relations: {
+        quotation: true,
+        poLineItems: {
+          rawMaterial: true,
+        },
         currentOrganisation: true,
         followUpLineItems: true,
         orgContact: true,
