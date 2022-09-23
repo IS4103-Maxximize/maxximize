@@ -52,7 +52,7 @@ export class BillOfMaterialsService {
         })
         return transactionalEntityManager.save(newBillOfMaterial)
       })
-      return newBillOfMaterial
+      return await this.findOne(newBillOfMaterial.id);
 
     } catch (error) {
       throw new NotFoundException('The Entity cannot be found')

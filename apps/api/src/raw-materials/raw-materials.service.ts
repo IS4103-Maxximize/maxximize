@@ -44,14 +44,17 @@ export class RawMaterialsService {
     })
   }
 
-  async findAllByOrg(organisationId: number): Promise<Product[]> {
-      const allProducts = await this.productRepository.find({
-        relations: {
-          organisation: true
+  async findAllByOrg(organisationId: number): Promise<RawMaterial[]> {
+    return this.rawMaterialRepository.find({
+      where: {
+        organisation: {
+          id: organisationId
         }
-      })
-      return allProducts.filter(product => product.organisation.id === organisationId && product.type === 'RawMaterial')
-
+      },
+      relations: {
+        organisation: true
+      }
+    })
   }
 
   async findOne(id: number): Promise<RawMaterial> {
