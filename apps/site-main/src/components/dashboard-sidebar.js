@@ -5,6 +5,7 @@ import CorporateFareIcon from '@mui/icons-material/CorporateFare';
 import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
 import RequestQuoteIcon from '@mui/icons-material/RequestQuote';
 import ListAltIcon from '@mui/icons-material/ListAlt';
+import EngineeringIcon from '@mui/icons-material/Engineering';
 import {
   Box,
   Button,
@@ -26,6 +27,7 @@ const items = [
     title: 'Worker Management',
     access: ['admin', 'superadmin'],
   },
+  // Products
   {
     href: '/raw-materials',
     icon: <RawOnIcon fontSize="small" />,
@@ -38,6 +40,14 @@ const items = [
     title: 'Final Goods',
     access: ['manager', 'superadmin'],
   },
+  
+  {
+    href: '/businessrelations',
+    icon: <CorporateFareIcon fontSize="small" />,
+    title: 'Business Relations',
+    access: ['admin', 'superadmin'],
+  },
+  // Procurement
   {
     href: '/procurement',
     icon: <AddShoppingCartIcon fontSize="small" />,
@@ -45,37 +55,35 @@ const items = [
     access: ['manager', 'factoryworker', 'superadmin'],
   },
   {
-    href: '/businessrelations',
-    icon: <CorporateFareIcon fontSize="small" />,
-    title: 'Business Relations',
-    access: ['admin', 'superadmin'],
-  },
-  {
     href: '/procurement/sales-inquiry',
     icon: <QuestionAnswerIcon fontSize="small" />,
     title: 'Sales Inquiry',
-    access: [
-      'superadmin',
-      // 'manager',
-    ],
+    access: ['superadmin'],
   },
   {
     href: '/procurement/quotation',
     icon: <RequestQuoteIcon fontSize="small" />,
     title: 'Quotation Management',
-    access: [
-      'superadmin',
-      // 'manager',
-    ],
+    access: ['superadmin'],
   },
   {
     href: '/procurement/purchase-order',
     icon: <ListAltIcon fontSize="small" />,
     title: 'Purchase Order',
-    access: [
-      'superadmin',
-      // 'manager',
-    ],
+    access: ['superadmin'],
+  },
+  // Production
+  {
+    href: '/production',
+    icon: <EngineeringIcon fontSize="small" />,
+    title: 'Production',
+    access: ['manager', 'factoryworker', 'superadmin'],
+  },
+  {
+    href: '/production/bill-of-material',
+    icon: <AddShoppingCartIcon fontSize="small" />,
+    title: 'Production',
+    access: ['superadmin'],
   },
 ];
 

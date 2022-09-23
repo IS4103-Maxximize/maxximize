@@ -24,15 +24,18 @@ export const Toolbar = (props) => {
 
   // Get current pathname
   const location = useLocation();
+  const [domain, setDomain] = useState('');
   const [subdomain, setSubDomain] = useState('');
   useEffect(() => {
     const pathname = location.pathname;
+    const domain = pathname.substring(1, pathname.lastIndexOf('/'));
     const subdomain = pathname.substring(pathname.lastIndexOf('/') + 1);
+    setDomain(domain);
     setSubDomain(subdomain);
   }, [location])
 
   // Hard coded for now, can be made modular to accommodate future reuse
-  const breadcrumbs = [
+  const procurementBreadcrumbs = [
     <Link 
       component={RouterLink}
       underline="hover" 
@@ -62,6 +65,28 @@ export const Toolbar = (props) => {
     </Link>,
   ]
 
+  const productionBreadcrumbs = [
+    <Link 
+      component={RouterLink}
+      underline="hover" 
+      key="bill-of-material" 
+      color={subdomain === 'bill-of-material' ? 'primary' : 'inherit'}
+      to="/production/bill-of-material"
+    >
+      Bill Of Material
+    </Link>,
+    <Link 
+      component={RouterLink}
+      underline="hover" 
+      key="other" 
+      color={subdomain === 'other' ? 'primary' : 'inherit'}
+      to="/production/other"
+      hidden
+    >
+      Other Production thingy
+    </Link>,
+  ]
+
   return (
     <Box {...props}>
       <Box
@@ -80,7 +105,8 @@ export const Toolbar = (props) => {
           {name}
         </Typography>
         <Breadcrumbs separator="-">
-          {breadcrumbs}
+          {domain === 'procurement' && procurementBreadcrumbs}
+          {domain === 'production' && productionBreadcrumbs}
         </Breadcrumbs>
       </Box>
       <Box sx={{ mt: 3 }}>
