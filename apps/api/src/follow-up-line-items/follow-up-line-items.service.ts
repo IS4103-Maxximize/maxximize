@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { QueryRunner, Repository } from 'typeorm';
 import { FinalGood } from '../final-goods/entities/final-good.entity';
 import { PurchaseOrder } from '../purchase-orders/entities/purchase-order.entity';
 import { PurchaseOrdersService } from '../purchase-orders/purchase-orders.service';
@@ -47,6 +47,14 @@ export class FollowUpLineItemsService {
       throw new NotFoundException('The Entity cannot be found')
     }
     
+  }
+
+  async createWithExistingTransaction(createFollowUpLineItemDto: CreateFollowUpLineItemDto, queryRunner: QueryRunner) {
+    const followUpLineItem = new FollowUpLineItem();
+    followUpLineItem.quantity = createFollowUpLineItemDto.quantity;
+    followUpLineItem.rawMaterial = await this.rawMaterialsRepository.findOneByOrFail({id: createFollowUpLineItemDto.rawMaterialId});
+    followUpLineItem.purchaseOrder = await this.purchaseOrdersService.findOne(createFollowUpLineItemDto.purchaseOrderId);
+    return queryRunner.manager.save(followUpLineItem);
   }
 
   findAll(): Promise<FollowUpLineItem[]> {
