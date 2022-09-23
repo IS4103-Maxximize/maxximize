@@ -3,12 +3,12 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import {
   Badge,
   Box, Breadcrumbs, Card,
-  CardContent, IconButton, InputAdornment, Link, Stack, SvgIcon, TextField, Tooltip, Typography
+  CardContent, IconButton, InputAdornment, Stack, SvgIcon, TextField, Tooltip, Typography, Link
 } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Search as SearchIcon } from '../../icons/search';
-
+import { Link as RouterLink } from 'react-router-dom';
 
 export const Toolbar = (props) => {
   const {
@@ -34,26 +34,29 @@ export const Toolbar = (props) => {
   // Hard coded for now, can be made modular to accommodate future reuse
   const breadcrumbs = [
     <Link 
+      component={RouterLink}
       underline="hover" 
       key="sales-inquiry" 
       color={subdomain === 'sales-inquiry' ? 'primary' : 'inherit'}
-      href="/procurement/sales-inquiry"
+      to="/procurement/sales-inquiry"
     >
       Sales Inquiry
     </Link>,
     <Link 
+      component={RouterLink}
       underline="hover" 
       key="quotation" 
       color={subdomain === 'quotation' ? 'primary' : 'inherit'}
-      href="/procurement/quotation"
+      to="/procurement/quotation"
     >
       Quotation
     </Link>,
     <Link 
+      component={RouterLink}
       underline="hover" 
       key="purchase-order" 
       color={subdomain === 'purchase-order' ? 'primary' : 'inherit'}
-      href="/procurement/purchase-order"
+      to="/procurement/purchase-order"
     >
       Purchase Order
     </Link>,
