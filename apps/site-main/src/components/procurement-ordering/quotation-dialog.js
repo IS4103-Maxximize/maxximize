@@ -66,9 +66,6 @@ export const QuotationDialog = (props) => {
         values.totalPrice,
       ).catch((err) => handleAlertOpen(`Error creating ${string}`, 'error'));
       addQuotation(result);
-      // const result = await createSalesInquiry(user.organisation.id, values.lineItems)
-      //   .catch((err) => handleAlertOpen(`Error creating ${string}`, 'error'));
-      // addSalesInquiry(result);
     }
     onClose();
   };
@@ -95,10 +92,6 @@ export const QuotationDialog = (props) => {
 
   const [salesInquiries, setSalesInquiries] = useState([]);
   const [salesInquiryOptions, setSalesInquiryOptions] = useState([]);
-
-  // const [products, setProducts] = useState([]);
-  // const [productOptions, setProductOptions] = useState([]);
-  // // const [productInputValue, setProductInputValue] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -129,7 +122,7 @@ export const QuotationDialog = (props) => {
       const si = salesInquiries.find(
         (inquiry) => inquiry.id === formik.values.salesInquiryId
       );
-      //   console.log(si ? si.salesInquiryLineItems : []);
+      // console.log(si ? si.salesInquiryLineItems : []);
       formik.setFieldValue(
         'quotationLineItems',
         si ? si.salesInquiryLineItems.map((item) => {

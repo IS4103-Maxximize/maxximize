@@ -1,7 +1,7 @@
 import { apiHost, headers } from '../constants';
 
 export const fetchProducts = async (type, organisationId) => {
-  console.log(organisationId);
+  // console.log(organisationId);
   const apiUrl = `${apiHost}/${type}/orgId/${organisationId}`;
   const result = await fetch(apiUrl);
 
