@@ -40,7 +40,7 @@ export const PurchaseOrder = (props) => {
 
   useEffect(() => {
     // show page after fetching data
-    console.log(rows);
+    // console.log(rows);
     setLoading(false);
   }, [rows]);
 
