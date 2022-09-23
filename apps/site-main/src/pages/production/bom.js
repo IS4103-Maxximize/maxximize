@@ -3,10 +3,14 @@ import { Box, Card, CardContent, Container, IconButton, Typography } from "@mui/
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { useEffect, useState } from "react";
 import Helmet from "react-helmet";
+import { BOMCreateDialog } from "../../components/bom/bom-create-dialog";
+import { BOMUpdateDialog } from "../../components/bom/bom-update-dialog";
 import { DashboardLayout } from "../../components/dashboard-layout";
 import { NotificationAlert } from "../../components/notification-alert";
-import { Toolbar } from "../../components/procurement-ordering/toolbar";
 import { ConfirmDialog } from "../../components/product/confirm-dialog";
+import { ProductMenu } from "../../components/product/product-menu";
+import { Toolbar } from "../../components/toolbar";
+import { deleteBOMs, fetchBOMs } from "../../helpers/bom";
 
 export const BillOfMaterial = (props) => {
   const user = JSON.parse(localStorage.getItem('user'));
@@ -21,10 +25,9 @@ export const BillOfMaterial = (props) => {
   const [selectedRow, setSelectedRow] = useState();
 
   const getBOMs = async () => {
-    // return purchaseOrders;
-    // fetchBOM(organisationId)
-    //   .then(res => setRows(res))
-    //   .catch(err => handleAlertOpen('Failed to fetch Purchase Orders', 'error'))
+    fetchBOMs(organisationId)
+      .then(res => setRows(res))
+      .catch(err => handleAlertOpen('Failed to fetch Bill Of Materials', 'error'))
   }
 
   useEffect(() => {
@@ -62,7 +65,7 @@ export const BillOfMaterial = (props) => {
   };
   // Add Button
   const handleAddClick = () => {
-    setAction('POST');
+    // setAction('POST');
     setSelectedRow(null);
   }
   // Delete Button
@@ -100,24 +103,46 @@ export const BillOfMaterial = (props) => {
   };
 
 
-  // FormDialog Helpers
-  const [formDialogOpen, setFormDialogOpen] = useState(false);
-  const handleFormDialogOpen = () => {
-    setFormDialogOpen(true);
+  // Create Dialog Helpers
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const handleCreateDialogOpen = () => {
+    setCreateDialogOpen(true);
   };
-  const handleFormDialogClose = () => {
-    setFormDialogOpen(false);
+  const handleCreateDialogClose = () => {
+    setCreateDialogOpen(false);
   };
 
   useEffect(() => {
-    if (!formDialogOpen) {
+    console.log(createDialogOpen)
+    if (!createDialogOpen) {
       setLoading(true);
       getBOMs();
     }
-    if (formDialogOpen) {
+    if (createDialogOpen) {
       console.log(selectedRow);
     }
-  }, [formDialogOpen]);
+  }, [createDialogOpen]);
+
+
+  // Update Dialog Helpers
+  const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
+  const handleUpdateDialogOpen = () => {
+    setUpdateDialogOpen(true);
+  };
+  const handleUpdateDialogClose = () => {
+    setUpdateDialogOpen(false);
+  };
+
+  useEffect(() => {
+    console.log(updateDialogOpen)
+    if (!updateDialogOpen) {
+      setLoading(true);
+      getBOMs();
+    }
+    if (updateDialogOpen) {
+      console.log(selectedRow);
+    }
+  }, [updateDialogOpen]);
 
 
   // ConfirmDialog Helpers
@@ -132,12 +157,10 @@ export const BillOfMaterial = (props) => {
   
   // CRUD handlerss
   const handleDelete = async (ids) => {
-    // const newRows = rows.filter(row => !ids.includes(row.id));
-    // setRows(newRows);
     setSelectedRows([]);
-    // deleteBOMs(ids)
-    //   .then(() => handleAlertOpen('Successfully deleted Bill Of Material(s)!', 'success'))
-    //   .then(() => getBOMs());
+    deleteBOMs(ids)
+      .then(() => handleAlertOpen('Successfully deleted Bill Of Material(s)!', 'success'))
+      .then(() => getBOMs());
   }
 
   // DataGrid Columns
@@ -149,7 +172,7 @@ export const BillOfMaterial = (props) => {
     },
     {
       field: 'name',
-      headerName: 'Final Good Name',
+      headerName: 'Final Good',
       flex: 1,
       valueGetter: (params) => {
         return params.row ? params.row.finalGood.name : '';
@@ -203,26 +226,32 @@ export const BillOfMaterial = (props) => {
             deleteDisabled={deleteDisabled}
             handleSearch={handleSearch}
             handleAdd={handleAddClick}
-            handleFormDialogOpen={handleFormDialogOpen}
+            handleFormDialogOpen={handleCreateDialogOpen}
             handleConfirmDialogOpen={handleConfirmDialogOpen}
           />
-          {/* <BOMMenu 
+          <BOMCreateDialog
+            key="bom-create-dialog"
+            open={createDialogOpen}
+            handleClose={handleCreateDialogClose}
+            string={'Bill Of Material'}
+            handleAlertOpen={handleAlertOpen}
+          />
+          <BOMUpdateDialog
+            key="bom-update-dialog"
+            open={updateDialogOpen}
+            handleClose={handleUpdateDialogClose}
+            string={'Bill Of Material'}
+            bom={selectedRow}
+            handleAlertOpen={handleAlertOpen}
+          />
+          <ProductMenu 
             key="bom-menu"
             anchorEl={anchorEl}
             menuOpen={menuOpen}
+            handleClickOpen={handleUpdateDialogOpen}
             handleMenuClose={handleMenuClose}
             handleClickViewEdit={handleClickViewEdit}
-            handleFormDialogOpen={handleFormDialogOpen}
           />
-          <BOMDialog
-            key="bom-dialog"
-            action={action}
-            open={formDialogOpen}
-            handleClose={handleFormDialogClose}
-            string={'Bill Of Material'}
-            purchaseOrder={selectedRow}
-            handleAlertOpen={handleAlertOpen}
-          /> */}
           <ConfirmDialog
             open={confirmDialogOpen}
             handleClose={handleConfirmDialogClose}

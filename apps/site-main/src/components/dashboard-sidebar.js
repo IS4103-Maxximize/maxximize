@@ -6,6 +6,7 @@ import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
 import RequestQuoteIcon from '@mui/icons-material/RequestQuote';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import EngineeringIcon from '@mui/icons-material/Engineering';
+import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import {
   Box,
   Button,
@@ -73,16 +74,16 @@ const items = [
     access: ['superadmin'],
   },
   // Production
-  {
-    href: '/production',
-    icon: <EngineeringIcon fontSize="small" />,
-    title: 'Production',
-    access: ['manager', 'factoryworker', 'superadmin'],
-  },
+  // {
+  //   href: '/production',
+  //   icon: <EngineeringIcon fontSize="small" />,
+  //   title: 'Production',
+  //   access: ['manager', 'factoryworker', 'superadmin'],
+  // },
   {
     href: '/production/bill-of-material',
-    icon: <AddShoppingCartIcon fontSize="small" />,
-    title: 'Production',
+    icon: <FormatListBulletedIcon fontSize="small" />,
+    title: 'Bill Of Material',
     access: ['superadmin'],
   },
 ];
