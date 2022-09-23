@@ -65,7 +65,8 @@ export class QuotationsService {
         },
         salesInquiry: {
           currentOrganisation: true
-        }
+        },
+        purchaseOrder: true
       }
     })
   }
@@ -103,9 +104,9 @@ export class QuotationsService {
       where: {
         id,
       },
-      relations: {
-        shellOrganisation: true,
-      },
+      relations: [
+        "shellOrganisation.contact"
+      ]
     });
   }
 

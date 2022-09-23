@@ -17,6 +17,11 @@ export class WarehousesController {
     return this.warehousesService.findAll();
   }
 
+  @Get('all/:id')
+  findAllByOrgId(@Param('id') id: string) {
+    return this.warehousesService.findAllByOrgId(+id);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.warehousesService.findOne(+id);

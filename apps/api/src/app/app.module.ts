@@ -51,7 +51,7 @@ import { AppService } from './app.service';
       database: 'maxximize',
       autoLoadEntities: true,
       synchronize: true, // shouldn't be set to 'true' in production
-      logging: true
+      logging: false
     }),
     AuthModule,
     // Entitiy Modules
