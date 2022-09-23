@@ -68,7 +68,21 @@ export class BillOfMaterialsService {
     });
   }
 
-
+  async findAllByOrg(id: number): Promise<BillOfMaterial[]> {
+    return this.billOfMaterialRepository.find({
+      where: {
+        finalGood: {
+          organisation: {
+            id: id
+          }
+        }
+      },
+      relations: [
+        "finalGood",
+        "bomLineItems.rawMaterial"
+      ]
+    });
+  }
 
   async findOne(id: number): Promise<BillOfMaterial> {
     try {

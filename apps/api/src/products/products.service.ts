@@ -34,6 +34,16 @@ export class ProductsService {
     })
   }
 
+  async findAllByOrg(id: number): Promise<Product[]> {
+    return this.productRepository.find({
+      where: {
+        organisation: {
+          id: id
+        }
+      }
+    })
+  } 
+
   async findOne(id: number): Promise<Product> {
     try {
       const product = await this.productRepository.findOne({where: {

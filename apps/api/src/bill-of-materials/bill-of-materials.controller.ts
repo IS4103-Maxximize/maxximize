@@ -17,6 +17,11 @@ export class BillOfMaterialsController {
     return this.billOfMaterialsService.findAll();
   }
 
+  @Get('all/:id')
+  findAllByOrg(@Param('id') id: string) {
+    return this.billOfMaterialsService.findAllByOrg(+id);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.billOfMaterialsService.findOne(+id);
