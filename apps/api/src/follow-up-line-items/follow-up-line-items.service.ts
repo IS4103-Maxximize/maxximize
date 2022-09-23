@@ -23,25 +23,22 @@ export class FollowUpLineItemsService {
     private purchaseOrdersService: PurchaseOrdersService
   ){}
   async create(createFollowUpLineItemDto: CreateFollowUpLineItemDto): Promise<FollowUpLineItem> {
-    try{
-      const { quantity, price, rawMaterialId, finalGoodId, purchaseOrderId} = createFollowUpLineItemDto
-    let rawMaterialToBeAdded: RawMaterial
-    let finalGoodToBeAdded: FinalGood
-    let purchaseOrderToBeAdded: PurchaseOrder
-    rawMaterialToBeAdded = await this.rawMaterialsRepository.findOneByOrFail({id: rawMaterialId})
+    try {
+      const { quantity, rawMaterialId, finalGoodId, purchaseOrderId} = createFollowUpLineItemDto
+      let finalGoodToBeAdded: FinalGood
+      const rawMaterialToBeAdded = await this.rawMaterialsRepository.findOneByOrFail({id: rawMaterialId})
       if (finalGoodId) {
         finalGoodToBeAdded = await this.finalGoodsRepository.findOneByOrFail({id: finalGoodId})
       } else {
         finalGoodToBeAdded = null
       }
-      purchaseOrderToBeAdded = await this.purchaseOrdersService.findOne(purchaseOrderId)
+      const purchaseOrderToBeAdded = await this.purchaseOrdersService.findOne(purchaseOrderId)
       const newFollowUpLineItem = this.followUpLineItemsRepository.create({
         quantity,
-        price,
         rawMaterial: rawMaterialToBeAdded,
         finalGood: finalGoodToBeAdded,
         purchaseOrder: purchaseOrderToBeAdded
-      })
+      });
       return this.followUpLineItemsRepository.save(newFollowUpLineItem)
     } catch (error) {
       throw new NotFoundException('The Entity cannot be found')

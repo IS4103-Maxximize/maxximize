@@ -1,19 +1,22 @@
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
-import { OrganisationsService } from '../organisations/organisations.service';
-import { UsersService } from '../users/users.service';
-import { OrganisationType } from '../organisations/enums/organisationType.enum';
-import { Role } from '../users/enums/role.enum';
-import { DataSource } from "typeorm"
-import { Organisation } from '../organisations/entities/organisation.entity';
-import { Contact } from '../contacts/entities/contact.entity';
-import { User } from '../users/entities/user.entity';
+import { DataSource } from "typeorm";
+import { BinsService } from '../bins/bins.service';
 import { ContactsService } from '../contacts/contacts.service';
+import { Contact } from '../contacts/entities/contact.entity';
+import { OrganisationType } from '../organisations/enums/organisationType.enum';
+import { OrganisationsService } from '../organisations/organisations.service';
+import { User } from '../users/entities/user.entity';
+import { Role } from '../users/enums/role.enum';
+import { UsersService } from '../users/users.service';
+import { WarehousesService } from '../warehouses/warehouses.service';
 
 @Injectable()
 export class AppService implements OnApplicationBootstrap {
   constructor(private organisationsService: OrganisationsService,
     private usersService: UsersService,
     private contactService: ContactsService,
+    private warehouseService: WarehousesService,
+    private binService: BinsService,
     private dataSource: DataSource) {}
   getData(): { message: string } {
     return { message: 'Welcome to api!' };
@@ -146,6 +149,38 @@ export class AppService implements OnApplicationBootstrap {
             contact: await this.contactService.findOne(7)
           }
         ]).execute();
+
+        await this.warehouseService.create({
+          name: "Warehouse 1",
+          description: "Warehouse 1 Description",
+          address: "Address for Warehouse 1",
+          organisationId: 2
+        });
+
+        await this.warehouseService.create({
+          name: "Warehouse 2",
+          description: "Warehouse 2 Description",
+          address: "Address for Warehouse 2",
+          organisationId: 2
+        });
+
+        await this.binService.create({
+          name: "SLOC-001-Warehouse1",
+          capacity: 1000,
+          warehouseId: 1
+        });
+
+        await this.binService.create({
+          name: "SLOC-002-Warehouse1",
+          capacity: 1000,
+          warehouseId: 1
+        });
+
+        await this.binService.create({
+          name: "SLOC-001-Warehouse2",
+          capacity: 1000,
+          warehouseId: 2
+        });
     }
   }
 }
