@@ -2,9 +2,11 @@ import AddBoxIcon from '@mui/icons-material/AddBox';
 import DeleteIcon from '@mui/icons-material/Delete';
 import {
   Badge,
-  Box, Card,
-  CardContent, IconButton, InputAdornment, Stack, SvgIcon, TextField, Tooltip, Typography
+  Box, Breadcrumbs, Card,
+  CardContent, IconButton, InputAdornment, Link, Stack, SvgIcon, TextField, Tooltip, Typography
 } from '@mui/material';
+import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Search as SearchIcon } from '../../icons/search';
 
 
@@ -19,6 +21,43 @@ export const Toolbar = (props) => {
     handleConfirmDialogOpen,
     ...rest
   } = props;
+
+  // Get current pathname
+  const location = useLocation();
+  const [subdomain, setSubDomain] = useState('');
+  useEffect(() => {
+    const pathname = location.pathname;
+    const subdomain = pathname.substring(pathname.lastIndexOf('/') + 1);
+    setSubDomain(subdomain);
+  }, [location])
+
+  // Hard coded for now, can be made modular to accommodate future reuse
+  const breadcrumbs = [
+    <Link 
+      underline="hover" 
+      key="sales-inquiry" 
+      color={subdomain === 'sales-inquiry' ? 'primary' : 'inherit'}
+      href="/procurement/sales-inquiry"
+    >
+      Sales Inquiry
+    </Link>,
+    <Link 
+      underline="hover" 
+      key="quotation" 
+      color={subdomain === 'quotation' ? 'primary' : 'inherit'}
+      href="/procurement/quotation"
+    >
+      Quotation
+    </Link>,
+    <Link 
+      underline="hover" 
+      key="purchase-order" 
+      color={subdomain === 'purchase-order' ? 'primary' : 'inherit'}
+      href="/procurement/purchase-order"
+    >
+      Purchase Order
+    </Link>,
+  ]
 
   return (
     <Box {...props}>
@@ -37,6 +76,9 @@ export const Toolbar = (props) => {
         >
           {name}
         </Typography>
+        <Breadcrumbs separator="-">
+          {breadcrumbs}
+        </Breadcrumbs>
       </Box>
       <Box sx={{ mt: 3 }}>
         <Card>
