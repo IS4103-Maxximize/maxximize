@@ -7,7 +7,7 @@ export class CreateWarehouseDto {
     @IsNotEmpty()
     description: string;
     
-    @IsNotEmpty()
+    // @IsNotEmpty()
     address: string;
 
     @IsNotEmpty()

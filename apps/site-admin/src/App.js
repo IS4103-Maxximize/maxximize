@@ -8,7 +8,7 @@ import NotFound from './pages/404';
 import RequireAuth from './components/RequireAuth';
 import Onboarding from './pages/onboarding';
 import ForgotPassword from './pages/forgotPassword';
-import ResetPassword from './pages/resetPassword';
+import ResetPassword from './pages/resetpassword';
 import ProtectedRoute from './pages/protectedRoute';
 import ProtectedPublicRoute from './pages/protectedPublicRoute';
 

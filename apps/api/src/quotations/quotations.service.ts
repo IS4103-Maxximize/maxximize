@@ -59,7 +59,9 @@ export class QuotationsService {
   findAll(): Promise<Quotation[]> {
     return this.quotationsRepository.find({
       relations: {
-        shellOrganisation: true,
+        shellOrganisation: {
+          contact: true
+        },
         quotationLineItems: {
           rawMaterial: true
         },
@@ -77,7 +79,9 @@ export class QuotationsService {
         salesInquiryId: salesInquiryId
       },
       relations: {
-        shellOrganisation: true,
+        shellOrganisation: {
+          contact: true
+        },
         quotationLineItems: {
           rawMaterial: true
         },
@@ -105,7 +109,9 @@ export class QuotationsService {
         id,
       },
       relations: {
-        shellOrganisation: true,
+        shellOrganisation: {
+          contact: true,
+        },
       },
     });
   }

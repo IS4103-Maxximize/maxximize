@@ -4,7 +4,9 @@ import { randomUUID } from 'crypto';
 import { DataSource, Repository } from 'typeorm';
 import { BatchesService } from '../batches/batches.service';
 import { CreateBatchDto } from '../batches/dto/create-batch.dto';
+import { FollowUpLineItemsService } from '../follow-up-line-items/follow-up-line-items.service';
 import { GrLineItemsService } from '../gr-line-items/gr-line-items.service';
+import { UpdatePurchaseOrderDto } from '../purchase-orders/dto/update-purchase-order.dto';
 import { PurchaseOrdersService } from '../purchase-orders/purchase-orders.service';
 import { UsersService } from '../users/users.service';
 import { CreateGoodsReceiptDto } from './dto/create-goods-receipt.dto';
@@ -19,6 +21,7 @@ export class GoodsReceiptsService {
     private userService: UsersService,
     private grLineItemService: GrLineItemsService,
     private batchService: BatchesService,
+    private followUpLineItemService: FollowUpLineItemsService,
     private dataSource: DataSource
   ) {}
 
@@ -32,7 +35,9 @@ export class GoodsReceiptsService {
       goodReceipt.createdDateTime = createGoodsReceiptDto.createdDateTime;
       goodReceipt.description = createGoodsReceiptDto.description;
       const createGrLineDtos = createGoodsReceiptDto.goodsReceiptLineItemsDtos;
+      const createFollowUpLineItemsDtos = createGoodsReceiptDto.followUpLineItemsDtos;
       const goodsReceiptLineItems = [];
+      const followUpLineItems = [];
 
       const createBatchDto = new CreateBatchDto();
       createBatchDto.batchLineItems = [];
@@ -46,6 +51,15 @@ export class GoodsReceiptsService {
 
       const purchaseOrder = await this.purchaseOrderSerivce.findOne(createGoodsReceiptDto.purchaseOrderId);
       goodReceipt.purchaseOrder = purchaseOrder;
+
+      for (const dto of createFollowUpLineItemsDtos) {
+        dto.purchaseOrderId = createGoodsReceiptDto.purchaseOrderId;
+        const followUpLineItem = await this.followUpLineItemService.createWithExistingTransaction(dto, queryRunner);
+        followUpLineItems.push(followUpLineItem);
+      }
+
+      purchaseOrder.followUpLineItems = followUpLineItems
+      queryRunner.manager.save(purchaseOrder);
 
       const recipient = await this.userService.findOne(createGoodsReceiptDto.recipientId);
       goodReceipt.recipientName = recipient.firstName + ' ' + recipient.lastName;
@@ -69,7 +83,7 @@ export class GoodsReceiptsService {
 
   async findAll() {
     const goodsReceipts = await this.goodsReceiptRepository.find({
-      relations: ['goodReceiptLineItems']
+      relations: ['goodReceiptLineItems.product']
     });
     if (goodsReceipts.length === 0 || goodsReceipts === undefined) {
       throw new NotFoundException("No goods receipt(s) found");
@@ -82,7 +96,7 @@ export class GoodsReceiptsService {
       where: {
         id: id,
       },
-      relations: ['goodReceiptLineItems']
+      relations: ['goodReceiptLineItems.product']
     });
     if (goodsReceipt) {
       return goodsReceipt;

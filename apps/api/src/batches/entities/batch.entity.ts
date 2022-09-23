@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { BatchLineItem } from "../../batch-line-items/entities/batch-line-item.entity";
 import { GoodsReceipt } from "../../goods-receipts/entities/goods-receipt.entity";
 

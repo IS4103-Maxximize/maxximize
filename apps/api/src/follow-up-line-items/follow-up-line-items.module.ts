@@ -12,5 +12,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
   imports: [TypeOrmModule.forFeature([FollowUpLineItem, PurchaseOrder, FinalGood, RawMaterial]), PurchaseOrdersModule],
   controllers: [FollowUpLineItemsController],
   providers: [FollowUpLineItemsService],
+  exports: [FollowUpLineItemsService]
 })
 export class FollowUpLineItemsModule {}
