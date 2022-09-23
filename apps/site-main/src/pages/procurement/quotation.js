@@ -13,7 +13,7 @@ import { Helmet } from 'react-helmet';
 import { DashboardLayout } from '../../components/dashboard-layout';
 import { NotificationAlert } from '../../components/notification-alert';
 import { QuotationDialog } from '../../components/procurement-ordering/quotation-dialog';
-import { Toolbar } from '../../components/procurement-ordering/toolbar';
+import { Toolbar } from '../../components/toolbar';
 import { ConfirmDialog } from '../../components/product/confirm-dialog';
 import { ProductMenu } from '../../components/product/product-menu';
 import {

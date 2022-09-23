@@ -7,7 +7,7 @@ import {
 } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { Search as SearchIcon } from '../../icons/search';
+import { Search as SearchIcon } from '../icons/search';
 import { Link as RouterLink } from 'react-router-dom';
 
 export const Toolbar = (props) => {

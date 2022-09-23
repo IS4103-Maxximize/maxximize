@@ -8,7 +8,7 @@ import { DashboardLayout } from "../../components/dashboard-layout";
 import { NotificationAlert } from "../../components/notification-alert";
 import { PODialog } from "../../components/procurement-ordering/purchase-order-dialog";
 import { POMenu } from "../../components/procurement-ordering/purchase-order-menu";
-import { Toolbar } from "../../components/procurement-ordering/toolbar";
+import { Toolbar } from "../../components/toolbar";
 import { ConfirmDialog } from "../../components/product/confirm-dialog";
 import { fetchPurchaseOrders, deletePurchaseOrders } from "../../helpers/procurement-ordering/purchase-order";
 // import { purchaseOrders } from "../../__mocks__/purchase-orders";
