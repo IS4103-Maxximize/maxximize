@@ -5,6 +5,8 @@ import { DashboardLayout } from './components/dashboard-layout';
 import Layout from './components/Layout';
 import RequireAuth from './components/RequireAuth';
 import NotFound from './pages/404';
+import MachineManagement from './pages/assetManagement/machineManagement';
+import ProductionLineManagement from './pages/assetManagement/productionLineManagement';
 import BusinessRelations from './pages/businessRelations';
 import Dashboard from './pages/dashboard';
 import ForgotPassword from './pages/forgotPassword';
@@ -149,6 +151,18 @@ const routes = (
             <Route
               path="procurement/goodreceipt"
               element={<ProcurementGoodReceipt />}
+            ></Route>
+
+            {/* Asset Management */}
+            {/* <Route path="asset-management" element={<AssetManag />}></Route> */}
+            {/* Procurement Modules */}
+            <Route
+              path="asset-management/machine"
+              element={<MachineManagement />}
+            ></Route>
+            <Route
+              path="asset-management/production-line"
+              element={<ProductionLineManagement />}
             ></Route>
           </Route>
         </Route>

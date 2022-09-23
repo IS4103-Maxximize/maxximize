@@ -85,9 +85,9 @@ export const createProductionLine = async (
     );
   };
   
-  export const updateProductionLine = async (values) => {
+  export const updateProductionLine = async (values, productionLineId) => {
   
-    const apiUrl = `${apiHost}/production-line/${id}`;
+    const apiUrl = `${apiHost}/production-line/${productionLineId}`;
     let body = {
       nextAvailableDateTime: values.nextAvailableDateTime,
       isAvailable: values.isAvailable,

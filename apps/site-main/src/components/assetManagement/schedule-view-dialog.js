@@ -1,21 +1,24 @@
 import {
   Button,
+  Card,
+  CardContent,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
+  Typography,
 } from '@mui/material';
-import { DataGrid } from '@mui/x-data-grid';
+import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import { useFormik } from 'formik';
 import { useEffect, useState } from 'react';
 import { apiHost, headers } from '../../helpers/constants';
 import { fetchSchedule } from '../../helpers/assetManagement';
 
 export const ScheduleViewDialog = (props) => {
+
 // DataGrid Helpers
   const [completedSchedules, setRowsCompleted] = useState([]);
   const [ongoingSchedules, setRowsOngoing] = useState([]);
-  const [selectedRow, setSelectedRow] = useState();
 
   const [open, setOpen] = useState(false);
   const handleClickOpen = () => {
@@ -24,7 +27,6 @@ export const ScheduleViewDialog = (props) => {
   const handleClose = () => {
     setOpen(false);
   };
-
 
   const getSchedule = async () => {
     const schedules = fetchSchedule();
@@ -40,8 +42,12 @@ export const ScheduleViewDialog = (props) => {
   }, []);
 
   useEffect(() => {
-    console.log(rows);
-  }, [rows]);
+    console.log(completedSchedules);
+  }, [completedSchedules]);
+
+  useEffect(() => {
+    console.log(ongoingSchedules);
+  }, [ongoingSchedules]);
 
   const columns = [
     {
@@ -72,6 +78,10 @@ export const ScheduleViewDialog = (props) => {
         },
       },
     ];
+  
+  const onClose = () => {
+      handleClose();
+    };
 
   return (
     <Dialog fullWidth maxWidth="md" open={open} onClose={onClose}>
@@ -89,7 +99,7 @@ export const ScheduleViewDialog = (props) => {
                   Toolbar: GridToolbar,
                 }}
                 onSelectionModelChange={(ids) => {
-                  setSelectedRows(ids);
+                  setRowsOngoing(ids);
                 }}
                 experimentalFeatures={{ newEditingApi: true }}
               /> 
@@ -118,7 +128,7 @@ export const ScheduleViewDialog = (props) => {
                     Toolbar: GridToolbar,
                   }}
                   onSelectionModelChange={(ids) => {
-                    setSelectedRows(ids);
+                    setRowsCompleted(ids);
                   }}
                   /> 
               ) : (

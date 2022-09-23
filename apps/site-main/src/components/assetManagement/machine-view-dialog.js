@@ -1,17 +1,29 @@
 import {
     Button,
+    Card,
+    CardContent,
     Dialog,
     DialogActions,
     DialogContent,
     DialogTitle,
+    Typography,
   } from '@mui/material';
-  import { DataGrid } from '@mui/x-data-grid';
+  import { DataGrid, GridToolbar } from '@mui/x-data-grid';
   import { useFormik } from 'formik';
   import { useEffect, useState } from 'react';
   import { fetchMachines } from '../../helpers/assetManagement';
   
   export const MachineViewDialog = (props) => {
-// DataGrid Helpers
+   
+    const {
+    open,
+    handleClose
+  } = props;
+
+  const onClose = () => {
+    handleClose();
+  }
+    // DataGrid Helpers
   const [rows, setRows] = useState([]);
   const [selectedRows, setSelectedRows] = useState([]);
 
@@ -30,7 +42,6 @@ import {
   }, [rows]);
 
 
-  
     const columns = [
         {
             field: 'id',

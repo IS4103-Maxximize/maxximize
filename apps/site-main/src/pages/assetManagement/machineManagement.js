@@ -10,12 +10,12 @@ import {
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
-import { DashboardLayout } from '../components/dashboard-layout';
-import { NotificationAlert } from '../components/notification-alert';
-import { ConfirmDialog } from '../components/assetManagement/confirm-dialog';
-import { MachineDialog } from '../components/assetManagement/machine-dialog';
-import { Toolbar } from '../components/assetManagement/toolbar';
-import { MachineMenu } from '../components/assetManagement/machine-menu';
+import { DashboardLayout } from '../../components/dashboard-layout';
+import { NotificationAlert } from '../../components/notification-alert';
+import { ConfirmDialog } from '../../components/assetManagement/confirm-dialog';
+import { MachineDialog } from '../../components/assetManagement/machine-dialog';
+import { Toolbar } from '../../components/assetManagement/toolbar';
+import { MachineMenu } from '../../components/assetManagement/machine-menu';
 import {
   deleteMachines,
   fetchMachines,
@@ -48,6 +48,16 @@ const MachineManagement = (props) => {
   const handleClose = () => {
     setOpen(false);
   };
+
+    // FormDialog Helpers
+    const [formDialogOpen, setFormDialogOpen] = useState(false);
+    const handleFormDialogOpen = () => {
+      setFormDialogOpen(true);
+    };
+    const handleFormDialogClose = () => {
+      setFormDialogOpen(false);
+    };
+
 
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const handleConfirmDialogOpen = () => {
@@ -121,7 +131,7 @@ const MachineManagement = (props) => {
 
   useEffect(() => {
     getMachines();
-  }, []);
+  }, [rows]);
 
   useEffect(() => {
     setDisabled(selectedRows.length === 0);
@@ -130,6 +140,14 @@ const MachineManagement = (props) => {
   const handleSearch = (event) => {
     setSearch(event.target.value.toLowerCase().trim());
   };
+
+    // Add Button
+    const handleAddClick = () => {
+      setAction('POST');
+      setSelectedRow(null);
+    }
+    // Delete Button
+    const deleteDisabled = Boolean(selectedRows.length === 0);
 
   const handleDelete = async (ids) => {
     deleteMachines(ids)
@@ -222,13 +240,27 @@ const MachineManagement = (props) => {
             text={alertText}
             handleClose={handleAlertClose}
           />
+          <Toolbar
+            deleteDisabled={deleteDisabled}
+            handleSearch={handleSearch}
+            handleAdd={handleAddClick}
+            handleFormDialogOpen={handleFormDialogOpen}
+            handleConfirmDialogOpen={handleConfirmDialogOpen}
+          />
+          <MachineMenu
+            anchorEl={anchorEl}
+            menuOpen={menuOpen}
+            handleClickOpen={handleClickOpen}
+            handleMenuClose={handleMenuClose}
+            handleClickViewEdit={handleClickViewEdit}
+         />
           <MachineDialog
             action={action}
-            open={formDialogOpen}
+            open={handleFormDialogOpen}
             string={'ProductionLine'}
             inquiry={selectedRow}
             addMachine={addMachine}
-            updateMachine={handleRowUpdate}
+            updateMachine={updateRow}
             handleClose={handleFormDialogClose}
             handleAlertOpen={handleAlertOpen}
           />
@@ -240,20 +272,6 @@ const MachineManagement = (props) => {
             dialogAction={() => {
               handleDelete(selectedRows);
             }}
-          />
-        <MachineMenu
-            anchorEl={anchorEl}
-            menuOpen={menuOpen}
-            handleClickOpen={handleClickOpen}
-            handleMenuClose={handleMenuClose}
-            handleClickView={handleOpenViewDialog}
-         />
-          <Toolbar
-            deleteDisabled={deleteDisabled}
-            handleSearch={handleSearch}
-            handleAdd={handleAdd}
-            handleFormDialogOpen={handleFormDialogOpen}
-            handleConfirmDialogOpen={handleConfirmDialogOpen}
           />
           <Box
             sx={{

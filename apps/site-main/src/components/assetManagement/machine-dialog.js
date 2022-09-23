@@ -5,19 +5,27 @@ import {
     DialogContent,
     DialogContentText,
     DialogTitle,
+    FormControl,
     FormControlLabel,
+    InputLabel,
+    MenuItem,
+    OutlinedInput,
     Radio,
     RadioGroup,
+    Select,
     TextField,
     Typography,
   } from '@mui/material';
   import { Stack } from '@mui/system';
   import { useFormik } from 'formik';
   import * as Yup from 'yup';
-  import { createMachine, updateMachine, fetchProductionLine } from '../../helpers/assetManagement';
-  import { DateTimePicker } from '@material-ui/pickers'
+  import { createMachine, updateMachine, fetchProductionLines } from '../../helpers/assetManagement';
+  import { DateTimePicker } from '@mui/x-date-pickers';
+  import { useEffect, useState } from 'react';
   
   const options = ['operating', 'not operating'];
+  const user = JSON.parse(localStorage.getItem('user'));
+  const organisationId = user.organisation.id;
 
   export const MachineDialog = (props) => {
     const {
@@ -50,7 +58,7 @@ import {
       make: Yup.string(),
       model: Yup.string(),
       year: Yup.string(),
-      lastServiced: Yup.Date(),
+      lastServiced: Yup.date(),
       remarks: Yup.string(),
       productionLineId: Yup.string().required('Production line is required'),
       status: Yup.boolean(),
@@ -96,7 +104,7 @@ import {
   
     useEffect(() => {
       const fetchData = async () => {
-        const productionLineNames = await fetchProductionLine(user.organisation.factoryMachine.productionLine.name);
+        const productionLineNames = await fetchProductionLines(user.organisation.factoryMachine.productionLine.name);
         setProductionLineOptions(productionLineNames.map((productionLine) => productionLine.name));
       };
   
@@ -104,7 +112,7 @@ import {
         fetchData();
       }
     });
-    
+
     const handleChange = (event) => {
       const {
         target: { value },
@@ -122,7 +130,6 @@ import {
           <DialogTitle>
             {action === 'POST' && 'Add '}
             {action === 'PATCH' && 'Edit '}
-            {typeString}
           </DialogTitle>
           <DialogContent>
             <DialogContentText>
@@ -221,6 +228,7 @@ import {
             label="Last Serviced Date"
             inputVariant="outlined"
             value={selectedDate}
+            renderInput={(props) => <TextField {...props} />}
             onChange={handleDateChange}
             />
             </Stack>
@@ -235,7 +243,6 @@ import {
           value={selectedProductionLines}
           onChange={handleChange}
           input={<OutlinedInput label="Production Line Name" />}
-          MenuProps={MenuProps}
         >
           {productionLineOptions.map((name) => (
             <MenuItem

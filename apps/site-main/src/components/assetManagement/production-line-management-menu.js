@@ -1,7 +1,7 @@
 import SearchIcon from "@mui/icons-material/Search";
 import { ListItemIcon, ListItemText, Menu, MenuItem, MenuList } from "@mui/material";
 
-export const ProductionLineMenu = (props) => {
+export const ProductionLineManagementMenu = (props) => {
   const {
     anchorEl, 
     menuOpen, 

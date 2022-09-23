@@ -12,7 +12,7 @@ import { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { DashboardLayout } from '../../components/dashboard-layout';
 import { NotificationAlert } from '../../components/notification-alert';
-import { ProductionLineDialog } from '../../components/assetManagement/production-line-management-dialog';
+import { ProductionLineManagementDialog } from '../../components/assetManagement/production-line-management-dialog';
 import { ProductionLineManagementMenu } from '../../components/assetManagement/production-line-management-menu';
 import { Toolbar } from '../../components/assetManagement/toolbar';
 import { MachineViewDialog } from '../../components/assetManagement/machine-view-dialog';
@@ -264,7 +264,7 @@ export const ProductionLineManagement = (props) => {
               handleDelete(selectedRows);
             }}
           />
-          <ProductionLineDialog
+          <ProductionLineManagementDialog
             action={action}
             open={formDialogOpen}
             string={'ProductionLine'}

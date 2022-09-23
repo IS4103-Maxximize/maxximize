@@ -1,16 +1,15 @@
-import CloseIcon from '@mui/icons-material/Close';
 import {
-  AppBar,
-  Autocomplete,
   Button,
   Dialog,
+  DialogActions,
   DialogContent,
+  DialogContentText,
+  DialogTitle,
   Stack,
   TextField,
   Toolbar,
   Typography,
 } from '@mui/material';
-import { DataGrid } from '@mui/x-data-grid';
 import { useFormik } from 'formik';
 import { useEffect, useState } from 'react';
 import * as Yup from 'yup';
@@ -25,6 +24,7 @@ import {
   updateProductionLine,
   fetchFinalGood,
 } from '../../helpers/assetManagement';
+import { DateTimePicker } from '@mui/x-date-pickers';
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -37,8 +37,9 @@ const MenuProps = {
   },
 };
 
-export const QuotationDialog = (props) => {
+export const ProductionLineManagementDialog = (props) => {
   const user = JSON.parse(localStorage.getItem('user'));
+  const organisationId = user.organisation.id;
 
   const {
     action, 
@@ -133,7 +134,6 @@ export const QuotationDialog = (props) => {
         <DialogTitle>
           {action === 'POST' && 'Add '}
           {action === 'PATCH' && 'Edit '}
-          {typeString}
         </DialogTitle>
         <DialogContent>
           <DialogContentText>
