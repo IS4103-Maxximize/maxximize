@@ -1,13 +1,14 @@
-import Head from 'next/head';
-import NextLink from 'next/link';
+import { Link as RouterLink } from 'react-router-dom';
 import { Box, Button, Container, Link, Typography } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import Helmet from "react-helmet"
 
 const NotFound = () => (
   <>
-    <Head>
-      <title>404 | Material Kit</title>
-    </Head>
+    <Helmet>
+      <title>404</title>
+
+    </Helmet>
     <Box
       component="main"
       sx={{
@@ -35,7 +36,7 @@ const NotFound = () => (
           <Box sx={{ textAlign: 'center' }}>
             <img
               alt="Under development"
-              src="/static/images/undraw_page_not_found_su7k.svg"
+              src="/assets/images/undraw_page_not_found_su7k.svg"
               style={{
                 marginTop: 50,
                 display: 'inline-block',
@@ -44,7 +45,11 @@ const NotFound = () => (
               }}
             />
           </Box>
-          <Link href="/" passHref underline="none">
+          <Link
+            component={RouterLink}
+            underline="none"
+            to='/'
+          >
             <Button
               component="a"
               startIcon={<ArrowBackIcon fontSize="small" />}
