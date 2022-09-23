@@ -19,7 +19,6 @@ export class GrLineItemsService {
     await queryRunner.startTransaction();
     try {
       const grLineItem = new GrLineItem();
-      grLineItem.subTotal = createGrLineItemsDto.subtotal;
       grLineItem.quantity = createGrLineItemsDto.quantity;
 
       const rawMaterial = await this.rawMaterialService.findOne(createGrLineItemsDto.rawMaterialId);
@@ -37,7 +36,6 @@ export class GrLineItemsService {
 
   async createWithExistingTransaction(createGrLineItemsDto: CreateGrLineItemDto, queryRunner: QueryRunner) {
     const grLineItem = new GrLineItem();
-    grLineItem.subTotal = createGrLineItemsDto.subtotal;
     grLineItem.quantity = createGrLineItemsDto.quantity;
 
     const rawMaterial = await this.rawMaterialService.findOne(createGrLineItemsDto.rawMaterialId);
@@ -64,7 +62,6 @@ export class GrLineItemsService {
     try {
       const grLineItem = await this.findOne(id);
       grLineItem.quantity = updateGrLineItemDto.quantity;
-      grLineItem.subTotal = updateGrLineItemDto.subtotal;
       const updatedGrLineItem =  await queryRunner.manager.save(grLineItem);
       await queryRunner.commitTransaction();
       return updatedGrLineItem;

@@ -41,7 +41,7 @@ export class BatchesService {
   async createWithExistingTransaction(createBatchDto: CreateBatchDto, goodReceiptLineItems: GrLineItem[], queryRunner: QueryRunner) {
     const batch = new Batch();
     batch.batchNumber = createBatchDto.batchNumber;
-    /*
+    
     const warehouses = await this.warehouseService.findAll();
     const batchLineItems = [];
     let bins : Bin[];
@@ -49,46 +49,55 @@ export class BatchesService {
     for (const warehouse of warehouses) {
       bins = [...bins, ...warehouse.bins];
     }
-    const allocated: GrLineItem[] = [];
+    
+    // Duplicate goodReceiptLineItems
+    const unassigned = goodReceiptLineItems.slice();
 
     // Try to allocate those line items fully
     for (const lineItem of goodReceiptLineItems) {
       for (const bin of bins) {
         const lineItemCapacity = lineItem.product.lotQuantity * lineItem.quantity;
-        if (lineItemCapacity < bin.capacity - bin.currentCapacity) {
+        if (lineItemCapacity <= bin.capacity - bin.currentCapacity) {
           const batchLineItem = new BatchLineItem();
           batchLineItem.bin = bin;
           batchLineItem.product = lineItem.product;
           batchLineItem.quantity = lineItem.quantity;
+          batchLineItem.subTotal = lineItem.product.unitPrice * lineItem.quantity;
           batchLineItems.push(batchLineItem);
 
-          const updateBinDto = new UpdateBinDto();
-          updateBinDto.capacity = bin.currentCapacity + lineItemCapacity;
-          await this.binService.update(bin.id, updateBinDto);
-
-          allocated.push(lineItem);
+          bin.currentCapacity = bin.currentCapacity + lineItemCapacity;
+          
+          const index = unassigned.indexOf(lineItem);
+          unassigned.splice(index, 1);
           break;
         }
       }
     }
-    const unassignedGrLineItems = [...goodReceiptLineItems, ...allocated];
-    console.log(unassignedGrLineItems);
 
-    for (const unallocated of unassignedGrLineItems) {
+    // For those that cannot be allocated fully, find bins with space
+    // and allocate partially till all of the product is allocated
+    for (const unallocated of unassigned) {
       let qty = unallocated.quantity * unallocated.product.lotQuantity;
       while (qty > 0) {
         for (const bin of bins) {
-          const batchLineItem = new BatchLineItem();
-          qty -= bin.capacity - bin.currentCapacity; //what if qty is 10 but u got 20 in bin
-          batchLineItem.bin = bin;
-          batchLineItem.product = unallocated.product;
-          batchLineItem.quantity = (bin.capacity - bin.currentCapacity) / unallocated.product.lotQuantity;
-          batchLineItems.push(batchLineItem);
-          
-          const updateBinDto = new UpdateBinDto();
-          updateBinDto.capacity = bin.currentCapacity + qty;
-          await this.binService.update(bin.id, updateBinDto);
+          const availableSpace = bin.capacity - bin.currentCapacity;
+          if (availableSpace > 0) {
+            const batchLineItem = new BatchLineItem();
+            if (qty > availableSpace) {
+              batchLineItem.quantity =  availableSpace / unallocated.product.lotQuantity;
+              bin.currentCapacity = bin.capacity;
+            } else {
+              batchLineItem.quantity =  qty / unallocated.product.lotQuantity;
+              bin.currentCapacity = bin.currentCapacity + qty;
+            }
+            batchLineItem.bin = bin;
+            batchLineItem.product = unallocated.product;
+            batchLineItem.subTotal = unallocated.product.unitPrice * batchLineItem.quantity;
+            
+            batchLineItems.push(batchLineItem);
 
+            qty -= availableSpace;
+          }
           if (qty < 0) {
             break;
           }
@@ -96,8 +105,13 @@ export class BatchesService {
       }
     }
 
+    for (const bin of bins) {
+      const updateBinDto = new UpdateBinDto();
+      updateBinDto.currentCapacity = bin.currentCapacity;
+      await this.binService.update(bin.id, updateBinDto);
+    }
+
     batch.batchLineItems = batchLineItems;
-    */
 
     const createdBatch = await queryRunner.manager.save(batch);
     return createdBatch;

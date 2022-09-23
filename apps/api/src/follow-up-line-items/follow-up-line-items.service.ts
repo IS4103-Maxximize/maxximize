@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { QueryRunner, Repository } from 'typeorm';
 import { FinalGood } from '../final-goods/entities/final-good.entity';
 import { PurchaseOrder } from '../purchase-orders/entities/purchase-order.entity';
 import { PurchaseOrdersService } from '../purchase-orders/purchase-orders.service';
@@ -23,30 +23,35 @@ export class FollowUpLineItemsService {
     private purchaseOrdersService: PurchaseOrdersService
   ){}
   async create(createFollowUpLineItemDto: CreateFollowUpLineItemDto): Promise<FollowUpLineItem> {
-    try{
-      const { quantity, price, rawMaterialId, finalGoodId, purchaseOrderId} = createFollowUpLineItemDto
-    let rawMaterialToBeAdded: RawMaterial
-    let finalGoodToBeAdded: FinalGood
-    let purchaseOrderToBeAdded: PurchaseOrder
-    rawMaterialToBeAdded = await this.rawMaterialsRepository.findOneByOrFail({id: rawMaterialId})
+    try {
+      const { quantity, rawMaterialId, finalGoodId, purchaseOrderId} = createFollowUpLineItemDto
+      let finalGoodToBeAdded: FinalGood
+      const rawMaterialToBeAdded = await this.rawMaterialsRepository.findOneByOrFail({id: rawMaterialId})
       if (finalGoodId) {
         finalGoodToBeAdded = await this.finalGoodsRepository.findOneByOrFail({id: finalGoodId})
       } else {
         finalGoodToBeAdded = null
       }
-      purchaseOrderToBeAdded = await this.purchaseOrdersService.findOne(purchaseOrderId)
+      const purchaseOrderToBeAdded = await this.purchaseOrdersService.findOne(purchaseOrderId)
       const newFollowUpLineItem = this.followUpLineItemsRepository.create({
         quantity,
-        price,
         rawMaterial: rawMaterialToBeAdded,
         finalGood: finalGoodToBeAdded,
         purchaseOrder: purchaseOrderToBeAdded
-      })
+      });
       return this.followUpLineItemsRepository.save(newFollowUpLineItem)
     } catch (error) {
       throw new NotFoundException('The Entity cannot be found')
     }
     
+  }
+
+  async createWithExistingTransaction(createFollowUpLineItemDto: CreateFollowUpLineItemDto, queryRunner: QueryRunner) {
+    const followUpLineItem = new FollowUpLineItem();
+    followUpLineItem.quantity = createFollowUpLineItemDto.quantity;
+    followUpLineItem.rawMaterial = await this.rawMaterialsRepository.findOneByOrFail({id: createFollowUpLineItemDto.rawMaterialId});
+    followUpLineItem.purchaseOrder = await this.purchaseOrdersService.findOne(createFollowUpLineItemDto.purchaseOrderId);
+    return queryRunner.manager.save(followUpLineItem);
   }
 
   findAll(): Promise<FollowUpLineItem[]> {
