@@ -8,7 +8,8 @@ export const ProductMenu = (props) => {
     menuOpen, 
     handleClickOpen, 
     handleMenuClose, 
-    handleClickViewEdit
+    handleClickViewEdit,
+    ...rest
   } = props;
   return (
     <Menu 

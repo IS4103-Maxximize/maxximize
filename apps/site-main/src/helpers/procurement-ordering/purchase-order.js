@@ -17,6 +17,10 @@ export const fetchWarehouses = async (orgId) => {
   return await fetch(url).then((response) => response.json());
 }
 
+export const fetchPurchaseOrder = async (id) => {
+  return await fetch(`${apiUrl}/${id}`).then(response => response.json());
+}
+
 export const fetchPurchaseOrders = async (orgId) => {
   return await fetch(`${apiUrl}/all/${orgId}`).then((response) => response.json());
 }

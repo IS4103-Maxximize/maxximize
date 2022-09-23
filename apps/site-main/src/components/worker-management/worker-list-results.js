@@ -1,30 +1,18 @@
-import { useState, useEffect, useCallback } from 'react';
-import {
-  Card,
-  Box,
-  Alert,
-  Collapse,
-  Tooltip,
-  Badge,
-  Stack,
-  CardContent,
-  TextField,
-  InputAdornment,
-  SvgIcon,
-  Menu,
-  MenuItem,
-} from '@mui/material';
-import IconButton from '@mui/material/IconButton';
 import DeleteIcon from '@mui/icons-material/Delete';
 import HelpIcon from '@mui/icons-material/Help';
-import PersonAddIcon from '@mui/icons-material/PersonAdd';
-import { DataGrid, GridToolbar } from '@mui/x-data-grid';
-import { CreateWorkerDialog } from './create-worker-dialog';
-import { Search as SearchIcon } from '../../icons/search';
-import { NotificationAlert } from '../notification-alert';
-import { WorkerConfirmDialog } from './worker-confirm-dialog';
-import { UpdateWorkerDialog } from './update-worker-dialog';
 import MoreVert from '@mui/icons-material/MoreVert';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import {
+  Badge, Box, Card, CardContent, Menu,
+  MenuItem, Tooltip
+} from '@mui/material';
+import IconButton from '@mui/material/IconButton';
+import { DataGrid, GridToolbar } from '@mui/x-data-grid';
+import { useEffect, useState } from 'react';
+import { NotificationAlert } from '../notification-alert';
+import { CreateWorkerDialog } from './create-worker-dialog';
+import { UpdateWorkerDialog } from './update-worker-dialog';
+import { WorkerConfirmDialog } from './worker-confirm-dialog';
 
 export const WorkerListResults = () => {
   const [workers, setWorkers] = useState([]);
@@ -370,15 +358,13 @@ export const WorkerListResults = () => {
               <Box sx={{ m: 1 }} display="flex" flexDirection="row-reverse">
                 <Badge badgeContent={selectionModel.length} color="error">
                   <Tooltip title={'Delete Worker Entry (Single/Multiple)'}>
-                    <>
-                      <IconButton
-                        disabled={selectionModel.length === 0}
-                        onClick={handleConfirmDialogOpen}
-                        color="error"
-                      >
-                        <DeleteIcon />
-                      </IconButton>
-                    </>
+                    <IconButton
+                      disabled={selectionModel.length === 0}
+                      onClick={handleConfirmDialogOpen}
+                      color="error"
+                    >
+                      <DeleteIcon />
+                    </IconButton>
                   </Tooltip>
                 </Badge>
 

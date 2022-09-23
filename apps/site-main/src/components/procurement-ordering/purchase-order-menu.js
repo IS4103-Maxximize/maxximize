@@ -7,7 +7,8 @@ export const POMenu = (props) => {
     menuOpen, 
     handleMenuClose, 
     handleClickViewEdit,
-    handleFormDialogOpen
+    handleFormDialogOpen,
+    ...rest
   } = props;
   return (
     <Menu 
