@@ -120,7 +120,7 @@ export const createProductionLine = async (
     });
   };
 
-    export const fetchMachines = async () => {
+  export const fetchMachines = async () => {
       const apiUrl = `${apiHost}/factory-machine`;
       return await fetch(apiUrl).then((response) => response.json());
     };
@@ -154,7 +154,7 @@ export const createProductionLine = async (
         throw new Error(err);
       });
     };
-    
+
     export const createMachine = async (values, productionLines) => {
       const apiUrl = `${apiHost}/factory-machine`;
       let body = {

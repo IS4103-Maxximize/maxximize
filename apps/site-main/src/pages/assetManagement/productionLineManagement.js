@@ -44,7 +44,7 @@ export const ProductionLineManagement = (props) => {
   const handleSearch = (event) => {
     setSearch(event.target.value.toLowerCase().trim());
   };
-  
+
   // DataGrid Row and Toolbar helpers
   const [selectedRow, setSelectedRow] = useState(null);
   const [selectedRows, setSelectedRows] = useState([]);
@@ -76,7 +76,6 @@ export const ProductionLineManagement = (props) => {
   const handleFormDialogClose = () => {
     setFormDialogOpen(false);
   };
-
     // Machine Dialog Helpers
     const [machineDialogOpen, setMachineDialogOpen] = useState(false);
     const handleMachineDialogOpen = () => {
@@ -224,7 +223,6 @@ export const ProductionLineManagement = (props) => {
       renderCell: menuButton,
     },
   ];
-
   return (
     <>
       <Helmet>

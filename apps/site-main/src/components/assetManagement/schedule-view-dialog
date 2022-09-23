@@ -12,7 +12,6 @@ import { apiHost, headers } from '../../helpers/constants';
 import { fetchSchedule } from '../../helpers/assetManagement';
 
 export const ScheduleViewDialog = (props) => {
-
 // DataGrid Helpers
   const [completedSchedules, setRowsCompleted] = useState([]);
   const [ongoingSchedules, setRowsOngoing] = useState([]);

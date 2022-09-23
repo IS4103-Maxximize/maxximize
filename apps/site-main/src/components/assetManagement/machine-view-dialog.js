@@ -11,7 +11,6 @@ import {
   import { fetchMachines } from '../../helpers/assetManagement';
   
   export const MachineViewDialog = (props) => {
-
 // DataGrid Helpers
   const [rows, setRows] = useState([]);
   const [selectedRows, setSelectedRows] = useState([]);

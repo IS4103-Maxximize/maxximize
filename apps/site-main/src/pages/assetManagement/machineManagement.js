@@ -131,7 +131,6 @@ const MachineManagement = (props) => {
     setSearch(event.target.value.toLowerCase().trim());
   };
 
-
   const handleDelete = async (ids) => {
     deleteMachines(ids)
       .then(() => {

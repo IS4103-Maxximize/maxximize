@@ -89,7 +89,7 @@ export const QuotationDialog = (props) => {
     }
     onClose();
   };
-  
+
   const formik = useFormik({
     initialValues: initialValues,
     enableReinitialize: true,
@@ -103,8 +103,6 @@ export const QuotationDialog = (props) => {
   };
 
   const [selectedDate, handleDateChange] = useState(new Date());
-
-
   const [selectedFinalGood, setSelectedFinalGood] = useState([]);
   const [finalGoodOptions, setFinalGoodOptions] = useState([]);
 
