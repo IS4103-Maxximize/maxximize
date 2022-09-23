@@ -40,6 +40,9 @@ export class ProductsService {
         organisation: {
           id: id
         }
+      },
+      relations: {
+        organisation: true,
       }
     })
   } 

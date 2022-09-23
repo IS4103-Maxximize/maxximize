@@ -58,6 +58,7 @@ export class FinalGoodsService {
       relations: {
         organisation: true,
         billOfMaterial: true,
+        // productionLines: true 
       }
     })
   }

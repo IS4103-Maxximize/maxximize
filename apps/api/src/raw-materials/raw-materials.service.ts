@@ -52,7 +52,8 @@ export class RawMaterialsService {
         }
       },
       relations: {
-        organisation: true
+        organisation: true,
+        suppliers: true,
       }
     })
   }
