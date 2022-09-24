@@ -205,7 +205,7 @@ export const RetailersList = ({orgId}) => {
           if (params.row?.contact?.phoneNumber) {
               return params.row.contact.phoneNumber
           } else {
-              ''
+              return ''
           }
         }
       },

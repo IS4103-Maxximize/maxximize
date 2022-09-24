@@ -32,7 +32,9 @@ const Warehouse = () => {
 
   //Retrieve all warehouses
   const retrieveAllWarehouses = async () => {
-    const response = await fetch(`http://localhost:3000/api/warehouses`);
+    const response = await fetch(
+      `http://localhost:3000/api/warehouses/all/${organisationId}`
+    );
 
     let result = [];
 
@@ -270,7 +272,6 @@ const Warehouse = () => {
         handleMenuClose={handleMenuClose}
         handleClickView={handleOpenViewDialog}
       /> */}
-
       <WarehouseActionMenu
         bins={selectedRow?.bins}
         setSelectedBin={setSelectedBin}

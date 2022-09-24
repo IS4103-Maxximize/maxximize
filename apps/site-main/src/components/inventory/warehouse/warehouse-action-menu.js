@@ -85,7 +85,7 @@ export const WarehouseActionMenu = (props) => {
           <ListItemText>Update Details</ListItemText>
         </MenuItem>
         <MenuItem
-          disabled={bins.length == 0}
+          disabled={bins?.length == 0}
           onClick={() => {
             handleClick();
             if (open) {

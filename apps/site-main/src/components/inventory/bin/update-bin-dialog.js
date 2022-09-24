@@ -90,13 +90,20 @@ export const UpdateBinDialog = ({
       headerName: 'Product Name',
       flex: 2,
       width: 300,
+      valueGetter: (params) => {
+        if (params.row.product.name) {
+          return params.row.product.name;
+        } else {
+          return '';
+        }
+      },
     },
     {
       field: 'quantity',
       headerName: 'Quantity',
       flex: 1,
       width: 120,
-      editable: true,
+      editable: false,
     },
   ];
 

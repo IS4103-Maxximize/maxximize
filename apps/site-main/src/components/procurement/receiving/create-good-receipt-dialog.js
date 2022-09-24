@@ -43,6 +43,7 @@ export const CreateGoodReceiptDialog = ({
   //Handle dialog close from child dialog
   const handleCreateDialogClose = () => {
     setOpen(false);
+    setError('');
     setAcceptedProducts([]);
     setFollowUpProducts([]);
     setCurrentQARules([]);
@@ -95,7 +96,6 @@ export const CreateGoodReceiptDialog = ({
 
     if (response.status === 200 || response.status === 201) {
       const result = await response.json();
-
       //Rerender parent data grid compoennt
       addGoodReceipt(result);
       handleAlertOpen(`Created Good Receipt ${result.id} successfully`);
@@ -107,32 +107,69 @@ export const CreateGoodReceiptDialog = ({
     }
   };
 
-  //Products for testing
-
+  //Products
   const [acceptedProducts, setAcceptedProducts] = useState([]);
   const [followUpProducts, setFollowUpProducts] = useState([]);
   const [lineItems, setLineItems] = useState([]);
+  const [purchaseOrders, setPurchaseOrders] = useState([]);
 
-  //Retrieve all raw material [TODO]
+  //Retrieve all PO
+  const retrievePurchaseOrders = async () => {
+    const response = await fetch(
+      `http://localhost:3000/api/purchase-orders/all/${organisationId}`
+    );
+
+    let result = [];
+
+    if (response.status == 200 || response.status == 201) {
+      result = await response.json();
+    }
+
+    setPurchaseOrders(result);
+  };
+
+  //Retrieve all PO Line Items
   const retrievePOLineItems = async () => {
-    try {
-      const response = await fetch(
-        `http://localhost:3000/api/purchase-orders/${formik.values.purchaseOrderId}`
-      );
+    console.log(formik.values.purchaseOrderId);
+    if (
+      purchaseOrders
+        .map((purchaseOrder) => purchaseOrder.id.toString())
+        .includes(formik.values.purchaseOrderId)
+    ) {
+      try {
+        const response = await fetch(
+          `http://localhost:3000/api/purchase-orders/${formik.values.purchaseOrderId}`
+        );
 
-      if (response.status === 200 || response.status === 201) {
-        const result = await response.json();
+        if (response.status === 200 || response.status === 201) {
+          const result = await response.json();
 
-        setLineItems(result.poLineItems);
-        setAcceptedProducts(result.poLineItems);
-        setFollowUpProducts([]);
-        setError('');
-      } else {
-        const result = await response.json();
-        setError(result.message);
+          if (result.status == 'partiallyfulfilled') {
+            setLineItems(result.followUpLineItems);
+            setAcceptedProducts(result.followUpLineItems);
+            setFollowUpProducts([]);
+            setError('');
+          } else if (result.status == 'fulfilled') {
+            setError('Purchase Order already fulfilled!');
+            setAcceptedProducts([]);
+            setFollowUpProducts([]);
+          } else {
+            setLineItems(result.poLineItems);
+            setAcceptedProducts(result.poLineItems);
+            setFollowUpProducts([]);
+            setError('');
+          }
+        } else {
+          const result = await response.json();
+          setError(result.message);
+        }
+      } catch (error) {
+        setError(error);
       }
-    } catch (error) {
-      setError(error);
+    } else {
+      setError('No such purchase order within organisation');
+      setAcceptedProducts([]);
+      setFollowUpProducts([]);
     }
   };
 
@@ -158,7 +195,6 @@ export const CreateGoodReceiptDialog = ({
       editable: true,
       flex: 1,
       preProcessEditCellProps: (params) => {
-        console.log(params);
         const hasError =
           params.props.value <= 0 ||
           params.props.value >
@@ -203,10 +239,10 @@ export const CreateGoodReceiptDialog = ({
 
   //Updating a good receipt line item entry, calling update API
   //Also alerts user of ourcome
-  const handleRowUpdate = (newRow, oldRow, type) => {
+  const handleRowUpdate = (newRow, type) => {
     const updatedRow = { ...newRow };
 
-    if (newRow.quantity != oldRow.quantity && type == 'accepted') {
+    if (type == 'accepted') {
       const originalQuantity = lineItems.filter(
         (lineItem) => lineItem.rawMaterial.name == updatedRow.rawMaterial.name
       )[0].quantity;
@@ -269,15 +305,8 @@ export const CreateGoodReceiptDialog = ({
       setAcceptedProducts(newAcceptedProducts);
 
       return updatedRow;
-    } else {
-      return oldRow;
     }
   };
-
-  useEffect(() => {
-    console.log(acceptedProducts);
-    console.log(followUpProducts);
-  }, [handleOnSubmit, handleRowUpdate]);
 
   //Select Line Item from Accepted products
   const [acceptedSelectionModel, setAcceptedSelectionModel] = useState([]);
@@ -290,8 +319,6 @@ export const CreateGoodReceiptDialog = ({
     const productNames = [];
 
     for (const selectedId of selectedIds) {
-      console.log(lineItems);
-      console.log(selectedId);
       const productName = lineItems.find(
         (lineItem) => lineItem.id == selectedId
       ).rawMaterial.name;
@@ -377,6 +404,7 @@ export const CreateGoodReceiptDialog = ({
 
   useEffect(() => {
     retrieveQAChecklists();
+    retrievePurchaseOrders();
   }, []);
 
   //Current Checklist
@@ -442,7 +470,7 @@ export const CreateGoodReceiptDialog = ({
                 autoFocus
                 color="inherit"
                 disabled={
-                  formik.isSubmitting ||
+                  !formik.isValid ||
                   (acceptedProducts.length == 0 && followUpProducts.length == 0)
                 }
                 size="medium"
@@ -462,6 +490,7 @@ export const CreateGoodReceiptDialog = ({
             </Box>
             <Box display="flex" alignItems="center">
               <TextField
+                label="Purchase Order ID"
                 error={Boolean(
                   formik.touched.purchaseOrderId &&
                     formik.errors.purchaseOrderId
@@ -471,16 +500,45 @@ export const CreateGoodReceiptDialog = ({
                   formik.touched.purchaseOrderId &&
                   formik.errors.purchaseOrderId
                 }
-                label="Purchase Order ID"
+                value={formik.values.purchaseOrderId}
                 margin="normal"
                 name="purchaseOrderId"
                 onBlur={formik.handleBlur}
                 onChange={formik.handleChange}
-                value={formik.values.purchaseOrderId}
                 variant="outlined"
                 size="small"
               />
-
+              {/* <Autocomplete
+                options={purchaseOrders.map((purchaseOrder) =>
+                  purchaseOrder.id.toString()
+                )}
+                fullWidth
+                onChange={(e, value) =>
+                  formik.setFieldValue('purchaseOrderId', value)
+                }
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Purchase Order ID"
+                    error={Boolean(
+                      formik.touched.purchaseOrderId &&
+                        formik.errors.purchaseOrderId
+                    )}
+                    fullWidth
+                    helperText={
+                      formik.touched.purchaseOrderId &&
+                      formik.errors.purchaseOrderId
+                    }
+                    value={formik.values.purchaseOrderId}
+                    margin="normal"
+                    name="purchaseOrderId"
+                    onBlur={formik.handleBlur}
+                    onChange={formik.handleChange}
+                    variant="outlined"
+                    size="small"
+                  />
+                )}
+              /> */}
               <Box>
                 <Button
                   sx={{ marginLeft: 1 }}
@@ -547,6 +605,7 @@ export const CreateGoodReceiptDialog = ({
             </Typography>
             <TextField
               select
+              defaultValue=""
               error={Boolean(
                 formik.touched.checklist && formik.errors.checklist
               )}

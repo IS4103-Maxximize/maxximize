@@ -31,7 +31,9 @@ const Bin = () => {
 
   //Retrieve all bins
   const retrieveAllBins = async () => {
-    const response = await fetch(`http://localhost:3000/api/bins`);
+    const response = await fetch(
+      `http://localhost:3000/api/bins/findAllByOrgId/${organisationId}`
+    );
 
     let result = [];
 

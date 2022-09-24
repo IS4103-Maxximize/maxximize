@@ -30,9 +30,11 @@ const ProcurementGoodReceipt = () => {
     setDisabled(selectedRows.length === 0);
   }, [selectedRows]);
 
-  //Retrieve all goodReceipts [TODO]
+  //Retrieve all goodReceipts
   const retrieveAllGoodReceipts = async () => {
-    const response = await fetch(`http://localhost:3000/api/goods-receipts`);
+    const response = await fetch(
+      `http://localhost:3000/api/goods-receipts/findAllByOrg/${organisationId}`
+    );
 
     let result = [];
 
@@ -140,7 +142,7 @@ const ProcurementGoodReceipt = () => {
 
     selectedIds.forEach((currentId) => {
       fetch(
-        `http://localhost:3000/api/good-receipts/${currentId}`,
+        `http://localhost:3000/api/goods-receipts/${currentId}`,
         requestOptions
       )
         .then(() => {
@@ -169,13 +171,13 @@ const ProcurementGoodReceipt = () => {
       headerName: 'Purchase Order ID',
       width: 200,
       flex: 2,
-      //   valueGetter: (params) => {
-      //     if (params.row.purchaseOrder.id) {
-      //       return params.row.purchaseOrder.id;
-      //     } else {
-      //       return '';
-      //     }
-      //   },
+      valueGetter: (params) => {
+        if (params.row.purchaseOrder.id) {
+          return params.row.purchaseOrder.id;
+        } else {
+          return '';
+        }
+      },
     },
     {
       field: 'recipientName',

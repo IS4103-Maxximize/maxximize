@@ -49,7 +49,7 @@ export const ViewGoodReceiptDialog = ({
       headerName: 'Quantity',
       flex: 1,
       width: 120,
-      editable: true,
+      editable: false,
     },
   ];
 
@@ -66,7 +66,7 @@ export const ViewGoodReceiptDialog = ({
       <DialogContent>
         <Box>
           <Typography sx={{ marginBottom: 1 }}>
-            <b>Purchase Order ID:</b> {goodReceipt?.purchaseOrderNumber}
+            <b>Purchase Order ID:</b> {goodReceipt?.purchaseOrder.id}
           </Typography>
           <Typography sx={{ marginBottom: 1 }}>
             <b>Recipient:</b> {goodReceipt?.recipientName}

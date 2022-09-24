@@ -15,12 +15,13 @@ import {
 } from '@mui/material';
 import { GridSearchIcon } from '@mui/x-data-grid';
 
-export const GoodReceiptListToolbar = ({disabled,
+export const GoodReceiptListToolbar = ({
+  disabled,
   numGoodReceipts,
   handleClickOpen,
   handleConfirmDialogOpen,
-  handleSearch}) => {
-
+  handleSearch,
+}) => {
   return (
     <Box>
       <Box

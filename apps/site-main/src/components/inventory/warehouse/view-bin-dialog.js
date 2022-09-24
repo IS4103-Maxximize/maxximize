@@ -25,6 +25,10 @@ export const ViewBinDialog = ({
     setOpenViewDialog(false);
   };
 
+  useEffect(() => {
+    console.log(batchLineItems);
+  }, [openViewDialog]);
+
   //User organisation Id
   const user = JSON.parse(localStorage.getItem('user'));
   const organisationId = user.organisation.id;
@@ -35,6 +39,13 @@ export const ViewBinDialog = ({
       headerName: 'Product Name',
       flex: 2,
       width: 300,
+      valueGetter: (params) => {
+        if (params.row.product.name) {
+          return params.row.product.name;
+        } else {
+          return '';
+        }
+      },
     },
     {
       field: 'quantity',
