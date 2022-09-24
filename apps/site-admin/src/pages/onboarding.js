@@ -1,6 +1,6 @@
 import { Box, Button, Container, Typography } from '@mui/material';
 import { useState } from 'react';
-import { Helmet, HelmerProvider } from 'react-helmet-async';
+import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { NotificationAlert } from '../components/notification-alert';
 import { OnboardClientDialog } from '../components/onboarding/onboard-client-dialog';
 

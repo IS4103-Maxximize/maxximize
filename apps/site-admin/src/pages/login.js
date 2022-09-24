@@ -80,11 +80,11 @@ const Login = () => {
 
   return (
     <>
-      <HelmerProvider>
+      <HelmetProvider>
         <Helmet>
           <title>{'Login | MaxxiMize'}</title>
         </Helmet>
-      </HelmerProvider>
+      </HelmetProvider>
       <Box
         component="main"
         sx={{
