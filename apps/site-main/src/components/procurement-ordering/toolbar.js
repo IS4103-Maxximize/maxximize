@@ -2,11 +2,13 @@ import AddBoxIcon from '@mui/icons-material/AddBox';
 import DeleteIcon from '@mui/icons-material/Delete';
 import {
   Badge,
-  Box, Card,
-  CardContent, IconButton, InputAdornment, Stack, SvgIcon, TextField, Tooltip, Typography
+  Box, Breadcrumbs, Card,
+  CardContent, IconButton, InputAdornment, Stack, SvgIcon, TextField, Tooltip, Typography, Link
 } from '@mui/material';
+import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Search as SearchIcon } from '../../icons/search';
-
+import { Link as RouterLink } from 'react-router-dom';
 
 export const Toolbar = (props) => {
   const {
@@ -17,7 +19,48 @@ export const Toolbar = (props) => {
     handleAdd,
     handleFormDialogOpen,
     handleConfirmDialogOpen,
+    ...rest
   } = props;
+
+  // Get current pathname
+  const location = useLocation();
+  const [subdomain, setSubDomain] = useState('');
+  useEffect(() => {
+    const pathname = location.pathname;
+    const subdomain = pathname.substring(pathname.lastIndexOf('/') + 1);
+    setSubDomain(subdomain);
+  }, [location])
+
+  // Hard coded for now, can be made modular to accommodate future reuse
+  const breadcrumbs = [
+    <Link 
+      component={RouterLink}
+      underline="hover" 
+      key="sales-inquiry" 
+      color={subdomain === 'sales-inquiry' ? 'primary' : 'inherit'}
+      to="/procurement/sales-inquiry"
+    >
+      Sales Inquiry
+    </Link>,
+    <Link 
+      component={RouterLink}
+      underline="hover" 
+      key="quotation" 
+      color={subdomain === 'quotation' ? 'primary' : 'inherit'}
+      to="/procurement/quotation"
+    >
+      Quotation
+    </Link>,
+    <Link 
+      component={RouterLink}
+      underline="hover" 
+      key="purchase-order" 
+      color={subdomain === 'purchase-order' ? 'primary' : 'inherit'}
+      to="/procurement/purchase-order"
+    >
+      Purchase Order
+    </Link>,
+  ]
 
   return (
     <Box {...props}>
@@ -36,6 +79,9 @@ export const Toolbar = (props) => {
         >
           {name}
         </Typography>
+        <Breadcrumbs separator="-">
+          {breadcrumbs}
+        </Breadcrumbs>
       </Box>
       <Box sx={{ mt: 3 }}>
         <Card>
@@ -90,7 +136,6 @@ export const Toolbar = (props) => {
                 </Tooltip>
                 <Tooltip
                   title={`Delete ${name}(s)`}
-                  disableHoverListener={deleteDisabled}
                 >
                   <IconButton
                     color="error"

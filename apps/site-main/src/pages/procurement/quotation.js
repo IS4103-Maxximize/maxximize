@@ -9,7 +9,7 @@ import {
 } from '@mui/material';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import { useEffect, useState } from 'react';
-import { Helmet } from 'react-helmet';
+import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { DashboardLayout } from '../../components/dashboard-layout';
 import { NotificationAlert } from '../../components/notification-alert';
 import { QuotationDialog } from '../../components/procurement-ordering/quotation-dialog';
@@ -20,7 +20,6 @@ import {
   deleteQuotations,
   fetchQuotations,
 } from '../../helpers/procurement-ordering';
-import { quotations } from '../../__mocks__/quotations';
 import format from 'date-fns/format';
 
 const Quotation = (props) => {
@@ -153,12 +152,10 @@ const Quotation = (props) => {
   };
 
   useEffect(() => {
-    getQuotations();
+    if (!formDialogOpen) {
+      getQuotations();
+    }
   }, [formDialogOpen]);
-
-  useEffect(() => {
-    setRows(quotations);
-  }, []);
 
   useEffect(() => {
     console.log(rows);
@@ -208,12 +205,14 @@ const Quotation = (props) => {
 
   return (
     <>
-      <Helmet>
-        <title>
-          Quotation
-          {user && ` | ${user?.organisation?.name}`}
-        </title>
-      </Helmet>
+      <HelmetProvider>
+        <Helmet>
+          <title>
+            Quotation
+            {user && ` | ${user?.organisation?.name}`}
+          </title>
+        </Helmet>
+      </HelmetProvider>
       <Box
         component="main"
         sx={{
@@ -257,7 +256,7 @@ const Quotation = (props) => {
           />
           <Toolbar
             name="Quotation"
-            // numRows={selectedRows.length}
+            numRows={selectedRows.length}
             deleteDisabled={deleteDisabled}
             handleSearch={handleSearch}
             handleAdd={handleAdd}
@@ -277,11 +276,8 @@ const Quotation = (props) => {
                     return row;
                   } else {
                     return (
-                      row.id.toLowerCase().includes(search) ||
-                      row.shellOrganisation.name
-                        .toLowerCase()
-                        .includes(search) ||
-                      row.product.skuCode.toLowerCase().includes(search)
+                      row.id.toString().includes(search) ||
+                      row.shellOrganisation.name.toLowerCase().includes(search)
                     );
                   }
                 })}

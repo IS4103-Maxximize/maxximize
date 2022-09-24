@@ -34,20 +34,24 @@ export const QuotationDialog = (props) => {
     addQuotation,
     // updateQuotation
     handleAlertOpen,
+    ...rest
   } = props;
 
   // Formik Helpers
   const initialValues = {
     id: quotation ? quotation.id : null,
     created: quotation ? quotation.created : null,
-    totalPrice: quotation ? quotation.totalPrice : 1,
+    totalPrice: quotation ? quotation.totalPrice : 0,
+    leadTime: quotation ? quotation.leadTime : 7,
     supplierId: quotation ? quotation.shellOrganisation.id : null,
     salesInquiryId: quotation ? quotation.salesInquiry.id : null,
     quotationLineItems: quotation ? quotation.quotationLineItems : [],
   };
 
   const schema = Yup.object({
-    totalPrice: Yup.number().integer().positive().required('Enter Total Price'),
+    totalPrice: Yup.number().positive().required('Enter Total Price'),
+    leadTime: Yup.number().integer().positive().required('Enter Lead Time'),
+    supplierId: Yup.number().required('Select Supplier ID'),
   });
 
   const handleOnSubmit = async (values) => {
@@ -57,12 +61,11 @@ export const QuotationDialog = (props) => {
       const result = await createQuotation(
         values.salesInquiryId,
         values.supplierId,
-        values.quotationLineItems
+        values.quotationLineItems,
+        values.leadTime,
+        values.totalPrice,
       ).catch((err) => handleAlertOpen(`Error creating ${string}`, 'error'));
       addQuotation(result);
-      // const result = await createSalesInquiry(user.organisation.id, values.lineItems)
-      //   .catch((err) => handleAlertOpen(`Error creating ${string}`, 'error'));
-      // addSalesInquiry(result);
     }
     onClose();
   };
@@ -85,21 +88,20 @@ export const QuotationDialog = (props) => {
   });
 
   // Autocomplete Helpers
-  const [suppliers, setSuppliers] = useState([]);
   const [supplierOptions, setSupplierOptions] = useState([]);
 
   const [salesInquiries, setSalesInquiries] = useState([]);
   const [salesInquiryOptions, setSalesInquiryOptions] = useState([]);
 
-  // const [products, setProducts] = useState([]);
-  // const [productOptions, setProductOptions] = useState([]);
-  // // const [productInputValue, setProductInputValue] = useState("");
-
   useEffect(() => {
     const fetchData = async () => {
       const salesInquiries = await fetchSalesInquiries(user.organisation.id);
       setSalesInquiries(salesInquiries);
-      setSalesInquiryOptions(salesInquiries.map((el) => el.id));
+      // Should only be allowed to select sales inquiries which
+      // have status 'sent'
+      setSalesInquiryOptions(
+        salesInquiries.filter((el) => el.status === 'sent').map((el) => el.id)
+      );
     };
 
     if (action === 'POST') {
@@ -120,10 +122,17 @@ export const QuotationDialog = (props) => {
       const si = salesInquiries.find(
         (inquiry) => inquiry.id === formik.values.salesInquiryId
       );
-      //   console.log(si ? si.salesInquiryLineItems : []);
+      // console.log(si ? si.salesInquiryLineItems : []);
       formik.setFieldValue(
         'quotationLineItems',
-        si ? si.salesInquiryLineItems : []
+        si ? si.salesInquiryLineItems.map((item) => {
+          return {
+            id: item.id,
+            price: item.indicativePrice,
+            quantity: item.quantity,
+            rawMaterial: item.rawMaterial
+          }
+        }) : []
       );
     }
   }, [formik.values.salesInquiryId]);
@@ -133,18 +142,18 @@ export const QuotationDialog = (props) => {
 
   const handleRowUpdate = (newRow) => {
     let updatedRow = { ...newRow };
-    // console.log(updatedRow);
+    console.log(updatedRow);
     formik.setFieldValue(
       'quotationLineItems',
       formik.values.quotationLineItems.map((item) => {
         if (item.id === updatedRow.id) {
           console.log(updatedRow);
           return updatedRow;
+        } else {
+          return item;
         }
-        return item;
       })
     );
-    console.log(formik.values.quotationLineItems);
     if (action === 'PATCH') {
       // console.log(updatedRow);
       const updatedId = updatedRow.id;
@@ -225,14 +234,17 @@ export const QuotationDialog = (props) => {
               <CloseIcon />
             </IconButton>
             <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
-              {/* {`Create `}
-              {`View `} */}
+              {!quotation && `Create `}
+              {quotation && `View / Edit `}
               {string}
             </Typography>
             {action === 'POST' && (
               <Button
                 variant="contained"
-                disabled={!formik.isValid || formik.isSubmitting}
+                disabled={
+                  !formik.isValid || 
+                  formik.isSubmitting
+                }
                 onClick={formik.handleSubmit}
               >
                 Submit
@@ -287,6 +299,21 @@ export const QuotationDialog = (props) => {
             variant="outlined"
             disabled
           />
+          <TextField
+            fullWidth
+            error={Boolean(
+              formik.touched.leadTime && formik.errors.leadTime
+            )}
+            helperText={formik.touched.leadTime && formik.errors.leadTime}
+            label="Lead Time"
+            margin="normal"
+            name="leadTime"
+            type="number"
+            onBlur={formik.handleBlur}
+            onChange={formik.handleChange}
+            value={formik.values.leadTime}
+            variant="outlined"
+          />
           <Stack direction="row" spacing={1}>
             {!quotation && (
               <Autocomplete
@@ -301,8 +328,8 @@ export const QuotationDialog = (props) => {
                   console.log(salesInquiries);
                   const si = salesInquiries.find((el) => el.id === newValue);
                   console.log(si);
-                  const suppliers = si.suppliers;
-                  const quotations = si.quotations;
+                  const suppliers = si ? si.suppliers : [];
+                  const quotations = si ? si.quotations : [];
                   const shellOrganisationIds = quotations.map(
                     (el) => el.shellOrganisation.id
                   );

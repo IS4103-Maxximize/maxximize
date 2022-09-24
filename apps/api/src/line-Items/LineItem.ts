@@ -1,11 +1,13 @@
-import { Column, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Product } from "../products/entities/product.entity";
 
 export abstract class LineItem {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column()
+    @Column({
+        nullable: true
+    })
     subTotal: number;
 
     @Column()

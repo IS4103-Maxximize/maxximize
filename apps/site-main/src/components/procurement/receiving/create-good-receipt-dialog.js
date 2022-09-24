@@ -9,14 +9,22 @@ import {
   Typography,
   AppBar,
   Toolbar,
+  Badge,
+  Select,
+  MenuItem,
+  InputLabel,
+  FormControl,
+  ListItemText,
+  List,
+  ListItem,
 } from '@mui/material';
 import { useFormik } from 'formik';
 import { useEffect, useState } from 'react';
 import * as Yup from 'yup';
-import AddIcon from '@mui/icons-material/Add';
-import { DataGrid, GridToolbar } from '@mui/x-data-grid';
-import DeleteIcon from '@mui/icons-material/Delete';
 import CloseIcon from '@mui/icons-material/Close';
+import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
+import { CreateGoodReceiptDataGrid } from './good-receipt-data-grid';
+import { GoodReceiptConfirmDialog } from './good-receipt-confirm-dialog';
 
 export const CreateGoodReceiptDialog = ({
   open,
@@ -27,17 +35,47 @@ export const CreateGoodReceiptDialog = ({
   //User organisation Id
   const user = JSON.parse(localStorage.getItem('user'));
   const userId = user.id;
+  const organisationId = user.organisation.id;
+
+  //Error handling
+  const [error, setError] = useState('');
 
   //Handle dialog close from child dialog
-  const handleDialogClose = () => {
+  const handleCreateDialogClose = () => {
     setOpen(false);
-    setProductInput('');
+    setError('');
+    setAcceptedProducts([]);
+    setFollowUpProducts([]);
+    setCurrentQARules([]);
     formik.resetForm();
   };
 
-  //Handle Formik submission
-  const handleOnSubmit = async (event) => {
-    event.preventDefault();
+  //Dialog Helpers
+  const [openDialog, setOpenDialog] = useState(false);
+
+  const handleConfirm = () => {
+    setOpenDialog(true);
+  };
+
+  const handleConfirmClose = () => {
+    setOpenDialog(false);
+  };
+
+  //Create good receipt, handle Formik submission
+  const handleOnSubmit = async () => {
+    const processedAcceptedProducts = acceptedProducts.map(
+      (acceptedProduct) => ({
+        quantity: acceptedProduct.quantity,
+        rawMaterialId: acceptedProduct.rawMaterial.id,
+      })
+    );
+
+    const processedFollowUpProducts = followUpProducts.map(
+      (followUpProduct) => ({
+        quantity: followUpProduct.quantity,
+        rawMaterialId: followUpProduct.rawMaterial.id,
+      })
+    );
 
     const response = await fetch('http://localhost:3000/api/goods-receipts', {
       method: 'POST',
@@ -46,88 +84,109 @@ export const CreateGoodReceiptDialog = ({
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
+        organisationId: organisationId,
+        purchaseOrderId: formik.values.purchaseOrderId,
         recipient: userId,
         createdDateTime: formik.values.dateReceived,
-        goodsReceiptLineItemsDtos: products,
+        goodsReceiptLineItemsDtos: processedAcceptedProducts,
+        followUpLineItemsDtos: processedFollowUpProducts,
+        description: formik.values.description,
       }),
     });
 
-    const result = await response.json();
-
-    //Rerender parent data grid compoennt
-    addGoodReceipt(result);
-
-    handleDialogClose();
+    if (response.status === 200 || response.status === 201) {
+      const result = await response.json();
+      //Rerender parent data grid compoennt
+      addGoodReceipt(result);
+      handleAlertOpen(`Created Good Receipt ${result.id} successfully`);
+      setError('');
+      handleCreateDialogClose();
+    } else {
+      const result = await response.json();
+      setError(result.message);
+    }
   };
 
-  //Products for testing, TODO useEffect to import PO line items and populate this
-  const [products, setProducts] = useState([]);
+  //Products
+  const [acceptedProducts, setAcceptedProducts] = useState([]);
+  const [followUpProducts, setFollowUpProducts] = useState([]);
+  const [lineItems, setLineItems] = useState([]);
+  const [purchaseOrders, setPurchaseOrders] = useState([]);
 
-  //TODO Options to be replaced with fetching all products/from the PO
-  const [rawMaterials, setRawMaterials] = useState([
-    {
-      name: 'apple',
-      description: 'apple',
-      unit: 'kilogram',
-      unitPrice: 1,
-      expiry: 1,
-    },
-    {
-      name: 'orange',
-      description: 'orange',
-      unit: 'kilogram',
-      unitPrice: 2,
-      expiry: 1,
-    },
-    {
-      name: 'pear',
-      description: 'pear',
-      unit: 'kilogram',
-      unitPrice: 3,
-      expiry: 1,
-    },
-    {
-      name: 'pineapple',
-      description: 'pineapple',
-      unit: 'kilogram',
-      unitPrice: 5,
-      expiry: 1,
-    },
-    {
-      name: 'dragonfruit',
-      description: 'dragonfruit',
-      unit: 'kilogram',
-      unitPrice: 10,
-      expiry: 1,
-    },
-  ]);
+  //Retrieve all PO
+  const retrievePurchaseOrders = async () => {
+    const response = await fetch(
+      `http://localhost:3000/api/purchase-orders/all/${organisationId}`
+    );
 
-  //Load in list of raw material, initial
-  useEffect(() => {
-    retrieveAllRawMaterial();
-  }, []);
+    let result = [];
 
-  //Retrieve all raw material [TODO]
-  const retrieveAllRawMaterial = async () => {
-    // const rawMaterialList = await fetch(
-    //   `http://localhost:3000/api/raw-materials`
-    // );
-    // const result = await rawMaterialList.json();
-    // setRawMaterial(result);
+    if (response.status == 200 || response.status == 201) {
+      result = await response.json();
+    }
+
+    setPurchaseOrders(result);
   };
 
-  const selectedProducts = products.map((product) => product.name);
-  const options = rawMaterials
-    .map((rawMaterial) => rawMaterial.name)
-    .filter((name) => !selectedProducts.includes(name));
+  //Retrieve all PO Line Items
+  const retrievePOLineItems = async () => {
+    console.log(formik.values.purchaseOrderId);
+    if (
+      purchaseOrders
+        .map((purchaseOrder) => purchaseOrder.id.toString())
+        .includes(formik.values.purchaseOrderId)
+    ) {
+      try {
+        const response = await fetch(
+          `http://localhost:3000/api/purchase-orders/${formik.values.purchaseOrderId}`
+        );
+
+        if (response.status === 200 || response.status === 201) {
+          const result = await response.json();
+
+          if (result.status == 'partiallyfulfilled') {
+            setLineItems(result.followUpLineItems);
+            setAcceptedProducts(result.followUpLineItems);
+            setFollowUpProducts([]);
+            setError('');
+          } else if (result.status == 'fulfilled') {
+            setError('Purchase Order already fulfilled!');
+            setAcceptedProducts([]);
+            setFollowUpProducts([]);
+          } else {
+            setLineItems(result.poLineItems);
+            setAcceptedProducts(result.poLineItems);
+            setFollowUpProducts([]);
+            setError('');
+          }
+        } else {
+          const result = await response.json();
+          setError(result.message);
+        }
+      } catch (error) {
+        setError(error);
+      }
+    } else {
+      setError('No such purchase order within organisation');
+      setAcceptedProducts([]);
+      setFollowUpProducts([]);
+    }
+  };
 
   //Columns for datagrid
-  const columns = [
+  const columnsForAccepted = [
     {
       field: 'name',
       headerName: 'Product Name',
       width: 300,
       flex: 4,
+      valueGetter: (params) => {
+        if (params.row.rawMaterial.name) {
+          return params.row.rawMaterial.name;
+        } else {
+          return '';
+        }
+      },
     },
     {
       field: 'quantity',
@@ -135,61 +194,233 @@ export const CreateGoodReceiptDialog = ({
       width: 120,
       editable: true,
       flex: 1,
+      preProcessEditCellProps: (params) => {
+        const hasError =
+          params.props.value <= 0 ||
+          params.props.value >
+            lineItems.find(
+              (lineItem) =>
+                lineItem.rawMaterial.name == params.row.rawMaterial.name
+            ).quantity;
+        if (hasError) {
+          handleAlertOpen(
+            'Quantity must be more than 0 and less than procured quantity, not updated. Press Esc to exit editing mode',
+            'error'
+          );
+        }
+        return { ...params.props, error: hasError };
+      },
+    },
+  ];
+
+  //Columns for datagrid
+  const columnsForFollowUp = [
+    {
+      field: 'name',
+      headerName: 'Product Name',
+      width: 300,
+      flex: 4,
+      valueGetter: (params) => {
+        if (params.row.rawMaterial.name) {
+          return params.row.rawMaterial.name;
+        } else {
+          return '';
+        }
+      },
     },
     {
-      field: 'subtotal',
-      headerName: 'Subtotal',
+      field: 'quantity',
+      headerName: 'Quantity',
       width: 120,
+      editable: false,
       flex: 1,
     },
   ];
 
-  //New Product input to add product to the list
-  const [productInput, setProductInput] = useState('');
-
-  const handleAddButtonClick = () => {
-    const newProduct = {
-      id: products.length + 1,
-      name: productInput,
-      quantity: 1,
-      unitPrice: rawMaterials
-        .filter((rawMaterial) => rawMaterial.name === productInput)
-        .map((rawMaterial) => rawMaterial.unitPrice),
-      subtotal: 0,
-      isSelected: false,
-    };
-
-    newProduct.subtotal =
-      Number(newProduct.quantity) * Number(newProduct.unitPrice);
-
-    const newProducts = [...products, newProduct];
-
-    setProducts(newProducts);
-    setProductInput('');
-  };
-
   //Updating a good receipt line item entry, calling update API
   //Also alerts user of ourcome
-  const handleRowUpdate = (newRow) => {
+  const handleRowUpdate = (newRow, type) => {
     const updatedRow = { ...newRow };
 
-    updatedRow.subtotal = updatedRow.quantity * updatedRow.unitPrice;
+    if (type == 'accepted') {
+      const originalQuantity = lineItems.filter(
+        (lineItem) => lineItem.rawMaterial.name == updatedRow.rawMaterial.name
+      )[0].quantity;
+      const acceptedQuantity = updatedRow.quantity;
 
-    const newProducts = [...products];
-    newProducts[updatedRow.id - 1] = updatedRow;
-    setProducts(newProducts);
+      //If the new quantity is less than what is in PO, new line item to be in follow up
+      if (acceptedQuantity < originalQuantity) {
+        const followUpQuantity = originalQuantity - acceptedQuantity;
 
-    //handleQuantityIncrease();
+        const followUpRow = JSON.parse(JSON.stringify(updatedRow));
+        followUpRow.quantity = followUpQuantity;
 
-    return updatedRow;
+        //Find the index of the follow up line item (if present)
+        const index = followUpProducts.findIndex(
+          (lineItem) =>
+            lineItem.rawMaterial.name === updatedRow.rawMaterial.name
+        );
+
+        //Line Item does not exist on the follow up side
+        if (index == -1) {
+          const newFollowUpProducts = [...followUpProducts, { ...followUpRow }];
+
+          setFollowUpProducts(newFollowUpProducts);
+
+          //Line Item exists on the follow up side, just update the quantity
+        } else {
+          //Deepcopy current array
+          const newFollowUpProducts = JSON.parse(
+            JSON.stringify(followUpProducts)
+          );
+          newFollowUpProducts.splice(index, 1, followUpRow);
+          setFollowUpProducts(newFollowUpProducts);
+        }
+
+        //Somehow if the quantity is set to be the same as what is original on PO
+        //Just remove any line item on the follow up side
+      } else if (acceptedQuantity == originalQuantity) {
+        //Find the index of the line item on follow up side (if any)
+        const index = followUpProducts.findIndex(
+          (lineItem) =>
+            lineItem.rawMaterial.name === updatedRow.rawMaterial.name
+        );
+
+        if (index != -1) {
+          const newFollowUpProducts = JSON.parse(
+            JSON.stringify(followUpProducts)
+          );
+          newFollowUpProducts.splice(index, 1);
+          setFollowUpProducts(newFollowUpProducts);
+        }
+      }
+
+      //Regardless of outcome, set new state for accepted list
+      const acceptedIndex = acceptedProducts.findIndex(
+        (lineItem) => lineItem.rawMaterial.name === updatedRow.rawMaterial.name
+      );
+
+      const newAcceptedProducts = [...acceptedProducts];
+      newAcceptedProducts.splice(acceptedIndex, 1, updatedRow);
+      setAcceptedProducts(newAcceptedProducts);
+
+      return updatedRow;
+    }
   };
 
-  //Select Line Item for deletion
-  const [selectionModel, setSelectionModel] = useState([]);
+  //Select Line Item from Accepted products
+  const [acceptedSelectionModel, setAcceptedSelectionModel] = useState([]);
+  //Select Line Item from Follow up products
+  const [followUpSelectionModel, setFollowUpSelectionModel] = useState([]);
 
-  const handleDelete = (selectedIds) => {
-    setProducts((result) =>
-      result.filter((product) => !selectedIds.has(product.id))
+  const handleSwap = (selectedIds) => {
+    let newFollowUpProducts = JSON.parse(JSON.stringify(followUpProducts));
+    let newAcceptedProducts = JSON.parse(JSON.stringify(acceptedProducts));
+    const productNames = [];
+
+    for (const selectedId of selectedIds) {
+      const productName = lineItems.find(
+        (lineItem) => lineItem.id == selectedId
+      ).rawMaterial.name;
+      productNames.push(productName);
+
+      //Accept swapping to follow up
+      if (acceptedSelectionModel.length != 0) {
+        //LineItem already present on the other side
+        if (
+          followUpProducts.some(
+            (lineItem) => lineItem.rawMaterial.name == productName
+          )
+        ) {
+          const lineItemToAdd = lineItems.find(
+            (lineItem) => lineItem.id == selectedId
+          );
+
+          const index = followUpProducts.findIndex(
+            (lineItem) => lineItem.rawMaterial.name === productName
+          );
+
+          newFollowUpProducts.splice(index, 1, lineItemToAdd);
+        } else {
+          newFollowUpProducts = newFollowUpProducts.concat(
+            acceptedProducts.filter(
+              (lineItem) => lineItem.rawMaterial.name == productName
+            )
+          );
+        }
+
+        setFollowUpProducts(newFollowUpProducts);
+        setAcceptedProducts(
+          acceptedProducts.filter(
+            (lineItem) => !productNames.includes(lineItem.rawMaterial.name)
+          )
+        );
+        //Follow Up swapping to accept
+      } else {
+        if (
+          acceptedProducts.some(
+            (lineItem) => lineItem.rawMaterial.name == productName
+          )
+        ) {
+          const lineItemToAdd = lineItems.find(
+            (lineItem) => lineItem.id == selectedId
+          );
+
+          const index = acceptedProducts.findIndex(
+            (lineItem) => lineItem.rawMaterial.name === productName
+          );
+
+          newAcceptedProducts.splice(index, 1, lineItemToAdd);
+        } else {
+          newAcceptedProducts = newAcceptedProducts.concat(
+            followUpProducts.filter(
+              (lineItem) => lineItem.rawMaterial.name == productName
+            )
+          );
+        }
+
+        setAcceptedProducts(newAcceptedProducts);
+        setFollowUpProducts((result) =>
+          result.filter((product) => !selectedIds.has(product.id))
+        );
+      }
+    }
+  };
+
+  //Retrieve all QA checklists
+  const [qaChecklists, setQAChecklists] = useState([]);
+
+  const retrieveQAChecklists = async () => {
+    const response = await fetch(`http://localhost:3000/api/qa-checklists`);
+
+    let result = [];
+
+    if (response.status == 200 || response.status == 201) {
+      result = await response.json();
+    }
+
+    setQAChecklists(result);
+  };
+
+  useEffect(() => {
+    retrieveQAChecklists();
+    retrievePurchaseOrders();
+  }, []);
+
+  //Current Checklist
+  const [currentChecklist, setCurrentChecklist] = useState();
+  const [currentQARules, setCurrentQARules] = useState();
+
+  const handleChecklistChange = (event) => {
+    setCurrentQARules(
+      qaChecklists.find(
+        (checklist) => checklist.productType == event.target.value
+      ).qaRules
+    );
+    setCurrentChecklist(
+      qaChecklists.find(
+        (checklist) => checklist.productType == event.target.value
+      )
     );
   };
 
@@ -197,123 +428,232 @@ export const CreateGoodReceiptDialog = ({
     initialValues: {
       purchaseOrderId: '',
       dateReceived: new Date(),
+      description: '',
     },
     validationSchema: Yup.object({
       purchaseOrderId: Yup.string().required('Purchase Order ID is required'),
+      description: Yup.string(),
     }),
+    onSubmit: handleConfirm,
   });
 
   return (
-    <Dialog
-      fullScreen
-      open={open}
-      onClose={handleDialogClose}
-      aria-labelledby="responsive-dialog-title"
-    >
-      <AppBar sx={{ position: 'relative' }}>
-        <Toolbar>
-          <IconButton
-            edge="start"
-            color="inherit"
-            onClick={handleDialogClose}
-            aria-label="close"
-          >
-            <CloseIcon />
-          </IconButton>
-          <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
-            Create Good Receipt
-          </Typography>
-          <Button
-            autoFocus
-            color="inherit"
-            disabled={formik.isSubmitting || products.length == 0}
-            size="medium"
-            type="submit"
-            variant="outlined"
-          >
-            Create
-          </Button>
-        </Toolbar>
-      </AppBar>
-      <DialogContent>
-        <form onSubmit={handleOnSubmit}>
-          <TextField
-            error={Boolean(
-              formik.touched.purchaseOrderId && formik.errors.purchaseOrderId
-            )}
-            fullWidth
-            helperText={
-              formik.touched.purchaseOrderId && formik.errors.purchaseOrderId
-            }
-            label="Purchase Order ID"
-            margin="normal"
-            name="purchaseOrderId"
-            onBlur={formik.handleBlur}
-            onChange={formik.handleChange}
-            value={formik.values.purchaseOrderId}
-            variant="outlined"
-            size="small"
-          />
-
-          <Box mt={2} mb={2} display="flex" justifyContent="space-between">
-            <Box display="flex">
-              <Autocomplete
-                id="purchase-order-products"
-                size="small"
-                sx={{ width: 300, marginRight: 1 }}
-                renderInput={(params) => (
-                  <TextField {...params} label="Products" />
-                )}
-                options={options.filter(
-                  (option) =>
-                    !products.map((product) => product.name).includes(option)
-                )}
-                value={productInput}
-                onChange={(e, data) => {
-                  setProductInput(data);
-                }}
-              />
+    <>
+      <GoodReceiptConfirmDialog
+        open={openDialog}
+        handleClose={handleConfirmClose}
+        dialogTitle="Confirm Create"
+        dialogContent="Are you sure you want to create this good receipt?"
+        dialogAction={handleOnSubmit}
+      />
+      <form onSubmit={formik.handleOnSubmit}>
+        <Dialog
+          fullScreen
+          open={open}
+          onClose={handleCreateDialogClose}
+          disableEscapeKeyDown
+        >
+          <AppBar sx={{ position: 'relative' }}>
+            <Toolbar>
               <IconButton
-                disabled={!productInput}
-                onClick={() => handleAddButtonClick()}
+                edge="start"
+                color="inherit"
+                onClick={handleCreateDialogClose}
+                aria-label="close"
               >
-                <AddIcon />
+                <CloseIcon />
               </IconButton>
+              <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
+                Create Good Receipt
+              </Typography>
+              <Button
+                autoFocus
+                color="inherit"
+                disabled={
+                  !formik.isValid ||
+                  (acceptedProducts.length == 0 && followUpProducts.length == 0)
+                }
+                size="medium"
+                type="submit"
+                variant="outlined"
+                onClick={formik.handleSubmit}
+              >
+                Create
+              </Button>
+            </Toolbar>
+          </AppBar>
+          <DialogContent>
+            <Box>
+              <Typography variant="body1" color="red">
+                {error}
+              </Typography>
+            </Box>
+            <Box display="flex" alignItems="center">
+              <TextField
+                label="Purchase Order ID"
+                error={Boolean(
+                  formik.touched.purchaseOrderId &&
+                    formik.errors.purchaseOrderId
+                )}
+                fullWidth
+                helperText={
+                  formik.touched.purchaseOrderId &&
+                  formik.errors.purchaseOrderId
+                }
+                value={formik.values.purchaseOrderId}
+                margin="normal"
+                name="purchaseOrderId"
+                onBlur={formik.handleBlur}
+                onChange={formik.handleChange}
+                variant="outlined"
+                size="small"
+              />
+              {/* <Autocomplete
+                options={purchaseOrders.map((purchaseOrder) =>
+                  purchaseOrder.id.toString()
+                )}
+                fullWidth
+                onChange={(e, value) =>
+                  formik.setFieldValue('purchaseOrderId', value)
+                }
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Purchase Order ID"
+                    error={Boolean(
+                      formik.touched.purchaseOrderId &&
+                        formik.errors.purchaseOrderId
+                    )}
+                    fullWidth
+                    helperText={
+                      formik.touched.purchaseOrderId &&
+                      formik.errors.purchaseOrderId
+                    }
+                    value={formik.values.purchaseOrderId}
+                    margin="normal"
+                    name="purchaseOrderId"
+                    onBlur={formik.handleBlur}
+                    onChange={formik.handleChange}
+                    variant="outlined"
+                    size="small"
+                  />
+                )}
+              /> */}
+              <Box>
+                <Button
+                  sx={{ marginLeft: 1 }}
+                  variant="contained"
+                  size="medium"
+                  color="primary"
+                  onClick={retrievePOLineItems}
+                >
+                  Retrieve
+                </Button>
+              </Box>
+            </Box>
+            <Box
+              display="flex"
+              justifyContent="space-evenly"
+              mt={3}
+              minHeight={470}
+            >
+              <Box sx={{ minWidth: 700 }}>
+                <CreateGoodReceiptDataGrid
+                  header="Accepted"
+                  products={acceptedProducts}
+                  columns={columnsForAccepted}
+                  setSelectionModel={setAcceptedSelectionModel}
+                  handleRowUpdate={handleRowUpdate}
+                  typeIn="accepted"
+                />
+              </Box>
+              <Box display="flex" alignItems="center">
+                <IconButton
+                  //sx={{ marginTop: 12 }}
+                  size="medium"
+                  disabled={
+                    (acceptedSelectionModel.length == 0 &&
+                      followUpSelectionModel.length == 0) ||
+                    (acceptedSelectionModel.length > 0 &&
+                      followUpSelectionModel.length > 0)
+                  }
+                  onClick={() => {
+                    const selectedIds =
+                      acceptedSelectionModel.length == 0
+                        ? new Set(followUpSelectionModel)
+                        : new Set(acceptedSelectionModel);
+                    handleSwap(selectedIds);
+                  }}
+                >
+                  <SwapHorizIcon fontSize="large" />
+                </IconButton>
+              </Box>
+              <Box sx={{ minWidth: 700 }}>
+                <CreateGoodReceiptDataGrid
+                  header="Follow Up"
+                  products={followUpProducts}
+                  columns={columnsForFollowUp}
+                  setSelectionModel={setFollowUpSelectionModel}
+                  handleRowUpdate={handleRowUpdate}
+                  typeIn="followUp"
+                />
+              </Box>
             </Box>
 
-            <IconButton
-              disabled={selectionModel.length === 0}
-              onClick={() => {
-                const selectedIds = new Set(selectionModel);
-                handleDelete(selectedIds);
-              }}
+            <Typography variant="h5" sx={{ marginBottom: 2 }}>
+              Quality Assurance
+            </Typography>
+            <TextField
+              select
+              defaultValue=""
+              error={Boolean(
+                formik.touched.checklist && formik.errors.checklist
+              )}
+              fullWidth
+              helperText={formik.touched.checklist && formik.errors.checklist}
+              label="Checklist"
+              value={currentChecklist}
+              margin="normal"
+              name="checklist"
+              onBlur={formik.handleBlur}
+              onChange={handleChecklistChange}
+              variant="outlined"
+              size="small"
             >
-              <DeleteIcon />
-            </IconButton>
-          </Box>
-
-          <Box sx={{ minWidth: 500 }}>
-            <DataGrid
-              autoHeight
-              rows={products}
-              columns={columns}
-              pageSize={10}
-              rowsPerPageOptions={[10]}
-              allowSorting={true}
-              components={{
-                Toolbar: GridToolbar,
-              }}
-              disableSelectionOnClick
-              checkboxSelection={true}
-              onSelectionModelChange={(ids) => {
-                setSelectionModel(ids);
-              }}
-              experimentalFeatures={{ newEditingApi: true }}
-              processRowUpdate={handleRowUpdate}
+              {qaChecklists?.map((option) => (
+                <MenuItem key={option.id} value={option.productType}>
+                  {option.productType}
+                </MenuItem>
+              ))}
+            </TextField>
+            <List>
+              {currentQARules?.map((rule) => (
+                <ListItem key={rule.id}>
+                  {rule.title} [{rule.description}]
+                </ListItem>
+              ))}
+            </List>
+            <TextField
+              error={Boolean(
+                formik.touched.description && formik.errors.description
+              )}
+              fullWidth
+              helperText={
+                formik.touched.description && formik.errors.description
+              }
+              label="Description"
+              margin="normal"
+              name="description"
+              onBlur={formik.handleBlur}
+              onChange={formik.handleChange}
+              value={formik.values.description}
+              variant="outlined"
+              multiline
+              minRows={4}
             />
-          </Box>
-        </form>
-      </DialogContent>
-    </Dialog>
+          </DialogContent>
+        </Dialog>
+      </form>
+    </>
   );
 };

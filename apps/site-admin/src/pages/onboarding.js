@@ -1,6 +1,6 @@
 import { Box, Button, Container, Typography } from '@mui/material';
 import { useState } from 'react';
-import { Helmet } from 'react-helmet';
+import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { NotificationAlert } from '../components/notification-alert';
 import { OnboardClientDialog } from '../components/onboarding/onboard-client-dialog';
 
@@ -45,9 +45,11 @@ const Onboarding = () => {
 
   return (
     <>
-      <Helmet>
-        <title>{`Onboarding | MaxxiMize`}</title>
-      </Helmet>
+      <HelmetProvider>
+        <Helmet>
+          <title>{`Onboarding | MaxxiMize`}</title>
+        </Helmet>
+      </HelmetProvider>
       <NotificationAlert
         open={alertOpen}
         severity={alertSeverity}

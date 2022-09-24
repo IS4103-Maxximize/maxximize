@@ -9,7 +9,7 @@ import {
 } from '@mui/material';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import { useEffect, useState } from 'react';
-import { Helmet } from 'react-helmet';
+import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { DashboardLayout } from '../../components/dashboard-layout';
 import { NotificationAlert } from '../../components/notification-alert';
 import { SalesInquiryDialog } from '../../components/procurement-ordering/sales-inquiry-dialog';
@@ -20,7 +20,6 @@ import { ConfirmDialog } from '../../components/product/confirm-dialog';
 import {
   deleteSalesInquiries,
   fetchSalesInquiries,
-  updateSalesInquiry,
 } from '../../helpers/procurement-ordering';
 
 export const SalesInquiry = (props) => {
@@ -91,6 +90,14 @@ export const SalesInquiry = (props) => {
     setSupplierDialogOpen(false);
   };
 
+  // Fetch again after sending SI out to
+  // refresh updated status
+  useEffect(() => {
+    if (!supplierDialogOpen) {
+      setRows(getSalesInquiries());
+    }
+  }, [supplierDialogOpen]);
+
   // Menu Helpers
   const [anchorEl, setAnchorEl] = useState(null);
   const menuOpen = Boolean(anchorEl);
@@ -109,8 +116,8 @@ export const SalesInquiry = (props) => {
     return (
       <IconButton
         onClick={(event) => {
-          setSelectedRow(params.row);
           console.log(params.row);
+          setSelectedRow(params.row);
           handleMenuClick(event);
         }}
       >
@@ -131,6 +138,7 @@ export const SalesInquiry = (props) => {
   };
 
   const addSalesInquiry = (inquiry) => {
+    console.log(inquiry);
     const updatedProducts = [...rows, inquiry];
     console.log(updatedProducts);
     setRows(updatedProducts);
@@ -165,6 +173,11 @@ export const SalesInquiry = (props) => {
 
   useEffect(() => {
     getSalesInquiries();
+  }, []);
+
+  useEffect(() => {
+    // reset selectedRows to [] upon updating rows
+    setSelectedRows([]);
   }, [rows]);
 
   const columns = [
@@ -172,6 +185,11 @@ export const SalesInquiry = (props) => {
       field: 'id',
       headerName: 'ID',
       flex: 1,
+    },
+    {
+      field: 'totalPrice',
+      headerName: 'Total Price',
+      flex: 2,
     },
     {
       field: 'status',
@@ -189,12 +207,14 @@ export const SalesInquiry = (props) => {
 
   return (
     <>
-      <Helmet>
-        <title>
-          Sales Inquiry
-          {user && ` | ${user?.organisation?.name}`}
-        </title>
-      </Helmet>
+      <HelmetProvider>
+        <Helmet>
+          <title>
+            Sales Inquiry
+            {user && ` | ${user?.organisation?.name}`}
+          </title>
+        </Helmet>
+      </HelmetProvider>
       <Box
         component="main"
         sx={{
@@ -245,7 +265,7 @@ export const SalesInquiry = (props) => {
           />
           <Toolbar
             name="Sales Inquiry"
-            // numRows={selectedRows.length}
+            numRows={selectedRows.length}
             deleteDisabled={deleteDisabled}
             handleSearch={handleSearch}
             handleAdd={handleAdd}
@@ -265,7 +285,7 @@ export const SalesInquiry = (props) => {
                     return row;
                   } else {
                     return (
-                      row.id.includes(search) ||
+                      row.id.toString().includes(search) ||
                       row.status.toLowerCase().includes(search)
                     );
                   }
@@ -274,6 +294,7 @@ export const SalesInquiry = (props) => {
                 pageSize={10}
                 rowsPerPageOptions={[10]}
                 checkboxSelection
+                isRowSelectable={(params) => params.row.status === 'draft'}
                 components={{
                   Toolbar: GridToolbar,
                 }}

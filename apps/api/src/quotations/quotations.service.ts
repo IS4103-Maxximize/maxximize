@@ -59,13 +59,16 @@ export class QuotationsService {
   findAll(): Promise<Quotation[]> {
     return this.quotationsRepository.find({
       relations: {
-        shellOrganisation: true,
+        shellOrganisation: {
+          contact: true
+        },
         quotationLineItems: {
           rawMaterial: true
         },
         salesInquiry: {
           currentOrganisation: true
-        }
+        },
+        purchaseOrder: true
       }
     })
   }
@@ -76,7 +79,9 @@ export class QuotationsService {
         salesInquiryId: salesInquiryId
       },
       relations: {
-        shellOrganisation: true,
+        shellOrganisation: {
+          contact: true
+        },
         quotationLineItems: {
           rawMaterial: true
         },
@@ -105,11 +110,7 @@ export class QuotationsService {
       },
       relations: {
         shellOrganisation: {
-          contact: true
-        },
-        salesInquiry: true,
-        quotationLineItems: {
-          rawMaterial: true,
+          contact: true,
         },
       },
     });
@@ -122,7 +123,16 @@ export class QuotationsService {
     //update lot quantity, lot price, unit
     //shell org and product should remain the same!
 
-    const quotationToUpdate = await this.quotationsRepository.findOneBy({ id });
+    const quotationToUpdate = await this.quotationsRepository.findOne({ 
+      where: {
+        id,
+      },
+      relations: {
+        shellOrganisation: {
+          contact: true
+        },
+      }
+    });
     const arrayOfKeyValues = Object.entries(updateQuotationDto);
     arrayOfKeyValues.forEach(([key, value]) => {
       quotationToUpdate[key] = value;

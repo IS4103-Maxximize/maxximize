@@ -15,17 +15,15 @@ import {
 } from '@mui/material';
 import { GridSearchIcon } from '@mui/x-data-grid';
 
-export const GoodReceiptListToolbar = (props) => {
-  const {
-    disabled,
-    numGoodReceipts,
-    handleClickOpen,
-    handleConfirmDialogOpen,
-    handleSearch,
-  } = props;
-
+export const GoodReceiptListToolbar = ({
+  disabled,
+  numGoodReceipts,
+  handleClickOpen,
+  handleConfirmDialogOpen,
+  handleSearch,
+}) => {
   return (
-    <Box {...props}>
+    <Box>
       <Box
         sx={{
           alignItems: 'center',

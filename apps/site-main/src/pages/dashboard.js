@@ -7,16 +7,18 @@ import { TasksProgress } from '../components/dashboard/tasks-progress';
 import { TotalCustomers } from '../components/dashboard/total-customers';
 import { TotalProfit } from '../components/dashboard/total-profit';
 import { TrafficByDevice } from '../components/dashboard/traffic-by-device';
-import { Helmet } from 'react-helmet';
+import { Helmet, HelmetProvider } from 'react-helmet-async';
 
 const Dashboard = () => {
   const user = JSON.parse(localStorage.getItem('user'));
 
   return (
     <>
-      <Helmet>
-        <title>{`Homepage | ${user?.organisation?.name}`}</title>
-      </Helmet>
+      <HelmetProvider>
+        <Helmet>
+          <title>{`Homepage | ${user?.organisation?.name}`}</title>
+        </Helmet>
+      </HelmetProvider>
       <Box
         component="main"
         sx={{

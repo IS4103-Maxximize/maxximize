@@ -28,7 +28,12 @@ export const GoodReceiptConfirmDialog = (props) => {
           >
             Confirm
           </Button>
-          <Button color="primary" onClick={handleClose}>
+          <Button
+            color="primary"
+            onClick={() => {
+              handleClose();
+            }}
+          >
             Cancel
           </Button>
         </DialogActions>

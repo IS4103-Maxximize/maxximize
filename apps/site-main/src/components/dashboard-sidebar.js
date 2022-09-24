@@ -5,7 +5,8 @@ import CorporateFareIcon from '@mui/icons-material/CorporateFare';
 import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
 import RequestQuoteIcon from '@mui/icons-material/RequestQuote';
 import HealthAndSafetyIcon from '@mui/icons-material/HealthAndSafety';
-
+import ListAltIcon from '@mui/icons-material/ListAlt';
+import WarehouseIcon from '@mui/icons-material/Warehouse';
 import {
   Box,
   Button,
@@ -56,25 +57,40 @@ const items = [
     icon: <HealthAndSafetyIcon fontSize="small" />,
     title: 'Quality Assurance',
     access: ['manager', 'factoryworker', 'superadmin']
-  }
-  //   {
-  //     href: '/procurement/sales-inquiry',
-  //     icon: <QuestionAnswerIcon fontSize="small" />,
-  //     title: 'Sales Inquiry',
-  //     access: [
-  //       'superadmin',
-  //       'manager',
-  //     ],
-  //   },
-  //   {
-  //     href: '/procurement/quotation',
-  //     icon: <RequestQuoteIcon fontSize="small" />,
-  //     title: 'Quotation Management',
-  //     access: [
-  //       'superadmin',
-  //       'manager',
-  //     ],
-  //   }
+  },
+  {
+    href: '/inventory',
+    icon: <WarehouseIcon fontSize="small" />,
+    title: 'Inventory',
+    access: ['superadmin', 'manager', 'factoryworker'],
+  },
+  {
+    href: '/procurement/sales-inquiry',
+    icon: <QuestionAnswerIcon fontSize="small" />,
+    title: 'Sales Inquiry',
+    access: [
+      'superadmin',
+      // 'manager',
+    ],
+  },
+  {
+    href: '/procurement/quotation',
+    icon: <RequestQuoteIcon fontSize="small" />,
+    title: 'Quotation Management',
+    access: [
+      'superadmin',
+      // 'manager',
+    ],
+  },
+  {
+    href: '/procurement/purchase-order',
+    icon: <ListAltIcon fontSize="small" />,
+    title: 'Purchase Order',
+    access: [
+      'superadmin',
+      // 'manager',
+    ],
+  },
 ];
 
 export const DashboardSidebar = (props) => {

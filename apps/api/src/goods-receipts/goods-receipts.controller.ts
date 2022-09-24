@@ -22,10 +22,17 @@ export class GoodsReceiptsController {
     return this.goodsReceiptsService.findOne(+id);
   }
 
+  @Get('findAllByOrg/:id')
+  findAllByOrganisation(@Param('id') id: string) {
+    return this.goodsReceiptsService.findAllByOrganisationId(+id);
+  }
+
+  /*
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateGoodsReceiptDto: UpdateGoodsReceiptDto) {
     return this.goodsReceiptsService.update(+id, updateGoodsReceiptDto);
   }
+  */
 
   @Delete(':id')
   remove(@Param('id') id: string) {

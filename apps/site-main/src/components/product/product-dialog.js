@@ -40,6 +40,7 @@ export const ProductDialog = (props) => {
     unitPrice: product ? Number(product.unitPrice) : '',
     expiry: product ? Number(product.expiry) : '',
     skuCode: product ? product.skuCode : '',
+    lotQuantity: product ? Number(product.lotQuantity) : '',
   };
   let schema = {
     name: Yup.string().max(255).required('Name is required'),
@@ -47,18 +48,8 @@ export const ProductDialog = (props) => {
     unit: Yup.string(),
     unitPrice: Yup.number().required('Unit Price is required'),
     expiry: Yup.number().required('Expiry (days) is required'),
+    lotQuantity: Yup.number().required('Lot quantity is required'),
   };
-
-  if (type === 'final-goods') {
-    initialValues = {
-      ...initialValues,
-      lotQuantity: product ? Number(product.lotQuantity) : '',
-    };
-    schema = {
-      ...schema,
-      lotQuantity: Yup.number().required('Lot quantity is required'),
-    };
-  }
 
   const handleOnSubmit = async (values) => {
     if (action === 'POST') {
@@ -193,6 +184,24 @@ export const ProductDialog = (props) => {
           />
           <TextField
             required
+            error={Boolean(
+              formik.touched.lotQuantity && formik.errors.lotQuantity
+            )}
+            fullWidth
+            helperText={
+              formik.touched.lotQuantity && formik.errors.lotQuantity
+            }
+            label="Lot Quantity"
+            margin="normal"
+            name="lotQuantity"
+            onBlur={formik.handleBlur}
+            onChange={formik.handleChange}
+            type="number"
+            value={formik.values.lotQuantity}
+            variant="outlined"
+          />
+          <TextField
+            required
             error={Boolean(formik.touched.expiry && formik.errors.expiry)}
             fullWidth
             helperText={formik.touched.expiry && formik.errors.expiry}
@@ -205,26 +214,6 @@ export const ProductDialog = (props) => {
             value={formik.values.expiry}
             variant="outlined"
           />
-          {type === 'final-goods' && (
-            <TextField
-              required
-              error={Boolean(
-                formik.touched.lotQuantity && formik.errors.lotQuantity
-              )}
-              fullWidth
-              helperText={
-                formik.touched.lotQuantity && formik.errors.lotQuantity
-              }
-              label="Lot Quantity"
-              margin="normal"
-              name="lotQuantity"
-              onBlur={formik.handleBlur}
-              onChange={formik.handleChange}
-              type="number"
-              value={formik.values.lotQuantity}
-              variant="outlined"
-            />
-          )}
         </DialogContent>
         <DialogActions>
           <Button

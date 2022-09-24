@@ -9,7 +9,7 @@ import {
 } from '@mui/material';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import { useEffect, useState } from 'react';
-import { Helmet } from 'react-helmet';
+import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { DashboardLayout } from '../components/dashboard-layout';
 import { NotificationAlert } from '../components/notification-alert';
 import { ConfirmDialog } from '../components/product/confirm-dialog';
@@ -141,7 +141,7 @@ const Products = (props) => {
   const handleDelete = async (ids) => {
     const newRows = rows.filter((row) => !ids.includes(row.id));
     setRows(newRows);
-    setSelectedRows([])
+    setSelectedRows([]);
     deleteProducts(type, ids)
       .then(() => {
         handleAlertOpen(`Successfully deleted ${typeString}(s)`, 'success');
@@ -158,87 +158,51 @@ const Products = (props) => {
   //   console.log(selectedRows)
   // }, [selectedRows]);
 
-  let columnsForFinalGoods = [
+  const columns = [
     {
       field: 'id',
       headerName: 'ID',
+      flex: 1,
     },
     {
       field: 'name',
       headerName: 'Name',
-      width: 300,
+      flex: 2,
     },
     {
       field: 'description',
       headerName: 'Description',
-      width: 300,
+      flex: 3,
     },
     {
       field: 'skuCode',
       headerName: 'SKU',
-      width: 200,
+      flex: 1,
     },
     {
       field: 'unit',
       headerName: 'Unit',
+      flex: 1,
     },
     {
       field: 'unitPrice',
       headerName: 'Unit Price',
+      flex: 1,
     },
     {
       field: 'expiry',
       headerName: 'Expiry (days)',
+      flex: 1,
     },
     {
       field: 'lotQuantity',
       headerName: 'Lot Quantity',
+      flex: 1,
     },
     {
       field: 'actions',
       headerName: 'actions',
-      width: 100,
-      sortable: false,
-      renderCell: menuButton,
-    },
-  ];
-
-  let columnsForRawMaterials = [
-    {
-      field: 'id',
-      headerName: 'ID',
-    },
-    {
-      field: 'name',
-      headerName: 'Name',
-      width: 300,
-    },
-    {
-      field: 'description',
-      headerName: 'Description',
-      width: 300,
-    },
-    {
-      field: 'skuCode',
-      headerName: 'SKU',
-      width: 200,
-    },
-    {
-      field: 'unit',
-      headerName: 'Unit',
-    },
-    {
-      field: 'unitPrice',
-      headerName: 'Unit Price',
-    },
-    {
-      field: 'expiry',
-      headerName: 'Expiry (days)',
-    },
-    {
-      field: 'actions',
-      headerName: 'actions',
-      width: 100,
+      flex: 1,
       sortable: false,
       renderCell: menuButton,
     },
@@ -246,12 +210,14 @@ const Products = (props) => {
 
   return (
     <>
-      <Helmet>
-        <title>
-          {`${typeString}s`}
-          {user && ` | ${user?.organisation?.name}`}
-        </title>
-      </Helmet>
+      <HelmetProvider>
+        <Helmet>
+          <title>
+            {`${typeString}s`}
+            {user && ` | ${user?.organisation?.name}`}
+          </title>
+        </Helmet>
+      </HelmetProvider>
       <Box
         component="main"
         sx={{
@@ -322,11 +288,7 @@ const Products = (props) => {
                     );
                   }
                 })}
-                columns={
-                  type === 'raw-materials'
-                    ? columnsForRawMaterials
-                    : columnsForFinalGoods
-                }
+                columns={columns}
                 pageSize={10}
                 rowsPerPageOptions={[10]}
                 checkboxSelection

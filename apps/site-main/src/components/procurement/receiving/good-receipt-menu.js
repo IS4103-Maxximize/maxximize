@@ -9,9 +9,10 @@ import {
 
 export const GoodReceiptMenu = (props) => {
   const {
+    goodReceipt,
     anchorEl,
     menuOpen,
-    handleClickOpen,
+    setGoodReceiptLineItems,
     handleMenuClose,
     handleClickView,
   } = props;
@@ -20,7 +21,7 @@ export const GoodReceiptMenu = (props) => {
       <MenuList>
         <MenuItem
           onClick={() => {
-            handleClickOpen();
+            setGoodReceiptLineItems(goodReceipt.goodReceiptLineItems);
             handleMenuClose();
             handleClickView();
           }}

@@ -1,6 +1,6 @@
-import { Helmet } from 'react-helmet';
+import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { Grid, Typography } from "@mui/material"
-import { ModuleCard } from "../components/procurement/module-card"
+import { ModuleCard } from "../components/module-card"
 import { Box } from '@mui/system';
 import { Outlet } from 'react-router-dom';
 
@@ -23,10 +23,12 @@ function qualityAssurance() {
     }
   ]
   return (
-    <>
-      <Helmet>
-        <title>{`Quality Assurance | ${user?.organisation?.name}`}</title>
-      </Helmet>
+    <> 
+      <HelmetProvider>
+        <Helmet>
+          <title>{`Quality Assurance | ${user?.organisation?.name}`}</title>
+        </Helmet>
+      </HelmetProvider>
       <Box sx={{marginLeft: '20px', marginBottom: '60px'}}>
         <Typography variant="h4">
           Quality Assurance

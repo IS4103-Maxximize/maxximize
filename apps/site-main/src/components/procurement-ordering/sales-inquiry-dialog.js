@@ -12,19 +12,17 @@ import {
   IconButton,
   TextField,
   Toolbar,
-  Typography,
+  Typography
 } from '@mui/material';
 import { Stack } from '@mui/system';
 import { DataGrid } from '@mui/x-data-grid';
-import { formatRelative } from 'date-fns';
 import { useFormik } from 'formik';
 import { useEffect, useState } from 'react';
 import { v4 as uuid } from 'uuid';
 import * as Yup from 'yup';
 import {
-  createSalesInquiry,
-  fetchSalesInquiries,
   updateSalesInquiry,
+  fetchSalesInquiry
 } from '../../helpers/procurement-ordering';
 import { fetchProducts } from '../../helpers/products';
 
@@ -40,6 +38,7 @@ export const SalesInquiryDialog = (props) => {
     addSalesInquiry,
     updateInquiry,
     handleAlertOpen,
+    ...rest
   } = props;
 
   const [updateTotalPrice, setUpdateTotalPrice] = useState(0);
@@ -131,9 +130,12 @@ export const SalesInquiryDialog = (props) => {
       //     values.lineItems
       //   ).catch((err) => handleAlertOpen(`Error creating ${string}`, 'error'));
 
-      const result = await response;
+      // newly created SI doesn't return relations
+      // fetch SI with relations
+      const result = await response; 
+      const inquiry = await fetchSalesInquiry(result.id);
 
-      addSalesInquiry(result);
+      addSalesInquiry(inquiry);
     } else if (action === 'PATCH') {
       // update
       const result = await updateSalesInquiry(updateTotalPrice, values);
@@ -207,13 +209,16 @@ export const SalesInquiryDialog = (props) => {
     const updatedLineItems = formik.values.lineItems.filter(
       (el) => !ids.includes(el.id)
     );
+    console.log(updatedLineItems)
     formik.setFieldValue('lineItems', updatedLineItems);
     const updatedTotalPrice = updatedLineItems.reduce((a, b) => {
       return a + b.quantity * b.indicativePrice;
     }, 0);
     setUpdateTotalPrice(updatedTotalPrice);
     setInputValue('');
-    inquiry.total = updatedTotalPrice;
+    inquiry ? 
+      inquiry.total = updatedTotalPrice :
+      formik.setFieldValue('totalPrice', updatedTotalPrice);
   };
 
   const updateLineItems = (newRow) => {
@@ -306,7 +311,11 @@ export const SalesInquiryDialog = (props) => {
             {formik.values.status !== 'sent' && (
               <Button
                 variant="contained"
-                disabled={!formik.isValid || formik.isSubmitting}
+                disabled={
+                  !formik.isValid || 
+                  formik.isSubmitting || 
+                  formik.values.lineItems.length === 0
+                }
                 onClick={formik.handleSubmit}
               >
                 Save
@@ -343,24 +352,22 @@ export const SalesInquiryDialog = (props) => {
             variant="outlined"
             disabled
           />
-          {inquiry && (
-            <TextField
-              fullWidth
-              error={Boolean(
-                formik.touched.totalPrice && formik.errors.totalPrice
-              )}
-              helperText={formik.touched.totalPrice && formik.errors.totalPrice}
-              label="Total Price"
-              margin="normal"
-              name="totalPrice"
-              type="number"
-              onBlur={formik.handleBlur}
-              onChange={formik.handleChange}
-              value={updateTotalPrice}
-              variant="outlined"
-              disabled
-            />
-          )}
+          <TextField
+            fullWidth
+            error={Boolean(
+              formik.touched.totalPrice && formik.errors.totalPrice
+            )}
+            helperText={formik.touched.totalPrice && formik.errors.totalPrice}
+            label="Total Price"
+            margin="normal"
+            name="totalPrice"
+            type="number"
+            onBlur={formik.handleBlur}
+            onChange={formik.handleChange}
+            value={updateTotalPrice}
+            variant="outlined"
+            disabled
+          />
           {formik.values.status !== 'sent' && (
             <Box my={2} display="flex" justifyContent="space-between">
               <Stack direction="row" spacing={1}>

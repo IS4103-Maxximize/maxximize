@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { BatchLineItem } from "../../batch-line-items/entities/batch-line-item.entity";
 import { GoodsReceipt } from "../../goods-receipts/entities/goods-receipt.entity";
 
@@ -10,11 +10,16 @@ export class Batch {
     @Column({nullable: false})
     batchNumber: string;
 
+    @Column()
+    organisationId: number;
+
     @OneToMany(() => BatchLineItem, batchLineItem => batchLineItem.batch, {
         cascade: true
     })
     batchLineItems: BatchLineItem[];
 
-    @OneToOne(() => GoodsReceipt, goodReceipt => goodReceipt.batch)
+    @OneToOne(() => GoodsReceipt, goodReceipt => goodReceipt.batch, {
+        onDelete: 'CASCADE'
+    })
     goodReceipt: GoodsReceipt;
 }

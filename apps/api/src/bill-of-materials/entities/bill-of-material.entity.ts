@@ -7,9 +7,10 @@ export class BillOfMaterial {
     @PrimaryGeneratedColumn()
     id: number
 
-    @OneToOne(() => FinalGood, finalGood => finalGood.billOfMaterial)
+    @OneToOne(() => FinalGood, finalGood => finalGood.billOfMaterial, {onDelete: "CASCADE"})
+    @JoinColumn()
     finalGood: FinalGood
 
-    @OneToMany(() => BomLineItem, bomLineItem => bomLineItem.billOfMaterial)
+    @OneToMany(() => BomLineItem, bomLineItem => bomLineItem.billOfMaterial, {cascade:true})
     bomLineItems: BomLineItem[]
 }

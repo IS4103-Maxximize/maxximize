@@ -56,7 +56,7 @@ export class MailService {
         });
     }
 
-    async sendPurchaseOrderEmail(email: string, organisationName: string, supplierName: string, purchaseOrderLineItems: PurchaseOrderLineItem[], purchaseOrder: PurchaseOrder, deliveryTime) {
+    async sendPurchaseOrderEmail(email: string, organisationName: string, supplierName: string, purchaseOrderLineItems: PurchaseOrderLineItem[], purchaseOrder: PurchaseOrder, deliveryTime: Date) {
         await this.mailerService.sendMail({
             to: email,
             from: process.env.MAIL_FROM,
