@@ -4,6 +4,7 @@ import RawOnIcon from '@mui/icons-material/RawOn';
 import CorporateFareIcon from '@mui/icons-material/CorporateFare';
 import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
 import RequestQuoteIcon from '@mui/icons-material/RequestQuote';
+import HealthAndSafetyIcon from '@mui/icons-material/HealthAndSafety';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import WarehouseIcon from '@mui/icons-material/Warehouse';
 import {
@@ -50,6 +51,12 @@ const items = [
     icon: <CorporateFareIcon fontSize="small" />,
     title: 'Business Relations',
     access: ['admin', 'superadmin'],
+  },
+  {
+    href: '/qualityAssurance',
+    icon: <HealthAndSafetyIcon fontSize="small" />,
+    title: 'Quality Assurance',
+    access: ['manager', 'factoryworker', 'superadmin'],
   },
   {
     href: '/inventory',

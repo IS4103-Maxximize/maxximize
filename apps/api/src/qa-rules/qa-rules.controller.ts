@@ -17,6 +17,16 @@ export class QaRulesController {
     return this.qaRulesService.findAll();
   }
 
+  @Get('orgId/:id')
+  findAllByOrg(@Param('id') id: string) {
+    return this.qaRulesService.findAllByOrg(+id)
+  }
+
+  @Get('ruleCategories')
+  findAllCategories() {
+    return this.qaRulesService.findAllRuleCategory()
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.qaRulesService.findOne(+id);

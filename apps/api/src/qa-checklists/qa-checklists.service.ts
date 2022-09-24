@@ -15,7 +15,7 @@ export class QaChecklistsService {
     @InjectRepository(QaChecklist)
     private readonly qaChecklistRepository: Repository<QaChecklist>) {}
   async create(createQaChecklistDto: CreateQaChecklistDto) {
-    const {productType, qaRuleIds, organisationId} = createQaChecklistDto
+    const {productType, qaRuleIds, organisationId, name} = createQaChecklistDto
     const organisation = await this.organisationService.findOne(organisationId)
     let qaRulesToBeAdded: QaRule[] = []
     for (const id of qaRuleIds) {
@@ -24,8 +24,10 @@ export class QaChecklistsService {
     }
     const newChecklist = this.qaChecklistRepository.create({
       productType,
+      name,
       qaRules: qaRulesToBeAdded,
-      organisationId: organisation.id
+      organisationId: organisation.id,
+      created: new Date()
     })
     return this.qaChecklistRepository.save(newChecklist)
   }
@@ -47,7 +49,7 @@ export class QaChecklistsService {
   async findAllByOrg(id: number) {
     const [qaChecklists, count] = await this.qaChecklistRepository.findAndCount({
       where: {
-        id
+        organisationId: id
       },
       relations: {
         organisation: true,
