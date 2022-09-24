@@ -22,10 +22,12 @@ export class BatchLineItemsController {
     return this.batchLineItemsService.findOne(+id);
   }
 
+  /*
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateBatchLineItemDto: UpdateBatchLineItemDto) {
     return this.batchLineItemsService.update(+id, updateBatchLineItemDto);
   }
+  */
 
   @Delete(':id')
   remove(@Param('id') id: string) {

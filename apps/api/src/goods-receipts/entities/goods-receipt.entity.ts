@@ -16,6 +16,9 @@ export class GoodsReceipt {
     recipientName: string
 
     @Column()
+    organisationId: number;
+
+    @Column()
     description: string;
 
     @DeleteDateColumn()
