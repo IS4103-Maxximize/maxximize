@@ -14,6 +14,12 @@ export class QaChecklist {
     })
     productType: ProductType
 
+    @Column()
+    created: Date
+
+    @Column()
+    name: string
+
     @ManyToMany(() => QaRule, qaRule => qaRule.qaChecklists)
     @JoinTable()
     qaRules: QaRule[]

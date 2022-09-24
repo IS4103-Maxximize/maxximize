@@ -20,6 +20,9 @@ import ForgotPassword from './pages/forgotPassword';
 import ProtectedRoute from './pages/protectedRoute';
 import ResetPassword from './pages/resetpassword';
 import ProtectedPublicRoute from './pages/protectedPublicRoute';
+import QualityAssurance from './pages/qualityAssurance';
+import QaRules from './pages/qaRules'
+import QaChecklists from './pages/qaChecklists'
 
 const ROLES = {
   Admin: 'admin',
@@ -115,6 +118,11 @@ const App = () => {
                 path="procurement/forecast"
                 element={<ProcurementForecast />}
               ></Route>
+              {/* Quality Assurance */}
+              <Route path="qualityAssurance" element={<QualityAssurance/>}></Route>
+              <Route path="qualityAssurance/rules" element={<QaRules/>}></Route>
+              <Route path="qualityAssurance/checklists" element={<QaChecklists/>}></Route>
+              
             </Route>
 
             {/* Protected Routes for Manager and Factory Worker */}

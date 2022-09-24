@@ -4,6 +4,8 @@ import RawOnIcon from '@mui/icons-material/RawOn';
 import CorporateFareIcon from '@mui/icons-material/CorporateFare';
 import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
 import RequestQuoteIcon from '@mui/icons-material/RequestQuote';
+import HealthAndSafetyIcon from '@mui/icons-material/HealthAndSafety';
+
 import {
   Box,
   Button,
@@ -49,6 +51,12 @@ const items = [
     title: 'Business Relations',
     access: ['admin', 'superadmin'],
   },
+  {
+    href: '/qualityAssurance',
+    icon: <HealthAndSafetyIcon fontSize="small" />,
+    title: 'Quality Assurance',
+    access: ['manager', 'factoryworker', 'superadmin']
+  }
   //   {
   //     href: '/procurement/sales-inquiry',
   //     icon: <QuestionAnswerIcon fontSize="small" />,
