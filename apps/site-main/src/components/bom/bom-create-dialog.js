@@ -216,7 +216,7 @@ export const BOMCreateDialog = (props) => {
             getOptionLabel={(option) => `${option.name} [${option.skuCode}]`}
             isOptionEqualToValue={(option, value) => option.id === value.id}
             // value={formik.values.quotation}
-            onChange={(e, value) => formik.setFieldValue('finalGoodId', value.id)}
+            onChange={(e, value) => formik.setFieldValue('finalGoodId', value ? value.id : null)}
             renderInput={(params) => (<TextField {...params} label="Final Good" />)}
           />
           <Box my={2} display="flex" justifyContent="space-between">
