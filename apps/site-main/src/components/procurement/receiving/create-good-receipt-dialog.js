@@ -391,12 +391,17 @@ export const CreateGoodReceiptDialog = ({
   const [qaChecklists, setQAChecklists] = useState([]);
 
   const retrieveQAChecklists = async () => {
-    const response = await fetch(`http://localhost:3000/api/qa-checklists`);
+    const response = await fetch(
+      `http://localhost:3000/api/qa-checklists/orgId/${organisationId}`
+    );
 
     let result = [];
 
     if (response.status == 200 || response.status == 201) {
       result = await response.json();
+      result = result.filter(
+        (checklist) => checklist.productType == 'rawmaterial'
+      );
     }
 
     setQAChecklists(result);
@@ -413,14 +418,11 @@ export const CreateGoodReceiptDialog = ({
 
   const handleChecklistChange = (event) => {
     setCurrentQARules(
-      qaChecklists.find(
-        (checklist) => checklist.productType == event.target.value
-      ).qaRules
+      qaChecklists.find((checklist) => checklist.name == event.target.value)
+        .qaRules
     );
     setCurrentChecklist(
-      qaChecklists.find(
-        (checklist) => checklist.productType == event.target.value
-      )
+      qaChecklists.find((checklist) => checklist.name == event.target.value)
     );
   };
 
@@ -620,11 +622,15 @@ export const CreateGoodReceiptDialog = ({
               variant="outlined"
               size="small"
             >
-              {qaChecklists?.map((option) => (
-                <MenuItem key={option.id} value={option.productType}>
-                  {option.productType}
-                </MenuItem>
-              ))}
+              {qaChecklists.length != 0 ? (
+                qaChecklists?.map((option) => (
+                  <MenuItem key={option.id} value={option.name}>
+                    {option.name}
+                  </MenuItem>
+                ))
+              ) : (
+                <h5>&nbsp; &nbsp; No Checklists Found</h5>
+              )}
             </TextField>
             <List>
               {currentQARules?.map((rule) => (

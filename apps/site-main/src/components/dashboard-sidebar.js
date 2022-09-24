@@ -56,7 +56,7 @@ const items = [
     href: '/qualityAssurance',
     icon: <HealthAndSafetyIcon fontSize="small" />,
     title: 'Quality Assurance',
-    access: ['manager', 'factoryworker', 'superadmin']
+    access: ['manager', 'factoryworker', 'superadmin'],
   },
   {
     href: '/inventory',
