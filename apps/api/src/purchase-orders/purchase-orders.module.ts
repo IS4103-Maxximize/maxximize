@@ -13,9 +13,10 @@ import { RawMaterial } from '../raw-materials/entities/raw-material.entity';
 import { FinalGood } from '../final-goods/entities/final-good.entity';
 import { MailModule } from '../mail/mail.module';
 import { FollowUpLineItem } from '../follow-up-line-items/entities/follow-up-line-item.entity';
+import { GoodsReceipt } from '../goods-receipts/entities/goods-receipt.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Organisation, PurchaseOrder, PurchaseOrderLineItem, Quotation, FollowUpLineItem, RawMaterial, FinalGood]), PurchaseOrderLineItemsModule, OrganisationsModule, QuotationsModule, MailModule],
+  imports: [TypeOrmModule.forFeature([Organisation, PurchaseOrder, PurchaseOrderLineItem, Quotation, FollowUpLineItem, RawMaterial, FinalGood, GoodsReceipt]), PurchaseOrderLineItemsModule, OrganisationsModule, QuotationsModule, MailModule],
   controllers: [PurchaseOrdersController],
   providers: [PurchaseOrdersService],
   exports: [PurchaseOrdersService]

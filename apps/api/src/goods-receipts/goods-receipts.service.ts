@@ -63,9 +63,9 @@ export class GoodsReceiptsService {
 
       purchaseOrder.followUpLineItems = followUpLineItems
       if (createFollowUpLineItemsDtos === undefined || createFollowUpLineItemsDtos.length === 0) {
-        purchaseOrder.status = PurchaseOrderStatus.PARTIALLYFULFILLED;
+		purchaseOrder.status = PurchaseOrderStatus.FULFILLED;
       } else {
-        purchaseOrder.status = PurchaseOrderStatus.FULFILLED;
+        purchaseOrder.status = PurchaseOrderStatus.PARTIALLYFULFILLED;
       }
       queryRunner.manager.save(purchaseOrder);
 
@@ -91,7 +91,13 @@ export class GoodsReceiptsService {
 
   async findAll() {
     const goodsReceipts = await this.goodsReceiptRepository.find({
-      relations: ['goodReceiptLineItems.product, batch, purchaseOrder']
+      relations: {
+        goodReceiptLineItems: {
+			product: true,
+		},
+        purchaseOrder: true,
+        batch: true
+      }
     });
     return goodsReceipts;
   }
@@ -101,7 +107,13 @@ export class GoodsReceiptsService {
       where: {
         id: id,
       },
-      relations: ['goodReceiptLineItems.product, batch, purchaseOrder']
+      relations: {
+        goodReceiptLineItems: {
+			product: true,
+		},
+        purchaseOrder: true,
+        batch: true
+      }
     });
     if (goodsReceipt) {
       return goodsReceipt;
@@ -115,7 +127,13 @@ export class GoodsReceiptsService {
       where: {
         organisationId: organisationId
       },
-      relations: ['goodReceiptLineItems.product, batch, purchaseOrder']
+      relations: {
+        goodReceiptLineItems: {
+			product: true,
+		},
+        purchaseOrder: true,
+        batch: true
+      }
     });
     return goodReceipts;
   }

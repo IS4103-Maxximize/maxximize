@@ -10,13 +10,12 @@ import {
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useEffect, useState } from 'react';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
-import DayJS from 'dayjs';
 
-export const ViewGoodReceiptDialog = ({
-  goodReceiptLineItems,
+export const ViewBinDialog = ({
+  bin,
+  batchLineItems,
   openViewDialog,
   setOpenViewDialog,
-  goodReceipt,
 }) => {
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
@@ -25,6 +24,10 @@ export const ViewGoodReceiptDialog = ({
   const handleDialogClose = () => {
     setOpenViewDialog(false);
   };
+
+  useEffect(() => {
+    console.log(batchLineItems);
+  }, [openViewDialog]);
 
   //User organisation Id
   const user = JSON.parse(localStorage.getItem('user'));
@@ -49,7 +52,7 @@ export const ViewGoodReceiptDialog = ({
       headerName: 'Quantity',
       flex: 1,
       width: 120,
-      editable: false,
+      editable: true,
     },
   ];
 
@@ -60,30 +63,24 @@ export const ViewGoodReceiptDialog = ({
       onClose={handleDialogClose}
       aria-labelledby="responsive-dialog-title"
     >
-      <DialogTitle id="responsive-dialog-title">
-        {'View Good Receipt'}
-      </DialogTitle>
+      <DialogTitle id="responsive-dialog-title">{'View Bin'}</DialogTitle>
       <DialogContent>
         <Box>
           <Typography sx={{ marginBottom: 1 }}>
-            <b>Purchase Order ID:</b> {goodReceipt?.purchaseOrder.id}
+            <b>Bin Name:</b> {bin?.name}
           </Typography>
           <Typography sx={{ marginBottom: 1 }}>
-            <b>Recipient:</b> {goodReceipt?.recipientName}
-          </Typography>
-          <Typography sx={{ marginBottom: 1 }}>
-            <b>Date Received: </b>
-            {DayJS(goodReceipt?.createdDateTime).format('DD MMM YYYY hh:mm a')}
+            <b>Capacity:</b> {bin?.capacity}
           </Typography>
           <Typography sx={{ marginBottom: 2 }}>
-            <b>Description:</b> {goodReceipt?.description}
+            <b>Current Capacity:</b> {bin?.currentCapacity}
           </Typography>
         </Box>
         <Box sx={{ minWidth: 500 }}>
           <DataGrid
             autoHeight
             minHeight="500"
-            rows={goodReceiptLineItems}
+            rows={batchLineItems}
             columns={columns}
             pageSize={5}
             rowsPerPageOptions={[5]}
