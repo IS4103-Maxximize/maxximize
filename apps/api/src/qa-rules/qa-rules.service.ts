@@ -5,6 +5,7 @@ import { OrganisationsService } from '../organisations/organisations.service';
 import { CreateQaRuleDto } from './dto/create-qa-rule.dto';
 import { UpdateQaRuleDto } from './dto/update-qa-rule.dto';
 import { QaRule } from './entities/qa-rule.entity';
+import { RuleCategory } from './enums/ruleCategory.enum';
 
 @Injectable()
 export class QaRulesService {
@@ -66,6 +67,14 @@ export class QaRulesService {
       throw new NotFoundException(`Qa rule of id: ${id} cannot be found`)
     }
     
+  }
+
+  findAllRuleCategory() {
+    let rules = []
+    Object.entries(RuleCategory).forEach(([key, value]) => {
+      rules.push({label: key, value: value})
+    })
+    return rules
   }
 
   async update(id: number, updateQaRuleDto: UpdateQaRuleDto) {

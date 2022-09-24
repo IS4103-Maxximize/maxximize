@@ -17,9 +17,12 @@ import PurchaseOrder from './pages/procurement/purchase-order';
 import Quotation from './pages/procurement/quotation';
 import SalesInquiry from './pages/procurement/sales-inquiry';
 import Products from './pages/products';
-import ProtectedPublicRoute from './pages/protectedPublicRoute';
 import ProtectedRoute from './pages/protectedRoute';
 import ResetPassword from './pages/resetpassword';
+import ProtectedPublicRoute from './pages/protectedPublicRoute';
+import QualityAssurance from './pages/qualityAssurance';
+import QaRules from './pages/qaRules'
+import QaChecklists from './pages/qaChecklists'
 import Unauthorized from './pages/unauthorized';
 import Warehouse from './pages/inventory/warehouse';
 import WorkerManagement from './pages/workermanagement';
@@ -112,12 +115,17 @@ const routes = (
               element={<Products type="final-goods" key={2} />}
             ></Route>
 
-            {/* Procurement Forecast */}
-            <Route
-              path="procurement/forecast"
-              element={<ProcurementForecast />}
-            ></Route>
-          </Route>
+              {/* Procurement Forecast */}
+              <Route
+                path="procurement/forecast"
+                element={<ProcurementForecast />}
+              ></Route>
+              {/* Quality Assurance */}
+              <Route path="qualityAssurance" element={<QualityAssurance/>}></Route>
+              <Route path="qualityAssurance/rules" element={<QaRules/>}></Route>
+              <Route path="qualityAssurance/checklists" element={<QaChecklists/>}></Route>
+              
+            </Route>
 
           {/* Protected Routes for Manager and Factory Worker */}
           <Route
