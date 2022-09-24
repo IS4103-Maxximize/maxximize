@@ -22,6 +22,11 @@ export class BatchesController {
     return this.batchesService.findOne(+id);
   }
 
+  @Get('findAllByOrg/:id')
+  findAllByOrganisation(@Param('id') id: string) {
+    return this.batchesService.findAllByOrganisationId(+id);
+  }
+
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateBatchDto: UpdateBatchDto) {
     return this.batchesService.update(+id, updateBatchDto);
