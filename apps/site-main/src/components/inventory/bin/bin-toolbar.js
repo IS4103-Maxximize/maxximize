@@ -1,4 +1,4 @@
-import PostAddIcon from '@mui/icons-material/PostAdd';
+import AddBoxIcon from '@mui/icons-material/AddBox';
 import DeleteIcon from '@mui/icons-material/Delete';
 import {
   Badge,
@@ -15,12 +15,13 @@ import {
 } from '@mui/material';
 import { GridSearchIcon } from '@mui/x-data-grid';
 
-export const GoodReceiptListToolbar = ({disabled,
-  numGoodReceipts,
+export const BinToolbar = ({
+  disabled,
+  numBin,
   handleClickOpen,
   handleConfirmDialogOpen,
-  handleSearch}) => {
-
+  handleSearch,
+}) => {
   return (
     <Box>
       <Box
@@ -33,7 +34,7 @@ export const GoodReceiptListToolbar = ({disabled,
         }}
       >
         <Typography sx={{ m: 1 }} variant="h4">
-          Good Receipt
+          Bin
         </Typography>
       </Box>
       <Box sx={{ mt: 3 }}>
@@ -60,7 +61,7 @@ export const GoodReceiptListToolbar = ({disabled,
                       </InputAdornment>
                     ),
                   }}
-                  placeholder="Search good receipt"
+                  placeholder="Search bin"
                   variant="outlined"
                   type="search"
                   onChange={handleSearch}
@@ -68,7 +69,7 @@ export const GoodReceiptListToolbar = ({disabled,
               </Stack>
 
               <Box sx={{ m: 1 }}>
-                <Tooltip title={`Create Good Receipt Entry`}>
+                <Tooltip title={`Create Bin Entry`}>
                   <IconButton
                     color="primary"
                     onClick={() => {
@@ -76,11 +77,11 @@ export const GoodReceiptListToolbar = ({disabled,
                     }}
                     sx={{ mr: 1 }}
                   >
-                    <PostAddIcon />
+                    <AddBoxIcon />
                   </IconButton>
                 </Tooltip>
-                <Tooltip title={'Delete Good Receipt Entry (Single/Multiple)'}>
-                  <Badge badgeContent={numGoodReceipts} color="error">
+                <Tooltip title={'Delete Bin Entry (Single/Multiple)'}>
+                  <Badge badgeContent={numBin} color="error">
                     <IconButton
                       disabled={disabled}
                       color="error"

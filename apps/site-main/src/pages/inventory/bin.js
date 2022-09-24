@@ -1,18 +1,17 @@
 import { Box, Card, Container, IconButton, Typography } from '@mui/material';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
-import { GoodReceiptListToolbar } from '../../components/procurement/receiving/good-receipt-list-toolbar';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import { useEffect, useState } from 'react';
 import MoreVert from '@mui/icons-material/MoreVert';
-import { GoodReceiptConfirmDialog } from '../../components/procurement/receiving/good-receipt-confirm-dialog';
-import { CreateGoodReceiptDialog } from '../../components/procurement/receiving/create-good-receipt-dialog';
 import { NotificationAlert } from '../../components/notification-alert';
-import { GoodReceiptMenu } from '../../components/procurement/receiving/good-receipt-menu';
-import { ViewGoodReceiptDialog } from '../../components/procurement/receiving/view-good-receipt-dialog';
-import DayJS from 'dayjs';
+import { BinToolbar } from '../../components/inventory/bin/bin-toolbar';
+import { CreateBinDialog } from '../../components/inventory/bin/create-bin-dialog';
+import { BinActionMenu } from '../../components/inventory/bin/bin-action-menu';
+import { UpdateBinDialog } from '../../components/inventory/bin/update-bin-dialog';
+import { BinConfirmDialog } from '../../components/inventory/bin/bin-confirm-dialog';
 
-const ProcurementGoodReceipt = () => {
-  const [goodReceipts, setGoodReceipts] = useState([]);
+const Bin = () => {
+  const [bins, setBins] = useState([]);
   const [selectedRow, setSelectedRow] = useState();
   const [selectedRows, setSelectedRows] = useState([]);
   const [disabled, setDisabled] = useState();
@@ -20,9 +19,9 @@ const ProcurementGoodReceipt = () => {
   const user = JSON.parse(localStorage.getItem('user'));
   const organisationId = user.organisation.id;
 
-  //Load in list of goodReceipts, initial
+  //Load in list of bins, initial
   useEffect(() => {
-    retrieveAllGoodReceipts();
+    retrieveAllBins();
   }, []);
 
   //Keep track of selectedRows for deletion
@@ -30,9 +29,9 @@ const ProcurementGoodReceipt = () => {
     setDisabled(selectedRows.length === 0);
   }, [selectedRows]);
 
-  //Retrieve all goodReceipts [TODO]
-  const retrieveAllGoodReceipts = async () => {
-    const response = await fetch(`http://localhost:3000/api/goods-receipts`);
+  //Retrieve all bins
+  const retrieveAllBins = async () => {
+    const response = await fetch(`http://localhost:3000/api/bins`);
 
     let result = [];
 
@@ -40,7 +39,7 @@ const ProcurementGoodReceipt = () => {
       result = await response.json();
     }
 
-    setGoodReceipts(result);
+    setBins(result);
   };
 
   //Search Function
@@ -50,27 +49,38 @@ const ProcurementGoodReceipt = () => {
     setSearch(event.target.value.toLowerCase().trim());
   };
 
-  //Menu Button
-  const [anchorEl, setAnchorEl] = useState(null);
-  const menuOpen = Boolean(anchorEl);
-  const handleMenuClick = (event) => {
-    setAnchorEl(event.currentTarget);
+  //Action Menu
+  const [anchorElUpdate, setAnchorElUpdate] = useState(null);
+  const actionMenuOpen = Boolean(anchorElUpdate);
+  const handleActionMenuClick = (event) => {
+    setAnchorElUpdate(event.currentTarget);
   };
-  const handleMenuClose = () => {
-    setAnchorEl(null);
+  const handleActionMenuClose = () => {
+    setAnchorElUpdate(null);
   };
 
   const menuButton = (params) => {
     return (
       <IconButton
+        // disabled={params.row.bins?.length == 0}
         onClick={(event) => {
           setSelectedRow(params.row);
-          handleMenuClick(event);
+          handleActionMenuClick(event);
         }}
       >
         <MoreVert />
       </IconButton>
     );
+  };
+
+  //Update bin List
+  const updateBin = (bin) => {
+    const indexOfEditBin = bins.findIndex(
+      (currentBin) => currentBin.id === bin.id
+    );
+    const newBins = [...bins];
+    newBins[indexOfEditBin] = bin;
+    setBins(newBins);
   };
 
   //Alert Notification
@@ -95,27 +105,26 @@ const ProcurementGoodReceipt = () => {
     setOpen(true);
   };
 
-  //View Good Receipt dialog
+  //View Bin dialog
   const [openViewDialog, setOpenViewDialog] = useState(false);
+  const [selectedBin, setSelectedBin] = useState('');
 
   const handleOpenViewDialog = () => {
     setOpenViewDialog(true);
   };
 
-  //Good Receipt line items from the bin
-  const [goodReceiptLineItems, setGoodReceiptLineItems] = useState([]);
+  //Update Dialog helpers
+  const [openUpdateDialog, setOpenUpdateDialog] = useState(false);
+  const handleUpdateDialog = () => {
+    setOpenUpdateDialog(true);
+  };
 
-  //Load in list of line items
-  useEffect(() => {
-    setGoodReceiptLineItems(selectedRow?.goodReceiptLineItems);
-  }, [openViewDialog]);
-
-  //Add a new good receipt entry to the list
-  const addGoodReceipt = (goodReceipt) => {
+  //Add a new bin entry to the list
+  const addBin = (bin) => {
     try {
-      const updatedGoodReceipts = [...goodReceipts, goodReceipt];
+      const updatedBins = [...bins, bin];
 
-      setGoodReceipts(updatedGoodReceipts);
+      setBins(updatedBins);
     } catch {
       console.log('An erorr occured please try again later');
     }
@@ -131,7 +140,7 @@ const ProcurementGoodReceipt = () => {
   };
 
   //Handle Delete
-  //Deleting a goodReceipt entry, calling update API
+  //Deleting a bin entry
   //Also alerts user of ourcome
   const handleDelete = async (selectedIds) => {
     const requestOptions = {
@@ -139,22 +148,25 @@ const ProcurementGoodReceipt = () => {
     };
 
     selectedIds.forEach((currentId) => {
-      fetch(
-        `http://localhost:3000/api/good-receipts/${currentId}`,
-        requestOptions
-      )
+      fetch(`http://localhost:3000/api/bins/${currentId}`, requestOptions)
         .then(() => {
-          handleAlertOpen(`Successfully deleted good receipt(s)`, 'success');
+          handleAlertOpen(`Successfully deleted bin(s)`, 'success');
         })
         .catch((error) => {
-          handleAlertOpen(`Failed to delete good receipt(s):${error}`, 'error');
+          handleAlertOpen(`Failed to delete bin(s):${error}`, 'error');
         });
     });
 
-    setGoodReceipts((result) =>
-      result.filter((goodReceipt) => !selectedIds.includes(goodReceipt.id))
-    );
+    setBins(bins.filter((bin) => !selectedIds.includes(bin.id)));
   };
+
+  //Batch line items from the bin
+  const [batchLineItems, setBatchLineItems] = useState([]);
+
+  //Load in list of line items
+  useEffect(() => {
+    setBatchLineItems(selectedBin?.batchLineItems);
+  }, [openViewDialog]);
 
   //Columns for datagrid, column headers & specs
   const columns = [
@@ -165,31 +177,35 @@ const ProcurementGoodReceipt = () => {
       flex: 1,
     },
     {
-      field: 'purchaseOrderId',
-      headerName: 'Purchase Order ID',
-      width: 200,
+      field: 'warehouseId',
+      headerName: 'Warehouse ID',
+      width: 70,
       flex: 2,
-      //   valueGetter: (params) => {
-      //     if (params.row.purchaseOrder.id) {
-      //       return params.row.purchaseOrder.id;
-      //     } else {
-      //       return '';
-      //     }
-      //   },
+      valueGetter: (params) => {
+        if (params.row.warehouse.id) {
+          return params.row.warehouse.id;
+        } else {
+          return '';
+        }
+      },
     },
     {
-      field: 'recipientName',
-      headerName: 'Recipient Name',
-      width: 150,
-      flex: 7,
-    },
-    {
-      field: 'createdDateTime',
-      headerName: 'Date Received',
+      field: 'name',
+      headerName: 'Name',
       width: 200,
-      flex: 3,
-      valueFormatter: (params) =>
-        DayJS(params?.value).format('DD MMM YYYY hh:mm a'),
+      flex: 6,
+    },
+    {
+      field: 'capacity',
+      headerName: 'Capacity',
+      width: 100,
+      flex: 2,
+    },
+    {
+      field: 'currentCapacity',
+      headerName: 'Current Capacity',
+      width: 100,
+      flex: 2,
     },
     {
       field: 'action',
@@ -201,13 +217,13 @@ const ProcurementGoodReceipt = () => {
   ];
 
   //Row for datagrid, set the list returned from API
-  const rows = goodReceipts;
+  const rows = bins;
 
   return (
     <>
       <HelmetProvider>
         <Helmet>
-          <title>{`Good Receipt | ${user?.organisation?.name}`}</title>
+          <title>{`Bin | ${user?.organisation?.name}`}</title>
         </Helmet>
       </HelmetProvider>
       <NotificationAlert
@@ -216,34 +232,33 @@ const ProcurementGoodReceipt = () => {
         text={alertText}
         handleClose={handleAlertClose}
       />
-      <CreateGoodReceiptDialog
+      <CreateBinDialog
         open={open}
         setOpen={setOpen}
-        addGoodReceipt={addGoodReceipt}
+        addBin={addBin}
         handleAlertOpen={handleAlertOpen}
       />
-      <GoodReceiptConfirmDialog
+      <BinConfirmDialog
         open={confirmDialogOpen}
         handleClose={handleConfirmDialogClose}
-        dialogTitle={`Delete Good Receipt(s)`}
-        dialogContent={`Confirm deletion of Good Receipt(s)?`}
+        dialogTitle={`Delete Bin(s)`}
+        dialogContent={`Confirm deletion of Bin(s)?`}
         dialogAction={() => {
           handleDelete(selectedRows);
         }}
       />
-      <ViewGoodReceiptDialog
-        goodReceipt={selectedRow}
-        openViewDialog={openViewDialog}
-        setOpenViewDialog={setOpenViewDialog}
-        goodReceiptLineItems={goodReceiptLineItems}
+      <BinActionMenu
+        anchorElUpdate={anchorElUpdate}
+        actionMenuOpen={actionMenuOpen}
+        handleActionMenuClose={handleActionMenuClose}
+        handleClickUpdate={handleUpdateDialog}
       />
-      <GoodReceiptMenu
-        goodReceipt={selectedRow}
-        anchorEl={anchorEl}
-        menuOpen={menuOpen}
-        setGoodReceiptLineItems={setGoodReceiptLineItems}
-        handleMenuClose={handleMenuClose}
-        handleClickView={handleOpenViewDialog}
+      <UpdateBinDialog
+        bin={selectedRow}
+        updateBin={updateBin}
+        openUpdateDialog={openUpdateDialog}
+        setOpenUpdateDialog={setOpenUpdateDialog}
+        handleAlertOpen={handleAlertOpen}
       />
       <Box
         component="main"
@@ -254,9 +269,9 @@ const ProcurementGoodReceipt = () => {
         }}
       >
         <Container maxWidth={false}>
-          <GoodReceiptListToolbar
+          <BinToolbar
             disabled={disabled}
-            numGoodReceipts={selectedRows.length}
+            numBin={selectedRows.length}
             handleClickOpen={handleClickOpen}
             handleConfirmDialogOpen={handleConfirmDialogOpen}
             handleSearch={handleSearch}
@@ -271,8 +286,8 @@ const ProcurementGoodReceipt = () => {
                       return row;
                     } else {
                       return (
-                        row.recipientName.toLowerCase().includes(search) ||
-                        row.id.toString().includes(search)
+                        row.name.toLowerCase().includes(search) ||
+                        row.warehouse.id.toString().includes(search)
                       );
                     }
                   })}
@@ -283,7 +298,7 @@ const ProcurementGoodReceipt = () => {
                   components={{
                     Toolbar: GridToolbar,
                   }}
-                  disableSelectionOnClick //Check if row selection is needed
+                  disableSelectionOnClick
                   checkboxSelection
                   onSelectionModelChange={(ids) => {
                     setSelectedRows(ids);
@@ -298,4 +313,4 @@ const ProcurementGoodReceipt = () => {
   );
 };
 
-export default ProcurementGoodReceipt;
+export default Bin;

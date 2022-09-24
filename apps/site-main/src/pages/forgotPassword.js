@@ -3,7 +3,7 @@ import { useFormik } from 'formik';
 import { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import * as Yup from 'yup';
-import { Helmet } from 'react-helmet';
+import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { NotificationAlert } from '../components/notification-alert';
 
 const ForgotPassword = () => {
@@ -66,9 +66,11 @@ const ForgotPassword = () => {
 
   return (
     <>
-      <Helmet>
-        <title>{`Forgot Password | ${organisation?.name}`}</title>
-      </Helmet>
+      <HelmetProvider>
+        <Helmet>
+          <title>{`Forgot Password | ${organisation?.name}`}</title>
+        </Helmet>
+      </HelmetProvider>
       <NotificationAlert
         open={alertOpen}
         severity={alertSeverity}

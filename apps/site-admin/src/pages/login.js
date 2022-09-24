@@ -9,7 +9,7 @@ import {
 import { useFormik } from 'formik';
 import { useLocation, useNavigate } from 'react-router-dom';
 import * as Yup from 'yup';
-import { Helmet } from 'react-helmet';
+import { Helmet, HelmetProvider } from 'react-helmet-async';
 
 async function loginUser(credentials) {
   const res = await fetch('http://localhost:3000/api/auth/login', {
@@ -80,9 +80,11 @@ const Login = () => {
 
   return (
     <>
-      <Helmet>
-        <title>{'Login | MaxxiMize'}</title>
-      </Helmet>
+      <HelmerProvider>
+        <Helmet>
+          <title>{'Login | MaxxiMize'}</title>
+        </Helmet>
+      </HelmerProvider>
       <Box
         component="main"
         sx={{

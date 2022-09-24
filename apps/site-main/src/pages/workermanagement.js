@@ -1,15 +1,17 @@
 import { Box, Container, Typography } from '@mui/material';
 import { WorkerListResults } from '../components/worker-management/worker-list-results';
-import { Helmet } from 'react-helmet';
+import { Helmet, HelmetProvider } from 'react-helmet-async';
 
 const WorkerManagement = () => {
   const user = JSON.parse(localStorage.getItem('user'));
 
   return (
     <>
-      <Helmet>
-        <title>{`Workers | ${user?.organisation?.name}`}</title>
-      </Helmet>
+      <HelmetProvider>
+        <Helmet>
+          <title>{`Workers | ${user?.organisation?.name}`}</title>
+        </Helmet>
+      </HelmetProvider>
       <Box
         component="main"
         sx={{

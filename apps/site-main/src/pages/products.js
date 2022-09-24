@@ -9,7 +9,7 @@ import {
 } from '@mui/material';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import { useEffect, useState } from 'react';
-import { Helmet } from 'react-helmet';
+import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { DashboardLayout } from '../components/dashboard-layout';
 import { NotificationAlert } from '../components/notification-alert';
 import { ConfirmDialog } from '../components/product/confirm-dialog';
@@ -141,7 +141,7 @@ const Products = (props) => {
   const handleDelete = async (ids) => {
     const newRows = rows.filter((row) => !ids.includes(row.id));
     setRows(newRows);
-    setSelectedRows([])
+    setSelectedRows([]);
     deleteProducts(type, ids)
       .then(() => {
         handleAlertOpen(`Successfully deleted ${typeString}(s)`, 'success');
@@ -210,12 +210,14 @@ const Products = (props) => {
 
   return (
     <>
-      <Helmet>
-        <title>
-          {`${typeString}s`}
-          {user && ` | ${user?.organisation?.name}`}
-        </title>
-      </Helmet>
+      <HelmetProvider>
+        <Helmet>
+          <title>
+            {`${typeString}s`}
+            {user && ` | ${user?.organisation?.name}`}
+          </title>
+        </Helmet>
+      </HelmetProvider>
       <Box
         component="main"
         sx={{

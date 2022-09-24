@@ -1,18 +1,18 @@
 import { Box, Card, Container, IconButton, Typography } from '@mui/material';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
-import { GoodReceiptListToolbar } from '../../components/procurement/receiving/good-receipt-list-toolbar';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import { useEffect, useState } from 'react';
 import MoreVert from '@mui/icons-material/MoreVert';
-import { GoodReceiptConfirmDialog } from '../../components/procurement/receiving/good-receipt-confirm-dialog';
-import { CreateGoodReceiptDialog } from '../../components/procurement/receiving/create-good-receipt-dialog';
 import { NotificationAlert } from '../../components/notification-alert';
-import { GoodReceiptMenu } from '../../components/procurement/receiving/good-receipt-menu';
-import { ViewGoodReceiptDialog } from '../../components/procurement/receiving/view-good-receipt-dialog';
-import DayJS from 'dayjs';
+import { WarehouseToolbar } from '../../components/inventory/warehouse/warehouse-toolbar';
+import { ViewBinDialog } from '../../components/inventory/warehouse/view-bin-dialog';
+import { CreateWarehouseDialog } from '../../components/inventory/warehouse/create-warehouse-dialog';
+import { WarehouseConfirmDialog } from '../../components/inventory/warehouse/warehouse-confirm-dialog';
+import { WarehouseActionMenu } from '../../components/inventory/warehouse/warehouse-action-menu';
+import { UpdateWarehouseDialog } from '../../components/inventory/warehouse/update-warehouse-dialog';
 
-const ProcurementGoodReceipt = () => {
-  const [goodReceipts, setGoodReceipts] = useState([]);
+const Warehouse = () => {
+  const [warehouses, setWarehouses] = useState([]);
   const [selectedRow, setSelectedRow] = useState();
   const [selectedRows, setSelectedRows] = useState([]);
   const [disabled, setDisabled] = useState();
@@ -20,9 +20,9 @@ const ProcurementGoodReceipt = () => {
   const user = JSON.parse(localStorage.getItem('user'));
   const organisationId = user.organisation.id;
 
-  //Load in list of goodReceipts, initial
+  //Load in list of warehouses, initial
   useEffect(() => {
-    retrieveAllGoodReceipts();
+    retrieveAllWarehouses();
   }, []);
 
   //Keep track of selectedRows for deletion
@@ -30,9 +30,9 @@ const ProcurementGoodReceipt = () => {
     setDisabled(selectedRows.length === 0);
   }, [selectedRows]);
 
-  //Retrieve all goodReceipts [TODO]
-  const retrieveAllGoodReceipts = async () => {
-    const response = await fetch(`http://localhost:3000/api/goods-receipts`);
+  //Retrieve all warehouses
+  const retrieveAllWarehouses = async () => {
+    const response = await fetch(`http://localhost:3000/api/warehouses`);
 
     let result = [];
 
@@ -40,7 +40,7 @@ const ProcurementGoodReceipt = () => {
       result = await response.json();
     }
 
-    setGoodReceipts(result);
+    setWarehouses(result);
   };
 
   //Search Function
@@ -51,26 +51,61 @@ const ProcurementGoodReceipt = () => {
   };
 
   //Menu Button
-  const [anchorEl, setAnchorEl] = useState(null);
-  const menuOpen = Boolean(anchorEl);
-  const handleMenuClick = (event) => {
-    setAnchorEl(event.currentTarget);
+  //   const [anchorEl, setAnchorEl] = useState(null);
+  //   const menuOpen = Boolean(anchorEl);
+  //   const handleMenuClick = (event) => {
+  //     setAnchorEl(event.currentTarget);
+  //   };
+  //   const handleMenuClose = () => {
+  //     setAnchorEl(null);
+  //   };
+
+  //   const binMenuButton = (params) => {
+  //     return (
+  //       <IconButton
+  //         // disabled={params.row.bins?.length == 0}
+  //         onClick={(event) => {
+  //           setSelectedRow(params.row);
+  //           handleMenuClick(event);
+  //         }}
+  //       >
+  //         <KitchenIcon />
+  //       </IconButton>
+  //     );
+  //   };
+
+  //Action Menu
+  const [anchorElUpdate, setAnchorElUpdate] = useState(null);
+  const actionMenuOpen = Boolean(anchorElUpdate);
+  const handleActionMenuClick = (event) => {
+    setAnchorElUpdate(event.currentTarget);
   };
-  const handleMenuClose = () => {
-    setAnchorEl(null);
+  const handleActionMenuClose = () => {
+    setAnchorElUpdate(null);
   };
 
   const menuButton = (params) => {
     return (
       <IconButton
+        // disabled={params.row.bins?.length == 0}
         onClick={(event) => {
           setSelectedRow(params.row);
-          handleMenuClick(event);
+          handleActionMenuClick(event);
         }}
       >
         <MoreVert />
       </IconButton>
     );
+  };
+
+  //Update warehouse List
+  const updateWarehouse = (warehouse) => {
+    const indexOfEditWarehouse = warehouses.findIndex(
+      (currentWarehouse) => currentWarehouse.id === warehouse.id
+    );
+    const newWarehouses = [...warehouses];
+    newWarehouses[indexOfEditWarehouse] = warehouse;
+    setWarehouses(newWarehouses);
   };
 
   //Alert Notification
@@ -95,27 +130,26 @@ const ProcurementGoodReceipt = () => {
     setOpen(true);
   };
 
-  //View Good Receipt dialog
+  //View Bin dialog
   const [openViewDialog, setOpenViewDialog] = useState(false);
+  const [selectedBin, setSelectedBin] = useState('');
 
   const handleOpenViewDialog = () => {
     setOpenViewDialog(true);
   };
 
-  //Good Receipt line items from the bin
-  const [goodReceiptLineItems, setGoodReceiptLineItems] = useState([]);
+  //Update Dialog helpers
+  const [openUpdateDialog, setOpenUpdateDialog] = useState(false);
+  const handleUpdateDialog = () => {
+    setOpenUpdateDialog(true);
+  };
 
-  //Load in list of line items
-  useEffect(() => {
-    setGoodReceiptLineItems(selectedRow?.goodReceiptLineItems);
-  }, [openViewDialog]);
-
-  //Add a new good receipt entry to the list
-  const addGoodReceipt = (goodReceipt) => {
+  //Add a new warehouse entry to the list
+  const addWarehouse = (warehouse) => {
     try {
-      const updatedGoodReceipts = [...goodReceipts, goodReceipt];
+      const updatedWarehouses = [...warehouses, warehouse];
 
-      setGoodReceipts(updatedGoodReceipts);
+      setWarehouses(updatedWarehouses);
     } catch {
       console.log('An erorr occured please try again later');
     }
@@ -131,7 +165,7 @@ const ProcurementGoodReceipt = () => {
   };
 
   //Handle Delete
-  //Deleting a goodReceipt entry, calling update API
+  //Deleting a warehouse entry
   //Also alerts user of ourcome
   const handleDelete = async (selectedIds) => {
     const requestOptions = {
@@ -139,22 +173,27 @@ const ProcurementGoodReceipt = () => {
     };
 
     selectedIds.forEach((currentId) => {
-      fetch(
-        `http://localhost:3000/api/good-receipts/${currentId}`,
-        requestOptions
-      )
+      fetch(`http://localhost:3000/api/warehouses/${currentId}`, requestOptions)
         .then(() => {
-          handleAlertOpen(`Successfully deleted good receipt(s)`, 'success');
+          handleAlertOpen(`Successfully deleted warehouse(s)`, 'success');
         })
         .catch((error) => {
-          handleAlertOpen(`Failed to delete good receipt(s):${error}`, 'error');
+          handleAlertOpen(`Failed to delete warehouse(s):${error}`, 'error');
         });
     });
 
-    setGoodReceipts((result) =>
-      result.filter((goodReceipt) => !selectedIds.includes(goodReceipt.id))
+    setWarehouses(
+      warehouses.filter((warehouse) => !selectedIds.includes(warehouse.id))
     );
   };
+
+  //Batch line items from the bin
+  const [batchLineItems, setBatchLineItems] = useState([]);
+
+  //Load in list of line items
+  useEffect(() => {
+    setBatchLineItems(selectedBin?.batchLineItems);
+  }, [openViewDialog]);
 
   //Columns for datagrid, column headers & specs
   const columns = [
@@ -165,31 +204,22 @@ const ProcurementGoodReceipt = () => {
       flex: 1,
     },
     {
-      field: 'purchaseOrderId',
-      headerName: 'Purchase Order ID',
-      width: 200,
-      flex: 2,
-      //   valueGetter: (params) => {
-      //     if (params.row.purchaseOrder.id) {
-      //       return params.row.purchaseOrder.id;
-      //     } else {
-      //       return '';
-      //     }
-      //   },
-    },
-    {
-      field: 'recipientName',
-      headerName: 'Recipient Name',
-      width: 150,
-      flex: 7,
-    },
-    {
-      field: 'createdDateTime',
-      headerName: 'Date Received',
+      field: 'name',
+      headerName: 'Name',
       width: 200,
       flex: 3,
-      valueFormatter: (params) =>
-        DayJS(params?.value).format('DD MMM YYYY hh:mm a'),
+    },
+    {
+      field: 'address',
+      headerName: 'Address',
+      width: 200,
+      flex: 4,
+    },
+    {
+      field: 'description',
+      headerName: 'Description',
+      width: 150,
+      flex: 6,
     },
     {
       field: 'action',
@@ -201,13 +231,13 @@ const ProcurementGoodReceipt = () => {
   ];
 
   //Row for datagrid, set the list returned from API
-  const rows = goodReceipts;
+  const rows = warehouses;
 
   return (
     <>
       <HelmetProvider>
         <Helmet>
-          <title>{`Good Receipt | ${user?.organisation?.name}`}</title>
+          <title>{`Warehouse | ${user?.organisation?.name}`}</title>
         </Helmet>
       </HelmetProvider>
       <NotificationAlert
@@ -216,34 +246,53 @@ const ProcurementGoodReceipt = () => {
         text={alertText}
         handleClose={handleAlertClose}
       />
-      <CreateGoodReceiptDialog
+      <CreateWarehouseDialog
         open={open}
         setOpen={setOpen}
-        addGoodReceipt={addGoodReceipt}
+        addWarehouse={addWarehouse}
         handleAlertOpen={handleAlertOpen}
       />
-      <GoodReceiptConfirmDialog
+      <WarehouseConfirmDialog
         open={confirmDialogOpen}
         handleClose={handleConfirmDialogClose}
-        dialogTitle={`Delete Good Receipt(s)`}
-        dialogContent={`Confirm deletion of Good Receipt(s)?`}
+        dialogTitle={`Delete Warehouse(s)`}
+        dialogContent={`Confirm deletion of Warehouse(s)?`}
         dialogAction={() => {
           handleDelete(selectedRows);
         }}
       />
-      <ViewGoodReceiptDialog
-        goodReceipt={selectedRow}
-        openViewDialog={openViewDialog}
-        setOpenViewDialog={setOpenViewDialog}
-        goodReceiptLineItems={goodReceiptLineItems}
-      />
-      <GoodReceiptMenu
-        goodReceipt={selectedRow}
+      {/* <WarehouseBinMenu
+        bins={selectedRow?.bins}
+        setSelectedBin={setSelectedBin}
+        setBatchLineItems={setBatchLineItems}
         anchorEl={anchorEl}
         menuOpen={menuOpen}
-        setGoodReceiptLineItems={setGoodReceiptLineItems}
         handleMenuClose={handleMenuClose}
         handleClickView={handleOpenViewDialog}
+      /> */}
+
+      <WarehouseActionMenu
+        bins={selectedRow?.bins}
+        setSelectedBin={setSelectedBin}
+        setBatchLineItems={setBatchLineItems}
+        anchorElUpdate={anchorElUpdate}
+        actionMenuOpen={actionMenuOpen}
+        handleActionMenuClose={handleActionMenuClose}
+        handleClickUpdate={handleUpdateDialog}
+        handleClickView={handleOpenViewDialog}
+      />
+      <ViewBinDialog
+        bin={selectedBin}
+        batchLineItems={batchLineItems}
+        openViewDialog={openViewDialog}
+        setOpenViewDialog={setOpenViewDialog}
+      />
+      <UpdateWarehouseDialog
+        warehouse={selectedRow}
+        updateWarehouse={updateWarehouse}
+        openUpdateDialog={openUpdateDialog}
+        setOpenUpdateDialog={setOpenUpdateDialog}
+        handleAlertOpen={handleAlertOpen}
       />
       <Box
         component="main"
@@ -254,9 +303,9 @@ const ProcurementGoodReceipt = () => {
         }}
       >
         <Container maxWidth={false}>
-          <GoodReceiptListToolbar
+          <WarehouseToolbar
             disabled={disabled}
-            numGoodReceipts={selectedRows.length}
+            numWarehouse={selectedRows.length}
             handleClickOpen={handleClickOpen}
             handleConfirmDialogOpen={handleConfirmDialogOpen}
             handleSearch={handleSearch}
@@ -271,8 +320,8 @@ const ProcurementGoodReceipt = () => {
                       return row;
                     } else {
                       return (
-                        row.recipientName.toLowerCase().includes(search) ||
-                        row.id.toString().includes(search)
+                        row.name.toLowerCase().includes(search) ||
+                        row.address.toLowerCase().includes(search)
                       );
                     }
                   })}
@@ -298,4 +347,4 @@ const ProcurementGoodReceipt = () => {
   );
 };
 
-export default ProcurementGoodReceipt;
+export default Warehouse;
