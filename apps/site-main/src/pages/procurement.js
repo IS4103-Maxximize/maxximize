@@ -1,6 +1,6 @@
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { Box, Container, Grid, Typography } from '@mui/material';
-import { ModuleCard } from '../components/procurement/module-card';
+import { ModuleCard } from '../components/module-card';
 
 const orderingModules = [
   {

@@ -153,7 +153,7 @@ const Warehouse = () => {
 
       setWarehouses(updatedWarehouses);
     } catch {
-      console.log('An erorr occured please try again later');
+      console.log('An error occured please try again later');
     }
   };
 
