@@ -1,19 +1,18 @@
 import MoreVert from "@mui/icons-material/MoreVert";
 import { Box, Card, CardContent, Container, IconButton, Typography } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
-import { format, parseISO } from "date-fns";
 import { useEffect, useState } from "react";
-import {Helmet, HelmetProvider} from "react-helmet-async";
+import Helmet from "react-helmet";
+import { BOMCreateDialog } from "../../components/bom/bom-create-dialog";
+import { BOMUpdateDialog } from "../../components/bom/bom-update-dialog";
 import { DashboardLayout } from "../../components/dashboard-layout";
 import { NotificationAlert } from "../../components/notification-alert";
-import { PODialog } from "../../components/procurement-ordering/purchase-order-dialog";
-import { POMenu } from "../../components/procurement-ordering/purchase-order-menu";
-import { Toolbar } from "../../components/toolbar";
 import { ConfirmDialog } from "../../components/product/confirm-dialog";
-import { fetchPurchaseOrders, deletePurchaseOrders } from "../../helpers/procurement-ordering/purchase-order";
-// import { purchaseOrders } from "../../__mocks__/purchase-orders";
+import { ProductMenu } from "../../components/product/product-menu";
+import { Toolbar } from "../../components/toolbar";
+import { deleteBOMs, fetchBOMs } from "../../helpers/bom";
 
-export const PurchaseOrder = (props) => {
+export const BillOfMaterial = (props) => {
   const user = JSON.parse(localStorage.getItem('user'));
   const organisationId = user ? user.organisation.id : null;
 
@@ -25,17 +24,16 @@ export const PurchaseOrder = (props) => {
   const [selectedRows, setSelectedRows] = useState([]); // Selected Row IDs
   const [selectedRow, setSelectedRow] = useState();
 
-  const getPOs = async () => {
-    // return purchaseOrders;
-    fetchPurchaseOrders(organisationId)
+  const getBOMs = async () => {
+    fetchBOMs(organisationId)
       .then(res => setRows(res))
-      .catch(err => handleAlertOpen('Failed to fetch Purchase Orders', 'error'))
+      .catch(err => handleAlertOpen('Failed to fetch Bill Of Materials', 'error'))
   }
 
   useEffect(() => {
     // get Purchase Orders
     setLoading(true);
-    getPOs();
+    getBOMs();
   }, []);
 
   useEffect(() => {
@@ -67,7 +65,7 @@ export const PurchaseOrder = (props) => {
   };
   // Add Button
   const handleAddClick = () => {
-    setAction('POST');
+    // setAction('POST');
     setSelectedRow(null);
   }
   // Delete Button
@@ -105,24 +103,46 @@ export const PurchaseOrder = (props) => {
   };
 
 
-  // FormDialog Helpers
-  const [formDialogOpen, setFormDialogOpen] = useState(false);
-  const handleFormDialogOpen = () => {
-    setFormDialogOpen(true);
+  // Create Dialog Helpers
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const handleCreateDialogOpen = () => {
+    setCreateDialogOpen(true);
   };
-  const handleFormDialogClose = () => {
-    setFormDialogOpen(false);
+  const handleCreateDialogClose = () => {
+    setCreateDialogOpen(false);
   };
 
   useEffect(() => {
-    if (!formDialogOpen) {
+    console.log(createDialogOpen)
+    if (!createDialogOpen) {
       setLoading(true);
-      getPOs();
+      getBOMs();
     }
-    if (formDialogOpen) {
+    if (createDialogOpen) {
       console.log(selectedRow);
     }
-  }, [formDialogOpen]);
+  }, [createDialogOpen]);
+
+
+  // Update Dialog Helpers
+  const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
+  const handleUpdateDialogOpen = () => {
+    setUpdateDialogOpen(true);
+  };
+  const handleUpdateDialogClose = () => {
+    setUpdateDialogOpen(false);
+  };
+
+  useEffect(() => {
+    console.log(updateDialogOpen)
+    if (!updateDialogOpen) {
+      setLoading(true);
+      getBOMs();
+    }
+    if (updateDialogOpen) {
+      console.log(selectedRow);
+    }
+  }, [updateDialogOpen]);
 
 
   // ConfirmDialog Helpers
@@ -137,46 +157,34 @@ export const PurchaseOrder = (props) => {
   
   // CRUD handlerss
   const handleDelete = async (ids) => {
-    // const newRows = rows.filter(row => !ids.includes(row.id));
-    // setRows(newRows);
     setSelectedRows([]);
-    deletePurchaseOrders(ids)
-      .then(() => handleAlertOpen('Successfully deleted Purchase Order(s)!', 'success'))
-      .then(() => getPOs());
+    deleteBOMs(ids)
+      .then(() => handleAlertOpen('Successfully deleted Bill Of Material(s)!', 'success'))
+      .then(() => getBOMs());
   }
 
   // DataGrid Columns
   const columns = [
     {
       field: 'id',
-      headerName: 'PO ID',
+      headerName: 'BOM ID',
       flex: 1,
     },
     {
-      field: 'status',
-      headerName: 'Status',
-      flex: 1,
-    },
-    {
-      field: 'created',
-      headerName: 'Date Created',
+      field: 'name',
+      headerName: 'Final Good',
       flex: 1,
       valueGetter: (params) => {
-        return format(parseISO(params.row.created), 'dd/MM/yyyy');
+        return params.row ? params.row.finalGood.name : '';
       }
     },
     {
-      field: 'deliveryDate',
-      headerName: 'Delivery Date',
+      field: 'skuCode',
+      headerName: 'SKU',
       flex: 1,
       valueGetter: (params) => {
-        return format(parseISO(params.row.deliveryDate), 'dd/MM/yyyy');
+        return params.row ? params.row.finalGood.skuCode : '';
       }
-    },
-    {
-      field: 'deliveryAddress',
-      headerName: 'Delivery Address',
-      flex: 3,
     },
     {
       field: 'actions',
@@ -189,14 +197,12 @@ export const PurchaseOrder = (props) => {
 
   return (
     <>
-	<HelmetProvider>
       <Helmet>
         <title>
-          Purchase Orders
+          BOM
           {user && ` | ${user?.organisation?.name}`}
         </title>
       </Helmet>
-	  </HelmetProvider>
       <Box
         component="main"
         sx={{
@@ -215,38 +221,42 @@ export const PurchaseOrder = (props) => {
           />
           <Toolbar
             key="toolbar"
-            name={'Purchase Order'}
+            name={'Bill Of Material'}
             numRows={selectedRows.length}
             deleteDisabled={deleteDisabled}
             handleSearch={handleSearch}
             handleAdd={handleAddClick}
-            handleFormDialogOpen={handleFormDialogOpen}
+            handleFormDialogOpen={handleCreateDialogOpen}
             handleConfirmDialogOpen={handleConfirmDialogOpen}
           />
-          <POMenu 
-            key="po-menu"
+          <BOMCreateDialog
+            key="bom-create-dialog"
+            open={createDialogOpen}
+            handleClose={handleCreateDialogClose}
+            string={'Bill Of Material'}
+            handleAlertOpen={handleAlertOpen}
+          />
+          <BOMUpdateDialog
+            key="bom-update-dialog"
+            open={updateDialogOpen}
+            handleClose={handleUpdateDialogClose}
+            string={'Bill Of Material'}
+            bom={selectedRow}
+            handleAlertOpen={handleAlertOpen}
+          />
+          <ProductMenu 
+            key="bom-menu"
             anchorEl={anchorEl}
             menuOpen={menuOpen}
+            handleClickOpen={handleUpdateDialogOpen}
             handleMenuClose={handleMenuClose}
             handleClickViewEdit={handleClickViewEdit}
-            handleFormDialogOpen={handleFormDialogOpen}
-          />
-          <PODialog
-            key="po-dialog"
-            action={action}
-            open={formDialogOpen}
-            handleClose={handleFormDialogClose}
-            string={'Purchase Order'}
-            purchaseOrder={selectedRow}
-            // addPO
-            // updatePO
-            handleAlertOpen={handleAlertOpen}
           />
           <ConfirmDialog
             open={confirmDialogOpen}
             handleClose={handleConfirmDialogClose}
-            dialogTitle={`Delete Purchase Order(s)`}
-            dialogContent={`Confirm deletion of Purchase Order(s)?`}
+            dialogTitle={`Delete Bill Of Material(s)`}
+            dialogContent={`Confirm deletion of Bill Of Material(s)?`}
             dialogAction={() => {
               handleDelete(selectedRows);
             }}
@@ -283,7 +293,7 @@ export const PurchaseOrder = (props) => {
                 }}
               >
                 <CardContent>
-                  <Typography>{`No Purchase Orders Found`}</Typography>
+                  <Typography>{`No Bill Of Materials Found`}</Typography>
                 </CardContent>
               </Card>
             )}
@@ -294,6 +304,6 @@ export const PurchaseOrder = (props) => {
   );
 };
 
-PurchaseOrder.getLayout = (page) => <DashboardLayout>{page}</DashboardLayout>;
+BillOfMaterial.getLayout = (page) => <DashboardLayout>{page}</DashboardLayout>;
 
-export default PurchaseOrder;
+export default BillOfMaterial;

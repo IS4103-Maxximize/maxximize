@@ -52,7 +52,7 @@ export class BillOfMaterialsService {
         })
         return transactionalEntityManager.save(newBillOfMaterial)
       })
-      return newBillOfMaterial
+      return await this.findOne(newBillOfMaterial.id);
 
     } catch (error) {
       throw new NotFoundException('The Entity cannot be found')
@@ -68,7 +68,21 @@ export class BillOfMaterialsService {
     });
   }
 
-
+  async findAllByOrg(id: number): Promise<BillOfMaterial[]> {
+    return this.billOfMaterialRepository.find({
+      where: {
+        finalGood: {
+          organisation: {
+            id: id
+          }
+        }
+      },
+      relations: [
+        "finalGood",
+        "bomLineItems.rawMaterial"
+      ]
+    });
+  }
 
   async findOne(id: number): Promise<BillOfMaterial> {
     try {

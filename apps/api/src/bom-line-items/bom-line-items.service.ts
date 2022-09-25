@@ -1,13 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { BillOfMaterial } from '../bill-of-materials/entities/bill-of-material.entity';
-import { Product } from '../products/entities/product.entity';
+import { RawMaterial } from '../raw-materials/entities/raw-material.entity';
 import { CreateBomLineItemDto } from './dto/create-bom-line-item.dto';
 import { UpdateBomLineItemDto } from './dto/update-bom-line-item.dto';
 import { BomLineItem } from './entities/bom-line-item.entity';
-import { NotFoundException } from '@nestjs/common';
-import { RawMaterial } from '../raw-materials/entities/raw-material.entity';
 
 @Injectable()
 export class BomLineItemsService {
@@ -66,7 +64,7 @@ export class BomLineItemsService {
     arrayOfKeyValues.forEach(([key, value]) => {
       bomLineItemToUpdate[key] = value
     })
-    return this.billOfMaterialRepository.save(bomLineItemToUpdate)
+    return await this.bomLineItemRepository.save(bomLineItemToUpdate);
   }
 
   async remove(id: number): Promise<BomLineItem> {

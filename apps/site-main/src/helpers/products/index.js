@@ -2,12 +2,14 @@ import { apiHost, headers } from '../constants';
 
 export const fetchProducts = async (type, organisationId) => {
   // console.log(organisationId);
-  const apiUrl = `${apiHost}/${type}/orgId/${organisationId}`;
-  const result = await fetch(apiUrl);
-
-  const products = await result.json();
-
-  return products;
+  let apiUrl;
+  if (type) {
+    apiUrl = `${apiHost}/${type}/orgId/${organisationId}`;  
+  }
+  if (!type) {
+    apiUrl = `${apiHost}/products/all/${organisationId}`;
+  }
+  return fetch(apiUrl).then(response => response.json());
 };
 
 export const createProduct = async (type, values, organisationId) => {

@@ -15,7 +15,7 @@ import { NotificationAlert } from '../../components/notification-alert';
 import { SalesInquiryDialog } from '../../components/procurement-ordering/sales-inquiry-dialog';
 import { SalesInquiryMenu } from '../../components/procurement-ordering/sales-inquiry.menu';
 import { SupplierDialog } from '../../components/procurement-ordering/supplier-dialog';
-import { Toolbar } from '../../components/procurement-ordering/toolbar';
+import { Toolbar } from '../../components/toolbar';
 import { ConfirmDialog } from '../../components/product/confirm-dialog';
 import {
   deleteSalesInquiries,

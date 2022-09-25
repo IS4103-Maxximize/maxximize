@@ -6,6 +6,8 @@ import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
 import RequestQuoteIcon from '@mui/icons-material/RequestQuote';
 import HealthAndSafetyIcon from '@mui/icons-material/HealthAndSafety';
 import ListAltIcon from '@mui/icons-material/ListAlt';
+import EngineeringIcon from '@mui/icons-material/Engineering';
+import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import WarehouseIcon from '@mui/icons-material/Warehouse';
 import {
   Box,
@@ -28,6 +30,7 @@ const items = [
     title: 'Worker Management',
     access: ['admin', 'superadmin'],
   },
+  // Products
   {
     href: '/raw-materials',
     icon: <RawOnIcon fontSize="small" />,
@@ -40,17 +43,18 @@ const items = [
     title: 'Final Goods',
     access: ['manager', 'superadmin'],
   },
-  {
-    href: '/procurement',
-    icon: <AddShoppingCartIcon fontSize="small" />,
-    title: 'Procurement',
-    access: ['manager', 'factoryworker', 'superadmin'],
-  },
+  
   {
     href: '/businessrelations',
     icon: <CorporateFareIcon fontSize="small" />,
     title: 'Business Relations',
     access: ['admin', 'superadmin'],
+  },
+  {
+    href: '/procurement',
+    icon: <AddShoppingCartIcon fontSize="small" />,
+    title: 'Procurement',
+    access: ['manager', 'factoryworker', 'superadmin'],
   },
   {
     href: '/qualityAssurance',
@@ -64,32 +68,18 @@ const items = [
     title: 'Inventory',
     access: ['superadmin', 'manager', 'factoryworker'],
   },
+  // Production
+  // {
+  //   href: '/production',
+  //   icon: <EngineeringIcon fontSize="small" />,
+  //   title: 'Production',
+  //   access: ['manager', 'factoryworker', 'superadmin'],
+  // },
   {
-    href: '/procurement/sales-inquiry',
-    icon: <QuestionAnswerIcon fontSize="small" />,
-    title: 'Sales Inquiry',
-    access: [
-      'superadmin',
-      // 'manager',
-    ],
-  },
-  {
-    href: '/procurement/quotation',
-    icon: <RequestQuoteIcon fontSize="small" />,
-    title: 'Quotation Management',
-    access: [
-      'superadmin',
-      // 'manager',
-    ],
-  },
-  {
-    href: '/procurement/purchase-order',
-    icon: <ListAltIcon fontSize="small" />,
-    title: 'Purchase Order',
-    access: [
-      'superadmin',
-      // 'manager',
-    ],
+    href: '/production/bill-of-material',
+    icon: <FormatListBulletedIcon fontSize="small" />,
+    title: 'Bill Of Material',
+    access: ['superadmin'],
   },
 ];
 

@@ -16,6 +16,7 @@ import ProcurementGoodReceipt from './pages/procurement/goodreceipt';
 import PurchaseOrder from './pages/procurement/purchase-order';
 import Quotation from './pages/procurement/quotation';
 import SalesInquiry from './pages/procurement/sales-inquiry';
+import BillOfMaterial from './pages/production/bom';
 import Products from './pages/products';
 import ProtectedRoute from './pages/protectedRoute';
 import ResetPassword from './pages/resetpassword';
@@ -156,6 +157,14 @@ const routes = (
               element={<ProcurementGoodReceipt />}
             ></Route>
 
+            {/* Production */}
+            {/* <Route path="production" element={<Production />}></Route> */}
+            {/* Production Modules */}
+            <Route
+              path="production/bill-of-material"
+              element={<BillOfMaterial />}
+            ></Route>
+            
             {/* Inventory */}
             <Route path="inventory" element={<Inventory />}></Route>
             {/* Inventory Modules */}
