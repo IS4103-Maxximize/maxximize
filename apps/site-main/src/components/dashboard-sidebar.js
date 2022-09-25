@@ -50,18 +50,11 @@ const items = [
     title: 'Business Relations',
     access: ['admin', 'superadmin'],
   },
-  // Procurement
   {
     href: '/procurement',
     icon: <AddShoppingCartIcon fontSize="small" />,
     title: 'Procurement',
     access: ['manager', 'factoryworker', 'superadmin'],
-  },
-  {
-    href: '/businessrelations',
-    icon: <CorporateFareIcon fontSize="small" />,
-    title: 'Business Relations',
-    access: ['admin', 'superadmin'],
   },
   {
     href: '/qualityAssurance',
@@ -74,24 +67,6 @@ const items = [
     icon: <WarehouseIcon fontSize="small" />,
     title: 'Inventory',
     access: ['superadmin', 'manager', 'factoryworker'],
-  },
-  {
-    href: '/procurement/sales-inquiry',
-    icon: <QuestionAnswerIcon fontSize="small" />,
-    title: 'Sales Inquiry',
-    access: ['superadmin'],
-  },
-  {
-    href: '/procurement/quotation',
-    icon: <RequestQuoteIcon fontSize="small" />,
-    title: 'Quotation Management',
-    access: ['superadmin'],
-  },
-  {
-    href: '/procurement/purchase-order',
-    icon: <ListAltIcon fontSize="small" />,
-    title: 'Purchase Order',
-    access: ['superadmin'],
   },
   // Production
   // {
