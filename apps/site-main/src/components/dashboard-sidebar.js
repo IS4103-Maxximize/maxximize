@@ -9,6 +9,8 @@ import ListAltIcon from '@mui/icons-material/ListAlt';
 import EngineeringIcon from '@mui/icons-material/Engineering';
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import WarehouseIcon from '@mui/icons-material/Warehouse';
+import PrecisionManufacturingIcon from '@mui/icons-material/PrecisionManufacturing';
+import AddRoadIcon from '@mui/icons-material/AddRoad';
 import {
   Box,
   Button,
@@ -80,6 +82,18 @@ const items = [
     icon: <FormatListBulletedIcon fontSize="small" />,
     title: 'Bill Of Material',
     access: ['superadmin'],
+  },
+  {
+    href: '/asset-management/machine',
+    icon: <PrecisionManufacturingIcon fontSize="small" />,
+    title: 'Machine Management',
+    access: ['manager', 'factoryworker', 'superadmin'],
+  },
+  {
+    href: '/asset-management/production-line',
+    icon: <AddRoadIcon fontSize="small" />,
+    title: 'Production Line',
+    access: ['manager', 'factoryworker', 'superadmin'],
   },
 ];
 

@@ -29,6 +29,8 @@ import Warehouse from './pages/inventory/warehouse';
 import WorkerManagement from './pages/workermanagement';
 import Inventory from './pages/inventory';
 import Bin from './pages/inventory/bin';
+import MachineManagement from './pages/assetManagement/machineManagement';
+import ProductionLineManagement from './pages/assetManagement/productionLineManagement';
 
 const ROLES = {
   Admin: 'admin',
@@ -155,6 +157,16 @@ const routes = (
             <Route
               path="procurement/goodreceipt"
               element={<ProcurementGoodReceipt />}
+            ></Route>
+            
+          {/* Asset Management */}
+            <Route
+              path="asset-management/machine"
+              element={<MachineManagement />}
+            ></Route>
+            <Route
+              path="asset-management/production-line"
+              element={<ProductionLineManagement />}
             ></Route>
 
             {/* Production */}
