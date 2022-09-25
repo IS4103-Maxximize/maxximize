@@ -3,7 +3,7 @@ import { Box, Card, CardContent, Container, IconButton, Typography } from "@mui/
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { format, parseISO } from "date-fns";
 import { useEffect, useState } from "react";
-import Helmet from "react-helmet";
+import {Helmet, HelmetProvider} from "react-helmet-async";
 import { DashboardLayout } from "../../components/dashboard-layout";
 import { NotificationAlert } from "../../components/notification-alert";
 import { PODialog } from "../../components/procurement-ordering/purchase-order-dialog";
@@ -189,12 +189,14 @@ export const PurchaseOrder = (props) => {
 
   return (
     <>
+	<HelmetProvider>
       <Helmet>
         <title>
           Purchase Orders
           {user && ` | ${user?.organisation?.name}`}
         </title>
       </Helmet>
+	  </HelmetProvider>
       <Box
         component="main"
         sx={{

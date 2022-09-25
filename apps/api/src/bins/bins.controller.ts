@@ -22,6 +22,11 @@ export class BinsController {
     return this.binsService.findOne(+id);
   }
 
+  @Get('findAllByOrgId/:id')
+  findAllByOrgId(@Param('id') id: string) {
+    return this.binsService.findAllByOrganisationId(+id);
+  }
+
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateBinDto: UpdateBinDto) {
     return this.binsService.update(+id, updateBinDto);

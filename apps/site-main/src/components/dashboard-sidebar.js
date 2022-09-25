@@ -4,9 +4,11 @@ import RawOnIcon from '@mui/icons-material/RawOn';
 import CorporateFareIcon from '@mui/icons-material/CorporateFare';
 import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
 import RequestQuoteIcon from '@mui/icons-material/RequestQuote';
+import HealthAndSafetyIcon from '@mui/icons-material/HealthAndSafety';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import EngineeringIcon from '@mui/icons-material/Engineering';
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
+import WarehouseIcon from '@mui/icons-material/Warehouse';
 import {
   Box,
   Button,
@@ -54,6 +56,24 @@ const items = [
     icon: <AddShoppingCartIcon fontSize="small" />,
     title: 'Procurement',
     access: ['manager', 'factoryworker', 'superadmin'],
+  },
+  {
+    href: '/businessrelations',
+    icon: <CorporateFareIcon fontSize="small" />,
+    title: 'Business Relations',
+    access: ['admin', 'superadmin'],
+  },
+  {
+    href: '/qualityAssurance',
+    icon: <HealthAndSafetyIcon fontSize="small" />,
+    title: 'Quality Assurance',
+    access: ['manager', 'factoryworker', 'superadmin'],
+  },
+  {
+    href: '/inventory',
+    icon: <WarehouseIcon fontSize="small" />,
+    title: 'Inventory',
+    access: ['superadmin', 'manager', 'factoryworker'],
   },
   {
     href: '/procurement/sales-inquiry',

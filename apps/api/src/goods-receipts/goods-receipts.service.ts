@@ -7,6 +7,7 @@ import { CreateBatchDto } from '../batches/dto/create-batch.dto';
 import { FollowUpLineItemsService } from '../follow-up-line-items/follow-up-line-items.service';
 import { GrLineItemsService } from '../gr-line-items/gr-line-items.service';
 import { UpdatePurchaseOrderDto } from '../purchase-orders/dto/update-purchase-order.dto';
+import { PurchaseOrderStatus } from '../purchase-orders/enums/purchaseOrderStatus.enum';
 import { PurchaseOrdersService } from '../purchase-orders/purchase-orders.service';
 import { UsersService } from '../users/users.service';
 import { CreateGoodsReceiptDto } from './dto/create-goods-receipt.dto';
@@ -32,6 +33,7 @@ export class GoodsReceiptsService {
 
     try {
       const goodReceipt = new GoodsReceipt();
+      goodReceipt.organisationId = createGoodsReceiptDto.organisationId;
       goodReceipt.createdDateTime = createGoodsReceiptDto.createdDateTime;
       goodReceipt.description = createGoodsReceiptDto.description;
       const createGrLineDtos = createGoodsReceiptDto.goodsReceiptLineItemsDtos;
@@ -41,6 +43,7 @@ export class GoodsReceiptsService {
 
       const createBatchDto = new CreateBatchDto();
       createBatchDto.batchLineItems = [];
+      createBatchDto.organisationId = createGoodsReceiptDto.organisationId;
 
       for (const dto of createGrLineDtos) {
         const createdGrLineItem = await this.grLineItemService.createWithExistingTransaction(dto, queryRunner);
@@ -59,6 +62,11 @@ export class GoodsReceiptsService {
       }
 
       purchaseOrder.followUpLineItems = followUpLineItems
+      if (createFollowUpLineItemsDtos === undefined || createFollowUpLineItemsDtos.length === 0) {
+		purchaseOrder.status = PurchaseOrderStatus.FULFILLED;
+      } else {
+        purchaseOrder.status = PurchaseOrderStatus.PARTIALLYFULFILLED;
+      }
       queryRunner.manager.save(purchaseOrder);
 
       const recipient = await this.userService.findOne(createGoodsReceiptDto.recipientId);
@@ -83,11 +91,14 @@ export class GoodsReceiptsService {
 
   async findAll() {
     const goodsReceipts = await this.goodsReceiptRepository.find({
-      relations: ['goodReceiptLineItems.product']
+      relations: {
+        goodReceiptLineItems: {
+			product: true,
+		},
+        purchaseOrder: true,
+        batch: true
+      }
     });
-    if (goodsReceipts.length === 0 || goodsReceipts === undefined) {
-      throw new NotFoundException("No goods receipt(s) found");
-    }
     return goodsReceipts;
   }
 
@@ -96,13 +107,35 @@ export class GoodsReceiptsService {
       where: {
         id: id,
       },
-      relations: ['goodReceiptLineItems.product']
+      relations: {
+        goodReceiptLineItems: {
+			product: true,
+		},
+        purchaseOrder: true,
+        batch: true
+      }
     });
     if (goodsReceipt) {
       return goodsReceipt;
     } else {
       throw new NotFoundException(`Good receipt with ${id} is not found`);
     }
+  }
+
+  async findAllByOrganisationId(organisationId: number) {
+    const goodReceipts = await this.goodsReceiptRepository.find({
+      where: {
+        organisationId: organisationId
+      },
+      relations: {
+        goodReceiptLineItems: {
+			product: true,
+		},
+        purchaseOrder: true,
+        batch: true
+      }
+    });
+    return goodReceipts;
   }
 
   /*

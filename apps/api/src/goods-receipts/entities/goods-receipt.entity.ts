@@ -1,4 +1,4 @@
-import { Column, DeleteDateColumn, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, DeleteDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Batch } from "../../batches/entities/batch.entity";
 import { GrLineItem } from "../../gr-line-items/entities/gr-line-item.entity";
 import { PurchaseOrder } from "../../purchase-orders/entities/purchase-order.entity";
@@ -16,6 +16,9 @@ export class GoodsReceipt {
     recipientName: string
 
     @Column()
+    organisationId: number;
+
+    @Column()
     description: string;
 
     @DeleteDateColumn()
@@ -24,7 +27,7 @@ export class GoodsReceipt {
     @OneToMany(() => GrLineItem, grLineItem => grLineItem.goodReceipt)
     goodReceiptLineItems: GrLineItem[];
 
-    @OneToOne(() => PurchaseOrder)
+    @ManyToOne(() => PurchaseOrder, purchaseOrder => purchaseOrder.goodReceipts)
     @JoinColumn()
     purchaseOrder: PurchaseOrder;
 

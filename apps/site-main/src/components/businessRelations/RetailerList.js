@@ -94,7 +94,7 @@ export const RetailersList = ({orgId}) => {
         'success'
       );
     } catch {
-      console.log('An erorr occured please try again later');
+      console.log('An error occured please try again later');
     }
   };
 
@@ -205,7 +205,7 @@ export const RetailersList = ({orgId}) => {
           if (params.row?.contact?.phoneNumber) {
               return params.row.contact.phoneNumber
           } else {
-              ''
+              return ''
           }
         }
       },

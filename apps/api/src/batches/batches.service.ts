@@ -41,6 +41,7 @@ export class BatchesService {
   async createWithExistingTransaction(createBatchDto: CreateBatchDto, goodReceiptLineItems: GrLineItem[], queryRunner: QueryRunner) {
     const batch = new Batch();
     batch.batchNumber = createBatchDto.batchNumber;
+    batch.organisationId = createBatchDto.organisationId;
     
     const warehouses = await this.warehouseService.findAll();
     const batchLineItems = [];
@@ -118,12 +119,23 @@ export class BatchesService {
   }
 
   async findAll() {
-    return await this.batchRepository.find();
+    return await this.batchRepository.find({
+      relations: ["batchLineItems", "goodReceipt"]
+    });
   }
 
   async findOne(id: number) {
     return await this.batchRepository.findOne({
       where: { id },
+      relations: ["batchLineItems", "goodReceipt"]
+    });
+  }
+
+  async findAllByOrganisationId(id: number) {
+    return await this.batchRepository.find({
+      where: {
+        organisationId: id
+      },
       relations: ["batchLineItems", "goodReceipt"]
     });
   }

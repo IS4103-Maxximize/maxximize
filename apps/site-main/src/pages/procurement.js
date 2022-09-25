@@ -1,17 +1,8 @@
-import { Helmet } from 'react-helmet';
+import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { Box, Container, Grid, Typography } from '@mui/material';
-import { ModuleCard } from '../components/procurement/module-card';
+import { ModuleCard } from '../components/module-card';
 
 const orderingModules = [
-  //   {
-  //     id: 1,
-  //     media: '../assets/images/procurement/procurement-ordering.jpg',
-  //     description1: 'Handle product requisitions',
-  //     description2: 'Purchase orders and find suppliers',
-  //     title: 'Product Requisition',
-  //	href: 'productrequisition',
-  //     access: ['manager', 'factoryworker'],
-  //   },
   {
     id: 1,
     media: '../assets/images/procurement/procurement-sales-inquiry.jpg',
@@ -30,27 +21,27 @@ const orderingModules = [
     href: 'quotation',
     access: ['manager', 'factoryworker', 'superadmin'],
   },
-    {
-      id: 3,
-      media: '../assets/images/procurement/procurement-purchase-order.jpg',
-      description1: 'Handle purchase orders',
-      description2: 'Send purchase order to supplier',
-      title: 'Purchase Order',
-      href: 'purchase-order',
-      access: ['manager', 'factoryworker', 'superadmin'],
-    },
+  {
+    id: 3,
+    media: '../assets/images/procurement/procurement-purchase-order.jpg',
+    description1: 'Handle purchase orders',
+    description2: 'Send purchase order to supplier',
+    title: 'Purchase Order',
+    href: 'purchase-order',
+    access: ['manager', 'factoryworker', 'superadmin'],
+  },
 ];
 
 const receivingModules = [
-  //   {
-  //     id: 1,
-  //     media: '../assets/images/procurement/procurement-good-receipt.jpg',
-  //     description1: 'Handle Good Receipt',
-  //     description2: 'For incoming supply',
-  //     title: 'Good Receipt',
-  //     href: 'goodreceipt',
-  //     access: ['manager', 'factoryworker'],
-  //   },
+  {
+    id: 1,
+    media: '../assets/images/procurement/procurement-good-receipt.jpg',
+    description1: 'Handle Good Receipt',
+    description2: 'For incoming supply',
+    title: 'Good Receipt',
+    href: 'goodreceipt',
+    access: ['superadmin', 'manager', 'factoryworker'],
+  },
 ];
 
 const analyticsModules = [
@@ -70,9 +61,11 @@ const Procurement = () => {
 
   return (
     <>
-      <Helmet>
-        <title>{`Procurement | ${user?.organisation?.name}`}</title>
-      </Helmet>
+      <HelmetProvider>
+        <Helmet>
+          <title>{`Procurement | ${user?.organisation?.name}`}</title>
+        </Helmet>
+      </HelmetProvider>
       <Box
         component="main"
         sx={{
@@ -82,7 +75,9 @@ const Procurement = () => {
       >
         <Container maxWidth={false}>
           <Box sx={{ pt: 1 }}>
-            {user.role === 'manager' || user.role === 'factoryworker' || user.role === 'superadmin' ? (
+            {user.role === 'manager' ||
+            user.role === 'factoryworker' ||
+            user.role === 'superadmin' ? (
               <Typography sx={{ m: 1 }} variant="h4">
                 Ordering
               </Typography>
@@ -98,7 +93,9 @@ const Procurement = () => {
                   </Grid>
                 ))}
             </Grid>
-            {(user.role === 'manager' || user.role === 'factoryworker' || user.role === 'superadmin') &&
+            {(user.role === 'manager' ||
+              user.role === 'factoryworker' ||
+              user.role === 'superadmin') &&
             receivingModules.length > 0 ? (
               <Typography sx={{ m: 1 }} variant="h4">
                 Receiving
