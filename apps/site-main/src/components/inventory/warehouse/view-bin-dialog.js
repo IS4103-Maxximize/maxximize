@@ -10,6 +10,7 @@ import {
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useEffect, useState } from 'react';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
+import DayJS from 'dayjs';
 
 export const ViewBinDialog = ({
   bin,
@@ -37,7 +38,7 @@ export const ViewBinDialog = ({
     {
       field: 'productName',
       headerName: 'Product Name',
-      flex: 2,
+      flex: 3,
       width: 300,
       valueGetter: (params) => {
         if (params.row.product.name) {
@@ -52,7 +53,16 @@ export const ViewBinDialog = ({
       headerName: 'Quantity',
       flex: 1,
       width: 120,
-      editable: true,
+      editable: false,
+    },
+    {
+      field: 'expiryDate',
+      headerName: 'Expiry Date',
+      flex: 2,
+      width: 120,
+      editable: false,
+      valueFormatter: (params) =>
+        DayJS(params?.value).format('DD MMM YYYY hh:mm a'),
     },
   ];
 

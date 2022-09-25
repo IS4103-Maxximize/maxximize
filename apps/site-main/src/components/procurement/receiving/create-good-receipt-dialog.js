@@ -17,14 +17,17 @@ import {
   ListItemText,
   List,
   ListItem,
+  useTheme,
 } from '@mui/material';
 import { useFormik } from 'formik';
 import { useEffect, useState } from 'react';
 import * as Yup from 'yup';
 import CloseIcon from '@mui/icons-material/Close';
 import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
+import SwapVertIcon from '@mui/icons-material/SwapVert';
 import { CreateGoodReceiptDataGrid } from './good-receipt-data-grid';
 import { GoodReceiptConfirmDialog } from './good-receipt-confirm-dialog';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
 export const CreateGoodReceiptDialog = ({
   open,
@@ -36,6 +39,8 @@ export const CreateGoodReceiptDialog = ({
   const user = JSON.parse(localStorage.getItem('user'));
   const userId = user.id;
   const organisationId = user.organisation.id;
+  const theme = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down('lg'));
 
   //Error handling
   const [error, setError] = useState('');
@@ -510,37 +515,6 @@ export const CreateGoodReceiptDialog = ({
                 variant="outlined"
                 size="small"
               />
-              {/* <Autocomplete
-                options={purchaseOrders.map((purchaseOrder) =>
-                  purchaseOrder.id.toString()
-                )}
-                fullWidth
-                onChange={(e, value) =>
-                  formik.setFieldValue('purchaseOrderId', value)
-                }
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Purchase Order ID"
-                    error={Boolean(
-                      formik.touched.purchaseOrderId &&
-                        formik.errors.purchaseOrderId
-                    )}
-                    fullWidth
-                    helperText={
-                      formik.touched.purchaseOrderId &&
-                      formik.errors.purchaseOrderId
-                    }
-                    value={formik.values.purchaseOrderId}
-                    margin="normal"
-                    name="purchaseOrderId"
-                    onBlur={formik.handleBlur}
-                    onChange={formik.handleChange}
-                    variant="outlined"
-                    size="small"
-                  />
-                )}
-              /> */}
               <Box>
                 <Button
                   sx={{ marginLeft: 1 }}
@@ -553,54 +527,105 @@ export const CreateGoodReceiptDialog = ({
                 </Button>
               </Box>
             </Box>
-            <Box
-              display="flex"
-              justifyContent="space-evenly"
-              mt={3}
-              minHeight={470}
-            >
-              <Box sx={{ minWidth: 700 }}>
-                <CreateGoodReceiptDataGrid
-                  header="Accepted"
-                  products={acceptedProducts}
-                  columns={columnsForAccepted}
-                  setSelectionModel={setAcceptedSelectionModel}
-                  handleRowUpdate={handleRowUpdate}
-                  typeIn="accepted"
-                />
+
+            {/* At full width */}
+            {!fullScreen && (
+              <Box
+                display="flex"
+                justifyContent="space-evenly"
+                mt={3}
+                minHeight={470}
+              >
+                <Box sx={{ minWidth: 700 }}>
+                  <CreateGoodReceiptDataGrid
+                    header="Accepted"
+                    products={acceptedProducts}
+                    columns={columnsForAccepted}
+                    setSelectionModel={setAcceptedSelectionModel}
+                    handleRowUpdate={handleRowUpdate}
+                    typeIn="accepted"
+                  />
+                </Box>
+                <Box display="flex" alignItems="center">
+                  <IconButton
+                    //sx={{ marginTop: 12 }}
+                    size="medium"
+                    disabled={
+                      (acceptedSelectionModel.length == 0 &&
+                        followUpSelectionModel.length == 0) ||
+                      (acceptedSelectionModel.length > 0 &&
+                        followUpSelectionModel.length > 0)
+                    }
+                    onClick={() => {
+                      const selectedIds =
+                        acceptedSelectionModel.length == 0
+                          ? new Set(followUpSelectionModel)
+                          : new Set(acceptedSelectionModel);
+                      handleSwap(selectedIds);
+                    }}
+                  >
+                    <SwapHorizIcon fontSize="large" />
+                  </IconButton>
+                </Box>
+                <Box sx={{ minWidth: 700 }}>
+                  <CreateGoodReceiptDataGrid
+                    header="Follow Up"
+                    products={followUpProducts}
+                    columns={columnsForFollowUp}
+                    setSelectionModel={setFollowUpSelectionModel}
+                    handleRowUpdate={handleRowUpdate}
+                    typeIn="followUp"
+                  />
+                </Box>
               </Box>
-              <Box display="flex" alignItems="center">
-                <IconButton
-                  //sx={{ marginTop: 12 }}
-                  size="medium"
-                  disabled={
-                    (acceptedSelectionModel.length == 0 &&
-                      followUpSelectionModel.length == 0) ||
-                    (acceptedSelectionModel.length > 0 &&
-                      followUpSelectionModel.length > 0)
-                  }
-                  onClick={() => {
-                    const selectedIds =
-                      acceptedSelectionModel.length == 0
-                        ? new Set(followUpSelectionModel)
-                        : new Set(acceptedSelectionModel);
-                    handleSwap(selectedIds);
-                  }}
-                >
-                  <SwapHorizIcon fontSize="large" />
-                </IconButton>
+            )}
+
+            {/* Without full width, render vertical */}
+            {fullScreen && (
+              <Box mt={3} minHeight={470}>
+                <Box sx={{ minWidth: 700 }}>
+                  <CreateGoodReceiptDataGrid
+                    header="Accepted"
+                    products={acceptedProducts}
+                    columns={columnsForAccepted}
+                    setSelectionModel={setAcceptedSelectionModel}
+                    handleRowUpdate={handleRowUpdate}
+                    typeIn="accepted"
+                  />
+                </Box>
+                <Box display="flex" justifyContent="center">
+                  <IconButton
+                    //sx={{ marginTop: 12 }}
+                    size="medium"
+                    disabled={
+                      (acceptedSelectionModel.length == 0 &&
+                        followUpSelectionModel.length == 0) ||
+                      (acceptedSelectionModel.length > 0 &&
+                        followUpSelectionModel.length > 0)
+                    }
+                    onClick={() => {
+                      const selectedIds =
+                        acceptedSelectionModel.length == 0
+                          ? new Set(followUpSelectionModel)
+                          : new Set(acceptedSelectionModel);
+                      handleSwap(selectedIds);
+                    }}
+                  >
+                    <SwapVertIcon fontSize="large" />
+                  </IconButton>
+                </Box>
+                <Box sx={{ minWidth: 700 }}>
+                  <CreateGoodReceiptDataGrid
+                    header="Follow Up"
+                    products={followUpProducts}
+                    columns={columnsForFollowUp}
+                    setSelectionModel={setFollowUpSelectionModel}
+                    handleRowUpdate={handleRowUpdate}
+                    typeIn="followUp"
+                  />
+                </Box>
               </Box>
-              <Box sx={{ minWidth: 700 }}>
-                <CreateGoodReceiptDataGrid
-                  header="Follow Up"
-                  products={followUpProducts}
-                  columns={columnsForFollowUp}
-                  setSelectionModel={setFollowUpSelectionModel}
-                  handleRowUpdate={handleRowUpdate}
-                  typeIn="followUp"
-                />
-              </Box>
-            </Box>
+            )}
 
             <Typography variant="h5" sx={{ marginBottom: 2 }}>
               Quality Assurance
