@@ -1,24 +1,26 @@
-import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
-import DoneAllIcon from '@mui/icons-material/DoneAll';
-import RawOnIcon from '@mui/icons-material/RawOn';
+import AddRoadIcon from '@mui/icons-material/AddRoad';
 import CorporateFareIcon from '@mui/icons-material/CorporateFare';
-import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
-import RequestQuoteIcon from '@mui/icons-material/RequestQuote';
+import DoneAllIcon from '@mui/icons-material/DoneAll';
+import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
+import FormatQuoteIcon from '@mui/icons-material/FormatQuote';
 import HealthAndSafetyIcon from '@mui/icons-material/HealthAndSafety';
 import ListAltIcon from '@mui/icons-material/ListAlt';
-import EngineeringIcon from '@mui/icons-material/Engineering';
-import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
+import LiveHelpIcon from '@mui/icons-material/LiveHelp';
+import PrecisionManufacturingIcon from '@mui/icons-material/PrecisionManufacturing';
+import RawOnIcon from '@mui/icons-material/RawOn';
+import ReceiptIcon from '@mui/icons-material/Receipt';
 import WarehouseIcon from '@mui/icons-material/Warehouse';
 import {
   Box,
   Button,
   Divider,
   Drawer,
+  Link,
   Typography,
   useMediaQuery,
 } from '@mui/material';
 import PropTypes from 'prop-types';
-import { Link } from 'react-router-dom';
+import { Link as RouterLink, useLocation } from 'react-router-dom';
 import { Selector as SelectorIcon } from '../icons/selector';
 import { User as UserIcon } from '../icons/user';
 import { Logo } from './logo';
@@ -30,7 +32,6 @@ const items = [
     title: 'Worker Management',
     access: ['admin', 'superadmin'],
   },
-  // Products
   {
     href: '/raw-materials',
     icon: <RawOnIcon fontSize="small" />,
@@ -43,7 +44,6 @@ const items = [
     title: 'Final Goods',
     access: ['manager', 'superadmin'],
   },
-
   {
     href: '/businessrelations',
     icon: <CorporateFareIcon fontSize="small" />,
@@ -51,9 +51,27 @@ const items = [
     access: ['admin', 'superadmin'],
   },
   {
-    href: '/procurement',
-    icon: <AddShoppingCartIcon fontSize="small" />,
-    title: 'Procurement',
+    href: '/procurement/sales-inquiry',
+    icon: <LiveHelpIcon fontSize="small" />,
+    title: 'Sales Inquiry',
+    access: ['manager', 'factoryworker', 'superadmin'],
+  },
+  {
+    href: '/procurement/quotation',
+    icon: <FormatQuoteIcon fontSize="small" />,
+    title: 'Quotation',
+    access: ['manager', 'factoryworker', 'superadmin'],
+  },
+  {
+    href: '/procurement/purchase-order',
+    icon: <ListAltIcon fontSize="small" />,
+    title: 'Purchase Order',
+    access: ['manager', 'factoryworker', 'superadmin'],
+  },
+  {
+    href: '/procurement/good-receipt',
+    icon: <ReceiptIcon fontSize="small" />,
+    title: 'Good Receipt',
     access: ['manager', 'factoryworker', 'superadmin'],
   },
   {
@@ -81,9 +99,22 @@ const items = [
     title: 'Bill Of Material',
     access: ['superadmin'],
   },
+  {
+    href: '/asset-management/machine',
+    icon: <PrecisionManufacturingIcon fontSize="small" />,
+    title: 'Machine Management',
+    access: ['manager', 'factoryworker', 'superadmin'],
+  },
+  {
+    href: '/asset-management/production-line',
+    icon: <AddRoadIcon fontSize="small" />,
+    title: 'Production Line',
+    access: ['manager', 'factoryworker', 'superadmin'],
+  },
 ];
 
 export const DashboardSidebar = (props) => {
+  const pathname = useLocation().pathname;
   const { open, onClose, user } = props;
   const lgUp = useMediaQuery((theme) => theme.breakpoints.up('lg'), {
     defaultMatches: true,
@@ -166,13 +197,44 @@ export const DashboardSidebar = (props) => {
       >
         {items
           .filter((item) => item.access.includes(user.role))
-          .map((item, index, disabled) => (
-            <Link to={item.href} style={{ textDecoration: 'none' }} key={index}>
-              <Button variant="contained" endIcon={item.icon}>
-                {item.title}
-              </Button>
-            </Link>
-          ))}
+          .map((item, index, disabled) => {
+            const active = pathname === item.href;
+            return (
+              <Link
+                component={RouterLink}
+                to={item.href}
+                key={index}
+                color="secondary"
+                underline="none"
+                sx={{ mr: 3 }}
+              >
+                <Button
+                  component="a"
+                  startIcon={item.icon}
+                  disableRipple
+                  sx={{
+                    backgroundColor: active && 'rgba(255,255,255, 0.08)',
+                    borderRadius: 1,
+                    color: active ? 'secondary.main' : 'neutral.300',
+                    fontWeight: active && 'fontWeightBold',
+                    justifyContent: 'flex-start',
+                    px: 3,
+                    textAlign: 'left',
+                    textTransform: 'none',
+                    width: '100%',
+                    '& .MuiButton-startIcon': {
+                      color: active ? 'secondary.main' : 'neutral.400',
+                    },
+                    '&:hover': {
+                      backgroundColor: 'rgba(255,255,255, 0.08)',
+                    },
+                  }}
+                >
+                  <Box sx={{ flexGrow: 1 }}>{item.title}</Box>
+                </Button>
+              </Link>
+            );
+          })}
       </Box>
     </Box>
   );

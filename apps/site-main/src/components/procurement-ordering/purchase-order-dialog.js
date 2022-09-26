@@ -272,6 +272,7 @@ export const PODialog = (props) => {
             )}
             {purchaseOrder && (
               <TextField
+                sx={{ width: 600 }}
                 label="Deliver To"
                 value={purchaseOrder.deliveryAddress}
                 disabled={purchaseOrder}
