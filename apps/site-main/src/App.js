@@ -5,12 +5,16 @@ import { DashboardLayout } from './components/dashboard-layout';
 import Layout from './components/Layout';
 import RequireAuth from './components/RequireAuth';
 import NotFound from './pages/404';
+import MachineManagement from './pages/assetManagement/machineManagement';
+import ProductionLineManagement from './pages/assetManagement/productionLineManagement';
 import BusinessRelations from './pages/businessRelations';
 import Dashboard from './pages/dashboard';
 import ForgotPassword from './pages/forgotPassword';
+import Inventory from './pages/inventory';
+import Bin from './pages/inventory/bin';
+import Warehouse from './pages/inventory/warehouse';
 import Login from './pages/login';
 import OrganisationSelection from './pages/organisationSelection';
-import Procurement from './pages/procurement';
 import ProcurementForecast from './pages/procurement/forecast';
 import ProcurementGoodReceipt from './pages/procurement/goodreceipt';
 import PurchaseOrder from './pages/procurement/purchase-order';
@@ -18,19 +22,14 @@ import Quotation from './pages/procurement/quotation';
 import SalesInquiry from './pages/procurement/sales-inquiry';
 import BillOfMaterial from './pages/production/bom';
 import Products from './pages/products';
-import ProtectedRoute from './pages/protectedRoute';
-import ResetPassword from './pages/resetpassword';
 import ProtectedPublicRoute from './pages/protectedPublicRoute';
+import ProtectedRoute from './pages/protectedRoute';
+import QaChecklists from './pages/qaChecklists';
+import QaRules from './pages/qaRules';
 import QualityAssurance from './pages/qualityAssurance';
-import QaRules from './pages/qaRules'
-import QaChecklists from './pages/qaChecklists'
+import ResetPassword from './pages/resetpassword';
 import Unauthorized from './pages/unauthorized';
-import Warehouse from './pages/inventory/warehouse';
 import WorkerManagement from './pages/workermanagement';
-import Inventory from './pages/inventory';
-import Bin from './pages/inventory/bin';
-import MachineManagement from './pages/assetManagement/machineManagement';
-import ProductionLineManagement from './pages/assetManagement/productionLineManagement';
 
 const ROLES = {
   Admin: 'admin',
@@ -143,7 +142,6 @@ const routes = (
             }
           >
             {/* Procurement */}
-            <Route path="procurement" element={<Procurement />}></Route>
             {/* Procurement Modules */}
             <Route
               path="procurement/sales-inquiry"
@@ -155,7 +153,7 @@ const routes = (
               element={<PurchaseOrder />}
             ></Route>
             <Route
-              path="procurement/goodreceipt"
+              path="procurement/good-receipt"
               element={<ProcurementGoodReceipt />}
             ></Route>
             
