@@ -10,6 +10,7 @@ import { NotificationAlert } from '../../components/notification-alert';
 import { GoodReceiptMenu } from '../../components/procurement/receiving/good-receipt-menu';
 import { ViewGoodReceiptDialog } from '../../components/procurement/receiving/view-good-receipt-dialog';
 import DayJS from 'dayjs';
+import { Toolbar } from '../../components/toolbar';
 
 const ProcurementGoodReceipt = () => {
   const [goodReceipts, setGoodReceipts] = useState([]);
@@ -256,12 +257,13 @@ const ProcurementGoodReceipt = () => {
         }}
       >
         <Container maxWidth={false}>
-          <GoodReceiptListToolbar
-            disabled={disabled}
-            numGoodReceipts={selectedRows.length}
-            handleClickOpen={handleClickOpen}
-            handleConfirmDialogOpen={handleConfirmDialogOpen}
+          <Toolbar
+            name='Good Receipt'
+            numRows={selectedRows.length}
+            deleteDisabled={disabled}
             handleSearch={handleSearch}
+            handleFormDialogOpen={handleClickOpen}
+            handleConfirmDialogOpen={handleConfirmDialogOpen}
           />
           <Box sx={{ mt: 3 }}>
             <Card>
