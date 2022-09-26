@@ -43,7 +43,7 @@ const items = [
     title: 'Final Goods',
     access: ['manager', 'superadmin'],
   },
-  
+
   {
     href: '/businessrelations',
     icon: <CorporateFareIcon fontSize="small" />,

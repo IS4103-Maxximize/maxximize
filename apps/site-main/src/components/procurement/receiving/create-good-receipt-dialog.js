@@ -18,6 +18,8 @@ import {
   List,
   ListItem,
   useTheme,
+  Checkbox,
+  FormControlLabel,
 } from '@mui/material';
 import { useFormik } from 'formik';
 import { useEffect, useState } from 'react';
@@ -224,7 +226,7 @@ export const CreateGoodReceiptDialog = ({
       field: 'name',
       headerName: 'Product Name',
       width: 300,
-      flex: 4,
+      flex: 3,
       valueGetter: (params) => {
         if (params.row.rawMaterial.name) {
           return params.row.rawMaterial.name;
@@ -583,7 +585,7 @@ export const CreateGoodReceiptDialog = ({
             {/* Without full width, render vertical */}
             {fullScreen && (
               <Box mt={3} minHeight={470}>
-                <Box sx={{ minWidth: 700 }}>
+                <Box sx={{ minWidth: 360 }}>
                   <CreateGoodReceiptDataGrid
                     header="Accepted"
                     products={acceptedProducts}
@@ -614,7 +616,7 @@ export const CreateGoodReceiptDialog = ({
                     <SwapVertIcon fontSize="large" />
                   </IconButton>
                 </Box>
-                <Box sx={{ minWidth: 700 }}>
+                <Box sx={{ minWidth: 360 }}>
                   <CreateGoodReceiptDataGrid
                     header="Follow Up"
                     products={followUpProducts}
@@ -660,7 +662,12 @@ export const CreateGoodReceiptDialog = ({
             <List>
               {currentQARules?.map((rule) => (
                 <ListItem key={rule.id}>
-                  {rule.title} [{rule.description}]
+                  <FormControlLabel
+                    value="top"
+                    control={<Checkbox />}
+                    label={`${rule.title} [${rule.description}]`}
+                    labelPlacement="End"
+                  />
                 </ListItem>
               ))}
             </List>
