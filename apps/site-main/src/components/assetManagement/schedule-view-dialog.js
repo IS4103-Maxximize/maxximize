@@ -23,14 +23,14 @@ export const ScheduleViewDialog = (props) => {
   const [completedSchedules, setRowsCompleted] = useState([]);
   const [ongoingSchedules, setRowsOngoing] = useState([]);
 
-
+  const scheduleResponse=[];
 
   const getSchedule = async () => {
     const response = await fetchProductionLine(selectedProductionLine?.id);
-    const schedules = response.schedules;
-    const completedSchedules = schedules.filter(schedule => schedule.status =="Completed");
+    const scheduleResponse = response?.schedules;
+    const completedSchedules = scheduleResponse?.filter(schedule => schedule.status === 'completed');
      setRowsCompleted(completedSchedules);
-     const ongoingSchedules = schedules.filter(schedule => schedule.status =="Ongoing");
+     const ongoingSchedules = scheduleResponse?.filter(schedule => schedule.status === 'ongoing');
      setRowsOngoing(ongoingSchedules);
 
   };

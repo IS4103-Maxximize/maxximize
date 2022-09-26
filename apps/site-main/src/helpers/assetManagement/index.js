@@ -9,6 +9,7 @@ export const fetchProductionLines = async () => {
     const apiUrl = `${apiHost}/production-lines/${id}`;
     return await fetch(apiUrl).then((response) => response.json());
   };
+  
 /*const createProductionLineMachines = async (productionLineId, machines) => {
     const apiUrl = `${apiHost}/factory-machines`;
   

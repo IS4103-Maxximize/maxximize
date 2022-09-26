@@ -63,6 +63,15 @@ export const Toolbar = (props) => {
     >
       Purchase Order
     </Link>,
+    <Link 
+      component={RouterLink}
+      underline="hover" 
+      key="good-receipt" 
+      color={subdomain === 'good-receipt' ? 'primary' : 'inherit'}
+      to="/procurement/good-receipt"
+    >
+      Good Receipt
+    </Link>,
   ]
 
   const productionBreadcrumbs = [
@@ -152,7 +161,7 @@ export const Toolbar = (props) => {
                   <IconButton
                     color="primary"
                     onClick={() => {
-                      handleAdd();
+                      handleAdd && handleAdd();
                       handleFormDialogOpen();
                     }}
                     sx={{ mr: 1}}

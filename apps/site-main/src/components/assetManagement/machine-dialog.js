@@ -41,7 +41,7 @@ import {
     const [error, setError] = useState('');
 
     let initialValues = {
-      id: machine ? machine.id : null,
+      id: machine ? machine.id : '',
       serialNumber: machine ? machine.serialNumber : '',
       description: machine ? machine.description : '',
       make: machine ? machine.make : '',
@@ -50,7 +50,7 @@ import {
       lastServiced: machine ? machine.lastServiced : '',
       remarks: machine ? machine.remarks : '',
       productionLineId: machine ? machine.productionLine : '',
-      isOperating: (machine && Boolean(machine.isOperating)) ? "operating" : (machine) ? "not operating" : '',
+      isOperating: machine ? machine.isOperating : "not operating" ,
     };
 
     let schema = {
@@ -150,12 +150,11 @@ import {
       const dateTime = await fetchMachine(user.organisation.id);
       setDateTime(dateTime);
     };
+
     useEffect(() => {  
       fetchDate();
-      if(action=="POST") {
-        setDateTime('')
-      }else if(action=="PATCH") {
-        setDateTime(machine?.lastServiced)
+      if(action=="PATCH") {
+        const selectedDate = machine?.lastServiced;
       }
   },[open]);
 
@@ -289,9 +288,10 @@ import {
             <DateTimePicker
             label="Last Serviced Date"
             inputVariant="outlined"
-            value={dateTime}
+            value={selectedDate}
             renderInput={(props) => <TextField {...props} />}
             onChange={handleDateChange}
+            disableFuture={true}
             />
             </Stack>
             <Stack direction="row" spacing={1} alignItems="center">
