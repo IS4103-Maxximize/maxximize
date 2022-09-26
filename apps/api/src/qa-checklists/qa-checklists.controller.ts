@@ -22,6 +22,11 @@ export class QaChecklistsController {
     return this.qaChecklistsService.findOne(+id);
   }
 
+  @Get('orgId/:id')
+  findAllByOrg(@Param('id') id: string) {
+    return this.qaChecklistsService.findAllByOrg(+id)
+  }
+
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateQaChecklistDto: UpdateQaChecklistDto) {
     return this.qaChecklistsService.update(+id, updateQaChecklistDto);

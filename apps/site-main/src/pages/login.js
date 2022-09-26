@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Link from '@mui/material/Link';
 import * as Yup from 'yup';
-import { Helmet } from 'react-helmet';
+import { Helmet, HelmetProvider } from 'react-helmet-async';
 
 async function loginUser(credentials) {
   const res = await fetch('http://localhost:3000/api/auth/login', {
@@ -95,9 +95,11 @@ const Login = () => {
 
   return (
     <>
-      <Helmet>
-        <title>{`Login | ${organisation?.name}`}</title>
-      </Helmet>
+      <HelmetProvider>
+        <Helmet>
+          <title>{`Login | ${organisation?.name}`}</title>
+        </Helmet>
+      </HelmetProvider>
       <Box
         component="main"
         sx={{

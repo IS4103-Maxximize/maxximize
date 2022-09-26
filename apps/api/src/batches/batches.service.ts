@@ -41,6 +41,7 @@ export class BatchesService {
   async createWithExistingTransaction(createBatchDto: CreateBatchDto, goodReceiptLineItems: GrLineItem[], queryRunner: QueryRunner) {
     const batch = new Batch();
     batch.batchNumber = createBatchDto.batchNumber;
+    batch.organisationId = createBatchDto.organisationId;
     
     const warehouses = await this.warehouseService.findAll();
     const batchLineItems = [];
@@ -63,6 +64,9 @@ export class BatchesService {
           batchLineItem.product = lineItem.product;
           batchLineItem.quantity = lineItem.quantity;
           batchLineItem.subTotal = lineItem.product.unitPrice * lineItem.quantity;
+          const date = new Date();
+          date.setDate(date.getDate() + lineItem.product.expiry);
+          batchLineItem.expiryDate = date;
           batchLineItems.push(batchLineItem);
 
           bin.currentCapacity = bin.currentCapacity + lineItemCapacity;
@@ -118,12 +122,23 @@ export class BatchesService {
   }
 
   async findAll() {
-    return await this.batchRepository.find();
+    return await this.batchRepository.find({
+      relations: ["batchLineItems", "goodReceipt"]
+    });
   }
 
   async findOne(id: number) {
     return await this.batchRepository.findOne({
       where: { id },
+      relations: ["batchLineItems", "goodReceipt"]
+    });
+  }
+
+  async findAllByOrganisationId(id: number) {
+    return await this.batchRepository.find({
+      where: {
+        organisationId: id
+      },
       relations: ["batchLineItems", "goodReceipt"]
     });
   }

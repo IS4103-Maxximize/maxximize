@@ -140,7 +140,7 @@ export const QuotationDialog = (props) => {
   // DataGrid Helpers
   const [selectedRows, setSelectedRows] = useState([]);
 
-  const handleRowUpdate = (newRow) => {
+  const handleRowUpdate = (newRow, oldRow) => {
     let updatedRow = { ...newRow };
     console.log(updatedRow);
     formik.setFieldValue(
@@ -156,6 +156,9 @@ export const QuotationDialog = (props) => {
     );
     if (action === 'PATCH') {
       // console.log(updatedRow);
+      if (newRow.price === oldRow.price) {
+        return oldRow; // Dont call update api if price didn't change
+      } 
       const updatedId = updatedRow.id;
       updatedRow = updateQuotationLineItem(updatedRow.id, updatedRow.price)
         .then(

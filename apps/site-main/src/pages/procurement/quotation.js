@@ -9,11 +9,11 @@ import {
 } from '@mui/material';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import { useEffect, useState } from 'react';
-import { Helmet } from 'react-helmet';
+import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { DashboardLayout } from '../../components/dashboard-layout';
 import { NotificationAlert } from '../../components/notification-alert';
 import { QuotationDialog } from '../../components/procurement-ordering/quotation-dialog';
-import { Toolbar } from '../../components/procurement-ordering/toolbar';
+import { Toolbar } from '../../components/toolbar';
 import { ConfirmDialog } from '../../components/product/confirm-dialog';
 import { ProductMenu } from '../../components/product/product-menu';
 import {
@@ -205,12 +205,14 @@ const Quotation = (props) => {
 
   return (
     <>
-      <Helmet>
-        <title>
-          Quotation
-          {user && ` | ${user?.organisation?.name}`}
-        </title>
-      </Helmet>
+      <HelmetProvider>
+        <Helmet>
+          <title>
+            Quotation
+            {user && ` | ${user?.organisation?.name}`}
+          </title>
+        </Helmet>
+      </HelmetProvider>
       <Box
         component="main"
         sx={{

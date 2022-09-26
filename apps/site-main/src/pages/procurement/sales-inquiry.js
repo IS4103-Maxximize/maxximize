@@ -5,21 +5,21 @@ import {
   CardContent,
   Container,
   IconButton,
-  Typography
+  Typography,
 } from '@mui/material';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import { useEffect, useState } from 'react';
-import { Helmet } from 'react-helmet';
+import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { DashboardLayout } from '../../components/dashboard-layout';
 import { NotificationAlert } from '../../components/notification-alert';
 import { SalesInquiryDialog } from '../../components/procurement-ordering/sales-inquiry-dialog';
 import { SalesInquiryMenu } from '../../components/procurement-ordering/sales-inquiry.menu';
 import { SupplierDialog } from '../../components/procurement-ordering/supplier-dialog';
-import { Toolbar } from '../../components/procurement-ordering/toolbar';
+import { Toolbar } from '../../components/toolbar';
 import { ConfirmDialog } from '../../components/product/confirm-dialog';
 import {
   deleteSalesInquiries,
-  fetchSalesInquiries
+  fetchSalesInquiries,
 } from '../../helpers/procurement-ordering';
 
 export const SalesInquiry = (props) => {
@@ -177,8 +177,8 @@ export const SalesInquiry = (props) => {
 
   useEffect(() => {
     // reset selectedRows to [] upon updating rows
-    setSelectedRows([]); 
-  }, [rows])
+    setSelectedRows([]);
+  }, [rows]);
 
   const columns = [
     {
@@ -207,12 +207,14 @@ export const SalesInquiry = (props) => {
 
   return (
     <>
-      <Helmet>
-        <title>
-          Sales Inquiry
-          {user && ` | ${user?.organisation?.name}`}
-        </title>
-      </Helmet>
+      <HelmetProvider>
+        <Helmet>
+          <title>
+            Sales Inquiry
+            {user && ` | ${user?.organisation?.name}`}
+          </title>
+        </Helmet>
+      </HelmetProvider>
       <Box
         component="main"
         sx={{

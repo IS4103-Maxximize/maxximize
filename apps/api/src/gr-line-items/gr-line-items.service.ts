@@ -45,13 +45,13 @@ export class GrLineItemsService {
   }
 
   findAll() {
-    return this.grLineItemRepository.find();
+    return this.grLineItemRepository.find({relations: ["goodReceipt", "product"]});
   }
 
   findOne(id: number) {
     return this.grLineItemRepository.findOne({
       where: { id },
-      relations: ["goodReceipt"]
+      relations: ["goodReceipt", "product"]
     });
   }
 

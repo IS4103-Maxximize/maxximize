@@ -1,5 +1,5 @@
 import { Box, Card, Container, IconButton, Typography } from '@mui/material';
-import { Helmet } from 'react-helmet';
+import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { GoodReceiptListToolbar } from '../../components/procurement/receiving/good-receipt-list-toolbar';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import { useEffect, useState } from 'react';
@@ -9,6 +9,7 @@ import { CreateGoodReceiptDialog } from '../../components/procurement/receiving/
 import { NotificationAlert } from '../../components/notification-alert';
 import { GoodReceiptMenu } from '../../components/procurement/receiving/good-receipt-menu';
 import { ViewGoodReceiptDialog } from '../../components/procurement/receiving/view-good-receipt-dialog';
+import DayJS from 'dayjs';
 
 const ProcurementGoodReceipt = () => {
   const [goodReceipts, setGoodReceipts] = useState([]);
@@ -29,20 +30,26 @@ const ProcurementGoodReceipt = () => {
     setDisabled(selectedRows.length === 0);
   }, [selectedRows]);
 
-  //Retrieve all goodReceipts [TODO	]
+  //Retrieve all goodReceipts
   const retrieveAllGoodReceipts = async () => {
-    // const goodReceiptsList = await fetch(
-    //   `http://localhost:3000/api/goods-receipts`
-    // );
-    // const result = await goodReceiptsList.json();
-    // setGoodReceipts(result);
+    const response = await fetch(
+      `http://localhost:3000/api/goods-receipts/findAllByOrg/${organisationId}`
+    );
+
+    let result = [];
+
+    if (response.status == 200 || response.status == 201) {
+      result = await response.json();
+    }
+
+    setGoodReceipts(result);
   };
 
   //Search Function
   const [search, setSearch] = useState('');
 
   const handleSearch = (event) => {
-    setSearch(event.target.value.toLowerCase());
+    setSearch(event.target.value.toLowerCase().trim());
   };
 
   //Menu Button
@@ -89,9 +96,6 @@ const ProcurementGoodReceipt = () => {
   const handleClickOpen = () => {
     setOpen(true);
   };
-  const handleClose = () => {
-    setOpen(false);
-  };
 
   //View Good Receipt dialog
   const [openViewDialog, setOpenViewDialog] = useState(false);
@@ -100,6 +104,14 @@ const ProcurementGoodReceipt = () => {
     setOpenViewDialog(true);
   };
 
+  //Good Receipt line items from the bin
+  const [goodReceiptLineItems, setGoodReceiptLineItems] = useState([]);
+
+  //Load in list of line items
+  useEffect(() => {
+    setGoodReceiptLineItems(selectedRow?.goodReceiptLineItems);
+  }, [openViewDialog]);
+
   //Add a new good receipt entry to the list
   const addGoodReceipt = (goodReceipt) => {
     try {
@@ -107,7 +119,7 @@ const ProcurementGoodReceipt = () => {
 
       setGoodReceipts(updatedGoodReceipts);
     } catch {
-      console.log('An erorr occured please try again later');
+      console.log('An error occured please try again later');
     }
   };
 
@@ -129,20 +141,20 @@ const ProcurementGoodReceipt = () => {
     };
 
     selectedIds.forEach((currentId) => {
-      //   fetch(
-      //     `http://localhost:3000/api/users/deleteUser/${currentId}`,
-      //     requestOptions
-      //   )
-      //     .then(() => {
-      //        handleAlertOpen(`Successfully deleted good receipt(s)`, 'success');
-      //})
-      //     .catch((error) => {
-      //       handleAlertOpen(`Failed to delete good receipt(s):${error}`, 'error');
-      //     });
+      fetch(
+        `http://localhost:3000/api/goods-receipts/${currentId}`,
+        requestOptions
+      )
+        .then(() => {
+          handleAlertOpen(`Successfully deleted good receipt(s)`, 'success');
+        })
+        .catch((error) => {
+          handleAlertOpen(`Failed to delete good receipt(s):${error}`, 'error');
+        });
     });
 
     setGoodReceipts((result) =>
-      result.filter((goodReceipt) => !selectedIds.has(goodReceipt.id))
+      result.filter((goodReceipt) => !selectedIds.includes(goodReceipt.id))
     );
   };
 
@@ -159,18 +171,27 @@ const ProcurementGoodReceipt = () => {
       headerName: 'Purchase Order ID',
       width: 200,
       flex: 2,
+      valueGetter: (params) => {
+        if (params.row.purchaseOrder.id) {
+          return params.row.purchaseOrder.id;
+        } else {
+          return '';
+        }
+      },
     },
     {
       field: 'recipientName',
       headerName: 'Recipient Name',
       width: 150,
-      flex: 6,
+      flex: 7,
     },
     {
-      field: 'dateReceived',
-      headerName: 'DateReceived',
+      field: 'createdDateTime',
+      headerName: 'Date Received',
       width: 200,
-      flex: 2,
+      flex: 3,
+      valueFormatter: (params) =>
+        DayJS(params?.value).format('DD MMM YYYY hh:mm a'),
     },
     {
       field: 'action',
@@ -186,9 +207,11 @@ const ProcurementGoodReceipt = () => {
 
   return (
     <>
-      <Helmet>
-        <title>{`Good Receipt | ${user?.organisation?.name}`}</title>
-      </Helmet>
+      <HelmetProvider>
+        <Helmet>
+          <title>{`Good Receipt | ${user?.organisation?.name}`}</title>
+        </Helmet>
+      </HelmetProvider>
       <NotificationAlert
         open={alertOpen}
         severity={alertSeverity}
@@ -211,13 +234,16 @@ const ProcurementGoodReceipt = () => {
         }}
       />
       <ViewGoodReceiptDialog
+        goodReceipt={selectedRow}
         openViewDialog={openViewDialog}
         setOpenViewDialog={setOpenViewDialog}
+        goodReceiptLineItems={goodReceiptLineItems}
       />
       <GoodReceiptMenu
+        goodReceipt={selectedRow}
         anchorEl={anchorEl}
         menuOpen={menuOpen}
-        handleClickOpen={handleClickOpen}
+        setGoodReceiptLineItems={setGoodReceiptLineItems}
         handleMenuClose={handleMenuClose}
         handleClickView={handleOpenViewDialog}
       />
@@ -229,7 +255,7 @@ const ProcurementGoodReceipt = () => {
           pb: 4,
         }}
       >
-        {/* <Container maxWidth={false}>
+        <Container maxWidth={false}>
           <GoodReceiptListToolbar
             disabled={disabled}
             numGoodReceipts={selectedRows.length}
@@ -248,7 +274,7 @@ const ProcurementGoodReceipt = () => {
                     } else {
                       return (
                         row.recipientName.toLowerCase().includes(search) ||
-                        row.purchaseOrderId.toString().includes(search)
+                        row.id.toString().includes(search)
                       );
                     }
                   })}
@@ -268,7 +294,7 @@ const ProcurementGoodReceipt = () => {
               </Box>
             </Card>
           </Box>
-        </Container> */}
+        </Container>
       </Box>
     </>
   );

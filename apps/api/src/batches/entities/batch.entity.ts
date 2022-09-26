@@ -10,11 +10,16 @@ export class Batch {
     @Column({nullable: false})
     batchNumber: string;
 
+    @Column()
+    organisationId: number;
+
     @OneToMany(() => BatchLineItem, batchLineItem => batchLineItem.batch, {
         cascade: true
     })
     batchLineItems: BatchLineItem[];
 
-    @OneToOne(() => GoodsReceipt, goodReceipt => goodReceipt.batch)
+    @OneToOne(() => GoodsReceipt, goodReceipt => goodReceipt.batch, {
+        onDelete: 'CASCADE'
+    })
     goodReceipt: GoodsReceipt;
 }

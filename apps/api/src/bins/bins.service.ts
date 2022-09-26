@@ -39,7 +39,7 @@ export class BinsService {
 
   async findAll() {
     const bins = await this.binRepository.find({
-      relations: ["warehouse", "batchLineItems"]
+      relations: ["warehouse", "batchLineItems.product"]
     });
     if (bins.length === 0 || bins === undefined) {
       throw new NotFoundException("No bin(s) found!");
@@ -53,13 +53,26 @@ export class BinsService {
       where: {
         id: id
       },
-      relations: ["warehouse", "batchLineItems"]
+      relations: ["warehouse", "batchLineItems.product"]
     });
     if (bin) {
       return bin;
     } else {
       throw new NotFoundException(`No bin ${id} found!`);
     }
+  }
+
+  async findAllByOrganisationId(id: number) {
+    return await this.binRepository.find({
+      where: {
+		warehouse: {
+        	organisation: {
+          		id: id
+        	}
+		}
+      },
+      relations: ["warehouse", "batchLineItems.product"]
+    });
   }
 
   async update(id: number, updateBinDto: UpdateBinDto) {

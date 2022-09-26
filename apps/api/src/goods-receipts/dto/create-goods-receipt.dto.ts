@@ -6,6 +6,7 @@ export class CreateGoodsReceiptDto {
     createdDateTime: Date;
     description: string;
     purchaseOrderId: number;
+    organisationId: number;
     goodsReceiptLineItemsDtos: CreateGrLineItemDto[];
     followUpLineItemsDtos: CreateFollowUpLineItemDto[];
 }

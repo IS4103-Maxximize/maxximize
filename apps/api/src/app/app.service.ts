@@ -5,6 +5,8 @@ import { ContactsService } from '../contacts/contacts.service';
 import { Contact } from '../contacts/entities/contact.entity';
 import { OrganisationType } from '../organisations/enums/organisationType.enum';
 import { OrganisationsService } from '../organisations/organisations.service';
+import { MeasurementUnit } from '../products/enums/measurementUnit.enum';
+import { RawMaterialsService } from '../raw-materials/raw-materials.service';
 import { User } from '../users/entities/user.entity';
 import { Role } from '../users/enums/role.enum';
 import { UsersService } from '../users/users.service';
@@ -17,6 +19,7 @@ export class AppService implements OnApplicationBootstrap {
     private contactService: ContactsService,
     private warehouseService: WarehousesService,
     private binService: BinsService,
+    private rawMaterialService: RawMaterialsService,
     private dataSource: DataSource) {}
   getData(): { message: string } {
     return { message: 'Welcome to api!' };
@@ -166,20 +169,40 @@ export class AppService implements OnApplicationBootstrap {
 
         await this.binService.create({
           name: "SLOC-001-Warehouse1",
-          capacity: 1000,
+          capacity: 10000,
           warehouseId: 1
         });
 
         await this.binService.create({
           name: "SLOC-002-Warehouse1",
-          capacity: 1000,
+          capacity: 10000,
           warehouseId: 1
         });
 
         await this.binService.create({
           name: "SLOC-001-Warehouse2",
-          capacity: 1000,
+          capacity: 10000,
           warehouseId: 2
+        });
+
+        await this.rawMaterialService.create({
+          name: "Tomato",
+          description: "Fresh Tomato",
+          lotQuantity: 50,
+          unit: MeasurementUnit.KILOGRAM,
+          unitPrice: 10,
+          expiry: 5,
+          organisationId: 1
+        });
+
+        await this.rawMaterialService.create({
+          name: "Cababge",
+          description: "Fresh Cabbage",
+          lotQuantity: 50,
+          unit: MeasurementUnit.KILOGRAM,
+          unitPrice: 5,
+          expiry: 2,
+          organisationId: 1
         });
     }
   }

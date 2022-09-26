@@ -16,13 +16,21 @@ import ProcurementGoodReceipt from './pages/procurement/goodreceipt';
 import PurchaseOrder from './pages/procurement/purchase-order';
 import Quotation from './pages/procurement/quotation';
 import SalesInquiry from './pages/procurement/sales-inquiry';
+import BillOfMaterial from './pages/production/bom';
 import Products from './pages/products';
-import ProtectedPublicRoute from './pages/protectedPublicRoute';
 import ProtectedRoute from './pages/protectedRoute';
 import ResetPassword from './pages/resetpassword';
+import ProtectedPublicRoute from './pages/protectedPublicRoute';
+import QualityAssurance from './pages/qualityAssurance';
+import QaRules from './pages/qaRules'
+import QaChecklists from './pages/qaChecklists'
 import Unauthorized from './pages/unauthorized';
+import Warehouse from './pages/inventory/warehouse';
 import WorkerManagement from './pages/workermanagement';
-
+import Inventory from './pages/inventory';
+import Bin from './pages/inventory/bin';
+import MachineManagement from './pages/assetManagement/machineManagement';
+import ProductionLineManagement from './pages/assetManagement/productionLineManagement';
 
 const ROLES = {
   Admin: 'admin',
@@ -97,9 +105,7 @@ const routes = (
           {/* Protected Routes for Manager*/}
           <Route
             element={
-              <RequireAuth
-                requiredRoles={[ROLES.Manager, ROLES.SuperAdmin]}
-              />
+              <RequireAuth requiredRoles={[ROLES.Manager, ROLES.SuperAdmin]} />
             }
           >
             {/* Product Management */}
@@ -112,12 +118,17 @@ const routes = (
               element={<Products type="final-goods" key={2} />}
             ></Route>
 
-            {/* Procurement Forecast */}
-            <Route
-              path="procurement/forecast"
-              element={<ProcurementForecast />}
-            ></Route>
-          </Route>
+              {/* Procurement Forecast */}
+              <Route
+                path="procurement/forecast"
+                element={<ProcurementForecast />}
+              ></Route>
+              {/* Quality Assurance */}
+              <Route path="qualityAssurance" element={<QualityAssurance/>}></Route>
+              <Route path="qualityAssurance/rules" element={<QaRules/>}></Route>
+              <Route path="qualityAssurance/checklists" element={<QaChecklists/>}></Route>
+              
+            </Route>
 
           {/* Protected Routes for Manager and Factory Worker */}
           <Route
@@ -138,10 +149,7 @@ const routes = (
               path="procurement/sales-inquiry"
               element={<SalesInquiry />}
             ></Route>
-            <Route
-              path="procurement/quotation"
-              element={<Quotation />}
-            ></Route>
+            <Route path="procurement/quotation" element={<Quotation />}></Route>
             <Route
               path="procurement/purchase-order"
               element={<PurchaseOrder />}
@@ -150,6 +158,30 @@ const routes = (
               path="procurement/goodreceipt"
               element={<ProcurementGoodReceipt />}
             ></Route>
+            
+          {/* Asset Management */}
+            <Route
+              path="asset-management/machine"
+              element={<MachineManagement />}
+            ></Route>
+            <Route
+              path="asset-management/production-line"
+              element={<ProductionLineManagement />}
+            ></Route>
+
+            {/* Production */}
+            {/* <Route path="production" element={<Production />}></Route> */}
+            {/* Production Modules */}
+            <Route
+              path="production/bill-of-material"
+              element={<BillOfMaterial />}
+            ></Route>
+            
+            {/* Inventory */}
+            <Route path="inventory" element={<Inventory />}></Route>
+            {/* Inventory Modules */}
+            <Route path="inventory/warehouse" element={<Warehouse />}></Route>
+            <Route path="inventory/bin" element={<Bin />}></Route>
           </Route>
         </Route>
       </Route>
@@ -158,7 +190,7 @@ const routes = (
       <Route path="*" element={<NotFound />}></Route>
     </Route>
   </Routes>
-)
+);
 
 const App = () => {
   return (
