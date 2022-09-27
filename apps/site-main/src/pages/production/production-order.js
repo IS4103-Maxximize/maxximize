@@ -1,14 +1,21 @@
-import MoreVert from "@mui/icons-material/MoreVert";
-import { Box, Card, CardContent, Container, IconButton, Typography } from "@mui/material";
-import { DataGrid, GridToolbar } from "@mui/x-data-grid";
-import { useEffect, useState } from "react";
-import Helmet from "react-helmet";
-import { DashboardLayout } from "../../components/dashboard-layout";
-import { NotificationAlert } from "../../components/notification-alert";
-import { ConfirmDialog } from "../../components/product/confirm-dialog";
-import { ProductMenu } from "../../components/product/product-menu";
-import { ProductionOrderCreateDialog } from "../../components/production-order/production-order-create-dialog";
-import { Toolbar } from "../../components/toolbar";
+import MoreVert from '@mui/icons-material/MoreVert';
+import {
+  Box,
+  Card,
+  CardContent,
+  Container,
+  IconButton,
+  Typography,
+} from '@mui/material';
+import { DataGrid, GridToolbar } from '@mui/x-data-grid';
+import { useEffect, useState } from 'react';
+import { Helmet, HelmetProvider } from 'react-helmet-async';
+import { DashboardLayout } from '../../components/dashboard-layout';
+import { NotificationAlert } from '../../components/notification-alert';
+import { ConfirmDialog } from '../../components/product/confirm-dialog';
+import { ProductMenu } from '../../components/product/product-menu';
+import { ProductionOrderCreateDialog } from '../../components/production-order/production-order-create-dialog';
+import { Toolbar } from '../../components/toolbar';
 
 export const ProductionOrder = (props) => {
   const user = JSON.parse(localStorage.getItem('user'));
@@ -16,7 +23,6 @@ export const ProductionOrder = (props) => {
   const name = 'Production Order';
 
   const [loading, setLoading] = useState(true); // loading upon entering page
-
 
   // DataGrid Helpers
   const [rows, setRows] = useState([]);
@@ -27,7 +33,7 @@ export const ProductionOrder = (props) => {
     // fetchProdOrders(organisationId)
     //   .then(res => setRows(res))
     //   .catch(err => handleAlertOpen('Failed to fetch Production Orders', 'error'))
-  }
+  };
 
   useEffect(() => {
     // get Prod Orders
@@ -41,7 +47,6 @@ export const ProductionOrder = (props) => {
     setLoading(false);
   }, [rows]);
 
-
   // Alert Helpers
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertSeverity, setAlertSeverity] = useState('error'); // success || error
@@ -50,11 +55,10 @@ export const ProductionOrder = (props) => {
     setAlertSeverity(severity);
     setAlertText(text);
     setAlertOpen(true);
-  }
+  };
   const handleAlertClose = () => {
     setAlertOpen(false);
-  }
-
+  };
 
   // Toolbar Helpers
   // Searchbar
@@ -66,10 +70,9 @@ export const ProductionOrder = (props) => {
   const handleAddClick = () => {
     // setAction('POST');
     setSelectedRow(null);
-  }
+  };
   // Delete Button
   const deleteDisabled = Boolean(selectedRows.length === 0);
-
 
   // Menu Helpers
   const [action, setAction] = useState();
@@ -100,7 +103,6 @@ export const ProductionOrder = (props) => {
     );
   };
 
-
   // Create Dialog Helpers
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const handleCreateDialogOpen = () => {
@@ -120,7 +122,6 @@ export const ProductionOrder = (props) => {
     }
   }, [createDialogOpen]);
 
-
   // Update Dialog Helpers
   const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
   const handleUpdateDialogOpen = () => {
@@ -131,7 +132,7 @@ export const ProductionOrder = (props) => {
   };
 
   useEffect(() => {
-    console.log(updateDialogOpen)
+    console.log(updateDialogOpen);
     if (!updateDialogOpen) {
       setLoading(true);
       getProductionOrders();
@@ -140,7 +141,6 @@ export const ProductionOrder = (props) => {
       console.log(selectedRow);
     }
   }, [updateDialogOpen]);
-
 
   // ConfirmDialog Helpers
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
@@ -151,14 +151,13 @@ export const ProductionOrder = (props) => {
     setConfirmDialogOpen(false);
   };
 
-  
   // CRUD handlerss
   const handleDelete = async (ids) => {
     setSelectedRows([]);
     // deleteProductionOrders(ids)
     //   .then(() => handleAlertOpen('Successfully deleted Production Order(s)!', 'success'))
     //   .then(() => getProdOrders());
-  }
+  };
 
   // DataGrid Columns
   const columns = [
@@ -178,25 +177,23 @@ export const ProductionOrder = (props) => {
       flex: 1,
       valueGetter: (params) => {
         return params.row.daily ? 'Daily' : 'Adhoc';
-      }
+      },
     },
     {
       field: 'actions',
       headerName: '',
       flex: 1,
-      renderCell: menuButton
+      renderCell: menuButton,
     },
   ];
 
-
   return (
     <>
-      <Helmet>
-        <title>
-          Production Order
-          {user && ` | ${user?.organisation?.name}`}
-        </title>
-      </Helmet>
+      <HelmetProvider>
+        <Helmet>
+          <title>{`Production Order | ${user?.organisation?.name}`}</title>
+        </Helmet>
+      </HelmetProvider>
       <Box
         component="main"
         sx={{
@@ -238,7 +235,7 @@ export const ProductionOrder = (props) => {
             bom={selectedRow}
             handleAlertOpen={handleAlertOpen}
           /> */}
-          <ProductMenu 
+          <ProductMenu
             key="prod-order-menu"
             anchorEl={anchorEl}
             menuOpen={menuOpen}
