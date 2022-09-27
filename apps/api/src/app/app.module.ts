@@ -18,7 +18,9 @@ import { InvoicesModule } from '../invoices/invoices.module';
 import { OrderLineItemsModule } from '../order-line-items/order-line-items.module';
 import { OrdersModule } from '../orders/orders.module';
 import { OrganisationsModule } from '../organisations/organisations.module';
+import { ProductionLineItemsModule } from '../production-line-items/production-line-items.module';
 import { ProductionLinesModule } from '../production-lines/production-lines.module';
+import { ProductionOrdersModule } from '../production-orders/production-orders.module';
 import { ProductsModule } from '../products/products.module';
 import { PurchaseOrderLineItem } from '../purchase-order-line-items/entities/purchase-order-line-item.entity';
 import { PurchaseOrderLineItemsModule } from '../purchase-order-line-items/purchase-order-line-items.module';
@@ -91,6 +93,8 @@ import { AppService } from './app.service';
     QaRulesModule,
     QaChecklistsModule,
     FollowUpLineItemsModule,
+    ProductionLineItemsModule,
+    ProductionOrdersModule
   ],
   controllers: [AppController],
   providers: [AppService],
