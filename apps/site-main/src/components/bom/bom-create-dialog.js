@@ -6,7 +6,7 @@ import { DataGrid } from "@mui/x-data-grid";
 import { useFormik } from "formik";
 import { useEffect, useState } from "react";
 import * as Yup from "yup";
-import { createBOM } from "../../helpers/bom";
+import { createBOM } from "../../helpers/production/bom";
 import { fetchProducts } from "../../helpers/products";
 
 
@@ -151,8 +151,16 @@ export const BOMCreateDialog = (props) => {
 
   const columns = [
     {
+      field: "totalQuantity",
+      headerName: "Total Quantity",
+      flex: 1,
+      valueGetter: (params) => {
+        return params.row ? params.row.rawMaterial.lotQuantity * params.row.quantity : '';
+      }
+    },
+    {
       field: "quantity",
-      headerName: "Quantity *",
+      headerName: "Line Item Quantity *",
       flex: 1,
       type: 'number',
       headerAlign: 'left',  // align header
@@ -208,17 +216,30 @@ export const BOMCreateDialog = (props) => {
           </Toolbar>
         </AppBar>
         <DialogContent>
-          {/* Final Good Selection */}
-          <Autocomplete
-            id="final-good-selector"
-            sx={{ width: 400, mb: 2 }}
-            options={finalGoods}
-            getOptionLabel={(option) => `${option.name} [${option.skuCode}]`}
-            isOptionEqualToValue={(option, value) => option.id === value.id}
-            // value={formik.values.quotation}
-            onChange={(e, value) => formik.setFieldValue('finalGoodId', value ? value.id : null)}
-            renderInput={(params) => (<TextField {...params} label="Final Good" />)}
-          />
+          <Stack direction="row" spacing={1}>
+            {/* Final Good Selection */}
+            <Autocomplete
+              id="final-good-selector"
+              sx={{ width: 400, mb: 2 }}
+              options={finalGoods}
+              getOptionLabel={(option) => `${option.name} [${option.skuCode}]`}
+              isOptionEqualToValue={(option, value) => option.id === value.id}
+              // value={formik.values.quotation}
+              onChange={(e, value) => formik.setFieldValue('finalGoodId', value ? value.id : null)}
+              renderInput={(params) => (<TextField {...params} label="Final Good" />)}
+            />
+            <TextField
+              label="Lot Quantity"
+              margin="normal"
+              name="final-good-lotQuantity"
+              value={
+                formik.values.finalGoodId ? 
+                finalGoods.find(item => item.id === formik.values.finalGoodId ).lotQuantity : 0
+              }
+              variant="outlined"
+              disabled
+            />
+          </Stack>
           <Box my={2} display="flex" justifyContent="space-between">
             <Stack direction="row" spacing={1}>
               {/* Raw Material Selection to be added as Line Items */}

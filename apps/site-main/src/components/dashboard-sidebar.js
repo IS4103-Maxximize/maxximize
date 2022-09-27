@@ -18,6 +18,7 @@ import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import RuleIcon from '@mui/icons-material/Rule';
 import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
 import FactCheckIcon from '@mui/icons-material/FactCheck';
+import TaskIcon from '@mui/icons-material/Task';
 import {
   Box,
   Button,
@@ -173,6 +174,30 @@ const items = [
   //   title: 'Production',
   //   access: ['manager', 'factoryworker', 'superadmin'],
   // },
+  {
+    href: '/production/bill-of-material',
+    icon: <FormatListBulletedIcon fontSize="small" />,
+    title: 'Bill Of Material',
+    access: ['superadmin'],
+  },
+  {
+    href: '/production/production-order',
+    icon: <TaskIcon fontSize="small" />,
+    title: 'Production Order',
+    access: ['superadmin'],
+  },
+  {
+    href: '/asset-management/machine',
+    icon: <PrecisionManufacturingIcon fontSize="small" />,
+    title: 'Machine Management',
+    access: ['manager', 'factoryworker', 'superadmin'],
+  },
+  {
+    href: '/asset-management/production-line',
+    icon: <AddRoadIcon fontSize="small" />,
+    title: 'Production Line',
+    access: ['manager', 'factoryworker', 'superadmin'],
+  },
 ];
 
 export const DashboardSidebar = (props) => {

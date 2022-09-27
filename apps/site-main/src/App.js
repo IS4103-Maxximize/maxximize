@@ -22,6 +22,7 @@ import PurchaseOrder from './pages/procurement/purchase-order';
 import Quotation from './pages/procurement/quotation';
 import SalesInquiry from './pages/procurement/sales-inquiry';
 import BillOfMaterial from './pages/production/bom';
+import ProductionOrder from './pages/production/production-order';
 import Products from './pages/products';
 import ProtectedPublicRoute from './pages/protectedPublicRoute';
 import ProtectedRoute from './pages/protectedRoute';
@@ -178,6 +179,10 @@ const routes = (
             <Route
               path="production/bill-of-material"
               element={<BillOfMaterial />}
+            ></Route>
+            <Route
+              path="production/production-order"
+              element={<ProductionOrder />}
             ></Route>
 
             {/* Inventory */}

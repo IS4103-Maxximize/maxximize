@@ -97,12 +97,11 @@ export const Toolbar = (props) => {
     <Link
       component={RouterLink}
       underline="hover"
-      key="other"
-      color={subdomain === 'other' ? 'primary' : 'inherit'}
-      to="/production/other"
-      hidden
+      key="production-order"
+      color={subdomain === 'production-order' ? 'primary' : 'inherit'}
+      to="/production/production-order"
     >
-      Other Production thingy
+      Production Order
     </Link>,
   ];
 
