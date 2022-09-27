@@ -15,6 +15,9 @@ import WarehouseIcon from '@mui/icons-material/Warehouse';
 import EggIcon from '@mui/icons-material/Egg';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import RuleIcon from '@mui/icons-material/Rule';
+import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
+import FactCheckIcon from '@mui/icons-material/FactCheck';
 import {
   Box,
   Button,
@@ -51,13 +54,6 @@ const standalone = [
     access: ['admin', 'superadmin'],
   },
   {
-    href: '/qualityAssurance',
-    icon: <HealthAndSafetyIcon fontSize="small" />,
-    title: 'Quality Assurance',
-    subsystemName: '',
-    access: ['manager', 'factoryworker', 'superadmin'],
-  },
-  {
     href: '/warehouse',
     icon: <WarehouseIcon fontSize="small" />,
     title: 'Warehouse',
@@ -67,6 +63,27 @@ const standalone = [
 ];
 
 const items = [
+  {
+    subsystem: 'Quality Assurance',
+    access: ['manager', 'factoryworker', 'superadmin'],
+    icon: <FactCheckIcon fontSize="small" />,
+    open: 'openQualityAssurance',
+    handleClick: 'handleQualityAssuranceClick',
+    modules: [
+      {
+        href: 'qualityAssurance/checklists',
+        icon: <AssignmentTurnedInIcon fontSize="small" />,
+        title: 'Checklist',
+        access: ['manager', 'factoryworker', 'superadmin'],
+      },
+      {
+        href: 'qualityAssurance/rules',
+        icon: <RuleIcon fontSize="small" />,
+        title: 'Rules',
+        access: ['manager', 'factoryworker', 'superadmin'],
+      },
+    ],
+  },
   {
     subsystem: 'Product',
     access: ['manager', 'superadmin'],
@@ -166,18 +183,28 @@ export const DashboardSidebar = (props) => {
     noSsr: false,
   });
 
+  //Handle quality assurance nested menu
+  const [openQualityAssurance, setOpenQualityAssurance] = useState(true);
+
+  const handleQualityAssuranceClick = () => {
+    setOpenQualityAssurance(!openQualityAssurance);
+  };
+
+  //Handle product nested menu
   const [openProduct, setOpenProduct] = useState(true);
 
   const handleProductClick = () => {
     setOpenProduct(!openProduct);
   };
 
+  //Handle procurement nested menu
   const [openProcurement, setOpenProcurement] = useState(true);
 
   const handleProcurementClick = () => {
     setOpenProcurement(!openProcurement);
   };
 
+  //Handle production nested menu
   const [openProduction, setOpenProduction] = useState(true);
 
   const handleProductionClick = () => {

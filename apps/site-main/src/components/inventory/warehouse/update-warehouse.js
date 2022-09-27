@@ -1,4 +1,4 @@
-import { Button, Box, Typography, TextField } from '@mui/material';
+import { Button, Box, Typography, TextField, Card } from '@mui/material';
 import { useFormik } from 'formik';
 import { useState } from 'react';
 import * as Yup from 'yup';
@@ -86,6 +86,7 @@ export const UpdateWarehouse = ({
               {warehouse.name}
             </Typography>
           </Box>
+
           <Box
             mt={1}
             mb={1}
@@ -106,57 +107,65 @@ export const UpdateWarehouse = ({
             </Button>
           </Box>
         </Box>
-        <TextField
-          error={Boolean(formik.touched.name && formik.errors.name)}
-          //   fullWidth
-          helperText={formik.touched.name && formik.errors.name}
-          label="Name"
-          margin="normal"
-          name="name"
-          onBlur={formik.handleBlur}
-          onChange={formik.handleChange}
-          value={formik.values.name || ''}
-          variant="outlined"
-          size="small"
-          sx={{ marginRight: '1%', width: '20%' }}
-        />
+        <Card sx={{ marginTop: 1, marginBottom: 2 }}>
+          <Box p={2}>
+            <Box display="flex" justifyContent="space-between">
+              <TextField
+                error={Boolean(formik.touched.name && formik.errors.name)}
+                //   fullWidth
+                helperText={formik.touched.name && formik.errors.name}
+                label="Name"
+                margin="normal"
+                name="name"
+                onBlur={formik.handleBlur}
+                onChange={formik.handleChange}
+                value={formik.values.name || ''}
+                variant="outlined"
+                size="small"
+                sx={{ width: '20%' }}
+              />
 
-        <TextField
-          error={Boolean(formik.touched.address && formik.errors.address)}
-          //   fullWidth
-          helperText={formik.touched.address && formik.errors.address}
-          label="Address"
-          margin="normal"
-          name="address"
-          onBlur={formik.handleBlur}
-          onChange={formik.handleChange}
-          value={formik.values.address || ''}
-          variant="outlined"
-          size="small"
-          sx={{ width: '79%' }}
-        />
-        <Box display="flex" justifyContent="flex-end">
-          <TextField
-            error={Boolean(
-              formik.touched.description && formik.errors.description
-            )}
-            //   fullWidth
-            helperText={formik.touched.description && formik.errors.description}
-            label="Description"
-            margin="normal"
-            name="description"
-            onBlur={formik.handleBlur}
-            onChange={formik.handleChange}
-            value={formik.values.description || ''}
-            variant="outlined"
-            multiline
-            minRows={4}
-            sx={{ width: '79%' }}
-          />
-        </Box>
-        <Typography variant="body1" color="red">
-          {error}
-        </Typography>
+              <TextField
+                error={Boolean(formik.touched.address && formik.errors.address)}
+                //   fullWidth
+                helperText={formik.touched.address && formik.errors.address}
+                label="Address"
+                margin="normal"
+                name="address"
+                onBlur={formik.handleBlur}
+                onChange={formik.handleChange}
+                value={formik.values.address || ''}
+                variant="outlined"
+                size="small"
+                sx={{ width: '79%' }}
+              />
+            </Box>
+            <Box display="flex" justifyContent="flex-end">
+              <TextField
+                error={Boolean(
+                  formik.touched.description && formik.errors.description
+                )}
+                //   fullWidth
+                helperText={
+                  formik.touched.description && formik.errors.description
+                }
+                label="Description"
+                margin="normal"
+                name="description"
+                onBlur={formik.handleBlur}
+                onChange={formik.handleChange}
+                value={formik.values.description || ''}
+                variant="outlined"
+                multiline
+                minRows={4}
+                sx={{ width: '79%' }}
+              />
+            </Box>
+            <Typography variant="body1" color="red">
+              {error}
+            </Typography>
+          </Box>
+        </Card>
       </form>
     </>
   );

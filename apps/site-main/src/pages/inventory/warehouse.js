@@ -1,14 +1,12 @@
-import { Box, Card, Container, IconButton, Typography } from '@mui/material';
+import { Box, Card, Container, IconButton } from '@mui/material';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import { useEffect, useState } from 'react';
 import MoreVert from '@mui/icons-material/MoreVert';
 import { NotificationAlert } from '../../components/notification-alert';
 import { WarehouseToolbar } from '../../components/inventory/warehouse/warehouse-toolbar';
-import { ViewBinDialog } from '../../components/inventory/warehouse/view-bin-dialog';
 import { CreateWarehouseDialog } from '../../components/inventory/warehouse/create-warehouse-dialog';
 import { WarehouseConfirmDialog } from '../../components/inventory/warehouse/warehouse-confirm-dialog';
-import { WarehouseActionMenu } from '../../components/inventory/warehouse/warehouse-action-menu';
 import { useNavigate } from 'react-router-dom';
 
 const Warehouse = () => {
@@ -177,7 +175,6 @@ const Warehouse = () => {
   //Navigate to the bin page
   const navigate = useNavigate();
   const handleRowClick = (rowData) => {
-    console.log(rowData);
     navigate('bin', { state: { warehouseId: rowData.id } });
   };
 

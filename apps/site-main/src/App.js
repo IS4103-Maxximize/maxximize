@@ -12,6 +12,7 @@ import Dashboard from './pages/dashboard';
 import ForgotPassword from './pages/forgotPassword';
 // import Inventory from './pages/inventory';
 import Bin from './pages/inventory/bin';
+import BinDetails from './pages/inventory/bin-details';
 import Warehouse from './pages/inventory/warehouse';
 import Login from './pages/login';
 import OrganisationSelection from './pages/organisationSelection';
@@ -24,9 +25,8 @@ import BillOfMaterial from './pages/production/bom';
 import Products from './pages/products';
 import ProtectedPublicRoute from './pages/protectedPublicRoute';
 import ProtectedRoute from './pages/protectedRoute';
-import QaChecklists from './pages/qaChecklists';
-import QaRules from './pages/qaRules';
-import QualityAssurance from './pages/qualityAssurance';
+import QAChecklists from './pages/qaChecklists';
+import QARules from './pages/qaRules';
 import ResetPassword from './pages/resetpassword';
 import Unauthorized from './pages/unauthorized';
 import WorkerManagement from './pages/workermanagement';
@@ -123,14 +123,14 @@ const routes = (
               element={<ProcurementForecast />}
             ></Route>
             {/* Quality Assurance */}
-            <Route
+            {/* <Route
               path="qualityAssurance"
               element={<QualityAssurance />}
-            ></Route>
-            <Route path="qualityAssurance/rules" element={<QaRules />}></Route>
+            ></Route> */}
+            <Route path="qualityAssurance/rules" element={<QARules />}></Route>
             <Route
               path="qualityAssurance/checklists"
-              element={<QaChecklists />}
+              element={<QAChecklists />}
             ></Route>
           </Route>
 
@@ -185,6 +185,10 @@ const routes = (
             {/* Inventory Modules */}
             <Route path="warehouse" element={<Warehouse />}></Route>
             <Route path="warehouse/bin" element={<Bin />}></Route>
+            <Route
+              path="warehouse/bin/details"
+              element={<BinDetails />}
+            ></Route>
           </Route>
         </Route>
       </Route>

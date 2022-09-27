@@ -2,7 +2,19 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import DomainAddIcon from '@mui/icons-material/DomainAdd';
 import HelpIcon from '@mui/icons-material/Help';
 import MoreVert from '@mui/icons-material/MoreVert';
-import { Badge, Box, Card, InputAdornment, Menu, MenuItem, Stack, SvgIcon, TextField, Tooltip } from '@mui/material';
+import {
+  Badge,
+  Box,
+  Card,
+  CardContent,
+  InputAdornment,
+  Menu,
+  MenuItem,
+  Stack,
+  SvgIcon,
+  TextField,
+  Tooltip,
+} from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import { useEffect, useState } from 'react';
@@ -12,23 +24,25 @@ import { BusinessPartnerConfirmDialog } from './BusinessPartnerConfirmDialog';
 import { RelationsDialog } from './RelationsDialog';
 import { UpdateRelationsDialog } from './updateRelationsDialog';
 
-export const SuppliersList = ({orgId}) => {
+export const SuppliersList = ({ orgId }) => {
   const [suppliers, setSuppliers] = useState([]);
-  const [filteredSuppliers, setFilteredSuppliers] = useState([])
+  const [filteredSuppliers, setFilteredSuppliers] = useState([]);
   const [selectionModel, setSelectionModel] = useState([]);
-  const [search, setSearch] = useState('')
-  const [disabled, setDisabled] = useState(true)
-  const [rowToEdit, setRowToEdit] = useState('')
+  const [search, setSearch] = useState('');
+  const [disabled, setDisabled] = useState(true);
+  const [rowToEdit, setRowToEdit] = useState('');
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
 
   const menuButton = (params) => {
     return (
-      <IconButton onClick={(event) => {
-        setRowToEdit(params.row);
-        handleMenuClick(event);
-        }}>
-        <MoreVert/>
+      <IconButton
+        onClick={(event) => {
+          setRowToEdit(params.row);
+          handleMenuClick(event);
+        }}
+      >
+        <MoreVert />
       </IconButton>
     );
   };
@@ -41,7 +55,7 @@ export const SuppliersList = ({orgId}) => {
   const handleMenuClose = (type) => {
     if (type === 'update') {
       if (rowToEdit) {
-        setOpenUpdateDialog(true)
+        setOpenUpdateDialog(true);
       }
     }
     setAnchorEl(null);
@@ -54,16 +68,14 @@ export const SuppliersList = ({orgId}) => {
   const retrieveSuppliers = async () => {
     const suppliersList = await fetch(
       'http://localhost:3000/api/shell-organisations'
-      
     );
     const queries = await suppliersList.json();
-    const result = queries.filter( query => query.type === 'supplier');
+    const result = queries.filter((query) => query.type === 'supplier');
     setSuppliers(result);
   };
 
   const [openDialog, setOpenDialog] = useState(false);
-  const [openConfirmationDialog, setOpenConfirmationDialog] = useState(false)
-  
+  const [openConfirmationDialog, setOpenConfirmationDialog] = useState(false);
 
   const handleOpenDialog = () => {
     setOpenDialog(true);
@@ -74,12 +86,12 @@ export const SuppliersList = ({orgId}) => {
   };
 
   const handleCloseConfirmationDialog = () => {
-    setOpenConfirmationDialog(false)
-  }
-  
+    setOpenConfirmationDialog(false);
+  };
+
   const handleOpenConfirmationDialog = () => {
-    setOpenConfirmationDialog(true)
-  }
+    setOpenConfirmationDialog(true);
+  };
 
   // NotificationAlert helpers
   const [alertOpen, setAlertOpen] = useState(false);
@@ -95,7 +107,7 @@ export const SuppliersList = ({orgId}) => {
     setAlertText(null);
     setAlertSeverity('');
   };
-  
+
   const addOrganisation = (supplier) => {
     try {
       const updatedSuppliers = [...suppliers, supplier];
@@ -110,58 +122,56 @@ export const SuppliersList = ({orgId}) => {
   };
 
   const updateOrganisation = (supplier) => {
-    const indexOfEditOrg = suppliers.findIndex(currentSupplier => currentSupplier.id === supplier.id)
-    const newSuppliers = [...suppliers]
-    newSuppliers[indexOfEditOrg] = supplier
-    setSuppliers(newSuppliers)
+    const indexOfEditOrg = suppliers.findIndex(
+      (currentSupplier) => currentSupplier.id === supplier.id
+    );
+    const newSuppliers = [...suppliers];
+    newSuppliers[indexOfEditOrg] = supplier;
+    setSuppliers(newSuppliers);
     handleAlertOpen(
       `Updated Business Partner Details ${supplier.id} successfully!`,
       'success'
     );
-  }
+  };
 
-//   Search functionality
+  //   Search functionality
   const handleSearch = (event) => {
-    setSearch(event.target.value.toLowerCase().trim())
+    setSearch(event.target.value.toLowerCase().trim());
   };
 
   useEffect(() => {
-    const filteredRows = suppliers.filter(supplier => supplier.name.toLowerCase().includes(search))
-    setFilteredSuppliers(filteredRows)
-  }, [search, suppliers])
-
+    const filteredRows = suppliers.filter((supplier) =>
+      supplier.name.toLowerCase().includes(search)
+    );
+    setFilteredSuppliers(filteredRows);
+  }, [search, suppliers]);
 
   //on row select
   useEffect(() => {
-    setDisabled(selectionModel.length === 0)
+    setDisabled(selectionModel.length === 0);
   }, [selectionModel]);
 
-  const handleDelete = async() => {
-    
+  const handleDelete = async () => {
     const requestOptions = {
       method: 'DELETE',
       redirect: 'follow',
     };
     for (let i = 0; i < selectionModel.length; i++) {
-        const res = await fetch(
-            `http://localhost:3000/api/shell-organisations/${selectionModel[i]}`,
-            requestOptions
-          )
-        const result = await res.json()
-        console.log(`${selectionModel[i]} was deleted`)
+      const res = await fetch(
+        `http://localhost:3000/api/shell-organisations/${selectionModel[i]}`,
+        requestOptions
+      );
+      const result = await res.json();
+      console.log(`${selectionModel[i]} was deleted`);
     }
 
-    
-    handleAlertOpen(
-        `Deleted Business Partner successfully!`,
-        'success'
+    handleAlertOpen(`Deleted Business Partner successfully!`, 'success');
+
+    const remainingSuppliers = suppliers.filter(
+      (supplier) => !selectionModel.includes(supplier.id)
     );
-
-
-    const remainingSuppliers = suppliers.filter(supplier => !selectionModel.includes(supplier.id))
-    setSuppliers(remainingSuppliers)
-    setSelectionModel([])
-    
+    setSuppliers(remainingSuppliers);
+    setSelectionModel([]);
   };
 
   const columns = [
@@ -169,19 +179,19 @@ export const SuppliersList = ({orgId}) => {
       field: 'id',
       headerName: 'Supplier ID',
       width: 150,
-      flex: 1
+      flex: 1,
     },
     {
       field: 'name',
       headerName: 'Name',
       width: 200,
-      flex: 2
+      flex: 2,
     },
     {
       field: 'uen',
       headerName: 'UEN',
       width: 200,
-      flex: 1
+      flex: 1,
     },
     {
       field: 'address',
@@ -191,11 +201,11 @@ export const SuppliersList = ({orgId}) => {
       editable: true,
       valueGetter: (params) => {
         if (params.row.contact) {
-            return params.row.contact.address
+          return params.row.contact.address;
         } else {
-            return ''
+          return '';
         }
-      }
+      },
     },
     {
       field: 'phoneNumber',
@@ -205,11 +215,11 @@ export const SuppliersList = ({orgId}) => {
       editable: true,
       valueGetter: (params) => {
         if (params.row.contact) {
-            return params.row.contact.phoneNumber
+          return params.row.contact.phoneNumber;
         } else {
-            return ''
+          return '';
         }
-      }
+      },
     },
     {
       field: 'email',
@@ -219,11 +229,11 @@ export const SuppliersList = ({orgId}) => {
       editable: true,
       valueGetter: (params) => {
         if (params.row.contact) {
-            return params.row.contact.email
+          return params.row.contact.email;
         } else {
-            return ''
+          return '';
         }
-      }
+      },
     },
     {
       field: 'postalCode',
@@ -233,113 +243,117 @@ export const SuppliersList = ({orgId}) => {
       editable: true,
       valueGetter: (params) => {
         if (params.row.contact) {
-            return params.row.contact.postalCode
+          return params.row.contact.postalCode;
         } else {
-            return ''
+          return '';
         }
-      }
+      },
     },
     {
       field: 'actions',
       headerName: '',
       width: 50,
       sortable: false,
-      renderCell: menuButton
-    }
-
+      renderCell: menuButton,
+    },
   ];
 
   return (
     <>
-    <NotificationAlert
-      open={alertOpen}
-      severity={alertSeverity}
-      text={alertText}
-      handleClose={handleAlertClose}
-    />
-    <Menu anchorEl={anchorEl} open={open} onClose={handleMenuClose}>
-      <MenuItem onClick={() => handleMenuClose('update')}>Update</MenuItem>
-    </Menu>
+      <NotificationAlert
+        open={alertOpen}
+        severity={alertSeverity}
+        text={alertText}
+        handleClose={handleAlertClose}
+      />
+      <Menu anchorEl={anchorEl} open={open} onClose={handleMenuClose}>
+        <MenuItem onClick={() => handleMenuClose('update')}>Update</MenuItem>
+      </Menu>
 
-    <UpdateRelationsDialog
-      openUpdateDialog={openUpdateDialog} 
-      setOpenUpdateDialog={setOpenUpdateDialog} 
-      updateOrganisation={updateOrganisation} 
-      type='supplier'
-      rowData={rowToEdit}
-    />
-    <Box 
-        sx={{ 
-        alignItems: 'center', 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        flexWrap: 'wrap', 
-        m: -1, 
-        }} 
-    > 
-        <Stack direction="row" spacing={1}> 
-        <TextField 
-            sx={{ width: 500, border: 1, borderRadius: 1}}
-            InputProps={{ 
-            startAdornment: ( 
-                <InputAdornment position="start"> 
-                <SvgIcon fontSize="small" color="action"> 
-                    <SearchIcon /> 
-                </SvgIcon> 
-                </InputAdornment> 
-            ), 
-            }} 
-            placeholder="Search Supplier" 
-            variant="outlined" 
-            type="search" 
-            onChange={handleSearch} 
-        /> 
-        </Stack> 
-
-      </Box>
-    
-      <Box 
-        mb={2} 
-        sx={{ m: 1 }} 
-        display="flex" 
-        justifyContent="end"
-        alignItems="baseline"
-      >
-      
-          <Tooltip title={'Add new supplier'}>
-            <IconButton 
-              color="primary"
-              onClick={handleOpenDialog}
+      <UpdateRelationsDialog
+        openUpdateDialog={openUpdateDialog}
+        setOpenUpdateDialog={setOpenUpdateDialog}
+        updateOrganisation={updateOrganisation}
+        type="supplier"
+        rowData={rowToEdit}
+      />
+      <Box sx={{ mt: 3 }}>
+        <Card>
+          <CardContent>
+            <Box
+              sx={{
+                alignItems: 'center',
+                display: 'flex',
+                justifyContent: 'space-between',
+                flexWrap: 'wrap',
+                m: -1,
+              }}
             >
-              <DomainAddIcon />
-            </IconButton>
-          </Tooltip>
+              <Stack direction="row" spacing={1}>
+                <TextField
+                  sx={{ width: 500, border: 1, borderRadius: 1 }}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <SvgIcon fontSize="small" color="action">
+                          <SearchIcon />
+                        </SvgIcon>
+                      </InputAdornment>
+                    ),
+                  }}
+                  placeholder="Search Supplier"
+                  variant="outlined"
+                  type="search"
+                  onChange={handleSearch}
+                />
+              </Stack>
 
-          <RelationsDialog
-            openDialog={openDialog}
-            setOpenDialog={setOpenDialog}
-            addOrganisation={addOrganisation}
-            type='supplier'
-            orgId={orgId}
-          />
+              <Box
+                mb={2}
+                sx={{ m: 1 }}
+                display="flex"
+                justifyContent="end"
+                alignItems="baseline"
+              >
+                <Tooltip title={'Add new supplier'}>
+                  <IconButton color="primary" onClick={handleOpenDialog}>
+                    <DomainAddIcon />
+                  </IconButton>
+                </Tooltip>
 
-        <Tooltip title={'Update a supplier by clicking on the menu button at the end of the row'}>
-          <span>
-            <HelpIcon />
-          </span>
-        </Tooltip>
+                <RelationsDialog
+                  openDialog={openDialog}
+                  setOpenDialog={setOpenDialog}
+                  addOrganisation={addOrganisation}
+                  type="supplier"
+                  orgId={orgId}
+                />
 
-        <Tooltip title={'Delete Supplier (Single/Multiple)'}>
-          <IconButton
-            disabled={disabled}
-            onClick={handleOpenConfirmationDialog}
-            color="error"
-          >
-            <Badge badgeContent={selectionModel.length} color="error">
-              <DeleteIcon />
-            </Badge>
-          </IconButton>
-        </Tooltip>
+                <Tooltip
+                  title={
+                    'Update a supplier by clicking on the menu button at the end of the row'
+                  }
+                >
+                  <span>
+                    <HelpIcon />
+                  </span>
+                </Tooltip>
+
+                <Tooltip title={'Delete Supplier (Single/Multiple)'}>
+                  <IconButton
+                    disabled={disabled}
+                    onClick={handleOpenConfirmationDialog}
+                    color="error"
+                  >
+                    <Badge badgeContent={selectionModel.length} color="error">
+                      <DeleteIcon />
+                    </Badge>
+                  </IconButton>
+                </Tooltip>
+              </Box>
+            </Box>
+          </CardContent>
+        </Card>
       </Box>
 
       <BusinessPartnerConfirmDialog
@@ -352,27 +366,29 @@ export const SuppliersList = ({orgId}) => {
           handleDelete(selectedIds);
         }}
       />
-
-      <Card>
-        <Box sx={{ minWidth: 1050 }}>
-          <DataGrid
-            autoHeight
-            rows={filteredSuppliers}
-            columns={columns}
-            pageSize={10}
-            rowsPerPageOptions={[10]}
-            allowSorting={true}
-            components={{
-              Toolbar: GridToolbar,
-            }}
-            disableSelectionOnClick
-            checkboxSelection={true}
-            onSelectionModelChange={(ids) => {
-              setSelectionModel(ids);
-            }}
-            experimentalFeatures={{ newEditingApi: true }}
-          />
-        </Box>
-      </Card>
+      <Box sx={{ mt: 3 }}>
+        <Card>
+          <Box sx={{ minWidth: 1050 }}>
+            <DataGrid
+              autoHeight
+              rows={filteredSuppliers}
+              columns={columns}
+              pageSize={10}
+              rowsPerPageOptions={[10]}
+              allowSorting={true}
+              components={{
+                Toolbar: GridToolbar,
+              }}
+              disableSelectionOnClick
+              checkboxSelection={true}
+              onSelectionModelChange={(ids) => {
+                setSelectionModel(ids);
+              }}
+              experimentalFeatures={{ newEditingApi: true }}
+            />
+          </Box>
+        </Card>
+      </Box>
     </>
-  )};
+  );
+};

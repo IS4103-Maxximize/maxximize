@@ -1,16 +1,15 @@
-import { Box, Card, Container, IconButton, Typography } from '@mui/material';
+import { Box, Button, Card, Container, Tooltip } from '@mui/material';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import { useEffect, useState } from 'react';
-import MoreVert from '@mui/icons-material/MoreVert';
 import { NotificationAlert } from '../../components/notification-alert';
 import { BinToolbar } from '../../components/inventory/bin/bin-toolbar';
 import { CreateBinDialog } from '../../components/inventory/bin/create-bin-dialog';
-import { BinActionMenu } from '../../components/inventory/bin/bin-action-menu';
-import { UpdateBinDialog } from '../../components/inventory/bin/update-bin-dialog';
 import { BinConfirmDialog } from '../../components/inventory/bin/bin-confirm-dialog';
-import { Navigate, useLocation } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { UpdateWarehouse } from '../../components/inventory/warehouse/update-warehouse';
+import KitchenIcon from '@mui/icons-material/Kitchen';
+import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 
 const Bin = () => {
   const [bins, setBins] = useState([]);
@@ -46,11 +45,9 @@ const Bin = () => {
     if (response.status == 200 || response.status == 201) {
       result = await response.json();
     }
-
     if (state != null) {
       result = result.filter((bin) => bin.warehouse.id == state.warehouseId);
     }
-
     setBins(result);
   };
 
@@ -58,17 +55,17 @@ const Bin = () => {
 
   //Retrieve warehouse
   const retrieveWarehouse = async () => {
-    const response = await fetch(
-      `http://localhost:3000/api/warehouses/${state.warehouseId}`
-    );
+    if (state != null) {
+      const response = await fetch(
+        `http://localhost:3000/api/warehouses/${state.warehouseId}`
+      );
 
-    let result = [];
-
-    if (response.status == 200 || response.status == 201) {
-      result = await response.json();
+      let result = [];
+      if (response.status == 200 || response.status == 201) {
+        result = await response.json();
+      }
+      setWarehouse(result);
     }
-
-    setWarehouse(result);
   };
 
   //Search Function
@@ -78,38 +75,45 @@ const Bin = () => {
     setSearch(event.target.value.toLowerCase().trim());
   };
 
-  //Action Menu
-  const [anchorElUpdate, setAnchorElUpdate] = useState(null);
-  const actionMenuOpen = Boolean(anchorElUpdate);
-  const handleActionMenuClick = (event) => {
-    setAnchorElUpdate(event.currentTarget);
-  };
-  const handleActionMenuClose = () => {
-    setAnchorElUpdate(null);
+  // License: MIT - https://opensource.org/licenses/MIT
+  // Author: Michele Locati <michele@locati.it>
+  // Source: https://gist.github.com/mlocati/7210513
+  //Edited for darker shade, better constrast
+  const perc2color = (bin) => {
+    let perc = ((bin.capacity - bin.currentCapacity) / bin.capacity) * 100;
+    let r,
+      g,
+      b = 0;
+    if (perc < 50) {
+      r = 255;
+      g = Math.round(5.1 * perc);
+    } else {
+      g = 255;
+      r = Math.round(510 - 5.1 * perc);
+    }
+    let h = r * 0x10000 + g * 0x100 + b * 0x1;
+    h = h.toString(16);
+
+    let newString = '';
+
+    for (let i = 0; i < h.length; i++) {
+      if (i % 2 != 0) {
+        newString += '0';
+      } else {
+        newString += h.charAt(i);
+      }
+    }
+
+    return '#' + ('000000' + newString).slice(-6);
   };
 
-  const menuButton = (params) => {
+  //Icon for capacity status
+  const capacityStatus = (params) => {
     return (
-      <IconButton
-        // disabled={params.row.bins?.length == 0}
-        onClick={(event) => {
-          setSelectedRow(params.row);
-          handleActionMenuClick(event);
-        }}
-      >
-        <MoreVert />
-      </IconButton>
+      <Tooltip title={`${params.row.currentCapacity} / ${params.row.capacity}`}>
+        <KitchenIcon sx={{ color: perc2color(params.row) }} />
+      </Tooltip>
     );
-  };
-
-  //Update bin List
-  const updateBin = (bin) => {
-    const indexOfEditBin = bins.findIndex(
-      (currentBin) => currentBin.id === bin.id
-    );
-    const newBins = [...bins];
-    newBins[indexOfEditBin] = bin;
-    setBins(newBins);
   };
 
   //Alert Notification
@@ -189,7 +193,7 @@ const Bin = () => {
     setBatchLineItems(selectedBin?.batchLineItems);
   }, [openUpdateDialog]);
 
-  //Update warehouse List
+  //Update warehouse
   const updateWarehouse = (warehouse) => {
     setWarehouse(warehouse);
   };
@@ -210,30 +214,43 @@ const Bin = () => {
     },
     {
       field: 'capacity',
-      headerName: 'Capacity',
+      headerName: 'Total Capacity',
       width: 100,
       flex: 2,
     },
     {
       field: 'currentCapacity',
-      headerName: 'Current Capacity',
+      headerName: 'Occupied',
       width: 100,
       flex: 2,
     },
     {
-      field: 'action',
-      headerName: 'Action',
-      sortable: false,
-      renderCell: menuButton,
+      field: 'remainingCapacity',
+      headerName: 'Remaining Capacity',
+      width: 100,
+      flex: 2,
+      valueGetter: (params) => params.row.capacity - params.row.currentCapacity,
+    },
+    {
+      field: 'actions',
+      headerName: 'Status',
       flex: 1,
+      sortable: false,
+      renderCell: capacityStatus,
     },
   ];
 
   //Row for datagrid, set the list returned from API
   const rows = bins;
 
+  //Navigate to the bin page
+  const navigate = useNavigate();
+  const handleRowClick = (rowData) => {
+    navigate('details', { state: { bin: rowData.row } });
+  };
+
   return state == null ? (
-    <Navigate to="/404" />
+    <Navigate to="/warehouse" />
   ) : (
     <>
       <HelmetProvider>
@@ -263,21 +280,7 @@ const Bin = () => {
           handleDelete(selectedRows);
         }}
       />
-      <BinActionMenu
-        bin={selectedRow}
-        anchorElUpdate={anchorElUpdate}
-        actionMenuOpen={actionMenuOpen}
-        handleActionMenuClose={handleActionMenuClose}
-        handleClickUpdate={handleUpdateDialog}
-      />
-      <UpdateBinDialog
-        bin={selectedRow}
-        updateBin={updateBin}
-        openUpdateDialog={openUpdateDialog}
-        setOpenUpdateDialog={setOpenUpdateDialog}
-        handleAlertOpen={handleAlertOpen}
-        batchLineItems={batchLineItems}
-      />
+
       <Box
         component="main"
         sx={{
@@ -286,6 +289,14 @@ const Bin = () => {
           pb: 4,
         }}
       >
+        <Button
+          onClick={() => navigate(-1)}
+          size="small"
+          startIcon={<ArrowBackIosNewIcon />}
+          sx={{ marginLeft: 2 }}
+        >
+          Back
+        </Button>
         <Container maxWidth={false}>
           <UpdateWarehouse
             warehouse={warehouse}
@@ -293,7 +304,6 @@ const Bin = () => {
             handleAlertOpen={handleAlertOpen}
           />
           <BinToolbar
-            warehouse={warehouse}
             disabled={disabled}
             numBin={selectedRows.length}
             handleClickOpen={handleClickOpen}
@@ -324,6 +334,7 @@ const Bin = () => {
                   onSelectionModelChange={(ids) => {
                     setSelectedRows(ids);
                   }}
+                  onRowClick={(rowData) => handleRowClick(rowData)}
                 />
               </Box>
             </Card>
