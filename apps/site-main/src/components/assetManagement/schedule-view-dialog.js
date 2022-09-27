@@ -20,17 +20,17 @@ export const ScheduleViewDialog = (props) => {
     handleClose, 
   } = props;
 
-  const [completedSchedules, setRowsCompleted] = useState([]);
+  const [plannedSchedules, setRowsPlanned] = useState([]);
   const [ongoingSchedules, setRowsOngoing] = useState([]);
 
-
+  const scheduleResponse=[];
 
   const getSchedule = async () => {
     const response = await fetchProductionLine(selectedProductionLine?.id);
-    const schedules = response.schedules;
-    const completedSchedules = schedules.filter(schedule => schedule.status =="Completed");
-     setRowsCompleted(completedSchedules);
-     const ongoingSchedules = schedules.filter(schedule => schedule.status =="Ongoing");
+    const scheduleResponse = response?.schedules;
+    const plannedSchedules = scheduleResponse?.filter(schedule => schedule.status === 'planned');
+    setRowsPlanned(plannedSchedules);
+     const ongoingSchedules = scheduleResponse?.filter(schedule => schedule.status === 'ongoing');
      setRowsOngoing(ongoingSchedules);
 
   };
@@ -40,8 +40,8 @@ export const ScheduleViewDialog = (props) => {
   }, [open]);
 
   useEffect(() => {
-    console.log(completedSchedules);
-  }, [completedSchedules]);
+    console.log(plannedSchedules);
+  }, [plannedSchedules]);
 
   useEffect(() => {
     console.log(ongoingSchedules);
@@ -111,10 +111,10 @@ export const ScheduleViewDialog = (props) => {
                 </Card>
               )}
 
-              {completedSchedules?.length > 0 ? (
+              {plannedSchedules?.length > 0 ? (
                 <DataGrid
                   autoHeight
-                  rows={completedSchedules}
+                  rows={plannedSchedules}
                   columns={columns}
                   pageSize={10}
                   rowsPerPageOptions={[10]}
@@ -123,7 +123,7 @@ export const ScheduleViewDialog = (props) => {
                     Toolbar: GridToolbar,
                   }}
                   onSelectionModelChange={(ids) => {
-                    setRowsCompleted(ids);
+                    setRowsPlanned(ids);
                   }}
                   /> 
               ) : (
@@ -134,7 +134,7 @@ export const ScheduleViewDialog = (props) => {
                   }}
                 >
                   <CardContent>
-                    <Typography>{`No Completed Schedule Found`}</Typography>
+                    <Typography>{`No Planned Schedule Found`}</Typography>
                   </CardContent>
                 </Card>
               )}

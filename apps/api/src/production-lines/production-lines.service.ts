@@ -33,7 +33,8 @@ export class ProductionLinesService {
       lastStopped: null,
       organisationId: organisation.id
     })
-    return this.productionLineRepository.save(newProductionLine)
+    const newPL =  await this.productionLineRepository.save(newProductionLine)
+    return this.findOne(newPL.id);
   }
 
   async findAll(): Promise<ProductionLine[]> {

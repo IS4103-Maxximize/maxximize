@@ -68,7 +68,7 @@ export const ProductionLineManagementDialog = (props) => {
     description: Yup.string(),
     // lastStopped:Yup.date().required('Date and Time is required'),
     // finalGood: Yup.string().required('Final Good Produced is required'),
-    changeOverTime: Yup.number().required('Changeover time is required').positive('Change Over Time Cost has to be more than 0'),
+    changeOverTime: Yup.number().required('Changeover time is required').positive('Change Over Time has to be more than 0'),
     productionCostPerLot: Yup.number().required('Production Cost Per Lot is required').positive('Production Cost has to be more than 0'),
   };
 
@@ -94,7 +94,7 @@ export const ProductionLineManagementDialog = (props) => {
   
       if (response.status === 200 || response.status === 201) {
         const result = await response.json();
-  
+        console.log(result);
         addProductionLine(result);
         handleAlertOpen(`Production Line ${result.id} successfully`);
         setError('');
@@ -224,6 +224,7 @@ export const ProductionLineManagementDialog = (props) => {
             value={selectedDate}
             renderInput={(props) => <TextField {...props} />}
             onChange={handleDateChange}
+            disableFuture={true}
             />
             </Stack>
            <Stack direction="row" spacing={1} alignItems="center">

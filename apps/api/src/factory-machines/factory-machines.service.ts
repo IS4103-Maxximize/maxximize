@@ -30,8 +30,8 @@ export class FactoryMachinesService {
       organisationId: organisation.id,
       productionLineId: productionLine.id
     })
-    return this.factoryMachineRepository.save(newFactoryMachine)
-    
+    const newMachine = await this.factoryMachineRepository.save(newFactoryMachine)
+    return this.findOne(newMachine.id);
   }
 
   findAll(): Promise<FactoryMachine[]> {
