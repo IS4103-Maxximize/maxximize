@@ -100,8 +100,16 @@ export const BOMUpdateDialog = (props) => {
 
   const columns = [
     {
+      field: "totalQuantity",
+      headerName: "Total Quantity",
+      flex: 1,
+      valueGetter: (params) => {
+        return params.row ? params.row.rawMaterial.lotQuantity * params.row.quantity : '';
+      }
+    },
+    {
       field: "quantity",
-      headerName: "Quantity *",
+      headerName: "Line Item Quantity *",
       flex: 1,
       type: 'number',
       headerAlign: 'left',  // align header
@@ -173,6 +181,14 @@ export const BOMUpdateDialog = (props) => {
               variant="outlined"
               disabled
             />
+            <TextField
+              label="Lot Quantity"
+              margin="normal"
+              name="final-good-lotQuantity"
+              value={formik.values.finalGood ? formik.values.finalGood.lotQuantity : ''}
+              variant="outlined"
+              disabled
+            />
           </Stack>
           <DataGrid
             autoHeight
@@ -180,6 +196,7 @@ export const BOMUpdateDialog = (props) => {
             columns={columns}
             pageSize={5}
             rowsPerPageOptions={[5]}
+            disableSelectionOnClick
             onSelectionModelChange={(ids) => setSelectedRows(ids)}
             experimentalFeatures={{ newEditingApi: true }}
             processRowUpdate={handleRowUpdate}
