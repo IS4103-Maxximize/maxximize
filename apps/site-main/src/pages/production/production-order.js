@@ -1,63 +1,38 @@
-<<<<<<< HEAD
-import MoreVert from '@mui/icons-material/MoreVert';
-import {
-  Box,
-  Card,
-  CardContent,
-  Container,
-  IconButton,
-  Typography,
-} from '@mui/material';
-import { DataGrid, GridToolbar } from '@mui/x-data-grid';
-import { useEffect, useState } from 'react';
-import { Helmet, HelmetProvider } from 'react-helmet-async';
-import { BOMCreateDialog } from '../../components/bom/bom-create-dialog';
-import { BOMUpdateDialog } from '../../components/bom/bom-update-dialog';
-import { DashboardLayout } from '../../components/dashboard-layout';
-import { NotificationAlert } from '../../components/notification-alert';
-import { ConfirmDialog } from '../../components/product/confirm-dialog';
-import { ProductMenu } from '../../components/product/product-menu';
-import { Toolbar } from '../../components/toolbar';
-import { deleteBOMs, fetchBOMs } from '../../helpers/bom';
-=======
 import MoreVert from "@mui/icons-material/MoreVert";
 import { Box, Card, CardContent, Container, IconButton, Typography } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { useEffect, useState } from "react";
 import Helmet from "react-helmet";
-import { BOMCreateDialog } from "../../components/bom/bom-create-dialog";
-import { BOMUpdateDialog } from "../../components/bom/bom-update-dialog";
 import { DashboardLayout } from "../../components/dashboard-layout";
 import { NotificationAlert } from "../../components/notification-alert";
 import { ConfirmDialog } from "../../components/product/confirm-dialog";
 import { ProductMenu } from "../../components/product/product-menu";
+import { ProductionOrderCreateDialog } from "../../components/production-order/production-order-create-dialog";
 import { Toolbar } from "../../components/toolbar";
-import { deleteBOMs, fetchBOMs } from "../../helpers/production/bom";
->>>>>>> b2665b2b5b0243ac1d9e1ade4ba5341b3edbfcf6
 
-export const BillOfMaterial = (props) => {
+export const ProductionOrder = (props) => {
   const user = JSON.parse(localStorage.getItem('user'));
   const organisationId = user ? user.organisation.id : null;
+  const name = 'Production Order';
 
   const [loading, setLoading] = useState(true); // loading upon entering page
+
 
   // DataGrid Helpers
   const [rows, setRows] = useState([]);
   const [selectedRows, setSelectedRows] = useState([]); // Selected Row IDs
   const [selectedRow, setSelectedRow] = useState();
 
-  const getBOMs = async () => {
-    fetchBOMs(organisationId)
-      .then((res) => setRows(res))
-      .catch((err) =>
-        handleAlertOpen('Failed to fetch Bill Of Materials', 'error')
-      );
-  };
+  const getProductionOrders = async () => {
+    // fetchProdOrders(organisationId)
+    //   .then(res => setRows(res))
+    //   .catch(err => handleAlertOpen('Failed to fetch Production Orders', 'error'))
+  }
 
   useEffect(() => {
-    // get BOMs
+    // get Prod Orders
     setLoading(true);
-    getBOMs();
+    getProductionOrders();
   }, []);
 
   useEffect(() => {
@@ -65,6 +40,7 @@ export const BillOfMaterial = (props) => {
     // console.log(rows);
     setLoading(false);
   }, [rows]);
+
 
   // Alert Helpers
   const [alertOpen, setAlertOpen] = useState(false);
@@ -74,10 +50,11 @@ export const BillOfMaterial = (props) => {
     setAlertSeverity(severity);
     setAlertText(text);
     setAlertOpen(true);
-  };
+  }
   const handleAlertClose = () => {
     setAlertOpen(false);
-  };
+  }
+
 
   // Toolbar Helpers
   // Searchbar
@@ -89,9 +66,10 @@ export const BillOfMaterial = (props) => {
   const handleAddClick = () => {
     // setAction('POST');
     setSelectedRow(null);
-  };
+  }
   // Delete Button
   const deleteDisabled = Boolean(selectedRows.length === 0);
+
 
   // Menu Helpers
   const [action, setAction] = useState();
@@ -112,9 +90,8 @@ export const BillOfMaterial = (props) => {
     return (
       <IconButton
         onClick={(event) => {
-          console.log(params.row);
+          // console.log(params.row)
           setSelectedRow(params.row);
-          // setSelectedRows([params.row]);
           handleMenuClick(event);
         }}
       >
@@ -122,6 +99,7 @@ export const BillOfMaterial = (props) => {
       </IconButton>
     );
   };
+
 
   // Create Dialog Helpers
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
@@ -133,15 +111,15 @@ export const BillOfMaterial = (props) => {
   };
 
   useEffect(() => {
-    console.log(createDialogOpen);
     if (!createDialogOpen) {
       setLoading(true);
-      getBOMs();
+      getProductionOrders();
     }
     if (createDialogOpen) {
-      console.log(selectedRow);
+      // console.log(selectedRow);
     }
   }, [createDialogOpen]);
+
 
   // Update Dialog Helpers
   const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
@@ -153,15 +131,16 @@ export const BillOfMaterial = (props) => {
   };
 
   useEffect(() => {
-    console.log(updateDialogOpen);
+    console.log(updateDialogOpen)
     if (!updateDialogOpen) {
       setLoading(true);
-      getBOMs();
+      getProductionOrders();
     }
     if (updateDialogOpen) {
       console.log(selectedRow);
     }
   }, [updateDialogOpen]);
+
 
   // ConfirmDialog Helpers
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
@@ -172,57 +151,52 @@ export const BillOfMaterial = (props) => {
     setConfirmDialogOpen(false);
   };
 
+  
   // CRUD handlerss
   const handleDelete = async (ids) => {
     setSelectedRows([]);
-    deleteBOMs(ids)
-      .then(() =>
-        handleAlertOpen('Successfully deleted Bill Of Material(s)!', 'success')
-      )
-      .then(() => getBOMs());
-  };
+    // deleteProductionOrders(ids)
+    //   .then(() => handleAlertOpen('Successfully deleted Production Order(s)!', 'success'))
+    //   .then(() => getProdOrders());
+  }
 
   // DataGrid Columns
   const columns = [
     {
       field: 'id',
-      headerName: 'BOM ID',
+      headerName: 'PO ID',
       flex: 1,
     },
     {
-      field: 'name',
-      headerName: 'Final Good',
-      flex: 1,
-      valueGetter: (params) => {
-        return params.row ? params.row.finalGood.name : '';
-      },
+      field: 'plannedQuantity',
+      headerName: 'Planned Quantity',
+      flex: 2,
     },
     {
-      field: 'skuCode',
-      headerName: 'SKU',
+      field: 'daily',
+      headerName: 'Daily / Adhoc',
       flex: 1,
       valueGetter: (params) => {
-        return params.row ? params.row.finalGood.skuCode : '';
-      },
+        return params.row.daily ? 'Daily' : 'Adhoc';
+      }
     },
     {
       field: 'actions',
       headerName: '',
       flex: 1,
-      renderCell: menuButton,
+      renderCell: menuButton
     },
   ];
 
+
   return (
     <>
-      <HelmetProvider>
-        <Helmet>
-          <title>
-            BOM
-            {user && ` | ${user?.organisation?.name}`}
-          </title>
-        </Helmet>
-      </HelmetProvider>
+      <Helmet>
+        <title>
+          Production Order
+          {user && ` | ${user?.organisation?.name}`}
+        </title>
+      </Helmet>
       <Box
         component="main"
         sx={{
@@ -241,7 +215,7 @@ export const BillOfMaterial = (props) => {
           />
           <Toolbar
             key="toolbar"
-            name={'Bill Of Material'}
+            name={name}
             numRows={selectedRows.length}
             deleteDisabled={deleteDisabled}
             handleSearch={handleSearch}
@@ -249,23 +223,23 @@ export const BillOfMaterial = (props) => {
             handleFormDialogOpen={handleCreateDialogOpen}
             handleConfirmDialogOpen={handleConfirmDialogOpen}
           />
-          <BOMCreateDialog
-            key="bom-create-dialog"
+          <ProductionOrderCreateDialog
+            key="prod-order-create-dialog"
             open={createDialogOpen}
             handleClose={handleCreateDialogClose}
-            string={'Bill Of Material'}
+            string={name}
             handleAlertOpen={handleAlertOpen}
           />
-          <BOMUpdateDialog
+          {/* <BOMUpdateDialog
             key="bom-update-dialog"
             open={updateDialogOpen}
             handleClose={handleUpdateDialogClose}
             string={'Bill Of Material'}
             bom={selectedRow}
             handleAlertOpen={handleAlertOpen}
-          />
-          <ProductMenu
-            key="bom-menu"
+          /> */}
+          <ProductMenu 
+            key="prod-order-menu"
             anchorEl={anchorEl}
             menuOpen={menuOpen}
             handleClickOpen={handleUpdateDialogOpen}
@@ -275,8 +249,8 @@ export const BillOfMaterial = (props) => {
           <ConfirmDialog
             open={confirmDialogOpen}
             handleClose={handleConfirmDialogClose}
-            dialogTitle={`Delete Bill Of Material(s)`}
-            dialogContent={`Confirm deletion of Bill Of Material(s)?`}
+            dialogTitle={`Delete ${name}(s)`}
+            dialogContent={`Confirm deletion of ${name}(s)?`}
             dialogAction={() => {
               handleDelete(selectedRows);
             }}
@@ -313,7 +287,7 @@ export const BillOfMaterial = (props) => {
                 }}
               >
                 <CardContent>
-                  <Typography>{`No Bill Of Materials Found`}</Typography>
+                  <Typography>{`No ${name}s Found`}</Typography>
                 </CardContent>
               </Card>
             )}
@@ -324,6 +298,6 @@ export const BillOfMaterial = (props) => {
   );
 };
 
-BillOfMaterial.getLayout = (page) => <DashboardLayout>{page}</DashboardLayout>;
+ProductionOrder.getLayout = (page) => <DashboardLayout>{page}</DashboardLayout>;
 
-export default BillOfMaterial;
+export default ProductionOrder;
