@@ -65,11 +65,11 @@ export class BinsService {
   async findAllByOrganisationId(id: number) {
     return await this.binRepository.find({
       where: {
-		warehouse: {
-        	organisation: {
-          		id: id
-        	}
-		}
+        warehouse: {
+          organisation: {
+            id: id
+          }
+        }
       },
       relations: ["warehouse", "batchLineItems.product"]
     });
