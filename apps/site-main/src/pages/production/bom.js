@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import MoreVert from '@mui/icons-material/MoreVert';
 import {
   Box,
@@ -19,21 +18,6 @@ import { ConfirmDialog } from '../../components/product/confirm-dialog';
 import { ProductMenu } from '../../components/product/product-menu';
 import { Toolbar } from '../../components/toolbar';
 import { deleteBOMs, fetchBOMs } from '../../helpers/bom';
-=======
-import MoreVert from "@mui/icons-material/MoreVert";
-import { Box, Card, CardContent, Container, IconButton, Typography } from "@mui/material";
-import { DataGrid, GridToolbar } from "@mui/x-data-grid";
-import { useEffect, useState } from "react";
-import Helmet from "react-helmet";
-import { BOMCreateDialog } from "../../components/bom/bom-create-dialog";
-import { BOMUpdateDialog } from "../../components/bom/bom-update-dialog";
-import { DashboardLayout } from "../../components/dashboard-layout";
-import { NotificationAlert } from "../../components/notification-alert";
-import { ConfirmDialog } from "../../components/product/confirm-dialog";
-import { ProductMenu } from "../../components/product/product-menu";
-import { Toolbar } from "../../components/toolbar";
-import { deleteBOMs, fetchBOMs } from "../../helpers/production/bom";
->>>>>>> b2665b2b5b0243ac1d9e1ade4ba5341b3edbfcf6
 
 export const BillOfMaterial = (props) => {
   const user = JSON.parse(localStorage.getItem('user'));
