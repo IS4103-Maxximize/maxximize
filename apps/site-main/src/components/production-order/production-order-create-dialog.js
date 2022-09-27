@@ -125,12 +125,12 @@ export const ProductionOrderCreateDialog = (props) => {
       }
     },
     {
-      field: "quantity",
-      headerName: "Quantity",
+      field: "totalQuantity",
+      headerName: "Quantity Required",
       flex: 1,
-      type: 'number',
-      headerAlign: 'left',  // align header
-      align: 'left',        // align data
+      valueGetter: (params) => {
+        return params.row ? params.row.rawMaterial.lotQuantity * params.row.quantity : '';
+      }
     },
     {
       field: "sufficient",
@@ -177,7 +177,10 @@ export const ProductionOrderCreateDialog = (props) => {
           </Toolbar>
         </AppBar>
         <DialogContent>
-          {/* Production Quantity */}
+          {/* 
+            Production Quantity 
+            ??? Might be taken from BOM > FinalGood > lotQuantity idk need clarify
+          */}
           <TextField
             sx={{ width: 400, mb: 2 }}
             error={Boolean(formik.touched.quantity && formik.errors.quantity)}
@@ -192,19 +195,29 @@ export const ProductionOrderCreateDialog = (props) => {
             variant="outlined"
           />
           {/* BOM Selection */}
-          <Autocomplete
-            id="bom-selector"
-            sx={{ width: 400, mb: 2 }}
-            options={bomOptions}
-            getOptionLabel={(option) => `BOM ${option.id} - ${option.finalGood.name}`}
-            isOptionEqualToValue={(option, value) => option.id === value.id}
-            // value={formik.values.quotation}
-            onChange={(e, value) => {
-              formik.setFieldValue('bomId', value ? value.id : null);
-              setSelectedBom(value);
-            }}
-            renderInput={(params) => (<TextField {...params} label="Bill Of Material" />)}
-          />
+          <Stack direction="row" spacing={1}>
+            <Autocomplete
+              id="bom-selector"
+              sx={{ width: 400, mb: 2 }}
+              options={bomOptions}
+              getOptionLabel={(option) => `BOM ${option.id} - ${option.finalGood.name} [${option.finalGood.skuCode}]`}
+              isOptionEqualToValue={(option, value) => option.id === value.id}
+              // value={formik.values.quotation}
+              onChange={(e, value) => {
+                formik.setFieldValue('bomId', value ? value.id : null);
+                setSelectedBom(value);
+              }}
+              renderInput={(params) => (<TextField {...params} label="Bill Of Material" />)}
+            />
+            <TextField
+              label="Lot Quantity"
+              margin="normal"
+              name="final-good-lotQuantity"
+              value={selectedBom ? selectedBom.finalGood.lotQuantity : 0}
+              variant="outlined"
+              disabled
+            />
+          </Stack>
           <Typography 
             sx={{ mt: 2, mx: 2 }}
             variant="h6"
