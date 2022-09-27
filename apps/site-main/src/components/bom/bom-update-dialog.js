@@ -4,7 +4,7 @@ import { DataGrid } from "@mui/x-data-grid";
 import { useFormik } from "formik";
 import { useEffect, useState } from "react";
 import * as Yup from "yup";
-import { updateBomLineItem } from "../../helpers/bom";
+import { updateBomLineItem } from "../../helpers/production/bom";
 
 
 export const BOMUpdateDialog = (props) => {

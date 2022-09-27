@@ -1,4 +1,4 @@
-import { apiHost, headers } from "./constants";
+import { apiHost, headers } from "../constants";
 
 const apiUrl = `${apiHost}/bill-of-materials`;
 
