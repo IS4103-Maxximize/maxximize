@@ -10,6 +10,7 @@ import PrecisionManufacturingIcon from '@mui/icons-material/PrecisionManufacturi
 import RawOnIcon from '@mui/icons-material/RawOn';
 import ReceiptIcon from '@mui/icons-material/Receipt';
 import WarehouseIcon from '@mui/icons-material/Warehouse';
+import TaskIcon from '@mui/icons-material/Task';
 import {
   Box,
   Button,
@@ -95,6 +96,12 @@ const items = [
     href: '/production/bill-of-material',
     icon: <FormatListBulletedIcon fontSize="small" />,
     title: 'Bill Of Material',
+    access: ['superadmin'],
+  },
+  {
+    href: '/production/production-order',
+    icon: <TaskIcon fontSize="small" />,
+    title: 'Production Order',
     access: ['superadmin'],
   },
   {
