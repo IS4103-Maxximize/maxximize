@@ -164,6 +164,12 @@ const items = [
         title: 'Production Line',
         access: ['manager', 'factoryworker', 'superadmin'],
       },
+      {
+        href: '/production/production-order',
+        icon: <TaskIcon fontSize="small" />,
+        title: 'Production Order',
+        access: ['manager', 'factoryworker', 'superadmin'],
+      },
     ],
   },
 
@@ -174,30 +180,6 @@ const items = [
   //   title: 'Production',
   //   access: ['manager', 'factoryworker', 'superadmin'],
   // },
-  {
-    href: '/production/bill-of-material',
-    icon: <FormatListBulletedIcon fontSize="small" />,
-    title: 'Bill Of Material',
-    access: ['superadmin'],
-  },
-  {
-    href: '/production/production-order',
-    icon: <TaskIcon fontSize="small" />,
-    title: 'Production Order',
-    access: ['superadmin'],
-  },
-  {
-    href: '/asset-management/machine',
-    icon: <PrecisionManufacturingIcon fontSize="small" />,
-    title: 'Machine Management',
-    access: ['manager', 'factoryworker', 'superadmin'],
-  },
-  {
-    href: '/asset-management/production-line',
-    icon: <AddRoadIcon fontSize="small" />,
-    title: 'Production Line',
-    access: ['manager', 'factoryworker', 'superadmin'],
-  },
 ];
 
 export const DashboardSidebar = (props) => {
