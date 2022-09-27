@@ -9,6 +9,8 @@ import { CreateBinDialog } from '../../components/inventory/bin/create-bin-dialo
 import { BinActionMenu } from '../../components/inventory/bin/bin-action-menu';
 import { UpdateBinDialog } from '../../components/inventory/bin/update-bin-dialog';
 import { BinConfirmDialog } from '../../components/inventory/bin/bin-confirm-dialog';
+import { Navigate, useLocation } from 'react-router-dom';
+import { UpdateWarehouse } from '../../components/inventory/warehouse/update-warehouse';
 
 const Bin = () => {
   const [bins, setBins] = useState([]);
@@ -22,12 +24,16 @@ const Bin = () => {
   //Load in list of bins, initial
   useEffect(() => {
     retrieveAllBins();
+    retrieveWarehouse();
   }, []);
 
   //Keep track of selectedRows for deletion
   useEffect(() => {
     setDisabled(selectedRows.length === 0);
   }, [selectedRows]);
+
+  //Get the warehouse ID that was clicked
+  const { state } = useLocation();
 
   //Retrieve all bins
   const retrieveAllBins = async () => {
@@ -41,7 +47,28 @@ const Bin = () => {
       result = await response.json();
     }
 
+    if (state != null) {
+      result = result.filter((bin) => bin.warehouse.id == state.warehouseId);
+    }
+
     setBins(result);
+  };
+
+  const [warehouse, setWarehouse] = useState('');
+
+  //Retrieve warehouse
+  const retrieveWarehouse = async () => {
+    const response = await fetch(
+      `http://localhost:3000/api/warehouses/${state.warehouseId}`
+    );
+
+    let result = [];
+
+    if (response.status == 200 || response.status == 201) {
+      result = await response.json();
+    }
+
+    setWarehouse(result);
   };
 
   //Search Function
@@ -107,16 +134,9 @@ const Bin = () => {
     setOpen(true);
   };
 
-  //View Bin dialog
-  const [openViewDialog, setOpenViewDialog] = useState(false);
-  const [selectedBin, setSelectedBin] = useState('');
-
-  const handleOpenViewDialog = () => {
-    setOpenViewDialog(true);
-  };
-
   //Update Dialog helpers
   const [openUpdateDialog, setOpenUpdateDialog] = useState(false);
+  const [selectedBin, setSelectedBin] = useState('');
   const handleUpdateDialog = () => {
     setOpenUpdateDialog(true);
   };
@@ -125,7 +145,6 @@ const Bin = () => {
   const addBin = (bin) => {
     try {
       const updatedBins = [...bins, bin];
-
       setBins(updatedBins);
     } catch {
       console.log('An error occured please try again later');
@@ -168,7 +187,12 @@ const Bin = () => {
   //Load in list of line items
   useEffect(() => {
     setBatchLineItems(selectedBin?.batchLineItems);
-  }, [openViewDialog]);
+  }, [openUpdateDialog]);
+
+  //Update warehouse List
+  const updateWarehouse = (warehouse) => {
+    setWarehouse(warehouse);
+  };
 
   //Columns for datagrid, column headers & specs
   const columns = [
@@ -177,19 +201,6 @@ const Bin = () => {
       headerName: 'ID',
       width: 70,
       flex: 1,
-    },
-    {
-      field: 'warehouseId',
-      headerName: 'Warehouse ID',
-      width: 70,
-      flex: 2,
-      valueGetter: (params) => {
-        if (params.row.warehouse.id) {
-          return params.row.warehouse.id;
-        } else {
-          return '';
-        }
-      },
     },
     {
       field: 'name',
@@ -221,11 +232,13 @@ const Bin = () => {
   //Row for datagrid, set the list returned from API
   const rows = bins;
 
-  return (
+  return state == null ? (
+    <Navigate to="/404" />
+  ) : (
     <>
       <HelmetProvider>
         <Helmet>
-          <title>{`Bin | ${user?.organisation?.name}`}</title>
+          <title>{`${warehouse.name} Bin | ${user?.organisation?.name}`}</title>
         </Helmet>
       </HelmetProvider>
       <NotificationAlert
@@ -235,6 +248,7 @@ const Bin = () => {
         handleClose={handleAlertClose}
       />
       <CreateBinDialog
+        warehouse={warehouse}
         open={open}
         setOpen={setOpen}
         addBin={addBin}
@@ -250,6 +264,7 @@ const Bin = () => {
         }}
       />
       <BinActionMenu
+        bin={selectedRow}
         anchorElUpdate={anchorElUpdate}
         actionMenuOpen={actionMenuOpen}
         handleActionMenuClose={handleActionMenuClose}
@@ -261,6 +276,7 @@ const Bin = () => {
         openUpdateDialog={openUpdateDialog}
         setOpenUpdateDialog={setOpenUpdateDialog}
         handleAlertOpen={handleAlertOpen}
+        batchLineItems={batchLineItems}
       />
       <Box
         component="main"
@@ -271,7 +287,13 @@ const Bin = () => {
         }}
       >
         <Container maxWidth={false}>
+          <UpdateWarehouse
+            warehouse={warehouse}
+            updateWarehouse={updateWarehouse}
+            handleAlertOpen={handleAlertOpen}
+          />
           <BinToolbar
+            warehouse={warehouse}
             disabled={disabled}
             numBin={selectedRows.length}
             handleClickOpen={handleClickOpen}
@@ -287,10 +309,7 @@ const Bin = () => {
                     if (search === '') {
                       return row;
                     } else {
-                      return (
-                        row.name.toLowerCase().includes(search) ||
-                        row.warehouse.id.toString().includes(search)
-                      );
+                      return row.name.toLowerCase().includes(search);
                     }
                   })}
                   columns={columns}

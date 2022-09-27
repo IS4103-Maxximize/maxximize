@@ -22,9 +22,9 @@ export const CreateGoodReceiptDataGrid = ({
         pageSize={5}
         rowsPerPageOptions={[5]}
         allowSorting={true}
-        components={{
-          Toolbar: GridToolbar,
-        }}
+        // components={{
+        //   Toolbar: GridToolbar,
+        // }}
         disableSelectionOnClick
         checkboxSelection={true}
         onSelectionModelChange={(ids) => {

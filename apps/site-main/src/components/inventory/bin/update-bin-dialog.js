@@ -11,7 +11,7 @@ import {
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import { useFormik } from 'formik';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import * as Yup from 'yup';
 import DayJS from 'dayjs';
 
@@ -32,6 +32,8 @@ export const UpdateBinDialog = ({
   const handleDialogClose = () => {
     setOpenUpdateDialog(false);
   };
+
+  useEffect(() => console.log(bin), [openUpdateDialog]);
 
   //Update Bin
   const handleOnSubmit = async (values) => {
@@ -63,7 +65,7 @@ export const UpdateBinDialog = ({
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
-      warehouseId: bin?.warehouse.id,
+      warehouseId: bin?.warehouse?.id,
       name: bin?.name,
       capacity: bin?.capacity,
     },

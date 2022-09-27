@@ -16,6 +16,7 @@ import {
 import { GridSearchIcon } from '@mui/x-data-grid';
 
 export const BinToolbar = ({
+  warehouse,
   disabled,
   numBin,
   handleClickOpen,
@@ -33,7 +34,7 @@ export const BinToolbar = ({
           m: -1,
         }}
       >
-        <Typography sx={{ m: 1 }} variant="h4">
+        <Typography sx={{ m: 1 }} variant="h5">
           Bin
         </Typography>
       </Box>
@@ -61,7 +62,7 @@ export const BinToolbar = ({
                       </InputAdornment>
                     ),
                   }}
-                  placeholder="Search bin"
+                  placeholder="Search bin (by name)"
                   variant="outlined"
                   type="search"
                   onChange={handleSearch}

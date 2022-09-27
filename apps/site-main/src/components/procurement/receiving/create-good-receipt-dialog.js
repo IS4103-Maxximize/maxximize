@@ -120,6 +120,9 @@ export const CreateGoodReceiptDialog = ({
   const [lineItems, setLineItems] = useState([]);
   const [purchaseOrders, setPurchaseOrders] = useState([]);
 
+  //For PO number
+  const [inputValue, setInputValue] = useState('');
+
   //Retrieve all PO
   const retrievePurchaseOrders = async () => {
     const response = await fetch(
@@ -186,7 +189,7 @@ export const CreateGoodReceiptDialog = ({
       field: 'name',
       headerName: 'Product Name',
       width: 300,
-      flex: 4,
+      flex: 3,
       valueGetter: (params) => {
         if (params.row.rawMaterial.name) {
           return params.row.rawMaterial.name;
@@ -215,7 +218,7 @@ export const CreateGoodReceiptDialog = ({
             'error'
           );
         }
-        return { ...params.props, error: hasError };
+        return { error: hasError };
       },
     },
   ];
@@ -498,197 +501,273 @@ export const CreateGoodReceiptDialog = ({
               </Typography>
             </Box>
             <Box display="flex" alignItems="center">
-              <TextField
-                label="Purchase Order ID"
-                error={Boolean(
-                  formik.touched.purchaseOrderId &&
-                    formik.errors.purchaseOrderId
+              <Autocomplete
+                inputValue={inputValue}
+                options={purchaseOrders.map((purchaseOrder) =>
+                  purchaseOrder.id.toString()
                 )}
                 fullWidth
-                helperText={
-                  formik.touched.purchaseOrderId &&
-                  formik.errors.purchaseOrderId
-                }
-                value={formik.values.purchaseOrderId}
-                margin="normal"
-                name="purchaseOrderId"
-                onBlur={formik.handleBlur}
-                onChange={formik.handleChange}
-                variant="outlined"
-                size="small"
+                onChange={(e, value) => {
+                  setInputValue(value ? value : '');
+                  formik.setFieldValue('purchaseOrderId', value);
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Purchase Order ID"
+                    error={Boolean(
+                      formik.touched.purchaseOrderId &&
+                        formik.errors.purchaseOrderId
+                    )}
+                    fullWidth
+                    helperText={
+                      formik.touched.purchaseOrderId &&
+                      formik.errors.purchaseOrderId
+                    }
+                    value={formik.values.purchaseOrderId}
+                    margin="normal"
+                    name="purchaseOrderId"
+                    onBlur={formik.handleBlur}
+                    onChange={formik.handleChange}
+                    variant="outlined"
+                    size="small"
+                  />
+                )}
               />
-              <Box>
-                <Button
-                  sx={{ marginLeft: 1 }}
-                  variant="contained"
-                  size="medium"
-                  color="primary"
-                  onClick={retrievePOLineItems}
-                >
-                  Retrieve
-                </Button>
-              </Box>
+              <Button
+                sx={{ marginLeft: 1 }}
+                variant="contained"
+                size="medium"
+                color="primary"
+                onClick={retrievePOLineItems}
+              >
+                Retrieve
+              </Button>
             </Box>
 
-            {/* At full width */}
+            {/* With full width */}
             {!fullScreen && (
-              <Box
-                display="flex"
-                justifyContent="space-evenly"
-                mt={3}
-                minHeight={470}
-              >
-                <Box sx={{ minWidth: 700 }}>
-                  <CreateGoodReceiptDataGrid
-                    header="Accepted"
-                    products={acceptedProducts}
-                    columns={columnsForAccepted}
-                    setSelectionModel={setAcceptedSelectionModel}
-                    handleRowUpdate={handleRowUpdate}
-                    typeIn="accepted"
-                  />
+              <Box display="flex" justifyContent="space-evenly">
+                <Box mt={2} ml={'2.5%'} mr={'2.5%'} sx={{ minWidth: '45%' }}>
+                  <Box sx={{ minWidth: 360 }}>
+                    <CreateGoodReceiptDataGrid
+                      header="Accepted"
+                      products={acceptedProducts}
+                      columns={columnsForAccepted}
+                      setSelectionModel={setAcceptedSelectionModel}
+                      handleRowUpdate={handleRowUpdate}
+                      typeIn="accepted"
+                    />
+                  </Box>
+                  <Box display="flex" justifyContent="center">
+                    <IconButton
+                      //sx={{ marginTop: 12 }}
+                      size="medium"
+                      disabled={
+                        (acceptedSelectionModel.length == 0 &&
+                          followUpSelectionModel.length == 0) ||
+                        (acceptedSelectionModel.length > 0 &&
+                          followUpSelectionModel.length > 0)
+                      }
+                      onClick={() => {
+                        const selectedIds =
+                          acceptedSelectionModel.length == 0
+                            ? new Set(followUpSelectionModel)
+                            : new Set(acceptedSelectionModel);
+                        handleSwap(selectedIds);
+                      }}
+                    >
+                      <SwapVertIcon fontSize="large" />
+                    </IconButton>
+                  </Box>
+                  <Box sx={{ minWidth: 360 }}>
+                    <CreateGoodReceiptDataGrid
+                      header="Follow Up"
+                      products={followUpProducts}
+                      columns={columnsForFollowUp}
+                      setSelectionModel={setFollowUpSelectionModel}
+                      handleRowUpdate={handleRowUpdate}
+                      typeIn="followUp"
+                    />
+                  </Box>
                 </Box>
-                <Box display="flex" alignItems="center">
-                  <IconButton
-                    //sx={{ marginTop: 12 }}
-                    size="medium"
-                    disabled={
-                      (acceptedSelectionModel.length == 0 &&
-                        followUpSelectionModel.length == 0) ||
-                      (acceptedSelectionModel.length > 0 &&
-                        followUpSelectionModel.length > 0)
+
+                <Box mt={2} ml={'2.5%'} mr={'2.5%'} sx={{ minWidth: '45%' }}>
+                  <Typography variant="h5" sx={{ marginBottom: 2 }}>
+                    Quality Assurance
+                  </Typography>
+                  <TextField
+                    select
+                    defaultValue=""
+                    error={Boolean(
+                      formik.touched.checklist && formik.errors.checklist
+                    )}
+                    fullWidth
+                    helperText={
+                      formik.touched.checklist && formik.errors.checklist
                     }
-                    onClick={() => {
-                      const selectedIds =
-                        acceptedSelectionModel.length == 0
-                          ? new Set(followUpSelectionModel)
-                          : new Set(acceptedSelectionModel);
-                      handleSwap(selectedIds);
-                    }}
+                    label="Checklist"
+                    value={currentChecklist}
+                    margin="normal"
+                    name="checklist"
+                    onBlur={formik.handleBlur}
+                    onChange={handleChecklistChange}
+                    variant="outlined"
+                    size="small"
                   >
-                    <SwapHorizIcon fontSize="large" />
-                  </IconButton>
-                </Box>
-                <Box sx={{ minWidth: 700 }}>
-                  <CreateGoodReceiptDataGrid
-                    header="Follow Up"
-                    products={followUpProducts}
-                    columns={columnsForFollowUp}
-                    setSelectionModel={setFollowUpSelectionModel}
-                    handleRowUpdate={handleRowUpdate}
-                    typeIn="followUp"
+                    {qaChecklists.length != 0 ? (
+                      qaChecklists?.map((option) => (
+                        <MenuItem key={option.id} value={option.name}>
+                          {option.name}
+                        </MenuItem>
+                      ))
+                    ) : (
+                      <h5>&nbsp; &nbsp; No Checklists Found</h5>
+                    )}
+                  </TextField>
+                  <List>
+                    {currentQARules?.map((rule) => (
+                      <ListItem key={rule.id}>
+                        <FormControlLabel
+                          value="top"
+                          control={<Checkbox />}
+                          label={`${rule.title} [${rule.description}]`}
+                          labelPlacement="End"
+                        />
+                      </ListItem>
+                    ))}
+                  </List>
+                  <TextField
+                    error={Boolean(
+                      formik.touched.description && formik.errors.description
+                    )}
+                    fullWidth
+                    helperText={
+                      formik.touched.description && formik.errors.description
+                    }
+                    label="Description"
+                    margin="normal"
+                    name="description"
+                    onBlur={formik.handleBlur}
+                    onChange={formik.handleChange}
+                    value={formik.values.description}
+                    variant="outlined"
+                    multiline
+                    minRows={4}
                   />
                 </Box>
               </Box>
             )}
 
-            {/* Without full width, render vertical */}
             {fullScreen && (
-              <Box mt={3} minHeight={470}>
-                <Box sx={{ minWidth: 360 }}>
-                  <CreateGoodReceiptDataGrid
-                    header="Accepted"
-                    products={acceptedProducts}
-                    columns={columnsForAccepted}
-                    setSelectionModel={setAcceptedSelectionModel}
-                    handleRowUpdate={handleRowUpdate}
-                    typeIn="accepted"
-                  />
+              <>
+                <Box mt={2}>
+                  <Box sx={{ minWidth: 360 }}>
+                    <CreateGoodReceiptDataGrid
+                      header="Accepted"
+                      products={acceptedProducts}
+                      columns={columnsForAccepted}
+                      setSelectionModel={setAcceptedSelectionModel}
+                      handleRowUpdate={handleRowUpdate}
+                      typeIn="accepted"
+                    />
+                  </Box>
+                  <Box display="flex" justifyContent="center">
+                    <IconButton
+                      //sx={{ marginTop: 12 }}
+                      size="medium"
+                      disabled={
+                        (acceptedSelectionModel.length == 0 &&
+                          followUpSelectionModel.length == 0) ||
+                        (acceptedSelectionModel.length > 0 &&
+                          followUpSelectionModel.length > 0)
+                      }
+                      onClick={() => {
+                        const selectedIds =
+                          acceptedSelectionModel.length == 0
+                            ? new Set(followUpSelectionModel)
+                            : new Set(acceptedSelectionModel);
+                        handleSwap(selectedIds);
+                      }}
+                    >
+                      <SwapVertIcon fontSize="large" />
+                    </IconButton>
+                  </Box>
+                  <Box sx={{ minWidth: 360 }}>
+                    <CreateGoodReceiptDataGrid
+                      header="Follow Up"
+                      products={followUpProducts}
+                      columns={columnsForFollowUp}
+                      setSelectionModel={setFollowUpSelectionModel}
+                      handleRowUpdate={handleRowUpdate}
+                      typeIn="followUp"
+                    />
+                  </Box>
                 </Box>
-                <Box display="flex" justifyContent="center">
-                  <IconButton
-                    //sx={{ marginTop: 12 }}
-                    size="medium"
-                    disabled={
-                      (acceptedSelectionModel.length == 0 &&
-                        followUpSelectionModel.length == 0) ||
-                      (acceptedSelectionModel.length > 0 &&
-                        followUpSelectionModel.length > 0)
-                    }
-                    onClick={() => {
-                      const selectedIds =
-                        acceptedSelectionModel.length == 0
-                          ? new Set(followUpSelectionModel)
-                          : new Set(acceptedSelectionModel);
-                      handleSwap(selectedIds);
-                    }}
-                  >
-                    <SwapVertIcon fontSize="large" />
-                  </IconButton>
-                </Box>
-                <Box sx={{ minWidth: 360 }}>
-                  <CreateGoodReceiptDataGrid
-                    header="Follow Up"
-                    products={followUpProducts}
-                    columns={columnsForFollowUp}
-                    setSelectionModel={setFollowUpSelectionModel}
-                    handleRowUpdate={handleRowUpdate}
-                    typeIn="followUp"
-                  />
-                </Box>
-              </Box>
+                <Typography variant="h5" sx={{ marginBottom: 2 }}>
+                  Quality Assurance
+                </Typography>
+                <TextField
+                  select
+                  defaultValue=""
+                  error={Boolean(
+                    formik.touched.checklist && formik.errors.checklist
+                  )}
+                  fullWidth
+                  helperText={
+                    formik.touched.checklist && formik.errors.checklist
+                  }
+                  label="Checklist"
+                  value={currentChecklist}
+                  margin="normal"
+                  name="checklist"
+                  onBlur={formik.handleBlur}
+                  onChange={handleChecklistChange}
+                  variant="outlined"
+                  size="small"
+                >
+                  {qaChecklists.length != 0 ? (
+                    qaChecklists?.map((option) => (
+                      <MenuItem key={option.id} value={option.name}>
+                        {option.name}
+                      </MenuItem>
+                    ))
+                  ) : (
+                    <h5>&nbsp; &nbsp; No Checklists Found</h5>
+                  )}
+                </TextField>
+                <List>
+                  {currentQARules?.map((rule) => (
+                    <ListItem key={rule.id}>
+                      <FormControlLabel
+                        value="top"
+                        control={<Checkbox />}
+                        label={`${rule.title} [${rule.description}]`}
+                        labelPlacement="End"
+                      />
+                    </ListItem>
+                  ))}
+                </List>
+                <TextField
+                  error={Boolean(
+                    formik.touched.description && formik.errors.description
+                  )}
+                  fullWidth
+                  helperText={
+                    formik.touched.description && formik.errors.description
+                  }
+                  label="Description"
+                  margin="normal"
+                  name="description"
+                  onBlur={formik.handleBlur}
+                  onChange={formik.handleChange}
+                  value={formik.values.description}
+                  variant="outlined"
+                  multiline
+                  minRows={4}
+                />
+              </>
             )}
-
-            <Typography variant="h5" sx={{ marginBottom: 2 }}>
-              Quality Assurance
-            </Typography>
-            <TextField
-              select
-              defaultValue=""
-              error={Boolean(
-                formik.touched.checklist && formik.errors.checklist
-              )}
-              fullWidth
-              helperText={formik.touched.checklist && formik.errors.checklist}
-              label="Checklist"
-              value={currentChecklist}
-              margin="normal"
-              name="checklist"
-              onBlur={formik.handleBlur}
-              onChange={handleChecklistChange}
-              variant="outlined"
-              size="small"
-            >
-              {qaChecklists.length != 0 ? (
-                qaChecklists?.map((option) => (
-                  <MenuItem key={option.id} value={option.name}>
-                    {option.name}
-                  </MenuItem>
-                ))
-              ) : (
-                <h5>&nbsp; &nbsp; No Checklists Found</h5>
-              )}
-            </TextField>
-            <List>
-              {currentQARules?.map((rule) => (
-                <ListItem key={rule.id}>
-                  <FormControlLabel
-                    value="top"
-                    control={<Checkbox />}
-                    label={`${rule.title} [${rule.description}]`}
-                    labelPlacement="End"
-                  />
-                </ListItem>
-              ))}
-            </List>
-            <TextField
-              error={Boolean(
-                formik.touched.description && formik.errors.description
-              )}
-              fullWidth
-              helperText={
-                formik.touched.description && formik.errors.description
-              }
-              label="Description"
-              margin="normal"
-              name="description"
-              onBlur={formik.handleBlur}
-              onChange={formik.handleChange}
-              value={formik.values.description}
-              variant="outlined"
-              multiline
-              minRows={4}
-            />
           </DialogContent>
         </Dialog>
       </form>

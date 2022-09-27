@@ -9,7 +9,7 @@ import { ViewBinDialog } from '../../components/inventory/warehouse/view-bin-dia
 import { CreateWarehouseDialog } from '../../components/inventory/warehouse/create-warehouse-dialog';
 import { WarehouseConfirmDialog } from '../../components/inventory/warehouse/warehouse-confirm-dialog';
 import { WarehouseActionMenu } from '../../components/inventory/warehouse/warehouse-action-menu';
-import { UpdateWarehouseDialog } from '../../components/inventory/warehouse/update-warehouse-dialog';
+import { useNavigate } from 'react-router-dom';
 
 const Warehouse = () => {
   const [warehouses, setWarehouses] = useState([]);
@@ -52,30 +52,6 @@ const Warehouse = () => {
     setSearch(event.target.value.toLowerCase().trim());
   };
 
-  //Menu Button
-  //   const [anchorEl, setAnchorEl] = useState(null);
-  //   const menuOpen = Boolean(anchorEl);
-  //   const handleMenuClick = (event) => {
-  //     setAnchorEl(event.currentTarget);
-  //   };
-  //   const handleMenuClose = () => {
-  //     setAnchorEl(null);
-  //   };
-
-  //   const binMenuButton = (params) => {
-  //     return (
-  //       <IconButton
-  //         // disabled={params.row.bins?.length == 0}
-  //         onClick={(event) => {
-  //           setSelectedRow(params.row);
-  //           handleMenuClick(event);
-  //         }}
-  //       >
-  //         <KitchenIcon />
-  //       </IconButton>
-  //     );
-  //   };
-
   //Action Menu
   const [anchorElUpdate, setAnchorElUpdate] = useState(null);
   const actionMenuOpen = Boolean(anchorElUpdate);
@@ -100,16 +76,6 @@ const Warehouse = () => {
     );
   };
 
-  //Update warehouse List
-  const updateWarehouse = (warehouse) => {
-    const indexOfEditWarehouse = warehouses.findIndex(
-      (currentWarehouse) => currentWarehouse.id === warehouse.id
-    );
-    const newWarehouses = [...warehouses];
-    newWarehouses[indexOfEditWarehouse] = warehouse;
-    setWarehouses(newWarehouses);
-  };
-
   //Alert Notification
   // NotificationAlert helpers
   const [alertOpen, setAlertOpen] = useState(false);
@@ -130,20 +96,6 @@ const Warehouse = () => {
   const [open, setOpen] = useState(false);
   const handleClickOpen = () => {
     setOpen(true);
-  };
-
-  //View Bin dialog
-  const [openViewDialog, setOpenViewDialog] = useState(false);
-  const [selectedBin, setSelectedBin] = useState('');
-
-  const handleOpenViewDialog = () => {
-    setOpenViewDialog(true);
-  };
-
-  //Update Dialog helpers
-  const [openUpdateDialog, setOpenUpdateDialog] = useState(false);
-  const handleUpdateDialog = () => {
-    setOpenUpdateDialog(true);
   };
 
   //Add a new warehouse entry to the list
@@ -189,14 +141,6 @@ const Warehouse = () => {
     );
   };
 
-  //Batch line items from the bin
-  const [batchLineItems, setBatchLineItems] = useState([]);
-
-  //Load in list of line items
-  useEffect(() => {
-    setBatchLineItems(selectedBin?.batchLineItems);
-  }, [openViewDialog]);
-
   //Columns for datagrid, column headers & specs
   const columns = [
     {
@@ -223,17 +167,19 @@ const Warehouse = () => {
       width: 150,
       flex: 6,
     },
-    {
-      field: 'action',
-      headerName: 'Action',
-      sortable: false,
-      renderCell: menuButton,
-      flex: 1,
-    },
   ];
 
   //Row for datagrid, set the list returned from API
   const rows = warehouses;
+
+  useEffect(() => console.log(rows), [rows]);
+
+  //Navigate to the bin page
+  const navigate = useNavigate();
+  const handleRowClick = (rowData) => {
+    console.log(rowData);
+    navigate('bin', { state: { warehouseId: rowData.id } });
+  };
 
   return (
     <>
@@ -262,38 +208,6 @@ const Warehouse = () => {
         dialogAction={() => {
           handleDelete(selectedRows);
         }}
-      />
-      {/* <WarehouseBinMenu
-        bins={selectedRow?.bins}
-        setSelectedBin={setSelectedBin}
-        setBatchLineItems={setBatchLineItems}
-        anchorEl={anchorEl}
-        menuOpen={menuOpen}
-        handleMenuClose={handleMenuClose}
-        handleClickView={handleOpenViewDialog}
-      /> */}
-      <WarehouseActionMenu
-        bins={selectedRow?.bins}
-        setSelectedBin={setSelectedBin}
-        setBatchLineItems={setBatchLineItems}
-        anchorElUpdate={anchorElUpdate}
-        actionMenuOpen={actionMenuOpen}
-        handleActionMenuClose={handleActionMenuClose}
-        handleClickUpdate={handleUpdateDialog}
-        handleClickView={handleOpenViewDialog}
-      />
-      <ViewBinDialog
-        bin={selectedBin}
-        batchLineItems={batchLineItems}
-        openViewDialog={openViewDialog}
-        setOpenViewDialog={setOpenViewDialog}
-      />
-      <UpdateWarehouseDialog
-        warehouse={selectedRow}
-        updateWarehouse={updateWarehouse}
-        openUpdateDialog={openUpdateDialog}
-        setOpenUpdateDialog={setOpenUpdateDialog}
-        handleAlertOpen={handleAlertOpen}
       />
       <Box
         component="main"
@@ -333,11 +247,12 @@ const Warehouse = () => {
                   components={{
                     Toolbar: GridToolbar,
                   }}
-                  disableSelectionOnClick //Check if row selection is needed
+                  disableSelectionOnClick
                   checkboxSelection
                   onSelectionModelChange={(ids) => {
                     setSelectedRows(ids);
                   }}
+                  onRowClick={(rowData) => handleRowClick(rowData)}
                 />
               </Box>
             </Card>
