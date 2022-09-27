@@ -31,7 +31,7 @@ export const BillOfMaterial = (props) => {
   }
 
   useEffect(() => {
-    // get Purchase Orders
+    // get BOMs
     setLoading(true);
     getBOMs();
   }, []);
