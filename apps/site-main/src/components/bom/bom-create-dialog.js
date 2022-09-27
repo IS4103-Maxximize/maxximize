@@ -6,7 +6,7 @@ import { DataGrid } from "@mui/x-data-grid";
 import { useFormik } from "formik";
 import { useEffect, useState } from "react";
 import * as Yup from "yup";
-import { createBOM } from "../../helpers/bom";
+import { createBOM } from "../../helpers/production/bom";
 import { fetchProducts } from "../../helpers/products";
 
 

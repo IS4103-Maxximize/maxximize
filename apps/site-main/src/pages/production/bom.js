@@ -10,7 +10,7 @@ import { NotificationAlert } from "../../components/notification-alert";
 import { ConfirmDialog } from "../../components/product/confirm-dialog";
 import { ProductMenu } from "../../components/product/product-menu";
 import { Toolbar } from "../../components/toolbar";
-import { deleteBOMs, fetchBOMs } from "../../helpers/bom";
+import { deleteBOMs, fetchBOMs } from "../../helpers/production/bom";
 
 export const BillOfMaterial = (props) => {
   const user = JSON.parse(localStorage.getItem('user'));
