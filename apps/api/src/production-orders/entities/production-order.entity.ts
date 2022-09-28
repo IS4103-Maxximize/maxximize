@@ -28,8 +28,8 @@ export class ProductionOrder {
     @JoinColumn()
     completedGoods?: Batch
 
-    @ManyToOne(() => BillOfMaterial)
-    bom: BillOfMaterial
+    @ManyToOne(() => BillOfMaterial, billofMaterial => billofMaterial.productionOrders)
+    billOfMaterial: BillOfMaterial
 
     @OneToMany(() => Schedule, schedule => schedule.productionOrder, {cascade: true})
     schedules: Schedule[]
