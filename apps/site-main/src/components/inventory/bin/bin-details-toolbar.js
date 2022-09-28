@@ -1,27 +1,16 @@
-import AddBoxIcon from '@mui/icons-material/AddBox';
-import DeleteIcon from '@mui/icons-material/Delete';
 import {
-  Badge,
   Box,
   Card,
   CardContent,
-  IconButton,
   InputAdornment,
   Stack,
   SvgIcon,
   TextField,
-  Tooltip,
   Typography,
 } from '@mui/material';
 import { GridSearchIcon } from '@mui/x-data-grid';
 
-export const BinToolbar = ({
-  disabled,
-  numBin,
-  handleClickOpen,
-  handleConfirmDialogOpen,
-  handleSearch,
-}) => {
+export const BinDetailsToolbar = ({ handleSearch }) => {
   return (
     <Box>
       <Box
@@ -34,7 +23,7 @@ export const BinToolbar = ({
         }}
       >
         <Typography sx={{ m: 1 }} variant="h5">
-          Bin
+          Batch Line Items (View Only)
         </Typography>
       </Box>
       <Box sx={{ mt: 3 }}>
@@ -61,37 +50,12 @@ export const BinToolbar = ({
                       </InputAdornment>
                     ),
                   }}
-                  placeholder="Search bin (by name)"
+                  placeholder="Search Batch Line Item (by Product Name)"
                   variant="outlined"
                   type="search"
                   onChange={handleSearch}
                 />
               </Stack>
-
-              <Box sx={{ m: 1 }}>
-                <Tooltip title={`Create Bin Entry`}>
-                  <IconButton
-                    color="primary"
-                    onClick={() => {
-                      handleClickOpen();
-                    }}
-                    sx={{ mr: 1 }}
-                  >
-                    <AddBoxIcon />
-                  </IconButton>
-                </Tooltip>
-                <Tooltip title={'Delete Bin Entry (Single/Multiple)'}>
-                  <Badge badgeContent={numBin} color="error">
-                    <IconButton
-                      disabled={disabled}
-                      color="error"
-                      onClick={handleConfirmDialogOpen}
-                    >
-                      <DeleteIcon />
-                    </IconButton>
-                  </Badge>
-                </Tooltip>
-              </Box>
             </Box>
           </CardContent>
         </Card>

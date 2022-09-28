@@ -2,8 +2,18 @@ import AddBoxIcon from '@mui/icons-material/AddBox';
 import DeleteIcon from '@mui/icons-material/Delete';
 import {
   Badge,
-  Box, Breadcrumbs, Card,
-  CardContent, IconButton, InputAdornment, Stack, SvgIcon, TextField, Tooltip, Typography, Link
+  Box,
+  Breadcrumbs,
+  Card,
+  CardContent,
+  IconButton,
+  InputAdornment,
+  Stack,
+  SvgIcon,
+  TextField,
+  Tooltip,
+  Typography,
+  Link,
 } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
@@ -32,68 +42,68 @@ export const Toolbar = (props) => {
     const subdomain = pathname.substring(pathname.lastIndexOf('/') + 1);
     setDomain(domain);
     setSubDomain(subdomain);
-  }, [location])
+  }, [location]);
 
   // Hard coded for now, can be made modular to accommodate future reuse
   const procurementBreadcrumbs = [
-    <Link 
+    <Link
       component={RouterLink}
-      underline="hover" 
-      key="sales-inquiry" 
+      underline="hover"
+      key="sales-inquiry"
       color={subdomain === 'sales-inquiry' ? 'primary' : 'inherit'}
       to="/procurement/sales-inquiry"
     >
       Sales Inquiry
     </Link>,
-    <Link 
+    <Link
       component={RouterLink}
-      underline="hover" 
-      key="quotation" 
+      underline="hover"
+      key="quotation"
       color={subdomain === 'quotation' ? 'primary' : 'inherit'}
       to="/procurement/quotation"
     >
       Quotation
     </Link>,
-    <Link 
+    <Link
       component={RouterLink}
-      underline="hover" 
-      key="purchase-order" 
+      underline="hover"
+      key="purchase-order"
       color={subdomain === 'purchase-order' ? 'primary' : 'inherit'}
       to="/procurement/purchase-order"
     >
       Purchase Order
     </Link>,
-    <Link 
+    <Link
       component={RouterLink}
-      underline="hover" 
-      key="good-receipt" 
+      underline="hover"
+      key="good-receipt"
       color={subdomain === 'good-receipt' ? 'primary' : 'inherit'}
       to="/procurement/good-receipt"
     >
       Good Receipt
     </Link>,
-  ]
+  ];
 
   const productionBreadcrumbs = [
-    <Link 
+    <Link
       component={RouterLink}
-      underline="hover" 
-      key="bill-of-material" 
+      underline="hover"
+      key="bill-of-material"
       color={subdomain === 'bill-of-material' ? 'primary' : 'inherit'}
       to="/production/bill-of-material"
     >
       Bill Of Material
     </Link>,
-    <Link 
+    <Link
       component={RouterLink}
-      underline="hover" 
-      key="production-order" 
+      underline="hover"
+      key="production-order"
       color={subdomain === 'production-order' ? 'primary' : 'inherit'}
       to="/production/production-order"
     >
       Production Order
     </Link>,
-  ]
+  ];
 
   return (
     <Box {...props}>
@@ -103,13 +113,10 @@ export const Toolbar = (props) => {
           display: 'flex',
           justifyContent: 'space-between',
           flexWrap: 'wrap',
-          m: -1
+          m: -1,
         }}
       >
-        <Typography
-          sx={{ m: 1 }}
-          variant="h4"
-        >
+        <Typography sx={{ m: 1 }} variant="h4">
           {name}
         </Typography>
         <Breadcrumbs separator="-">
@@ -120,57 +127,48 @@ export const Toolbar = (props) => {
       <Box sx={{ mt: 3 }}>
         <Card>
           <CardContent>
-            <Box 
+            <Box
               sx={{
                 alignItems: 'center',
                 display: 'flex',
                 justifyContent: 'space-between',
                 flexWrap: 'wrap',
-                m: -1
-              }}>
-              <Stack
-                direction="row"
-                spacing={1}
-              >
-              <TextField
-                sx={{ width: 500 }}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <SvgIcon
-                        fontSize="small"
-                        color="action"
-                      >
-                        <SearchIcon />
-                      </SvgIcon>
-                    </InputAdornment>
-                  )
-                }}
-                placeholder={`Search ${name}`}
-                variant="outlined"
-                type="search"
-                onChange={handleSearch}
-              />
+                m: -1,
+              }}
+            >
+              <Stack direction="row" spacing={1}>
+                <TextField
+                  sx={{ width: 500 }}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <SvgIcon fontSize="small" color="action">
+                          <SearchIcon />
+                        </SvgIcon>
+                      </InputAdornment>
+                    ),
+                  }}
+                  placeholder={`Search ${name}`}
+                  variant="outlined"
+                  type="search"
+                  onChange={handleSearch}
+                />
               </Stack>
-              
+
               <Box sx={{ m: 1 }}>
-                <Tooltip 
-                  title={`Add ${name}`}
-                >
+                <Tooltip title={`Add ${name}`}>
                   <IconButton
                     color="primary"
                     onClick={() => {
                       handleAdd && handleAdd();
                       handleFormDialogOpen();
                     }}
-                    sx={{ mr: 1}}
+                    sx={{ mr: 1 }}
                   >
                     <AddBoxIcon />
                   </IconButton>
                 </Tooltip>
-                <Tooltip
-                  title={`Delete ${name}(s)`}
-                >
+                <Tooltip title={`Delete ${name}(s)`}>
                   <IconButton
                     color="error"
                     disabled={deleteDisabled}
@@ -187,5 +185,5 @@ export const Toolbar = (props) => {
         </Card>
       </Box>
     </Box>
-  )
+  );
 };

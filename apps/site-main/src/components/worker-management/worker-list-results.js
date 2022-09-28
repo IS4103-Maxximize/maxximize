@@ -2,9 +2,19 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import HelpIcon from '@mui/icons-material/Help';
 import MoreVert from '@mui/icons-material/MoreVert';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import { Search as SearchIcon } from '../../icons/search';
 import {
-  Badge, Box, Card, CardContent, Menu,
-  MenuItem, Tooltip
+  Badge,
+  Box,
+  Card,
+  CardContent,
+  InputAdornment,
+  Menu,
+  MenuItem,
+  Stack,
+  SvgIcon,
+  TextField,
+  Tooltip,
 } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
@@ -334,7 +344,7 @@ export const WorkerListResults = () => {
                 </MenuItem>
               </Menu>
               {/* Search Bar */}
-              {/* <Stack direction="row" spacing={1}>
+              <Stack direction="row" spacing={1}>
                 <TextField
                   sx={{ width: 500 }}
                   InputProps={{
@@ -351,7 +361,7 @@ export const WorkerListResults = () => {
                   type="search"
                   onChange={handleSearch}
                 />
-              </Stack> */}
+              </Stack>
               <Box></Box>
 
               {/* Buttons functionalities */}
@@ -379,16 +389,6 @@ export const WorkerListResults = () => {
                   }}
                 />
 
-                <Tooltip
-                  title={
-                    'Update entry by clicking on the field to be updated. [Esc] to abandon update.'
-                  }
-                >
-                  <IconButton>
-                    <HelpIcon color="primary" />
-                  </IconButton>
-                </Tooltip>
-
                 <Tooltip title={'Create Worker Entry'}>
                   <IconButton onClick={handleOpenDialog}>
                     <PersonAddIcon color="primary" />
@@ -412,14 +412,13 @@ export const WorkerListResults = () => {
           <Box sx={{ minWidth: 1050 }}>
             <DataGrid
               autoHeight
-              rows={workers}
-              //   {rows.filter((row) => {
-              //     if (search === '') {
-              //       return row;
-              //     } else {
-              //       return row.username.toLowerCase().includes(search);
-              //     }
-              //   })}
+              rows={workers.filter((row) => {
+                if (search === '') {
+                  return row;
+                } else {
+                  return row.username.toLowerCase().includes(search);
+                }
+              })}
               columns={columns}
               pageSize={10}
               rowsPerPageOptions={[10]}
@@ -440,23 +439,4 @@ export const WorkerListResults = () => {
       </Box>
     </>
   );
-};
-
-//Helper methods
-const jsonStructure = (worker) => {
-  const updatedWorkerJSON = {
-    id: worker.id,
-    firstName: worker.firstName,
-    lastName: worker.lastName,
-    username: worker.username,
-    role: worker.role,
-    contact: {
-      phoneNumber: worker.phoneNumber,
-      email: worker.email,
-      address: worker.address,
-      postalCode: worker.postalCode,
-    },
-  };
-
-  return updatedWorkerJSON;
 };

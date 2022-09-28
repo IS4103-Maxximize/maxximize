@@ -1,14 +1,15 @@
 import { Link as RouterLink } from 'react-router-dom';
 import { Box, Button, Container, Link, Typography } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import Helmet from "react-helmet"
+import { Helmet, HelmetProvider } from 'react-helmet-async';
 
 const NotFound = () => (
   <>
-    <Helmet>
-      <title>404</title>
-
-    </Helmet>
+    <HelmetProvider>
+      <Helmet>
+        <title>404</title>
+      </Helmet>
+    </HelmetProvider>
     <Box
       component="main"
       sx={{
@@ -45,11 +46,7 @@ const NotFound = () => (
               }}
             />
           </Box>
-          <Link
-            component={RouterLink}
-            underline="none"
-            to='/'
-          >
+          <Link component={RouterLink} underline="none" to="/">
             <Button
               component="a"
               startIcon={<ArrowBackIcon fontSize="small" />}
