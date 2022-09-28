@@ -286,8 +286,12 @@ export const DashboardSidebar = (props) => {
     .filter((subsystem) => subsystem.access.includes(user.role))
     .map((item, index) => {
       return (
-        <Box key={index} sx={{ mr: 3 }}>
+        <Box 
+          key={index} 
+          sx={{ mr: 1 }}
+        >
           <Accordion
+            disableGutters
             sx={{
               backgroundColor: 'rgba(17,24,39)',
               color: 'neutral.300',
@@ -305,6 +309,7 @@ export const DashboardSidebar = (props) => {
                 backgroundColor: 'rgba(17,24,39)',
                 color: 'neutral.300',
                 fontWeight: 'fontWeightBold',
+                fontSize: '14px',
                 justifyContent: 'flex-start',
                 width: '100%',
                 '&:hover': {
@@ -312,9 +317,14 @@ export const DashboardSidebar = (props) => {
                 },
               }}
             >
-              <Box display="flex" ml={0.5}>
+              <Box 
+                display="flex"
+                ml={0.5}
+              >
                 {item.icon}
-                <Typography sx={{ marginLeft: 1 }}>{item.subsystem}</Typography>
+                <Box ml={1}>
+                  {item.subsystem}
+                </Box>
               </Box>
             </AccordionSummary>
             <AccordionDetails
@@ -327,6 +337,7 @@ export const DashboardSidebar = (props) => {
                 '&:hover': {
                   backgroundColor: 'rgba(17,24,39)',
                 },
+                pl: 0,
               }}
             >
               {item.modules
@@ -362,6 +373,7 @@ export const DashboardSidebar = (props) => {
                             module.href === pathname && 'fontWeightBold',
                           justifyContent: 'flex-start',
                           px: 3,
+                          my: 0.5,
                           textAlign: 'left',
                           textTransform: 'none',
                           width: '100%',
