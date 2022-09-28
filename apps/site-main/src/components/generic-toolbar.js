@@ -1,40 +1,110 @@
-import { Badge, Card, CardContent, IconButton, Tooltip, Typography } from "@mui/material"
-import { Box } from "@mui/system"
+import {
+  Badge,
+  Card,
+  CardContent,
+  IconButton,
+  InputAdornment,
+  Stack,
+  SvgIcon,
+  TextField,
+  Tooltip,
+  Typography,
+} from '@mui/material';
+import { Box } from '@mui/system';
+import { GridSearchIcon } from '@mui/x-data-grid';
 
 function GenericToolbar(props) {
-  const {tools, disabled, title, selectedRows, ...handleClickMethods} = props
+  const {
+    tools,
+    disabled,
+    title,
+    selectedRows,
+    handleSearch,
+    ...handleClickMethods
+  } = props;
   return (
-    <Box sx={{mb: 3}}>
-      <Typography variant="h3" sx={{mb: 1, ml: 1}}>
-        {title}
-      </Typography>
-      <Card>
-        <CardContent>
-          <Box sx={{display: 'flex', direction: 'row', justifyContent: 'end', alignItems: 'center'}}>
-            {tools.map(tool => {
-              return (
-                <Tooltip title={tool.toolTipTitle} key={tool.toolTipTitle}>
-                  {tool.badge ? 
-                    <Badge badgeContent={selectedRows.length} color={tool.badge.color}>
-                      <IconButton
-                        disabled={disabled}
-                        onClick={handleClickMethods[tool.handleClickMethod]}
+    <>
+      <Box
+        sx={{
+          alignItems: 'center',
+          display: 'flex',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          m: -1,
+        }}
+      >
+        <Typography sx={{ m: 1 }} variant="h4">
+          {title}
+        </Typography>
+      </Box>
+      <Box sx={{ mt: 3 }}>
+        <Card>
+          <CardContent>
+            <Box
+              sx={{
+                alignItems: 'center',
+                display: 'flex',
+                justifyContent: 'space-between',
+                flexWrap: 'wrap',
+                m: -1,
+              }}
+            >
+              <Stack direction="row" spacing={1}>
+                <TextField
+                  sx={{ width: 500 }}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <SvgIcon fontSize="small" color="action">
+                          <GridSearchIcon />
+                        </SvgIcon>
+                      </InputAdornment>
+                    ),
+                  }}
+                  placeholder={`Search ${title}`}
+                  variant="outlined"
+                  type="search"
+                  onChange={handleSearch}
+                />
+              </Stack>
+
+              <Box sx={{ m: 1 }}>
+                {tools.map((tool) => {
+                  return (
+                    <Tooltip title={tool.toolTipTitle} key={tool.toolTipTitle}>
+                      {tool.badge ? (
+                        <Badge
+                          badgeContent={selectedRows.length}
+                          color={tool.badge.color}
                         >
-                        {tool.button()}
-                      </IconButton>
-                    </Badge> : 
-                      <IconButton onClick={tool.handleClickMethod ? handleClickMethods[tool.handleClickMethod]: null}>
-                        {tool.button()}
-                      </IconButton>}
-                  </Tooltip>
-                )
-              })}
+                          <IconButton
+                            disabled={disabled}
+                            onClick={handleClickMethods[tool.handleClickMethod]}
+                          >
+                            {tool.button()}
+                          </IconButton>
+                        </Badge>
+                      ) : (
+                        <IconButton
+                          onClick={
+                            tool.handleClickMethod
+                              ? handleClickMethods[tool.handleClickMethod]
+                              : null
+                          }
+                        >
+                          {tool.button()}
+                        </IconButton>
+                      )}
+                    </Tooltip>
+                  );
+                })}
+              </Box>
             </Box>
-        </CardContent>
-      </Card>
-    </Box>
-    
-  )
+          </CardContent>
+        </Card>
+      </Box>
+    </>
+  );
 }
 
-export default GenericToolbar
+export default GenericToolbar;

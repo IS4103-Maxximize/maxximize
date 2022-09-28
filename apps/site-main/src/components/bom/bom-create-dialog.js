@@ -6,7 +6,7 @@ import { DataGrid } from "@mui/x-data-grid";
 import { useFormik } from "formik";
 import { useEffect, useState } from "react";
 import * as Yup from "yup";
-import { createBOM } from "../../helpers/bom";
+import { createBOM } from "../../helpers/production/bom";
 import { fetchProducts } from "../../helpers/products";
 
 
@@ -125,6 +125,13 @@ export const BOMCreateDialog = (props) => {
       return oldRow;
     }
 
+    // Open error alert if quantity is < 1
+    if (newRow.quantity < 1) {
+      const message = 'Quantity must be positive!'
+      handleAlertOpen(message, 'error');
+      throw new Error(message);
+    }
+
     const updatedBomLineItems = formik.values.bomLineItems
       .map(item => item.id === newRow.id ? newRow : item)
 
@@ -158,6 +165,14 @@ export const BOMCreateDialog = (props) => {
       headerAlign: 'left',  // align header
       align: 'left',        // align data
       editable: true,
+    },
+    {
+      field: "unit",
+      headerName: "Unit",
+      flex: 1,
+      valueGetter: (params) => {
+        return params.row ? params.row.rawMaterial.unit : '';
+      }
     },
     {
       field: "name",
@@ -208,17 +223,42 @@ export const BOMCreateDialog = (props) => {
           </Toolbar>
         </AppBar>
         <DialogContent>
-          {/* Final Good Selection */}
-          <Autocomplete
-            id="final-good-selector"
-            sx={{ width: 400, mb: 2 }}
-            options={finalGoods}
-            getOptionLabel={(option) => `${option.name} [${option.skuCode}]`}
-            isOptionEqualToValue={(option, value) => option.id === value.id}
-            // value={formik.values.quotation}
-            onChange={(e, value) => formik.setFieldValue('finalGoodId', value ? value.id : null)}
-            renderInput={(params) => (<TextField {...params} label="Final Good" />)}
-          />
+          <Stack direction="row" spacing={1}>
+            {/* Final Good Selection */}
+            <Autocomplete
+              id="final-good-selector"
+              sx={{ width: 400, mb: 2 }}
+              options={finalGoods}
+              getOptionLabel={(option) => `${option.name} [${option.skuCode}]`}
+              isOptionEqualToValue={(option, value) => option.id === value.id}
+              // value={formik.values.quotation}
+              onChange={(e, value) => formik.setFieldValue('finalGoodId', value ? value.id : null)}
+              renderInput={(params) => (<TextField {...params} label="Final Good" />)}
+            />
+            <TextField
+              label="Lot Quantity"
+              margin="normal"
+              name="final-good-lotQuantity"
+              value={
+                formik.values.finalGoodId ? 
+                finalGoods.find(item => item.id === formik.values.finalGoodId).lotQuantity : 0
+              }
+              variant="outlined"
+              disabled
+            />
+            <TextField
+              sx={{width: 100}}
+              label="Unit"
+              margin="normal"
+              name="final-good-unit"
+              value={
+                formik.values.finalGoodId ? 
+                finalGoods.find(item => item.id === formik.values.finalGoodId).unit : 0
+              }
+              variant="outlined"
+              disabled
+            />
+          </Stack>
           <Box my={2} display="flex" justifyContent="space-between">
             <Stack direction="row" spacing={1}>
               {/* Raw Material Selection to be added as Line Items */}
@@ -236,7 +276,7 @@ export const BOMCreateDialog = (props) => {
               <TextField
                 error={Boolean(formik.touched.numRaw && formik.errors.numRaw)}
                 helperText={formik.touched.numRaw && formik.errors.numRaw}
-                label="Enter Number of Raw Materials"
+                label="Enter Quantity of Raw Materials"
                 margin="normal"
                 name="numRaw"
                 type="number"
@@ -244,6 +284,18 @@ export const BOMCreateDialog = (props) => {
                 onChange={formik.handleChange}
                 value={formik.values.numRaw}
                 variant="outlined"
+              />
+              <TextField
+                sx={{width: 100}}
+                label="Unit"
+                margin="normal"
+                name="final-good-unit"
+                value={
+                  selectedRawMaterial ? 
+                  selectedRawMaterial.unit : ''
+                }
+                variant="outlined"
+                disabled
               />
               <IconButton
                 disabled={formik.values.numRaw <= 0 || !selectedRawMaterial}
@@ -276,6 +328,10 @@ export const BOMCreateDialog = (props) => {
             onSelectionModelChange={(ids) => setSelectedRows(ids)}
             experimentalFeatures={{ newEditingApi: true }}
             processRowUpdate={handleRowUpdate}
+            onProcessRowUpdateError={(error) => {
+              console.log(error);
+              // remain in editing mode
+            }}
           />
         </DialogContent>
       </Dialog>

@@ -190,7 +190,7 @@ const ProcurementGoodReceipt = () => {
       field: 'createdDateTime',
       headerName: 'Date Received',
       width: 200,
-      flex: 3,
+      flex: 4,
       valueFormatter: (params) =>
         DayJS(params?.value).format('DD MMM YYYY hh:mm a'),
     },
@@ -258,7 +258,7 @@ const ProcurementGoodReceipt = () => {
       >
         <Container maxWidth={false}>
           <Toolbar
-            name='Good Receipt'
+            name="Good Receipt"
             numRows={selectedRows.length}
             deleteDisabled={disabled}
             handleSearch={handleSearch}
@@ -267,7 +267,7 @@ const ProcurementGoodReceipt = () => {
           />
           <Box sx={{ mt: 3 }}>
             <Card>
-              <Box sx={{ minWidth: 1050 }}>
+              <Box>
                 <DataGrid
                   autoHeight
                   rows={rows.filter((row) => {

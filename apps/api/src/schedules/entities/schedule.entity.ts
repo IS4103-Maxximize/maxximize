@@ -1,5 +1,6 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { ProductionLine } from "../../production-lines/entities/production-line.entity";
+import { ProductionOrder } from "../../production-orders/entities/production-order.entity";
 import { ScheduleType } from "../enums/scheduleType.enum";
 
 @Entity()
@@ -25,5 +26,7 @@ export class Schedule {
     @JoinColumn({name: 'productionLineId'})
     productionLine: ProductionLine
 
-    //TODO: ADD Production Order
+    @ManyToOne(() => ProductionOrder, productionOrder => productionOrder.schedules, {onDelete: "CASCADE"})
+    @JoinColumn()
+    productionOrder: ProductionOrder
 }
