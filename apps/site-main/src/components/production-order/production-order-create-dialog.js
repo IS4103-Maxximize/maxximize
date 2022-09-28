@@ -8,7 +8,8 @@ import { useEffect, useState } from "react";
 import * as Yup from "yup";
 import { createBOM, fetchBOMs } from "../../helpers/production/bom";
 import { ConfirmDialog } from "../assetManagement/confirm-dialog";
-
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CancelIcon from '@mui/icons-material/Cancel';
 
 export const ProductionOrderCreateDialog = (props) => {
   const {
@@ -125,17 +126,30 @@ export const ProductionOrderCreateDialog = (props) => {
       }
     },
     {
-      field: "totalQuantity",
+      field: "quantity",
       headerName: "Quantity Required",
       flex: 1,
       valueGetter: (params) => {
-        return params.row ? params.row.rawMaterial.lotQuantity * params.row.quantity : '';
+        return params.row ? params.row.quantity : '';
+      }
+    },
+    {
+      field: "unit",
+      headerName: "Unit",
+      flex: 1,
+      valueGetter: (params) => {
+        return params.row ? params.row.rawMaterial.unit : '';
       }
     },
     {
       field: "sufficient",
       headerName: "Sufficient?",
       flex: 1,
+      renderCell: (params) => {
+        return params.row.sufficient ? 
+          <CheckCircleIcon color="success"/> :
+          <CancelIcon color="error"/>
+      }
     },
   ]
 
@@ -214,6 +228,15 @@ export const ProductionOrderCreateDialog = (props) => {
               margin="normal"
               name="final-good-lotQuantity"
               value={selectedBom ? selectedBom.finalGood.lotQuantity : 0}
+              variant="outlined"
+              disabled
+            />
+            <TextField
+              sx={{ width: 100 }}
+              label="Unit"
+              margin="normal"
+              name="final-good-unit"
+              value={selectedBom ? selectedBom.finalGood.unit : ''}
               variant="outlined"
               disabled
             />
