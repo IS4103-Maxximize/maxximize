@@ -1,228 +1,238 @@
-import MoreVert from "@mui/icons-material/MoreVert"
-import { Card, IconButton, Menu, MenuItem } from "@mui/material"
-import { useEffect, useState } from "react"
+import MoreVert from '@mui/icons-material/MoreVert';
+import { Card, Container, IconButton, Menu, MenuItem } from '@mui/material';
+import { useEffect, useState } from 'react';
 import AddTaskIcon from '@mui/icons-material/AddTask';
 import HelpIcon from '@mui/icons-material/Help';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
-import { Box } from "@mui/system";
-import dayjs from 'dayjs'
-import GenericToolbar from "../components/generic-toolbar";
-import { NotificationAlert } from "../components/notification-alert";
-import { ConfirmationDialog } from "../components/quality-assurance/confirmationDialog";
-import { CreateDialogChecklist } from "../components/quality-assurance/CreateDialogChecklist";
-import { UpdateDialogChecklist } from "../components/quality-assurance/UpdateDialogChecklist";
+import { Box } from '@mui/system';
+import dayjs from 'dayjs';
+import GenericToolbar from '../components/generic-toolbar';
+import { NotificationAlert } from '../components/notification-alert';
+import { ConfirmationDialog } from '../components/quality-assurance/confirmationDialog';
+import { CreateDialogChecklist } from '../components/quality-assurance/CreateDialogChecklist';
+import { UpdateDialogChecklist } from '../components/quality-assurance/UpdateDialogChecklist';
+import { Helmet, HelmetProvider } from 'react-helmet-async';
 
-function qaChecklists() {
-  const [checklists, setChecklists] = useState([])
-  const [allRules, setAllRules] = useState([])
-  const [openCreateDialog, setOpenCreateDialog] = useState(false)
-  const [disabled, setDisabled] = useState(true)
-  const [selectedRows, setSelectedRows] = useState([])
-  const [rowToEdit, setRowToEdit] = useState()
-  const [openUpdateDialog, setOpenUpdateDialog] = useState(false)
-  const [openConfirmationDialog, setOpenConfirmationDialog] = useState(false)
-  const [anchorEl, setAnchorEl] = useState(null)
-  const open = Boolean(anchorEl) 
+const QAChecklists = () => {
+  const [checklists, setChecklists] = useState([]);
+  const [allRules, setAllRules] = useState([]);
+  const [openCreateDialog, setOpenCreateDialog] = useState(false);
+  const [disabled, setDisabled] = useState(true);
+  const [selectedRows, setSelectedRows] = useState([]);
+  const [rowToEdit, setRowToEdit] = useState();
+  const [openUpdateDialog, setOpenUpdateDialog] = useState(false);
+  const [openConfirmationDialog, setOpenConfirmationDialog] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
 
+  const user = JSON.parse(localStorage.getItem('user'));
+  const organisationId = user.organisation.id;
 
   useEffect(() => {
-    const organisationId = JSON.parse(localStorage.getItem('user')).organisation.id
-    const retrieveChecklists = async(id) => {
-      const response = await fetch(`http://localhost:3000/api/qa-checklists/orgId/${id}`)
+    const organisationId = JSON.parse(localStorage.getItem('user')).organisation
+      .id;
+    const retrieveChecklists = async (id) => {
+      const response = await fetch(
+        `http://localhost:3000/api/qa-checklists/orgId/${id}`
+      );
       if (response.status === 200 || response.status === 201) {
-        const result = await response.json()
-        setChecklists(result)
+        const result = await response.json();
+        setChecklists(result);
       }
-    }
-    const retrieveRules = async(id) => {
-      const response = await fetch(`http://localhost:3000/api/qa-rules/orgId/${id}`)
+    };
+    const retrieveRules = async (id) => {
+      const response = await fetch(
+        `http://localhost:3000/api/qa-rules/orgId/${id}`
+      );
       if (response.status === 200 || response.status === 201) {
-        const result = await response.json()
-        setAllRules(result)
+        const result = await response.json();
+        setAllRules(result);
       }
-    }
-    retrieveChecklists(organisationId)
-    retrieveRules(organisationId)
-  }, [setChecklists])
+    };
+    retrieveChecklists(organisationId);
+    retrieveRules(organisationId);
+  }, [setChecklists]);
 
   // Menu Helpers -----------------------------------
   const menuButton = (params) => {
     return (
-      <IconButton onClick={(event) => {
-        setRowToEdit(params.row);
-        handleMenuClick(event);
-        }}>
-        <MoreVert/>
+      <IconButton
+        onClick={(event) => {
+          setRowToEdit(params.row);
+          handleMenuClick(event);
+        }}
+      >
+        <MoreVert />
       </IconButton>
-    )
-  }
+    );
+  };
 
   const handleMenuClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
 
   const handleMenuClose = (type) => {
-    setOpenUpdateDialog(true)
+    setOpenUpdateDialog(true);
     setAnchorEl(null);
   };
+
+  // Search function -----------------------------------
+  const [search, setSearch] = useState('');
+
+  const handleSearch = (event) => {
+    setSearch(event.target.value.toLowerCase().trim());
+  };
+
+  const rows = checklists;
 
   // ------------------------------------------
   const columns = [
     {
       field: 'id',
-      headerName: 'id',
-      flex: 0
+      headerName: 'ID',
+      flex: 1,
     },
     {
       field: 'name',
-      headerName: 'name',
-      flex: 2
+      headerName: 'Name',
+      flex: 5,
     },
     {
       field: 'productType',
-      headerName: 'productType',
-      flex: 2,
-      valueFormatter: params => {
-        return params.value === 'rawmaterial' ? 'Raw Material': 'Final Good'
-      }
+      headerName: 'Product Type',
+      flex: 3,
+      valueFormatter: (params) => {
+        return params.value === 'rawmaterial' ? 'Raw Material' : 'Final Good';
+      },
     },
     {
       field: 'created',
-      headerName: 'created',
-      flex: 1,
-      valueFormatter: params => {
-        return dayjs(params.value).format('DD/MM/YY')
-      }
+      headerName: 'Date Created',
+      flex: 3,
+      valueFormatter: (params) => {
+        return dayjs(params.value).format('DD MMM YYYY hh:mm a');
+      },
     },
     {
       field: 'actions',
-      headerName: 'actions',
+      headerName: 'Actions',
       flex: 1,
       sortable: false,
-      renderCell: menuButton
-    }
-  ]
+      renderCell: menuButton,
+    },
+  ];
 
   const columnsForRules = [
     {
       field: 'id',
-      headerName: 'id',
-      flex: 0
+      headerName: 'ID',
+      flex: 0,
     },
     {
       field: 'title',
-      headerName: 'title',
-      flex: 2
+      headerName: 'Title',
+      flex: 2,
     },
     {
       field: 'description',
-      headerName: 'description',
-      flex: 2
+      headerName: 'Description',
+      flex: 2,
     },
-  ]
+  ];
 
-   // Tool bar helpers ------------------------------------
+  // Tool bar helpers ------------------------------------
 
   useEffect(() => {
-    setDisabled(selectedRows.length === 0)
-  }, [selectedRows])
+    setDisabled(selectedRows.length === 0);
+  }, [selectedRows]);
 
   const handleOpenCreateDialog = () => {
-    setOpenCreateDialog(true)
-  }
+    setOpenCreateDialog(true);
+  };
 
   const handleOnClickDelete = () => {
-    setOpenConfirmationDialog(true)
-  }
+    setOpenConfirmationDialog(true);
+  };
 
   const tools = [
     {
       toolTipTitle: 'Add new checklist',
       handleClickMethod: 'handleOpenCreateDialog',
       button: () => {
-        return (
-          <AddTaskIcon />
-        )
-      }
+        return <AddTaskIcon />;
+      },
     },
     {
       toolTipTitle: "Click on line Item's menu button to update",
       button: () => {
-        return (
-          <HelpIcon />
-        )
-      }
+        return <HelpIcon />;
+      },
     },
     {
-      toolTipTitle: "delete checklist(s)",
+      toolTipTitle: 'delete checklist(s)',
       button: () => {
-        return (
-          <DeleteIcon />
-        )
+        return <DeleteIcon />;
       },
       handleClickMethod: 'handleOnClickDelete',
       badge: {
-        color: 'error'
-      }
-    }
-  ]
+        color: 'error',
+      },
+    },
+  ];
 
   // ---------------------------------------------------------
 
   // Delete helpers -------------------------------------
-  const handleDelete = async() => {
+  const handleDelete = async () => {
     const requestOptions = {
       method: 'DELETE',
       redirect: 'follow',
     };
     for (let i = 0; i < selectedRows.length; i++) {
-        const res = await fetch(
-            `http://localhost:3000/api/qa-checklists/${selectedRows[i]}`,
-            requestOptions
-          )
-        const result = await res.json()
-        console.log(`${selectedRows[i]} was deleted`)
+      const res = await fetch(
+        `http://localhost:3000/api/qa-checklists/${selectedRows[i]}`,
+        requestOptions
+      );
+      const result = await res.json();
+      console.log(`${selectedRows[i]} was deleted`);
     }
 
-    
-    handleAlertOpen(
-        `Deleted Checklists successfully!`,
-        'success'
+    handleAlertOpen(`Deleted Checklists successfully!`, 'success');
+
+    const remainingChecklists = checklists.filter(
+      (checklist) => !selectedRows.includes(checklist.id)
     );
-
-
-    const remainingChecklists = checklists.filter(checklist => !selectedRows.includes(checklist.id))
-    setChecklists(remainingChecklists)
-    setSelectedRows([])
-  }
+    setChecklists(remainingChecklists);
+    setSelectedRows([]);
+  };
 
   // Create Dialog helpers ------------------------------------
   const addChecklist = (newChecklist) => {
-    const newChecklists = [...checklists, newChecklist]
-    setChecklists(newChecklists)
+    const newChecklists = [...checklists, newChecklist];
+    setChecklists(newChecklists);
     handleAlertOpen(
       `Created checklist ${newChecklist.id} successfully!`,
       'success'
     );
-  }
+  };
   // ----------------------------------------------------------
 
   // Update Dialog helpers ------------------------------------
   const updateChecklists = (newChecklist) => {
-    const updatedChecklists = checklists.map(checklist => {
+    const updatedChecklists = checklists.map((checklist) => {
       if (checklist.id === newChecklist.id) {
-        return newChecklist
+        return newChecklist;
       } else {
-        return checklist
+        return checklist;
       }
-    })
-    setChecklists(updatedChecklists)
+    });
+    setChecklists(updatedChecklists);
     handleAlertOpen(
       `Updated checklist ${newChecklist.id} successfully!`,
       'success'
     );
-  }
+  };
   // ----------------------------------------------------------
   // Notification alert helers --------------------------------
 
@@ -241,83 +251,113 @@ function qaChecklists() {
 
   return (
     <>
-      <Box sx={{pt: 4, pb: 4}} component="main">
-        {/* toolbar for create and delete */}
-        <GenericToolbar 
-        tools={tools} 
-        disabled={disabled} 
-        title='QA Checklists'
-        selectedRows={selectedRows}
-        handleOpenCreateDialog={handleOpenCreateDialog}
-        handleOnClickDelete={handleOnClickDelete}>
-        </GenericToolbar>
+      <HelmetProvider>
+        <Helmet>
+          <title>{`QA Checklist | ${user?.organisation?.name}`}</title>
+        </Helmet>
+      </HelmetProvider>
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          pt: 4,
+          pb: 4,
+        }}
+      >
+        <Container maxWidth={false}>
+          {/* toolbar for create and delete */}
+          <GenericToolbar
+            tools={tools}
+            disabled={disabled}
+            title="QA Checklists"
+            selectedRows={selectedRows}
+            handleSearch={handleSearch}
+            handleOpenCreateDialog={handleOpenCreateDialog}
+            handleOnClickDelete={handleOnClickDelete}
+          ></GenericToolbar>
 
-        {/* Menu */}
-        <Menu anchorEl={anchorEl} open={open} onClose={handleMenuClose}>
-          <MenuItem onClick={handleMenuClose}>View/Update</MenuItem>
-        </Menu>
+          {/* Menu */}
+          <Menu anchorEl={anchorEl} open={open} onClose={handleMenuClose}>
+            <MenuItem onClick={handleMenuClose}>View/Update</MenuItem>
+          </Menu>
 
-        {/* update Dialog */}
-        {openUpdateDialog ? <UpdateDialogChecklist 
-        openUpdateDialog={openUpdateDialog}
-        setOpenUpdateDialog={setOpenUpdateDialog}
-        updateChecklists={updateChecklists}
-        columnsForRules={columnsForRules}
-        rules={allRules}
-        rowToEdit={rowToEdit}/> : <></> }
-        
-
-        {/* create Dialog */}
-        {openCreateDialog ? <CreateDialogChecklist
-        openCreateDialog={openCreateDialog}
-        setOpenCreateDialog={setOpenCreateDialog}
-        addChecklist={addChecklist}
-        columnsForRules={columnsForRules}
-        rules={allRules}/> : <></> }
-       
-
-        {/* Notification Alert */}
-        <NotificationAlert
-          open={alertOpen}
-          severity={alertSeverity}
-          text={alertText}
-          handleClose={handleAlertClose}
-        />
-
-        {/* ConfirmationDialog */}
-        <ConfirmationDialog 
-         open={openConfirmationDialog}
-         handleClose={() => setOpenConfirmationDialog(false)}
-         dialogTitle={`Delete Checklist(s) ?`}
-         dialogContent={`Confirm deletion of checklist(s)?`}
-         dialogAction={handleDelete}/>
-
-        {/* Data grid */}
-        <Card>
-          <Box sx={{ minWidth: 1050 }}>
-            <DataGrid
-              autoHeight
-              rows={checklists}
-              columns={columns}
-              pageSize={10}
-              rowsPerPageOptions={[10]}
-              allowSorting={true}
-              components={{
-                Toolbar: GridToolbar,
-              }}
-              disableSelectionOnClick
-              checkboxSelection={true}
-              onSelectionModelChange={(ids) => {
-                setSelectedRows(ids);
-              }}
+          {/* update Dialog */}
+          {openUpdateDialog ? (
+            <UpdateDialogChecklist
+              openUpdateDialog={openUpdateDialog}
+              setOpenUpdateDialog={setOpenUpdateDialog}
+              updateChecklists={updateChecklists}
+              columnsForRules={columnsForRules}
+              rules={allRules}
+              rowToEdit={rowToEdit}
             />
+          ) : (
+            <></>
+          )}
+
+          {/* create Dialog */}
+          {openCreateDialog ? (
+            <CreateDialogChecklist
+              openCreateDialog={openCreateDialog}
+              setOpenCreateDialog={setOpenCreateDialog}
+              addChecklist={addChecklist}
+              columnsForRules={columnsForRules}
+              rules={allRules}
+            />
+          ) : (
+            <></>
+          )}
+
+          {/* Notification Alert */}
+          <NotificationAlert
+            open={alertOpen}
+            severity={alertSeverity}
+            text={alertText}
+            handleClose={handleAlertClose}
+          />
+
+          {/* ConfirmationDialog */}
+          <ConfirmationDialog
+            open={openConfirmationDialog}
+            handleClose={() => setOpenConfirmationDialog(false)}
+            dialogTitle={`Delete Checklist(s) ?`}
+            dialogContent={`Confirm deletion of checklist(s)?`}
+            dialogAction={handleDelete}
+          />
+
+          {/* Data grid */}
+          <Box sx={{ mt: 3 }}>
+            <Card>
+              <Box sx={{ minWidth: 1050 }}>
+                <DataGrid
+                  autoHeight
+                  rows={rows.filter((row) => {
+                    if (search === '') {
+                      return row;
+                    } else {
+                      return row.name.toLowerCase().includes(search);
+                    }
+                  })}
+                  columns={columns}
+                  pageSize={10}
+                  rowsPerPageOptions={[10]}
+                  allowSorting={true}
+                  components={{
+                    Toolbar: GridToolbar,
+                  }}
+                  disableSelectionOnClick
+                  checkboxSelection={true}
+                  onSelectionModelChange={(ids) => {
+                    setSelectedRows(ids);
+                  }}
+                />
+              </Box>
+            </Card>
           </Box>
-        </Card>
-
+        </Container>
       </Box>
-      
     </>
-  )
-}
+  );
+};
 
-export default qaChecklists
+export default QAChecklists;
