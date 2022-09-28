@@ -9,7 +9,7 @@ import {
 } from '@mui/material';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import { useEffect, useState } from 'react';
-import { Helmet } from 'react-helmet';
+import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { DashboardLayout } from '../../components/dashboard-layout';
 import { NotificationAlert } from '../../components/notification-alert';
 import { ProductionLineManagementDialog } from '../../components/assetManagement/production-line-management-dialog';
@@ -76,24 +76,24 @@ export const ProductionLineManagement = (props) => {
   const handleFormDialogClose = () => {
     setFormDialogOpen(false);
   };
-    // Machine Dialog Helpers
-    const [machineDialogOpen, setMachineDialogOpen] = useState(false);
-    const handleMachineDialogOpen = () => {
-      console.log(selectedRow);
-      setMachineDialogOpen(true);
-    };
-    const handleMachineDialogClose = () => {
-      setMachineDialogOpen(false);
-    };
+  // Machine Dialog Helpers
+  const [machineDialogOpen, setMachineDialogOpen] = useState(false);
+  const handleMachineDialogOpen = () => {
+    console.log(selectedRow);
+    setMachineDialogOpen(true);
+  };
+  const handleMachineDialogClose = () => {
+    setMachineDialogOpen(false);
+  };
 
-    const [scheduleDialogOpen, setScheduleDialogOpen] = useState(false);
-    const handleScheduleDialogOpen = () => {
-      console.log(selectedRow);
-      setScheduleDialogOpen(true);
-    };
-    const handleScheduleDialogClose = () => {
-      setScheduleDialogOpen(false);
-    };
+  const [scheduleDialogOpen, setScheduleDialogOpen] = useState(false);
+  const handleScheduleDialogOpen = () => {
+    console.log(selectedRow);
+    setScheduleDialogOpen(true);
+  };
+  const handleScheduleDialogClose = () => {
+    setScheduleDialogOpen(false);
+  };
 
   const [anchorEl, setAnchorEl] = useState(null);
   const menuOpen = Boolean(anchorEl);
@@ -114,7 +114,6 @@ export const ProductionLineManagement = (props) => {
   // const handleClickViewSchedule = () => {
   //   setAction('GET');
   // };
-
 
   const menuButton = (params) => {
     return (
@@ -184,31 +183,31 @@ export const ProductionLineManagement = (props) => {
       flex: 1,
     },
     {
-        field: 'name',
-        headerName: 'Name',
-        flex: 1,
+      field: 'name',
+      headerName: 'Name',
+      flex: 1,
     },
     {
       field: 'description',
       headerName: 'Description',
       flex: 2,
-  },
+    },
     {
       field: 'isAvailable',
       headerName: 'Status',
       flex: 1,
     },
     {
-        field: 'finalGood',
-        headerName: 'Final Good',
-        flex: 2,
-        valueGetter: (params) => {
-          if (params.row.finalGood.name) {
-            return params.row.finalGood.name;
-          } else {
-            return '';
-          }
-        },
+      field: 'finalGood',
+      headerName: 'Final Good',
+      flex: 2,
+      valueGetter: (params) => {
+        if (params.row.finalGood.name) {
+          return params.row.finalGood.name;
+        } else {
+          return '';
+        }
+      },
     },
     {
       field: 'lastStopped',
@@ -216,19 +215,19 @@ export const ProductionLineManagement = (props) => {
       flex: 2,
     },
     {
-        field: 'changeOverTime',
-        headerName: 'COT',
-        flex: 1,
+      field: 'changeOverTime',
+      headerName: 'COT',
+      flex: 1,
     },
     {
-        field: 'nextAvailableDateTime',
-        headerName: 'NADT',
-        flex: 2,
+      field: 'nextAvailableDateTime',
+      headerName: 'NADT',
+      flex: 2,
     },
     {
-        field: 'productionCostPerLot',
-        headerName: 'PCPL',
-        flex: 1,
+      field: 'productionCostPerLot',
+      headerName: 'PCPL',
+      flex: 1,
     },
     {
       field: 'actions',
@@ -240,12 +239,14 @@ export const ProductionLineManagement = (props) => {
   ];
   return (
     <>
-      <Helmet>
-        <title>
-          Production Line Management Module
-          {user && ` | ${user?.organisation?.name}`}
-        </title>
-      </Helmet>
+      <HelmetProvider>
+        <Helmet>
+          <title>
+            Production Line Management Module
+            {user && ` | ${user?.organisation?.name}`}
+          </title>
+        </Helmet>
+      </HelmetProvider>
       <Box
         component="main"
         sx={{
@@ -356,6 +357,8 @@ export const ProductionLineManagement = (props) => {
   );
 };
 
-ProductionLineManagement.getLayout = (page) => <DashboardLayout>{page}</DashboardLayout>;
+ProductionLineManagement.getLayout = (page) => (
+  <DashboardLayout>{page}</DashboardLayout>
+);
 
 export default ProductionLineManagement;

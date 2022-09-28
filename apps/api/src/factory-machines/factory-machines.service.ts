@@ -77,9 +77,9 @@ export class FactoryMachinesService {
       const productionLineId = factoryMachineToUpdate.productionLineId
       const keyValuePairs = Object.entries(updateFactoryMachineDto)
       for (const [key, value] of keyValuePairs) {
-        if (key === 'isOperating' && factoryMachineToUpdate.productionLineId) {
-          await this.productionLineService.machineTriggerChange(value, factoryMachineToUpdate.id, productionLineId, transactionalEntityManager)
-        }
+        // if (key === 'isOperating' && factoryMachineToUpdate.productionLineId) {
+        //   await this.productionLineService.machineTriggerChange(value, factoryMachineToUpdate.id, productionLineId, transactionalEntityManager)
+        // }
         if (key === 'productionLineId') {
           await this.productionLineService.findOne(value)
         }
