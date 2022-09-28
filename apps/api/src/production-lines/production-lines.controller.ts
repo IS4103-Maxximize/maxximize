@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UsePipes, ValidationPipe } from '@nestjs/common';
 import { ProductionLinesService } from './production-lines.service';
 import { CreateProductionLineDto } from './dto/create-production-line.dto';
 import { UpdateProductionLineDto } from './dto/update-production-line.dto';
+import { RetrieveSchedulesDto } from './dto/retrieve-schedules.dto';
 
 @Controller('production-lines')
 export class ProductionLinesController {
@@ -16,6 +17,13 @@ export class ProductionLinesController {
   findAll() {
     return this.productionLinesService.findAll();
   }
+
+  @Get('/earliestSchedules')
+  @UsePipes(new ValidationPipe( {transform: true}))
+  getSchedulesForQty(@Query() dto: RetrieveSchedulesDto) {
+    return this.productionLinesService.retrieveSchedulesForProductionOrder(dto.quantity, dto.finalGoodId, dto.daily, dto.days)
+  }
+
 
   @Get('orgId/:id')
   findAllByOrg(@Param('id') id: string) {

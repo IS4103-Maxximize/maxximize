@@ -8,7 +8,9 @@ import { useEffect, useState } from "react";
 import * as Yup from "yup";
 import { createBOM, fetchBOMs } from "../../helpers/production/bom";
 import { ConfirmDialog } from "../assetManagement/confirm-dialog";
-
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CancelIcon from '@mui/icons-material/Cancel';
+import SyncIcon from '@mui/icons-material/Sync';
 
 export const ProductionOrderCreateDialog = (props) => {
   const {
@@ -50,7 +52,6 @@ export const ProductionOrderCreateDialog = (props) => {
     //   .catch(err => handleAlertOpen(`Failed to Create ${string}'`, 'error'));
   };
 
-  // const [id, setId] = useState(0); // temporary id for line item in datagrid
   const [boms, setBoms] = useState([]);
   const [bomOptions, setBomOptions] = useState([]);
   const [selectedBom, setSelectedBom] = useState();
@@ -61,6 +62,23 @@ export const ProductionOrderCreateDialog = (props) => {
     setBoms([...boms]);
     setBomOptions([...boms]);
   }
+
+  const formik = useFormik({
+    initialValues: {
+      multiplier: 1,
+      quantity: 0,
+      bomId: null,
+      prodLineItems: [],
+    },
+    validationSchema: Yup.object({
+      multiplier: Yup.number().positive('Multiplier must be positive').required('Enter Quantity Multiplier'),
+      quantity: Yup.number().integer().positive(),
+      bomId: Yup.number().required('BOM must be selected'),
+      prodLineItems: Yup.array().min(1, 'Line Items must not be empty'),
+    }),
+    enableReinitialize: true,
+    onSubmit: handleOnSubmit,
+  });
 
   // Populate Prod Line Items
   useEffect(() => {
@@ -75,31 +93,21 @@ export const ProductionOrderCreateDialog = (props) => {
           }
         });
       // TBD - probably have to calculate sufficiency here before setting datagrid rows
+      formik.setFieldValue('quantity', 
+        Math.ceil(selectedBom.finalGood.lotQuantity * formik.values.multiplier)
+      );
       formik.setFieldValue('prodLineItems', lineItems);
     }
     // Clear Prod Line Items if BOM selector is cleared
     if (!selectedBom) {
       formik.setFieldValue('prodLineItems', []);
+      formik.setFieldValue('quantity', 0);
+      formik.setFieldValue('multiplier', 1);
     }
   }, [selectedBom])
 
   // Selected Line Items
   const [selectedRows, setSelectedRows] = useState([]);
-
-  const formik = useFormik({
-    initialValues: {
-      quantity: 100, // tbd
-      bomId: null,
-      prodLineItems: [],
-    },
-    validationSchema: Yup.object({
-      quantity: Yup.number().integer().positive('Quantity must be positive').required('Enter Production Quantity'),
-      bomId: Yup.number().required('BOM must be selected'),
-      prodLineItems: Yup.array().min(1, 'Line Items must not be empty'),
-    }),
-    enableReinitialize: true,
-    onSubmit: handleOnSubmit,
-  });
 
   // Opening and Closing Dialog helpers
   useEffect(() => {
@@ -125,17 +133,30 @@ export const ProductionOrderCreateDialog = (props) => {
       }
     },
     {
-      field: "totalQuantity",
+      field: "quantity",
       headerName: "Quantity Required",
       flex: 1,
       valueGetter: (params) => {
-        return params.row ? params.row.rawMaterial.lotQuantity * params.row.quantity : '';
+        return params.row ? params.row.quantity : '';
+      }
+    },
+    {
+      field: "unit",
+      headerName: "Unit",
+      flex: 1,
+      valueGetter: (params) => {
+        return params.row ? params.row.rawMaterial.unit : '';
       }
     },
     {
       field: "sufficient",
       headerName: "Sufficient?",
       flex: 1,
+      renderCell: (params) => {
+        return params.row.sufficient ? 
+          <CheckCircleIcon color="success"/> :
+          <CancelIcon color="error"/>
+      }
     },
   ]
 
@@ -177,23 +198,61 @@ export const ProductionOrderCreateDialog = (props) => {
           </Toolbar>
         </AppBar>
         <DialogContent>
-          {/* 
-            Production Quantity 
-            ??? Might be taken from BOM > FinalGood > lotQuantity idk need clarify
-          */}
-          <TextField
-            sx={{ width: 400, mb: 2 }}
-            error={Boolean(formik.touched.quantity && formik.errors.quantity)}
-            helperText={formik.touched.quantity && formik.errors.quantity}
-            label="Production Quantity"
-            margin="normal"
-            name="quantity"
-            type="number"
-            onBlur={formik.handleBlur}
-            onChange={formik.handleChange}
-            value={formik.values.quantity}
-            variant="outlined"
-          />
+          <Stack direction="row" spacing={1} alignItems="baseline">
+            <TextField
+              sx={{ width: 400, mb: 2 }}
+              error={Boolean(formik.touched.quantity && formik.errors.quantity)}
+              helperText={formik.touched.quantity && formik.errors.quantity}
+              label="Production Quantity"
+              margin="normal"
+              name="quantity"
+              type="number"
+              onBlur={formik.handleBlur}
+              onChange={formik.handleChange}
+              value={formik.values.quantity}
+              variant="outlined"
+              disabled
+            />
+            <TextField
+              sx={{ width: 100, mb: 2 }}
+              error={Boolean(formik.touched.multiplier && formik.errors.multiplier)}
+              helperText={formik.touched.multiplier && formik.errors.multiplier}
+              label="Multiplier"
+              margin="normal"
+              name="multiplier"
+              type="number"
+              onBlur={formik.handleBlur}
+              onChange={formik.handleChange}
+              value={formik.values.multiplier}
+              variant="outlined"
+            />
+            {/* Button to recalculate respective quantities */}
+            <IconButton 
+              color="primary" 
+              variant="contained"
+              disabled={!selectedBom || formik.values.multiplier < 1}
+              onClick={() => {
+                if (selectedBom) {
+                  const multiplier = formik.values.multiplier;
+                  formik.setFieldValue('quantity', selectedBom.finalGood.lotQuantity * multiplier);
+                  formik.setFieldValue('prodLineItems', 
+                    selectedBom.bomLineItems.map(item => {
+                      const newQuantity = Math.ceil(item.quantity * multiplier)
+                      const newItem = {
+                        id: item.id,
+                        quantity: newQuantity,
+                        sufficient: false, // need to calculate
+                        rawMaterial: item.rawMaterial
+                      }
+                      return newItem;
+                    })
+                  );
+                }
+              }}
+            >
+              <SyncIcon />
+            </IconButton>
+          </Stack>
           {/* BOM Selection */}
           <Stack direction="row" spacing={1}>
             <Autocomplete
@@ -214,6 +273,15 @@ export const ProductionOrderCreateDialog = (props) => {
               margin="normal"
               name="final-good-lotQuantity"
               value={selectedBom ? selectedBom.finalGood.lotQuantity : 0}
+              variant="outlined"
+              disabled
+            />
+            <TextField
+              sx={{ width: 100 }}
+              label="Unit"
+              margin="normal"
+              name="final-good-unit"
+              value={selectedBom ? selectedBom.finalGood.unit : ''}
               variant="outlined"
               disabled
             />

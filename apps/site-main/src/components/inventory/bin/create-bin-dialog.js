@@ -10,10 +10,16 @@ import {
 } from '@mui/material';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useFormik } from 'formik';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import * as Yup from 'yup';
 
-export const CreateBinDialog = ({ open, setOpen, addBin, handleAlertOpen }) => {
+export const CreateBinDialog = ({
+  warehouse,
+  open,
+  setOpen,
+  addBin,
+  handleAlertOpen,
+}) => {
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
 
@@ -30,6 +36,8 @@ export const CreateBinDialog = ({ open, setOpen, addBin, handleAlertOpen }) => {
     formik.resetForm();
   };
 
+  useEffect(() => console.log(warehouse.id), [open]);
+
   //Handle Formik submission
   const handleOnSubmit = async () => {
     const response = await fetch('http://localhost:3000/api/bins', {
@@ -39,7 +47,7 @@ export const CreateBinDialog = ({ open, setOpen, addBin, handleAlertOpen }) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        warehouseId: formik.values.warehouseId,
+        warehouseId: warehouse.id,
         name: formik.values.name,
         capacity: formik.values.capacity,
       }),
@@ -60,7 +68,6 @@ export const CreateBinDialog = ({ open, setOpen, addBin, handleAlertOpen }) => {
 
   const formik = useFormik({
     initialValues: {
-      warehouseId: '',
       name: '',
       capacity: '',
     },
@@ -69,10 +76,6 @@ export const CreateBinDialog = ({ open, setOpen, addBin, handleAlertOpen }) => {
         .min(1, 'Name must be at least be 1 character long')
         .max(50, 'Name can at most be 50 characters long')
         .required('Name is required'),
-      warehouseId: Yup.string()
-        .min(1, 'Warehouse ID must be at least be 1 character long')
-        .max(50, 'Warehouse ID can at most be 50 characters long')
-        .required('Warehouse ID is required'),
       capacity: Yup.number().required('Capacity is required'),
     }),
     onSubmit: handleOnSubmit,
@@ -88,21 +91,6 @@ export const CreateBinDialog = ({ open, setOpen, addBin, handleAlertOpen }) => {
       <DialogTitle id="responsive-dialog-title">{'Create Bin'}</DialogTitle>
       <DialogContent>
         <form onSubmit={formik.handleSubmit}>
-          <TextField
-            error={Boolean(
-              formik.touched.warehouseId && formik.errors.warehouseId
-            )}
-            fullWidth
-            helperText={formik.touched.warehouseId && formik.errors.warehouseId}
-            label="Warehouse ID"
-            margin="normal"
-            name="warehouseId"
-            onBlur={formik.handleBlur}
-            onChange={formik.handleChange}
-            value={formik.values.warehouseId}
-            variant="outlined"
-            size="small"
-          />
           <TextField
             error={Boolean(formik.touched.name && formik.errors.name)}
             fullWidth

@@ -125,6 +125,13 @@ export const BOMCreateDialog = (props) => {
       return oldRow;
     }
 
+    // Open error alert if quantity is < 1
+    if (newRow.quantity < 1) {
+      const message = 'Quantity must be positive!'
+      handleAlertOpen(message, 'error');
+      throw new Error(message);
+    }
+
     const updatedBomLineItems = formik.values.bomLineItems
       .map(item => item.id === newRow.id ? newRow : item)
 
@@ -151,21 +158,21 @@ export const BOMCreateDialog = (props) => {
 
   const columns = [
     {
-      field: "totalQuantity",
-      headerName: "Total Quantity",
-      flex: 1,
-      valueGetter: (params) => {
-        return params.row ? params.row.rawMaterial.lotQuantity * params.row.quantity : '';
-      }
-    },
-    {
       field: "quantity",
-      headerName: "Line Item Quantity *",
+      headerName: "Quantity *",
       flex: 1,
       type: 'number',
       headerAlign: 'left',  // align header
       align: 'left',        // align data
       editable: true,
+    },
+    {
+      field: "unit",
+      headerName: "Unit",
+      flex: 1,
+      valueGetter: (params) => {
+        return params.row ? params.row.rawMaterial.unit : '';
+      }
     },
     {
       field: "name",
@@ -234,7 +241,19 @@ export const BOMCreateDialog = (props) => {
               name="final-good-lotQuantity"
               value={
                 formik.values.finalGoodId ? 
-                finalGoods.find(item => item.id === formik.values.finalGoodId ).lotQuantity : 0
+                finalGoods.find(item => item.id === formik.values.finalGoodId).lotQuantity : 0
+              }
+              variant="outlined"
+              disabled
+            />
+            <TextField
+              sx={{width: 100}}
+              label="Unit"
+              margin="normal"
+              name="final-good-unit"
+              value={
+                formik.values.finalGoodId ? 
+                finalGoods.find(item => item.id === formik.values.finalGoodId).unit : 0
               }
               variant="outlined"
               disabled
@@ -257,7 +276,7 @@ export const BOMCreateDialog = (props) => {
               <TextField
                 error={Boolean(formik.touched.numRaw && formik.errors.numRaw)}
                 helperText={formik.touched.numRaw && formik.errors.numRaw}
-                label="Enter Number of Raw Materials"
+                label="Enter Quantity of Raw Materials"
                 margin="normal"
                 name="numRaw"
                 type="number"
@@ -265,6 +284,18 @@ export const BOMCreateDialog = (props) => {
                 onChange={formik.handleChange}
                 value={formik.values.numRaw}
                 variant="outlined"
+              />
+              <TextField
+                sx={{width: 100}}
+                label="Unit"
+                margin="normal"
+                name="final-good-unit"
+                value={
+                  selectedRawMaterial ? 
+                  selectedRawMaterial.unit : ''
+                }
+                variant="outlined"
+                disabled
               />
               <IconButton
                 disabled={formik.values.numRaw <= 0 || !selectedRawMaterial}
@@ -297,6 +328,10 @@ export const BOMCreateDialog = (props) => {
             onSelectionModelChange={(ids) => setSelectedRows(ids)}
             experimentalFeatures={{ newEditingApi: true }}
             processRowUpdate={handleRowUpdate}
+            onProcessRowUpdateError={(error) => {
+              console.log(error);
+              // remain in editing mode
+            }}
           />
         </DialogContent>
       </Dialog>

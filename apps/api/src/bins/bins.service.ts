@@ -8,10 +8,12 @@ import { Bin } from './entities/bin.entity';
 
 @Injectable()
 export class BinsService {
-  constructor(@InjectRepository(Bin)
-  private readonly binRepository: Repository<Bin>,
-  private dataSource: DataSource,
-  private warehouseService: WarehousesService) {}
+  constructor(
+    @InjectRepository(Bin)
+    private readonly binRepository: Repository<Bin>,
+    private dataSource: DataSource,
+    private warehouseService: WarehousesService
+  ) {}
 
   async create(createBinDto: CreateBinDto) {
     const queryRunner = this.dataSource.createQueryRunner();
@@ -23,8 +25,11 @@ export class BinsService {
       bin.name = createBinDto.name;
       bin.capacity = createBinDto.capacity;
       bin.currentCapacity = 0;
+      bin.batchLineItems = [];
 
-      const warehouse = await this.warehouseService.findOne(createBinDto.warehouseId);
+      const warehouse = await this.warehouseService.findOne(
+        createBinDto.warehouseId
+      );
       bin.warehouse = warehouse;
 
       const createdBin = await queryRunner.manager.save(bin);
@@ -39,10 +44,10 @@ export class BinsService {
 
   async findAll() {
     const bins = await this.binRepository.find({
-      relations: ["warehouse", "batchLineItems.product"]
+      relations: ['warehouse', 'batchLineItems.product'],
     });
     if (bins.length === 0 || bins === undefined) {
-      throw new NotFoundException("No bin(s) found!");
+      throw new NotFoundException('No bin(s) found!');
     } else {
       return bins;
     }
@@ -51,9 +56,9 @@ export class BinsService {
   async findOne(id: number) {
     const bin = await this.binRepository.findOne({
       where: {
-        id: id
+        id: id,
       },
-      relations: ["warehouse", "batchLineItems.product"]
+      relations: ['warehouse', 'batchLineItems.product'],
     });
     if (bin) {
       return bin;
