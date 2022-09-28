@@ -25,8 +25,10 @@ const BinDetails = () => {
 
   //Load in list of bins, initial
   useEffect(() => {
-    setBin(state.bin);
-    setBatchLineItems(state.bin.batchLineItems);
+    if (state != null) {
+      setBin(state.bin);
+      setBatchLineItems(state.bin.batchLineItems);
+    }
   }, [location]);
 
   //Search Function

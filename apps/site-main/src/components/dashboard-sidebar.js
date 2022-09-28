@@ -19,7 +19,11 @@ import RuleIcon from '@mui/icons-material/Rule';
 import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
 import FactCheckIcon from '@mui/icons-material/FactCheck';
 import TaskIcon from '@mui/icons-material/Task';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
   Box,
   Button,
   Collapse,
@@ -67,18 +71,23 @@ const items = [
   {
     subsystem: 'Quality Assurance',
     access: ['manager', 'factoryworker', 'superadmin'],
-    icon: <FactCheckIcon fontSize="small" />,
+    icon: (
+      <FactCheckIcon
+        sx={{ marginTop: 0.2, color: '#9CA3AF' }}
+        fontSize="small"
+      />
+    ),
     open: 'openQualityAssurance',
     handleClick: 'handleQualityAssuranceClick',
     modules: [
       {
-        href: 'qualityAssurance/checklists',
+        href: '/qualityAssurance/checklists',
         icon: <AssignmentTurnedInIcon fontSize="small" />,
         title: 'Checklist',
         access: ['manager', 'factoryworker', 'superadmin'],
       },
       {
-        href: 'qualityAssurance/rules',
+        href: '/qualityAssurance/rules',
         icon: <RuleIcon fontSize="small" />,
         title: 'Rules',
         access: ['manager', 'factoryworker', 'superadmin'],
@@ -88,7 +97,9 @@ const items = [
   {
     subsystem: 'Product',
     access: ['manager', 'superadmin'],
-    icon: <EggIcon fontSize="small" />,
+    icon: (
+      <EggIcon sx={{ marginTop: 0.2, color: '#9CA3AF' }} fontSize="small" />
+    ),
     open: 'openProduct',
     handleClick: 'handleProductClick',
     modules: [
@@ -109,7 +120,12 @@ const items = [
   {
     subsystem: 'Procurement',
     access: ['manager', 'factoryworker', 'superadmin'],
-    icon: <InventoryIcon fontSize="small" />,
+    icon: (
+      <InventoryIcon
+        sx={{ marginTop: 0.2, color: '#9CA3AF' }}
+        fontSize="small"
+      />
+    ),
     open: 'openProcurement',
     handleClick: 'handleProcurementClick',
     modules: [
@@ -142,7 +158,12 @@ const items = [
   {
     subsystem: 'Production',
     access: ['manager', 'factoryworker', 'superadmin'],
-    icon: <CalendarMonthIcon fontSize="small" />,
+    icon: (
+      <CalendarMonthIcon
+        sx={{ marginTop: 0.2, color: '#9CA3AF' }}
+        fontSize="small"
+      />
+    ),
     open: 'openProduction',
     handleClick: 'handleProductionClick',
     modules: [
@@ -266,7 +287,103 @@ export const DashboardSidebar = (props) => {
     .map((item, index) => {
       return (
         <Box key={index} sx={{ mr: 3 }}>
-          <List>
+          <Accordion
+            sx={{
+              backgroundColor: 'rgba(17,24,39)',
+              color: 'neutral.300',
+              fontWeight: 'fontWeightBold',
+              justifyContent: 'flex-start',
+              width: '100%',
+              '&:hover': {
+                backgroundColor: 'rgba(17,24,39)',
+              },
+            }}
+          >
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+              sx={{
+                backgroundColor: 'rgba(17,24,39)',
+                color: 'neutral.300',
+                fontWeight: 'fontWeightBold',
+                justifyContent: 'flex-start',
+                width: '100%',
+                '&:hover': {
+                  backgroundColor: 'rgba(17,24,39)',
+                },
+              }}
+            >
+              <Box display="flex" ml={0.5}>
+                {item.icon}
+                <Typography sx={{ marginLeft: 1 }}>{item.subsystem}</Typography>
+              </Box>
+            </AccordionSummary>
+            <AccordionDetails
+              sx={{
+                backgroundColor: 'rgba(17,24,39)',
+                color: 'neutral.300',
+                fontWeight: 'fontWeightBold',
+                justifyContent: 'flex-start',
+                width: '100%',
+                '&:hover': {
+                  backgroundColor: 'rgba(17,24,39)',
+                },
+              }}
+            >
+              {item.modules
+                .filter((module) => module.access.includes(user.role))
+                .map((module, index) => (
+                  <Collapse
+                    key={index}
+                    in={eval(item.open)}
+                    timeout="auto"
+                    unmountOnExit
+                  >
+                    <Link
+                      component={RouterLink}
+                      to={module.href}
+                      key={index}
+                      color="secondary"
+                      underline="none"
+                    >
+                      <Button
+                        component="a"
+                        startIcon={module.icon}
+                        disableRipple
+                        sx={{
+                          backgroundColor:
+                            module.href === pathname &&
+                            'rgba(255,255,255, 0.08)',
+                          borderRadius: 1,
+                          color:
+                            module.href === pathname
+                              ? 'secondary.main'
+                              : 'neutral.300',
+                          fontWeight:
+                            module.href === pathname && 'fontWeightBold',
+                          justifyContent: 'flex-start',
+                          px: 3,
+                          textAlign: 'left',
+                          textTransform: 'none',
+                          width: '100%',
+                          '& .MuiButton-startIcon': {
+                            color:
+                              module.href === pathname
+                                ? 'secondary.main'
+                                : 'neutral.400',
+                          },
+                          '&:hover': {
+                            backgroundColor: 'rgba(255,255,255, 0.08)',
+                          },
+                        }}
+                      >
+                        <Box sx={{ flexGrow: 1 }}>{module.title}</Box>
+                      </Button>
+                    </Link>
+                  </Collapse>
+                ))}
+            </AccordionDetails>
+          </Accordion>
+          {/* <List>
             <ListItemButton
               sx={{
                 borderRadius: 1,
@@ -287,59 +404,9 @@ export const DashboardSidebar = (props) => {
               </ListItemIcon>
               <ListItemText primary={item.subsystem} />
               {eval(item.open) ? <ExpandLess /> : <ExpandMore />}
-            </ListItemButton>
-            {item.modules
-              .filter((module) => module.access.includes(user.role))
-              .map((module, index) => (
-                <Collapse
-                  key={index}
-                  in={eval(item.open)}
-                  timeout="auto"
-                  unmountOnExit
-                >
-                  <Link
-                    component={RouterLink}
-                    to={module.href}
-                    key={index}
-                    color="secondary"
-                    underline="none"
-                  >
-                    <Button
-                      component="a"
-                      startIcon={module.icon}
-                      disableRipple
-                      sx={{
-                        backgroundColor:
-                          module.href === pathname && 'rgba(255,255,255, 0.08)',
-                        borderRadius: 1,
-                        color:
-                          module.href === pathname
-                            ? 'secondary.main'
-                            : 'neutral.300',
-                        fontWeight:
-                          module.href === pathname && 'fontWeightBold',
-                        justifyContent: 'flex-start',
-                        px: 3,
-                        textAlign: 'left',
-                        textTransform: 'none',
-                        width: '100%',
-                        '& .MuiButton-startIcon': {
-                          color:
-                            module.href === pathname
-                              ? 'secondary.main'
-                              : 'neutral.400',
-                        },
-                        '&:hover': {
-                          backgroundColor: 'rgba(255,255,255, 0.08)',
-                        },
-                      }}
-                    >
-                      <Box sx={{ flexGrow: 1 }}>{module.title}</Box>
-                    </Button>
-                  </Link>
-                </Collapse>
-              ))}
-          </List>
+            </ListItemButton> */}
+
+          {/* </List> */}
         </Box>
       );
     });
