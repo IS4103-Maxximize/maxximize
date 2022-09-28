@@ -178,30 +178,26 @@ export const BillOfMaterial = (props) => {
       headerName: 'Final Good',
       flex: 2,
       valueGetter: (params) => {
-        return params.row ? 
-          `${params.row.finalGood.name} [${params.row.finalGood.skuCode}]` : 
-          '';
-      }
+        return params.row
+          ? `${params.row.finalGood.name} [${params.row.finalGood.skuCode}]`
+          : '';
+      },
     },
     {
       field: 'lotQuantity',
       headerName: 'Lot Quantity',
       flex: 1,
       valueGetter: (params) => {
-        return params.row ? 
-          params.row.finalGood.lotQuantity : 
-          '';
-      }
+        return params.row ? params.row.finalGood.lotQuantity : '';
+      },
     },
     {
       field: 'unit',
       headerName: 'Unit',
       flex: 1,
       valueGetter: (params) => {
-        return params.row ? 
-          params.row.finalGood.unit : 
-          '';
-      }
+        return params.row ? params.row.finalGood.unit : '';
+      },
     },
     {
       field: 'actions',
