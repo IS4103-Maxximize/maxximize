@@ -22,10 +22,16 @@ export class ProductionLine {
     productionCostPerLot: number
 
     @Column()
-    changeOverTime: number
+    gracePeriod: number
 
     @Column()
-    nextAvailableDateTime: Date
+    outputPerHour: number
+
+    @Column()
+    startTime: number
+
+    @Column()
+    endTime: number
 
     @Column({nullable: true})
     lastStopped: Date
