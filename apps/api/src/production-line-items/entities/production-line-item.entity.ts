@@ -18,7 +18,7 @@ export class ProductionLineItem {
     batchLineItem?: BatchLineItem
 
     @ManyToOne(() => RawMaterial, {nullable: true})
-    rawMaterial: RawMaterial
+    rawMaterial?: RawMaterial
 
     @ManyToOne(() => ProductionOrder, productionOrder => productionOrder.prodLineItems, {onDelete: "CASCADE"})
     productionOrder: ProductionOrder

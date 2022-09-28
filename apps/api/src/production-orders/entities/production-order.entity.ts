@@ -28,7 +28,7 @@ export class ProductionOrder {
     @JoinColumn()
     completedGoods?: Batch
 
-    @ManyToOne(() => BillOfMaterial)
+    @ManyToOne(() => BillOfMaterial, bom => bom.productionOrders, {onDelete:"CASCADE"})
     bom: BillOfMaterial
 
     @OneToMany(() => Schedule, schedule => schedule.productionOrder, {cascade: true})
