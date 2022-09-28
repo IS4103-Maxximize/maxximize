@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Exception } from 'handlebars';
 import { EntityManager, Repository } from 'typeorm';
 import { FinalGoodsService } from '../final-goods/final-goods.service';
 import { OrganisationsService } from '../organisations/organisations.service';
@@ -17,7 +18,7 @@ export class ProductionLinesService {
     private organisationService: OrganisationsService
   ) {}
   async create(createProductionLineDto: CreateProductionLineDto): Promise<ProductionLine> {
-    const {name, description, finalGoodId, productionCostPerLot, changeOverTime, organisationId} = createProductionLineDto
+    const {name, description, finalGoodId, productionCostPerLot, gracePeriod, organisationId, outputPerHour, startTime, endTime} = createProductionLineDto
 
     const organisation = await this.organisationService.findOne(organisationId)
     const finalGood = await this.finalGoodService.findOne(finalGoodId)
@@ -25,13 +26,15 @@ export class ProductionLinesService {
       name,
       description,
       productionCostPerLot,
-      changeOverTime: changeOverTime,
+      gracePeriod: gracePeriod,
       created: new Date(),
-      nextAvailableDateTime: new Date(),
       finalGoodId: finalGood.id,
       isAvailable: true,
       lastStopped: null,
-      organisationId: organisation.id
+      outputPerHour,
+      organisationId: organisation.id ,
+      startTime,
+      endTime
     })
     const newPL =  await this.productionLineRepository.save(newProductionLine)
     return this.findOne(newPL.id);
@@ -77,21 +80,9 @@ export class ProductionLinesService {
     const productionLineToUpdate = await this.findOne(id)
     const keyValuePairs = Object.entries(updateProductionLineDto)
     for (const [key, value] of keyValuePairs) {
-      if (key === 'changeOverTime') {
-        //need to update the nextAvailableDateTime
-        await this.updateNextAvailableDateTimeFromCOT(value, productionLineToUpdate)
-      }
       productionLineToUpdate[key] = value
     }
     return this.productionLineRepository.save(productionLineToUpdate)
-  }
-
-  async updateNextAvailableDateTimeFromCOT(newCotValue: number, productionLine: ProductionLine) {
-    const currentCOT = productionLine.changeOverTime
-    const difference  = newCotValue - currentCOT
-    const newNextAvailableDateTime = new Date(new Date(productionLine.nextAvailableDateTime).getTime() + difference)
-    productionLine.nextAvailableDateTime = newNextAvailableDateTime
-    return this.productionLineRepository.save(productionLine)
   }
 
   async remove(id: number): Promise<ProductionLine> {
@@ -106,59 +97,209 @@ export class ProductionLinesService {
     
   }
 
-  async updateNextAvailable(id: number, newScheduleEndDate: Date, entityManager: EntityManager) {
-    const productionLine = await entityManager.findOneBy(ProductionLine, {
-      id
-    })
-    const endDateInMilliseconds = new Date(newScheduleEndDate).getTime()
-    const nextAvailableDTInMilliseconds = endDateInMilliseconds + productionLine.changeOverTime
-    const nextAvailableDTInDateObject = new Date(nextAvailableDTInMilliseconds)
-    await entityManager.update(ProductionLine, productionLine.id, {nextAvailableDateTime: nextAvailableDTInDateObject})
+  async getNextEarliestMapping(finalGoodId: number) {
+    const allProductionLines = await this.findAll()
+    const productionLines = allProductionLines.filter(productionLine => productionLine.finalGoodId === finalGoodId)
+    let mapping = {}
+    for (let i = 0; i < productionLines.length; i++) {
+      const map = new Map()
+      const schedules = productionLines[i].schedules
+      schedules.forEach(schedule => {
+        const dateTime =  schedule.end
+        const dateKey = this.convertDateToStringFormat(dateTime)
+        if (map.has(dateKey)) {
+          if (dateTime.getTime() > map.get(dateKey)) {
+            map.set(dateKey, dateTime.getTime() + productionLines[i].gracePeriod)
+          }
+        } else {
+          map.set(dateKey, dateTime.getTime() + productionLines[i].gracePeriod)
+        }
+      })
+      const parsedMap = Object.fromEntries(map)
+      mapping[productionLines[i].id] = parsedMap
+    }
+    // console.log(await this.getNextAvailableNearestDateTime(mapping))
+    return mapping
   }
 
-  async machineTriggerChange(machineIsOperating: Boolean, machineId: number, productionLineId: number, entityManager: EntityManager) {
-    //if its true, check if the status of productionLine is not available 
-    //check if there are other machines that are false, 
-    //If there are, do nothing
-    //if this is the only one, update status of PL to true and update all schdules with the time elapsed 
-    const productionLine = await entityManager.findOneOrFail(ProductionLine, {
-      where: {
-        id: productionLineId
-      },
-      relations: {
-        schedules: true,
-        machines: true
-      }
-    })
-    const schedules = productionLine.schedules
-    const machines = productionLine.machines
-    if (machineIsOperating) {
-      if (!productionLine.isAvailable) {
-        const machinesNotInOperation = machines.filter(machine => !machine.isOperating)
-        if (machinesNotInOperation.length === 1 && machinesNotInOperation[0].id === machineId) {
-          const timeElapsedInMilliseconds = new Date().getTime() - productionLine.lastStopped.getTime()
-          //update ongoing schedule
-          const ongoingSchedule = schedules.filter(schedule => schedule.status === 'ongoing')
-          if (ongoingSchedule.length === 1) {
-            const schedule = ongoingSchedule[0]
-            const newEndTime = new Date(schedule.end).getTime() + timeElapsedInMilliseconds
-            await entityManager.update(Schedule, schedule.id, {end: new Date(newEndTime)})
-          } 
-          //update nextAvailableDateTime
-          const newNextAvailableDateTime = new Date(productionLine.nextAvailableDateTime).getTime() + timeElapsedInMilliseconds
-          productionLine.nextAvailableDateTime =  new Date(newNextAvailableDateTime)
-          productionLine.lastStopped = null
-          productionLine.isAvailable = true
-          await entityManager.save(ProductionLine, productionLine)
+  convertDateToStringFormat(date: Date) {
+    const parts = [date.getFullYear(), date.getMonth() + 1, date.getDate()]
+    const dateKey = parts.join('/')
+    return dateKey
+  }
+
+  convertStringToDateFormat(string: string) {
+    const parts = string.split('/')
+    return new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]))
+  }
+
+  async getNextAvailableNearestDateTime(mapping: Object, daily: Boolean) {
+    const today = new Date()
+    const tomorrow = new Date(today)
+    tomorrow.setDate(tomorrow.getDate() + 1)
+    const dateKey = this.convertDateToStringFormat(tomorrow)
+    let nextAvailableNearestDateTime = new Date(3000, 0, 1).getTime()
+    let nextAvailableProdLineId: number
+    const prodSchedulesPairs = Object.entries(mapping)
+    for (let i = 0; i < prodSchedulesPairs.length; i++) {
+      const productionId = prodSchedulesPairs[i][0]
+      const productionLine = await this.findOne(+productionId)
+      const schedulesObject: Object = prodSchedulesPairs[i][1]
+      const schedulesMap = new Map(Object.entries(schedulesObject))
+
+      // 2 cases Daily or not
+      //CASE 1 (Daily)
+      if (daily) {
+        let currentDateKey = dateKey
+        let currentDate = new Date(tomorrow)
+        while (schedulesMap.has(currentDateKey)) {
+          currentDate.setDate(currentDate.getDate() + 1)
+          currentDateKey = this.convertDateToStringFormat(currentDate)
         }
+        //at this point, the date does not have any schedule
+        const earliestDateTime =  this.convertStringToDateFormat(currentDateKey).setHours(productionLine.startTime, 0, 0)
+        if (earliestDateTime < nextAvailableNearestDateTime) {
+          nextAvailableNearestDateTime = earliestDateTime
+          nextAvailableProdLineId = +productionId
+        }
+      } else {
+        //CASE 2 (NOT DAILY)
+        let earliestDateTime: number
+        if (!schedulesMap.has(dateKey)) {
+          if (nextAvailableNearestDateTime !== tomorrow.getTime()) {
+            nextAvailableNearestDateTime = tomorrow.setHours(productionLine.startTime, 0, 0)
+            nextAvailableProdLineId = +productionId
+          }
+        } else {
+          //schedulesMap contain the dateKey
+          earliestDateTime =  schedulesMap.get(dateKey)
+          let endOfDay = new Date(earliestDateTime).setHours(productionLine.endTime, 0, 0)
+          const hourDuration = 1 * 60 * 60 * 1000
+          let key = dateKey
+          while (endOfDay - earliestDateTime < hourDuration) {
+            const currentDate = this.convertStringToDateFormat(key)
+            const nextDay = new Date(currentDate)
+            nextDay.setDate(currentDate.getDate() + 1)
+            key = this.convertDateToStringFormat(nextDay)
+            earliestDateTime = schedulesMap.get(key) ?? nextDay.setHours(productionLine.startTime, 0, 0)
+            endOfDay = new Date(earliestDateTime).setHours(productionLine.endTime, 0, 0)
+          }
+          if (earliestDateTime < nextAvailableNearestDateTime) {
+            nextAvailableNearestDateTime = earliestDateTime
+            nextAvailableProdLineId = +productionId
+          }
+        }
+      }
+    }
+    return {
+      productionLineId: nextAvailableProdLineId,
+      nextAvailableNearestDateTime: nextAvailableNearestDateTime
+    }
+
+  }
+
+  async retrieveSchedulesForProductionOrder(quantity: number, finalGoodId: number, daily: Boolean, days: number) {
+    const schedules = []
+    let requiredQuantity = quantity
+    let mapping =  await this.getNextEarliestMapping(finalGoodId)
+    let nextAvailablePlandTime = await this.getNextAvailableNearestDateTime(mapping, daily)
+    let {productionLineId, nextAvailableNearestDateTime} = nextAvailablePlandTime
+    let productionLine = await this.findOne(productionLineId)
+    let timeRequiredInMilliseconds = (requiredQuantity / productionLine.outputPerHour) * 60 * 60 * 1000
+    let endOfDayOfNextAvailableTime = new Date(nextAvailableNearestDateTime).setHours(productionLine.endTime, 0, 0)
+    if (daily) {
+      if (timeRequiredInMilliseconds > endOfDayOfNextAvailableTime - nextAvailableNearestDateTime) {
+        throw new NotFoundException('Quantity Exceeds the daily limit!')
+      }
+      let startDateTime = new Date(nextAvailableNearestDateTime)
+      for (let i = 0; i < days; i++) {
+        schedules.push({
+          productionLineId: productionLineId,
+          startDateTime: new Date(startDateTime),
+          endDateTime: new Date(startDateTime.getTime() + timeRequiredInMilliseconds)
+        })
+        startDateTime = new Date(startDateTime.setDate(startDateTime.getDate() + 1))
       }
     } else {
-        //if value is false
-        if (productionLine.isAvailable) {
-          productionLine.isAvailable = false
-          productionLine.lastStopped = new Date()
-          await entityManager.save(productionLine)
+      while (requiredQuantity > 0) {
+        //get the next earliest time slot and calculate quantity that is able to fit into this timeslot
+        nextAvailablePlandTime = await this.getNextAvailableNearestDateTime(mapping, daily)
+        const {productionLineId, nextAvailableNearestDateTime} = nextAvailablePlandTime
+        productionLine = await this.findOne(productionLineId)
+        timeRequiredInMilliseconds = (requiredQuantity / productionLine.outputPerHour) * 60 * 60 * 1000
+        endOfDayOfNextAvailableTime = new Date(nextAvailableNearestDateTime).setHours(productionLine.endTime, 0, 0)
+        
+        if (timeRequiredInMilliseconds > endOfDayOfNextAvailableTime - nextAvailableNearestDateTime) {
+          //it exceeds the end of day, so have to reduce the requiredQty
+          const outputWithinFrame = Math.round((endOfDayOfNextAvailableTime - nextAvailableNearestDateTime) / 3600000 * productionLine.outputPerHour)
+          requiredQuantity -= outputWithinFrame
+  
+          //save this schedule
+          schedules.push({
+            productionLineId: productionLineId,
+            startDateTime: new Date(nextAvailableNearestDateTime),
+            endDateTime: new Date(endOfDayOfNextAvailableTime)
+          })
+  
+          //need to update the mapping
+          const keyDateToUpdate = this.convertDateToStringFormat(new Date(nextAvailableNearestDateTime))
+          mapping[productionLineId][keyDateToUpdate] = endOfDayOfNextAvailableTime
+        } else {
+          //if its within the end of day, required Quantity becomes 0
+          requiredQuantity = 0
+          //save this schedule
+          schedules.push({
+            productionLineId: productionLineId,
+            startDateTime: new Date(nextAvailableNearestDateTime),
+            endDateTime: new Date(nextAvailableNearestDateTime + timeRequiredInMilliseconds)
+          })
+          //don't need to update the mapping
         }
+      }
     }
+    return schedules
   }
+
+  // async machineTriggerChange(machineIsOperating: Boolean, machineId: number, productionLineId: number, entityManager: EntityManager) {
+  //   //if its true, check if the status of productionLine is not available 
+  //   //check if there are other machines that are false, 
+  //   //If there are, do nothing
+  //   //if this is the only one, update status of PL to true and update all schdules with the time elapsed 
+  //   const productionLine = await entityManager.findOneOrFail(ProductionLine, {
+  //     where: {
+  //       id: productionLineId
+  //     },
+  //     relations: {
+  //       schedules: true,
+  //       machines: true
+  //     }
+  //   })
+  //   const schedules = productionLine.schedules
+  //   const machines = productionLine.machines
+  //   if (machineIsOperating) {
+  //     if (!productionLine.isAvailable) {
+  //       const machinesNotInOperation = machines.filter(machine => !machine.isOperating)
+  //       if (machinesNotInOperation.length === 1 && machinesNotInOperation[0].id === machineId) {
+  //         const timeElapsedInMilliseconds = new Date().getTime() - productionLine.lastStopped.getTime()
+  //         //update ongoing schedule
+  //         const ongoingSchedule = schedules.filter(schedule => schedule.status === 'ongoing')
+  //         if (ongoingSchedule.length === 1) {
+  //           const schedule = ongoingSchedule[0]
+  //           const newEndTime = new Date(schedule.end).getTime() + timeElapsedInMilliseconds
+  //           await entityManager.update(Schedule, schedule.id, {end: new Date(newEndTime)})
+  //         } 
+  //         productionLine.lastStopped = null
+  //         productionLine.isAvailable = true
+  //         await entityManager.save(ProductionLine, productionLine)
+  //       }
+  //     }
+  //   } else {
+  //       //if value is false
+  //       if (productionLine.isAvailable) {
+  //         productionLine.isAvailable = false
+  //         productionLine.lastStopped = new Date()
+  //         await entityManager.save(productionLine)
+  //       }
+  //   }
+  // }
 }
