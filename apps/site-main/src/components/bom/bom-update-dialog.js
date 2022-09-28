@@ -66,6 +66,13 @@ export const BOMUpdateDialog = (props) => {
     if (newRow.quantity === oldRow.quantity) {
       return oldRow;
     }
+
+    // Open error alert if quantity is < 1
+    if (newRow.quantity < 1) {
+      const message = 'Quantity must be positive!'
+      handleAlertOpen(message, 'error');
+      throw new Error(message);
+    }
    
     // actually call api update on line item
     updateBomLineItem(newRow.id, newRow)
@@ -210,6 +217,10 @@ export const BOMUpdateDialog = (props) => {
             onSelectionModelChange={(ids) => setSelectedRows(ids)}
             experimentalFeatures={{ newEditingApi: true }}
             processRowUpdate={handleRowUpdate}
+            onProcessRowUpdateError={(error) => {
+              console.log(error);
+              // remain in editing mode
+            }}
           />
         </DialogContent>
       </Dialog>

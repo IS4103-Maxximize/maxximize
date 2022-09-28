@@ -125,6 +125,13 @@ export const BOMCreateDialog = (props) => {
       return oldRow;
     }
 
+    // Open error alert if quantity is < 1
+    if (newRow.quantity < 1) {
+      const message = 'Quantity must be positive!'
+      handleAlertOpen(message, 'error');
+      throw new Error(message);
+    }
+
     const updatedBomLineItems = formik.values.bomLineItems
       .map(item => item.id === newRow.id ? newRow : item)
 
@@ -321,6 +328,10 @@ export const BOMCreateDialog = (props) => {
             onSelectionModelChange={(ids) => setSelectedRows(ids)}
             experimentalFeatures={{ newEditingApi: true }}
             processRowUpdate={handleRowUpdate}
+            onProcessRowUpdateError={(error) => {
+              console.log(error);
+              // remain in editing mode
+            }}
           />
         </DialogContent>
       </Dialog>
