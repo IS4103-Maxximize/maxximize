@@ -10,13 +10,14 @@ import ProductionLineManagement from './pages/assetManagement/productionLineMana
 import BusinessRelations from './pages/businessRelations';
 import Dashboard from './pages/dashboard';
 import ForgotPassword from './pages/forgotPassword';
-import Inventory from './pages/inventory';
+// import Inventory from './pages/inventory';
 import Bin from './pages/inventory/bin';
+import BinDetails from './pages/inventory/bin-details';
 import Warehouse from './pages/inventory/warehouse';
 import Login from './pages/login';
 import OrganisationSelection from './pages/organisationSelection';
 import ProcurementForecast from './pages/procurement/forecast';
-import ProcurementGoodReceipt from './pages/procurement/goodreceipt';
+import ProcurementGoodReceipt from './pages/procurement/good-receipt';
 import PurchaseOrder from './pages/procurement/purchase-order';
 import Quotation from './pages/procurement/quotation';
 import SalesInquiry from './pages/procurement/sales-inquiry';
@@ -25,9 +26,8 @@ import ProductionOrder from './pages/production/production-order';
 import Products from './pages/products';
 import ProtectedPublicRoute from './pages/protectedPublicRoute';
 import ProtectedRoute from './pages/protectedRoute';
-import QaChecklists from './pages/qaChecklists';
-import QaRules from './pages/qaRules';
-import QualityAssurance from './pages/qualityAssurance';
+import QAChecklists from './pages/qaChecklists';
+import QARules from './pages/qaRules';
 import ResetPassword from './pages/resetpassword';
 import Unauthorized from './pages/unauthorized';
 import WorkerManagement from './pages/workermanagement';
@@ -118,17 +118,22 @@ const routes = (
               element={<Products type="final-goods" key={2} />}
             ></Route>
 
-              {/* Procurement Forecast */}
-              <Route
-                path="procurement/forecast"
-                element={<ProcurementForecast />}
-              ></Route>
-              {/* Quality Assurance */}
-              <Route path="qualityAssurance" element={<QualityAssurance/>}></Route>
-              <Route path="qualityAssurance/rules" element={<QaRules/>}></Route>
-              <Route path="qualityAssurance/checklists" element={<QaChecklists/>}></Route>
-              
-            </Route>
+            {/* Procurement Forecast */}
+            <Route
+              path="procurement/forecast"
+              element={<ProcurementForecast />}
+            ></Route>
+            {/* Quality Assurance */}
+            {/* <Route
+              path="qualityAssurance"
+              element={<QualityAssurance />}
+            ></Route> */}
+            <Route path="qualityAssurance/rules" element={<QARules />}></Route>
+            <Route
+              path="qualityAssurance/checklists"
+              element={<QAChecklists />}
+            ></Route>
+          </Route>
 
           {/* Protected Routes for Manager and Factory Worker */}
           <Route
@@ -157,8 +162,8 @@ const routes = (
               path="procurement/good-receipt"
               element={<ProcurementGoodReceipt />}
             ></Route>
-            
-          {/* Asset Management */}
+
+            {/* Asset Management */}
             <Route
               path="asset-management/machine"
               element={<MachineManagement />}
@@ -179,12 +184,16 @@ const routes = (
               path="production/production-order"
               element={<ProductionOrder />}
             ></Route>
-            
+
             {/* Inventory */}
-            <Route path="inventory" element={<Inventory />}></Route>
+            {/* <Route path="inventory" element={<Inventory />}></Route> */}
             {/* Inventory Modules */}
-            <Route path="inventory/warehouse" element={<Warehouse />}></Route>
-            <Route path="inventory/bin" element={<Bin />}></Route>
+            <Route path="warehouse" element={<Warehouse />}></Route>
+            <Route path="warehouse/bin" element={<Bin />}></Route>
+            <Route
+              path="warehouse/bin/details"
+              element={<BinDetails />}
+            ></Route>
           </Route>
         </Route>
       </Route>

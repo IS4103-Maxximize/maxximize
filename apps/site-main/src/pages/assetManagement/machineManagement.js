@@ -9,17 +9,14 @@ import {
 } from '@mui/material';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import { useEffect, useState } from 'react';
-import { Helmet } from 'react-helmet';
+import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { DashboardLayout } from '../../components/dashboard-layout';
 import { NotificationAlert } from '../../components/notification-alert';
 import { ConfirmDialog } from '../../components/assetManagement/confirm-dialog';
 import { MachineDialog } from '../../components/assetManagement/machine-dialog';
 import { Toolbar } from '../../components/assetManagement/toolbar';
 import { MachineMenu } from '../../components/assetManagement/machine-menu';
-import {
-  deleteMachines,
-  fetchMachines,
-} from '../../helpers/assetManagement';
+import { deleteMachines, fetchMachines } from '../../helpers/assetManagement';
 
 const MachineManagement = (props) => {
   const user = JSON.parse(localStorage.getItem('user'));
@@ -45,20 +42,20 @@ const MachineManagement = (props) => {
     setSearch(event.target.value.toLowerCase().trim());
   };
 
-    // FormDialog Helpers
-    const [action, setAction] = useState();
-    const [formDialogOpen, setFormDialogOpen] = useState(false);
-    
-    const handleAdd = () => {
-      setAction('POST');
-      setSelectedRow(null);
-    };
-    const handleFormDialogOpen = () => {
-      setFormDialogOpen(true);
-    };
-    const handleFormDialogClose = () => {
-      setFormDialogOpen(false);
-    };
+  // FormDialog Helpers
+  const [action, setAction] = useState();
+  const [formDialogOpen, setFormDialogOpen] = useState(false);
+
+  const handleAdd = () => {
+    setAction('POST');
+    setSelectedRow(null);
+  };
+  const handleFormDialogOpen = () => {
+    setFormDialogOpen(true);
+  };
+  const handleFormDialogClose = () => {
+    setFormDialogOpen(false);
+  };
 
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const handleConfirmDialogOpen = () => {
@@ -100,25 +97,22 @@ const MachineManagement = (props) => {
   const getMachines = async () => {
     fetchMachines(organisationId)
       .then((result) => setRows(result))
-      .catch((err) =>
-        handleAlertOpen(`Failed to fetch any Machines`, 'error')
-      );
+      .catch((err) => handleAlertOpen(`Failed to fetch any Machines`, 'error'));
   };
 
   const addMachine = (machine) => {
     const updatedMachines = [...rows, machine];
     setRows(updatedMachines);
-    handleAlertOpen(
-      `Added Machine ${machine.id} successfully!`,
-      'success'
-    );
+    handleAlertOpen(`Added Machine ${machine.id} successfully!`, 'success');
   };
 
   const updateRow = (updatedMachine) => {
-    const indexOfEditMachine = rows.findIndex((currentMachine)=> currentMachine.id == updatedMachine.id)
+    const indexOfEditMachine = rows.findIndex(
+      (currentMachine) => currentMachine.id == updatedMachine.id
+    );
     const newMachines = { ...rows };
-    newMachines[indexOfEditMachine] = updatedMachine
-    setRows(newMachines)
+    newMachines[indexOfEditMachine] = updatedMachine;
+    setRows(newMachines);
 
     handleAlertOpen(
       `Updated Machine ${updatedMachine.id} successfully!`,
@@ -129,7 +123,6 @@ const MachineManagement = (props) => {
   useEffect(() => {
     getMachines();
   }, [rows]);
-
 
   const handleDelete = async (ids) => {
     deleteMachines(ids)
@@ -157,30 +150,30 @@ const MachineManagement = (props) => {
       flex: 2,
     },
     {
-        field: 'description',
-        headerName: 'Description',
-        flex: 2,
-      },
+      field: 'description',
+      headerName: 'Description',
+      flex: 2,
+    },
     {
-        field: 'make',
-        headerName: 'Make',
-        flex: 1,
-      },
+      field: 'make',
+      headerName: 'Make',
+      flex: 1,
+    },
     {
-        field: 'model',
-        headerName: 'Model',
-        flex: 1,
-      },
+      field: 'model',
+      headerName: 'Model',
+      flex: 1,
+    },
     {
-        field: 'year',
-        headerName: 'Year',
-        flex: 1,
-      },
+      field: 'year',
+      headerName: 'Year',
+      flex: 1,
+    },
     {
-        field: 'lastServiced',
-        headerName: 'Last Serviced',
-        flex: 1,
-      },
+      field: 'lastServiced',
+      headerName: 'Last Serviced',
+      flex: 1,
+    },
     {
       field: 'isOperating',
       headerName: 'Status',
@@ -201,7 +194,7 @@ const MachineManagement = (props) => {
         } else {
           return '';
         }
-      },      
+      },
     },
 
     {
@@ -215,12 +208,14 @@ const MachineManagement = (props) => {
 
   return (
     <>
-      <Helmet>
-        <title>
-          Machine Management Module
-          {user && ` | ${user?.organisation?.name}`}
-        </title>
-      </Helmet>
+      <HelmetProvider>
+        <Helmet>
+          <title>
+            Machine Management Module
+            {user && ` | ${user?.organisation?.name}`}
+          </title>
+        </Helmet>
+      </HelmetProvider>
       <Box
         component="main"
         sx={{
@@ -242,7 +237,7 @@ const MachineManagement = (props) => {
             handleClickOpen={handleFormDialogOpen}
             handleMenuClose={handleMenuClose}
             handleClickViewEdit={handleClickViewEdit}
-         />
+          />
           <ConfirmDialog
             open={confirmDialogOpen}
             handleClose={handleConfirmDialogClose}
@@ -260,7 +255,7 @@ const MachineManagement = (props) => {
             updateMachine={updateRow}
             handleClose={handleFormDialogClose}
             handleAlertOpen={handleAlertOpen}
-          />          
+          />
           <Toolbar
             name="Machines"
             deleteDisabled={deleteDisabled}
@@ -317,6 +312,8 @@ const MachineManagement = (props) => {
   );
 };
 
-MachineManagement.getLayout = (page) => <DashboardLayout>{page}</DashboardLayout>;
+MachineManagement.getLayout = (page) => (
+  <DashboardLayout>{page}</DashboardLayout>
+);
 
 export default MachineManagement;
