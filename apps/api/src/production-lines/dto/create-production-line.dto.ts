@@ -3,6 +3,9 @@ export class CreateProductionLineDto {
     description: string
     finalGoodId: number
     productionCostPerLot: number
-    changeOverTime: number
+    gracePeriod: number
     organisationId: number
+    outputPerHour: number
+    startTime: number
+    endTime: number
 }

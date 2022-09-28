@@ -25,8 +25,6 @@ export class SchedulesService {
           productionLineToBeAdded = await transactionalEntityManager.findOneByOrFail(ProductionLine, {
             id: productionLineId
           })
-          //pass in the new end date into the service method
-          await this.productionLineService.updateNextAvailable(productionLineToBeAdded.id, end, transactionalEntityManager)
         }
         newSchedule = transactionalEntityManager.create(Schedule, {
           start,
