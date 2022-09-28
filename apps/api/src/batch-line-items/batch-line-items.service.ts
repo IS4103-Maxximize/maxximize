@@ -1,13 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
-import { BatchesService } from '../batches/batches.service';
-import { BillOfMaterial } from '../bill-of-materials/entities/bill-of-material.entity';
+import { BillOfMaterialsService } from '../bill-of-materials/bill-of-materials.service';
 import { BinsService } from '../bins/bins.service';
+import { CreateProductionLineItemDto } from '../production-line-items/dto/create-production-line-item.dto';
 import { RawMaterial } from '../raw-materials/entities/raw-material.entity';
 import { RawMaterialsService } from '../raw-materials/raw-materials.service';
 import { CreateBatchLineItemDto } from './dto/create-batch-line-item.dto';
-import { UpdateBatchLineItemDto } from './dto/update-batch-line-item.dto';
 import { BatchLineItem } from './entities/batch-line-item.entity';
 
 @Injectable()
@@ -17,7 +16,7 @@ export class BatchLineItemsService {
     private readonly batchLineItemRepository: Repository<BatchLineItem>,
     private binService: BinsService,
     private rawMaterialService: RawMaterialsService,
-    private batchService: BatchesService,
+    private billOfMaterialService: BillOfMaterialsService,
     private dataSource: DataSource
   ) {}
 
@@ -72,7 +71,8 @@ export class BatchLineItemsService {
     });
   }
 
-  async getLineItems(billOfMaterial: BillOfMaterial, quantity: number, organisationId: number) {
+  async getLineItems(billOfMaterialId: number, quantity: number, organisationId: number) {
+    const billOfMaterial = await this.billOfMaterialService.findOne(billOfMaterialId);
     const bomLineItems = billOfMaterial.bomLineItems;
     const rawMaterialsRequiredMap = new Map<RawMaterial, number>();
     for (const bomLineItem of bomLineItems) {
@@ -139,6 +139,23 @@ export class BatchLineItemsService {
       }
     }
     return createProductionLineItemDtos;
+  }
+
+  async reserveQuantity(productionLineItemDtos: CreateProductionLineItemDto[]) {
+    for (const prodLineItem of productionLineItemDtos) {
+      const batchLineItem = await this.findOne(prodLineItem.batchLineItemId);
+      batchLineItem.reservedQuantity = prodLineItem.quantity;
+      const queryRunner = this.dataSource.createQueryRunner();
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
+      try {
+        queryRunner.manager.save(batchLineItem);
+      } catch (err) {
+        await queryRunner.rollbackTransaction();
+      } finally {
+        await queryRunner.release();
+      }
+    }
   }
 
   remove(id: number) {

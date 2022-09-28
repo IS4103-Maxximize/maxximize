@@ -9,9 +9,10 @@ import { Bin } from '../bins/entities/bin.entity';
 import { BinsModule } from '../bins/bins.module';
 import { RawMaterialsModule } from '../raw-materials/raw-materials.module';
 import { BatchesModule } from '../batches/batches.module';
+import { BillOfMaterialsModule } from '../bill-of-materials/bill-of-materials.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([BatchLineItem, Batch, LineItem, Bin]), BinsModule, RawMaterialsModule, BatchesModule],
+  imports: [TypeOrmModule.forFeature([BatchLineItem, Batch, LineItem, Bin]), BinsModule, RawMaterialsModule, BillOfMaterialsModule],
   controllers: [BatchLineItemsController],
   providers: [BatchLineItemsService]
 })

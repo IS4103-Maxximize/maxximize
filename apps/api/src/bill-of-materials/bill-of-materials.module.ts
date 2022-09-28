@@ -9,6 +9,7 @@ import { RawMaterial } from '../raw-materials/entities/raw-material.entity';
 @Module({
   imports: [TypeOrmModule.forFeature([BillOfMaterial, BomLineItem, RawMaterial])],
   controllers: [BillOfMaterialsController],
-  providers: [BillOfMaterialsService]
+  providers: [BillOfMaterialsService],
+  exports: [BillOfMaterialsService]
 })
 export class BillOfMaterialsModule {}
