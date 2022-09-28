@@ -100,21 +100,21 @@ export const BOMUpdateDialog = (props) => {
 
   const columns = [
     {
-      field: "totalQuantity",
-      headerName: "Total Quantity",
-      flex: 1,
-      valueGetter: (params) => {
-        return params.row ? params.row.rawMaterial.lotQuantity * params.row.quantity : '';
-      }
-    },
-    {
       field: "quantity",
-      headerName: "Line Item Quantity *",
+      headerName: "Quantity *",
       flex: 1,
       type: 'number',
       headerAlign: 'left',  // align header
       align: 'left',        // align data
       editable: true,
+    },
+    {
+      field: "unit",
+      headerName: "Unit",
+      flex: 1,
+      valueGetter: (params) => {
+        return params.row ? params.row.rawMaterial.unit : '';
+      }
     },
     {
       field: "name",
@@ -166,18 +166,15 @@ export const BOMUpdateDialog = (props) => {
             />
             {/* Final Good Information */}
             <TextField
+              sx={{ width: 400 }}
               label="Final Good"
               margin="normal"
-              name="final-good-name"
-              value={formik.values.finalGood ? formik.values.finalGood.name : ''}
-              variant="outlined"
-              disabled
-            />
-            <TextField
-              label="SKU"
-              margin="normal"
-              name="final-good-skuCode"
-              value={formik.values.finalGood ? formik.values.finalGood.skuCode : ''}
+              name="final-good"
+              value={
+                formik.values.finalGood ? 
+                `${formik.values.finalGood.name} [${formik.values.finalGood.skuCode}]` : 
+                ''
+              }
               variant="outlined"
               disabled
             />
@@ -186,6 +183,19 @@ export const BOMUpdateDialog = (props) => {
               margin="normal"
               name="final-good-lotQuantity"
               value={formik.values.finalGood ? formik.values.finalGood.lotQuantity : ''}
+              variant="outlined"
+              disabled
+            />
+            <TextField
+              sx={{ width: 100 }}
+              label="Unit"
+              margin="normal"
+              name="final-good-unit"
+              value={
+                formik.values.finalGood ? 
+                formik.values.finalGood.unit  : 
+                ''
+              }
               variant="outlined"
               disabled
             />
