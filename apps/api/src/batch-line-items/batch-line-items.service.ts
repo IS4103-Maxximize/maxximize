@@ -67,7 +67,7 @@ export class BatchLineItemsService {
           organisationId: id
         }
       },
-      relations: ["products"]
+      relations: ["product"]
     });
   }
 
@@ -82,18 +82,18 @@ export class BatchLineItemsService {
     }
 
     const batchLineItems = await this.findAllByOrganisationId(organisationId);
-    const rawMaterialsStock = new Map<RawMaterial, BatchLineItem[]>();
+    const rawMaterialsStock = new Map<number, BatchLineItem[]>();
     for (const batchLineItem of batchLineItems) {
       const product = batchLineItem.product;
       if (product instanceof RawMaterial) {
-        const lineItems = rawMaterialsStock.get(product);
+        const lineItems = rawMaterialsStock.get(product.id);
         if (lineItems === undefined) {
-          lineItems.push(batchLineItem);
-          rawMaterialsStock.set(product, lineItems);
-        } else {
           const lineItemsArr: BatchLineItem[] = [];
           lineItemsArr.push(batchLineItem);
-          rawMaterialsStock.set(product, lineItemsArr);
+          rawMaterialsStock.set(product.id, lineItemsArr);
+        } else {
+          lineItems.push(batchLineItem);
+          rawMaterialsStock.set(product.id, lineItems);
         }
       }
     }
@@ -102,8 +102,8 @@ export class BatchLineItemsService {
 
     for (const [key, value] of rawMaterialsRequiredMap.entries()) {
       let quantityRequired = value;
-      if (rawMaterialsStock.has(key)) {
-        const lineItems = rawMaterialsStock.get(key);
+      if (rawMaterialsStock.has(key.id)) {
+        const lineItems = rawMaterialsStock.get(key.id);
         const totalQty = lineItems.reduce((seed, lineItem) => {
           return seed + (lineItem.quantity - lineItem.reservedQuantity)
         }, 0); 
