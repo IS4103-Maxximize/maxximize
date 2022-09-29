@@ -21,6 +21,7 @@ import { ProductionLine } from '../../production-lines/entities/production-line.
 import { QaRule } from '../../qa-rules/entities/qa-rule.entity';
 import { QaChecklist } from '../../qa-checklists/entities/qa-checklist.entity';
 import { ProductionOrder } from '../../production-orders/entities/production-order.entity';
+import { PurchaseRequisition } from '../../purchase-requisitions/entities/purchase-requisition.entity';
 
 @Entity()
 export class Organisation {
@@ -98,4 +99,7 @@ export class Organisation {
 
   @OneToMany(() => QaChecklist, qaChecklist => qaChecklist.organisation)
   qaChecklists: QaChecklist[]
+
+  @OneToMany(() => PurchaseRequisition, purchaseRequisition => purchaseRequisition.organisation)
+  purchaseRequisitions: PurchaseRequisition[]
 }

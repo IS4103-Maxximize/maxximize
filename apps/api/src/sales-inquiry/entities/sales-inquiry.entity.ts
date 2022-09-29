@@ -1,5 +1,6 @@
 import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Organisation } from "../../organisations/entities/organisation.entity";
+import { PurchaseRequisition } from "../../purchase-requisitions/entities/purchase-requisition.entity";
 import { Quotation } from "../../quotations/entities/quotation.entity";
 import { SalesInquiryLineItem } from "../../sales-inquiry-line-items/entities/sales-inquiry-line-item.entity";
 import { ShellOrganisation } from "../../shell-organisations/entities/shell-organisation.entity";
@@ -41,4 +42,7 @@ export class SalesInquiry {
 
     @OneToOne(() => Quotation, { nullable: true })
     chosenQuotation?: Quotation
+
+    @OneToMany(() => PurchaseRequisition, purchaseRequisition => purchaseRequisition.salesInquiry)
+    purchaseRequisitions: PurchaseRequisition[]
 }

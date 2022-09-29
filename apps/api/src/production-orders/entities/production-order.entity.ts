@@ -4,6 +4,7 @@ import { BillOfMaterial } from "../../bill-of-materials/entities/bill-of-materia
 import { Organisation } from "../../organisations/entities/organisation.entity";
 import { ProductionLineItem } from "../../production-line-items/entities/production-line-item.entity";
 import { PurchaseOrder } from "../../purchase-orders/entities/purchase-order.entity";
+import { PurchaseRequisition } from "../../purchase-requisitions/entities/purchase-requisition.entity";
 import { Schedule } from "../../schedules/entities/schedule.entity";
 import { ProductionOrderStatus } from "../enums/production-order-status.enum";
 
@@ -46,5 +47,6 @@ export class ProductionOrder {
     @JoinColumn({name: 'organisationId'})
     organisation: Organisation
 
-    //Add Purchase Requisition
+    @OneToMany(() => PurchaseRequisition, purchaseRequsition => purchaseRequsition.productionOrder)
+    purchaseRequisitions: PurchaseRequisition[]
 }
