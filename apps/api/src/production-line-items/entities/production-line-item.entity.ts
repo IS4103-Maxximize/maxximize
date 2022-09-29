@@ -11,14 +11,14 @@ export class ProductionLineItem {
     @Column()
     quantity: number
 
-    @Column()
+    @Column({default:true})
     sufficient: boolean
 
     @ManyToOne(() => BatchLineItem, {nullable: true})
     batchLineItem?: BatchLineItem
 
     @ManyToOne(() => RawMaterial, {nullable: true})
-    rawMaterial: RawMaterial
+    rawMaterial?: RawMaterial
 
     @ManyToOne(() => ProductionOrder, productionOrder => productionOrder.prodLineItems, {onDelete: "CASCADE"})
     productionOrder: ProductionOrder

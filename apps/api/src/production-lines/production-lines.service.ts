@@ -211,14 +211,14 @@ export class ProductionLinesService {
       if (timeRequiredInMilliseconds > endOfDayOfNextAvailableTime - nextAvailableNearestDateTime) {
         throw new NotFoundException('Quantity Exceeds the daily limit!')
       }
-      let startDateTime = new Date(nextAvailableNearestDateTime)
+      let start = new Date(nextAvailableNearestDateTime)
       for (let i = 0; i < days; i++) {
         schedules.push({
           productionLineId: productionLineId,
-          startDateTime: new Date(startDateTime),
-          endDateTime: new Date(startDateTime.getTime() + timeRequiredInMilliseconds)
+          start: new Date(start),
+          end: new Date(start.getTime() + timeRequiredInMilliseconds)
         })
-        startDateTime = new Date(startDateTime.setDate(startDateTime.getDate() + 1))
+        start = new Date(start.setDate(start.getDate() + 1))
       }
     } else {
       while (requiredQuantity > 0) {
@@ -237,8 +237,8 @@ export class ProductionLinesService {
           //save this schedule
           schedules.push({
             productionLineId: productionLineId,
-            startDateTime: new Date(nextAvailableNearestDateTime),
-            endDateTime: new Date(endOfDayOfNextAvailableTime)
+            start: new Date(nextAvailableNearestDateTime),
+            end: new Date(endOfDayOfNextAvailableTime)
           })
   
           //need to update the mapping
@@ -250,8 +250,8 @@ export class ProductionLinesService {
           //save this schedule
           schedules.push({
             productionLineId: productionLineId,
-            startDateTime: new Date(nextAvailableNearestDateTime),
-            endDateTime: new Date(nextAvailableNearestDateTime + timeRequiredInMilliseconds)
+            start: new Date(nextAvailableNearestDateTime),
+            end: new Date(nextAvailableNearestDateTime + timeRequiredInMilliseconds)
           })
           //don't need to update the mapping
         }

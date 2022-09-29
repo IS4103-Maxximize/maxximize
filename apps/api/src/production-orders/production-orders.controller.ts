@@ -27,6 +27,11 @@ export class ProductionOrdersController {
     return this.productionOrdersService.findAll();
   }
 
+  @Get('all/:id')
+  findAllByOrgId(@Param('id') id: string) {
+    return this.productionOrdersService.findAllByOrgId(+id);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.productionOrdersService.findOne(+id);

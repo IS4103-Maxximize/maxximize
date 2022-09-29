@@ -17,10 +17,10 @@ export class ProductionLineItemsController {
     private readonly productionLineItemsService: ProductionLineItemsService
   ) {}
 
-  @Post()
-  create(@Body() createProductionLineItemDto: CreateProductionLineItemDto) {
-    return this.productionLineItemsService.create(createProductionLineItemDto);
-  }
+  // @Post()
+  // create(@Body() createProductionLineItemDto: CreateProductionLineItemDto) {
+  //   return this.productionLineItemsService.create(createProductionLineItemDto);
+  // }
 
   @Get()
   findAll() {
