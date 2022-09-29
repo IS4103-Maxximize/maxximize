@@ -366,17 +366,17 @@ export const WorkerListResults = () => {
 
               {/* Buttons functionalities */}
               <Box sx={{ m: 1 }} display="flex" flexDirection="row-reverse">
-                <Badge badgeContent={selectionModel.length} color="error">
-                  <Tooltip title={'Delete Worker Entry (Single/Multiple)'}>
-                    <IconButton
-                      disabled={selectionModel.length === 0}
-                      onClick={handleConfirmDialogOpen}
-                      color="error"
-                    >
+                <Tooltip title={'Delete Worker Entry (Single/Multiple)'}>
+                  <IconButton
+                    disabled={selectionModel.length === 0}
+                    onClick={handleConfirmDialogOpen}
+                    color="error"
+                  >
+                    <Badge badgeContent={selectionModel.length} color="error">
                       <DeleteIcon />
-                    </IconButton>
-                  </Tooltip>
-                </Badge>
+                    </Badge>
+                  </IconButton>
+                </Tooltip>
 
                 <WorkerConfirmDialog
                   open={confirmDialogOpen}

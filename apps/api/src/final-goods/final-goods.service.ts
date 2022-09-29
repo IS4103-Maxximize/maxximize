@@ -1,24 +1,17 @@
 /* eslint-disable prefer-const */
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Product } from '../products/entities/product.entity';
-import { FinalGood } from './entities/final-good.entity';
-import { BillOfMaterial } from '../bill-of-materials/entities/bill-of-material.entity';
+import { Organisation } from '../organisations/entities/organisation.entity';
 import { CreateFinalGoodDto } from './dto/create-final-good.dto';
 import { UpdateFinalGoodDto } from './dto/update-final-good.dto';
-import { NotFoundException } from '@nestjs/common';
-import { Organisation } from '../organisations/entities/organisation.entity';
+import { FinalGood } from './entities/final-good.entity';
 
 @Injectable()
 export class FinalGoodsService {
   constructor(
     @InjectRepository(FinalGood)
     private readonly finalGoodRepository: Repository<FinalGood>,
-    @InjectRepository(Product)
-    private readonly productRepository: Repository<Product>,
-    @InjectRepository(BillOfMaterial)
-    private readonly billOfMaterialRepository: Repository<BillOfMaterial>,
     @InjectRepository(Organisation)
     private readonly organisationsRepository: Repository<Organisation>
   ){}
@@ -44,7 +37,8 @@ export class FinalGoodsService {
   findAll(): Promise<FinalGood[]> {
     return this.finalGoodRepository.find({relations: {
       organisation: true,
-      billOfMaterial: true
+      billOfMaterial: true,
+      productionLines: true
     }})
   }
 
@@ -58,7 +52,7 @@ export class FinalGoodsService {
       relations: {
         organisation: true,
         billOfMaterial: true,
-        // productionLines: true 
+        productionLines: true 
       }
     })
   }
@@ -70,6 +64,7 @@ export class FinalGoodsService {
       }, relations: {
         organisation: true,
         billOfMaterial: true,
+        productionLines: true 
       }})
       return finalGood
     } catch (err) {
@@ -107,7 +102,8 @@ export class FinalGoodsService {
           product[key] = value
         }
       }
-      return this.finalGoodRepository.save(product)
+      await this.finalGoodRepository.save(product);
+      return this.findOne(id);
     } catch (err) {
       throw new NotFoundException(`update Failed as Final Good with id: ${id} cannot be found`)
     }

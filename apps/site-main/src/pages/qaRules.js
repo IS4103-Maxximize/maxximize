@@ -143,20 +143,20 @@ function QARules() {
 
   const tools = [
     {
-      toolTipTitle: 'Add new QA rule',
+      toolTipTitle: 'Add New QA Rule',
       handleClickMethod: 'handleOpenCreateDialog',
       button: () => {
-        return <AddCircleOutlineIcon />;
+        return <AddCircleOutlineIcon color="primary" />;
       },
     },
     {
-      toolTipTitle: "Click on line Item's menu button to update",
+      toolTipTitle: "Click on Line Item's menu button to update",
       button: () => {
         return <HelpIcon />;
       },
     },
     {
-      toolTipTitle: 'delete rule(s)',
+      toolTipTitle: 'Delete Rule(s)',
       button: () => {
         return <DeleteIcon />;
       },

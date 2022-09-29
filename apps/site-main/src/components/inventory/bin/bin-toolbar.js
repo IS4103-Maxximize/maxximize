@@ -81,15 +81,15 @@ export const BinToolbar = ({
                   </IconButton>
                 </Tooltip>
                 <Tooltip title={'Delete Bin Entry (Single/Multiple)'}>
-                  <Badge badgeContent={numBin} color="error">
-                    <IconButton
-                      disabled={disabled}
-                      color="error"
-                      onClick={handleConfirmDialogOpen}
-                    >
+                  <IconButton
+                    disabled={disabled}
+                    color="error"
+                    onClick={handleConfirmDialogOpen}
+                  >
+                    <Badge badgeContent={numBin} color="error">
                       <DeleteIcon />
-                    </IconButton>
-                  </Badge>
+                    </Badge>
+                  </IconButton>
                 </Tooltip>
               </Box>
             </Box>
