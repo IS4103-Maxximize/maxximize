@@ -167,10 +167,10 @@ const items = [
     handleClick: 'handleProductionClick',
     modules: [
       {
-        href: '/asset-management/machine',
-        icon: <PrecisionManufacturingIcon fontSize="small" />,
-        title: 'Machine Management',
-        access: ['manager', 'factoryworker', 'superadmin'],
+        href: '/production/bill-of-material',
+        icon: <FormatListBulletedIcon fontSize="small" />,
+        title: 'Bill Of Material',
+        access: ['manager', 'superadmin'],
       },
       {
         href: '/asset-management/production-line',
@@ -179,10 +179,10 @@ const items = [
         access: ['manager', 'factoryworker', 'superadmin'],
       },
       {
-        href: '/production/bill-of-material',
-        icon: <FormatListBulletedIcon fontSize="small" />,
-        title: 'Bill Of Material',
-        access: ['manager', 'superadmin'],
+        href: '/asset-management/machine',
+        icon: <PrecisionManufacturingIcon fontSize="small" />,
+        title: 'Machine Management',
+        access: ['manager', 'factoryworker', 'superadmin'],
       },
       {
         href: '/production/production-order',
