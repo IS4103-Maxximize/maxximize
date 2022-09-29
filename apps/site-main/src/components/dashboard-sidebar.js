@@ -1,25 +1,23 @@
 import AddRoadIcon from '@mui/icons-material/AddRoad';
+import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import CorporateFareIcon from '@mui/icons-material/CorporateFare';
 import DoneAllIcon from '@mui/icons-material/DoneAll';
-import ExpandLess from '@mui/icons-material/ExpandLess';
-import ExpandMore from '@mui/icons-material/ExpandMore';
+import EggIcon from '@mui/icons-material/Egg';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import FactCheckIcon from '@mui/icons-material/FactCheck';
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import FormatQuoteIcon from '@mui/icons-material/FormatQuote';
-import HealthAndSafetyIcon from '@mui/icons-material/HealthAndSafety';
+import InventoryIcon from '@mui/icons-material/Inventory';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import LiveHelpIcon from '@mui/icons-material/LiveHelp';
 import PrecisionManufacturingIcon from '@mui/icons-material/PrecisionManufacturing';
 import RawOnIcon from '@mui/icons-material/RawOn';
 import ReceiptIcon from '@mui/icons-material/Receipt';
-import WarehouseIcon from '@mui/icons-material/Warehouse';
-import EggIcon from '@mui/icons-material/Egg';
-import InventoryIcon from '@mui/icons-material/Inventory';
-import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import RuleIcon from '@mui/icons-material/Rule';
-import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
-import FactCheckIcon from '@mui/icons-material/FactCheck';
 import TaskIcon from '@mui/icons-material/Task';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import WarehouseIcon from '@mui/icons-material/Warehouse';
+import RequestPageIcon from '@mui/icons-material/RequestPage';
 import {
   Accordion,
   AccordionDetails,
@@ -29,16 +27,11 @@ import {
   Collapse,
   Divider,
   Drawer,
-  Link,
-  List,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  Typography,
-  useMediaQuery,
+  Link, Typography,
+  useMediaQuery
 } from '@mui/material';
 import PropTypes from 'prop-types';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Link as RouterLink, useLocation } from 'react-router-dom';
 import { Selector as SelectorIcon } from '../icons/selector';
 import { User as UserIcon } from '../icons/user';
@@ -104,13 +97,13 @@ const items = [
     handleClick: 'handleProductClick',
     modules: [
       {
-        href: '/raw-materials',
+        href: '/products/raw-materials',
         icon: <RawOnIcon fontSize="small" />,
         title: 'Raw Materials',
         access: ['manager', 'superadmin'],
       },
       {
-        href: '/final-goods',
+        href: '/products/final-goods',
         icon: <DoneAllIcon fontSize="small" />,
         title: 'Final Goods',
         access: ['manager', 'superadmin'],
@@ -129,6 +122,12 @@ const items = [
     open: 'openProcurement',
     handleClick: 'handleProcurementClick',
     modules: [
+      {
+        href: '/procurement/purchase-requisition',
+        icon: <RequestPageIcon fontSize="small" />,
+        title: 'Purchase Requisition',
+        access: ['manager', 'factoryworker', 'superadmin'],
+      },
       {
         href: '/procurement/sales-inquiry',
         icon: <LiveHelpIcon fontSize="small" />,
@@ -193,18 +192,12 @@ const items = [
       },
     ],
   },
-
-  // Production
-  // {
-  //   href: '/production',
-  //   icon: <EngineeringIcon fontSize="small" />,
-  //   title: 'Production',
-  //   access: ['manager', 'factoryworker', 'superadmin'],
-  // },
 ];
 
 export const DashboardSidebar = (props) => {
-  const pathname = useLocation().pathname;
+  const { pathname } = useLocation();
+  const basepath = pathname.slice(1, pathname.lastIndexOf('/'))
+
   const { open, onClose, user } = props;
   const lgUp = useMediaQuery((theme) => theme.breakpoints.up('lg'), {
     defaultMatches: true,
@@ -291,6 +284,7 @@ export const DashboardSidebar = (props) => {
           sx={{ mr: 1 }}
         >
           <Accordion
+            // defaultExpanded={basepath === item.subsystem.toLowerCase()}
             disableGutters
             sx={{
               backgroundColor: 'rgba(17,24,39)',
