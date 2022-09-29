@@ -91,13 +91,11 @@ export class GoodsReceiptsService {
 
   async findAll() {
     const goodsReceipts = await this.goodsReceiptRepository.find({
-      relations: {
-        goodReceiptLineItems: {
-			product: true,
-		},
-        purchaseOrder: true,
-        batch: true
-      }
+      relations: [
+        'goodReceiptLineItems.product',
+        'batch',
+        'purchaseOrder'
+      ]
     });
     return goodsReceipts;
   }
@@ -107,13 +105,11 @@ export class GoodsReceiptsService {
       where: {
         id: id,
       },
-      relations: {
-        goodReceiptLineItems: {
-			product: true,
-		},
-        purchaseOrder: true,
-        batch: true
-      }
+      relations: [
+        'goodReceiptLineItems.product',
+        'batch',
+        'purchaseOrder'
+      ]
     });
     if (goodsReceipt) {
       return goodsReceipt;
@@ -127,13 +123,11 @@ export class GoodsReceiptsService {
       where: {
         organisationId: organisationId
       },
-      relations: {
-        goodReceiptLineItems: {
-			product: true,
-		},
-        purchaseOrder: true,
-        batch: true
-      }
+      relations: [
+        'goodReceiptLineItems.product',
+        'batch',
+        'purchaseOrder'
+      ]
     });
     return goodReceipts;
   }
