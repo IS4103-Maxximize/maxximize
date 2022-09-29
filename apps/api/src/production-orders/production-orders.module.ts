@@ -16,9 +16,10 @@ import { FinalGoodsModule } from '../final-goods/final-goods.module';
 import { BatchLineItem } from '../batch-line-items/entities/batch-line-item.entity';
 import { SchedulesModule } from '../schedules/schedules.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { ProductionLinesModule } from '../production-lines/production-lines.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([ProductionOrder, Schedule, ProductionLineItem, Organisation, PurchaseOrder, Batch, BatchLineItem, BillOfMaterial]), BillOfMaterialsModule, OrganisationsModule, RawMaterialsModule, FinalGoodsModule, ScheduleModule.forRoot(), SchedulesModule],
+  imports: [TypeOrmModule.forFeature([ProductionOrder, Schedule, ProductionLineItem, Organisation, PurchaseOrder, Batch, BatchLineItem, BillOfMaterial]), BillOfMaterialsModule, OrganisationsModule, RawMaterialsModule, FinalGoodsModule, ScheduleModule.forRoot(), SchedulesModule, ProductionLinesModule],
   controllers: [ProductionOrdersController],
   providers: [ProductionOrdersService],
   exports: [ProductionOrdersService]

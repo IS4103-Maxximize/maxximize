@@ -11,6 +11,7 @@ import { FinalGoodsService } from '../final-goods/final-goods.service';
 import { OrganisationsService } from '../organisations/organisations.service';
 import { CreateProductionLineItemDto } from '../production-line-items/dto/create-production-line-item.dto';
 import { ProductionLineItem } from '../production-line-items/entities/production-line-item.entity';
+import { ProductionLinesService } from '../production-lines/production-lines.service';
 import { RawMaterial } from '../raw-materials/entities/raw-material.entity';
 import { RawMaterialsService } from '../raw-materials/raw-materials.service';
 import { CreateScheduleDto } from '../schedules/dto/create-schedule.dto';
@@ -42,6 +43,7 @@ export class ProductionOrdersService {
     private rawMaterialsService: RawMaterialsService,
     private finalGoodsService: FinalGoodsService,
     private schedulesService: SchedulesService,
+    private productionLinesService: ProductionLinesService,
     private datasource: DataSource
   ){}
   async create(createProductionOrderDto: CreateProductionOrderDto): Promise<ProductionOrder> {
@@ -50,6 +52,7 @@ export class ProductionOrdersService {
     let newProductionOrder: ProductionOrder
     await this.datasource.manager.transaction(async (transactionalEntityManager) => {
       bomToBeAdded = await this.billOfMaterialsService.findOne(bomId)
+      let finalGoodId: number = bomToBeAdded.finalGood.id
       if (daily) {
         newProductionOrder = transactionalEntityManager.create(ProductionOrder, {
           plannedQuantity,
@@ -61,7 +64,7 @@ export class ProductionOrdersService {
           organisationId
         })
         let schedules: CreateScheduleDto[];
-        //schedules = getSchedulesDaily(duration, quantity, bomId, organisationId)
+        schedules = await this.productionLinesService.retrieveSchedulesForProductionOrder(plannedQuantity, finalGoodId, daily, duration)
         for (const dto of schedules){
           const {start, end, productionLineId} = dto
           const schedule: Schedule = transactionalEntityManager.create(Schedule,{
@@ -161,7 +164,7 @@ export class ProductionOrdersService {
           organisationId
         })
         let schedules: CreateScheduleDto[];
-        //schedules = getSchedulesDaily(duration, quantity, bomId, organisationId)
+        schedules = await this.productionLinesService.retrieveSchedulesForProductionOrder(plannedQuantity, finalGoodId, daily, 0)
         for (const dto of schedules){
           const {start, end, productionLineId} = dto
           const schedule: Schedule = transactionalEntityManager.create(Schedule,{
@@ -255,7 +258,9 @@ export class ProductionOrdersService {
       let productionOrder: ProductionOrder = await this.productionOrdersRepository.findOneOrFail({where: {
         id
       }, relations: {
-        bom: true,
+        bom: {
+          finalGood: true
+        },
         completedGoods: true,
         schedules: true,
         prodLineItems: {
@@ -316,7 +321,7 @@ export class ProductionOrdersService {
         if (value == ProductionOrderStatus.RELEASED) {
           await this.datasource.manager.transaction(async (transactionalEntityManager) => {
             let schedules: CreateScheduleDto[];
-            //schedules = getSchedulesDaily(duration, quantity, bomId, organisationId)
+            schedules = await this.productionLinesService.retrieveSchedulesForProductionOrder(productionOrderToUpdate.plannedQuantity, productionOrderToUpdate.bom.finalGood.id, productionOrderToUpdate.daily, 0)
             for (const dto of schedules){
               const {start, end, productionLineId} = dto
               const schedule: Schedule = transactionalEntityManager.create(Schedule,{
