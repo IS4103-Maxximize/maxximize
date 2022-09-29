@@ -8,7 +8,7 @@ export class BatchLineItem extends LineItem {
     @Column()
     expiryDate: Date;
 
-    @Column()
+    @Column({default: 0})
     reservedQuantity: number;
     
     @ManyToOne(() => Batch, batch => batch.batchLineItems)

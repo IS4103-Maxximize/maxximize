@@ -11,7 +11,7 @@ export class ProductionLineItem {
     @Column()
     quantity: number
 
-    @Column()
+    @Column({default:true})
     sufficient: boolean
 
     @ManyToOne(() => BatchLineItem, {nullable: true})

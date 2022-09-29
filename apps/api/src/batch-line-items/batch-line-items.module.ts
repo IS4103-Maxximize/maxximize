@@ -14,6 +14,7 @@ import { BillOfMaterialsModule } from '../bill-of-materials/bill-of-materials.mo
 @Module({
   imports: [TypeOrmModule.forFeature([BatchLineItem, Batch, LineItem, Bin]), BinsModule, RawMaterialsModule, BillOfMaterialsModule],
   controllers: [BatchLineItemsController],
-  providers: [BatchLineItemsService]
+  providers: [BatchLineItemsService],
+  exports: [BatchLineItemsService]
 })
 export class BatchLineItemsModule {}

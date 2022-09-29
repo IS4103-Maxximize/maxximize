@@ -38,6 +38,7 @@ export class ProductionOrder {
     prodLineItems: ProductionLineItem[]
 
     @OneToOne(() => PurchaseOrder, {nullable:true})
+    @JoinColumn()
     purchaseOrder?: PurchaseOrder
 
     @Column()

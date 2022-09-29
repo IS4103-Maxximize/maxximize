@@ -120,9 +120,9 @@ export class BatchLineItemsService {
             lineItemOne.expiryDate.getTime() - lineItemTwo.expiryDate.getTime()
           );
           for (const batchLineItem of lineItems) {
+            const createProductionLineItemDto = new CreateProductionLineItemDto();
             const qty = batchLineItem.quantity - batchLineItem.reservedQuantity;
             if (qty > quantityRequired) {
-              const createProductionLineItemDto = new CreateProductionLineItemDto();
               createProductionLineItemDto.quantity = quantityRequired
             } else {
               createProductionLineItemDto.quantity = batchLineItem.quantity - batchLineItem.reservedQuantity;

@@ -36,7 +36,7 @@ export class SalesInquiryService {
     createSalesInquiryDto: CreateSalesInquiryDto
   ): Promise<SalesInquiry> {
     try {
-      const { currentOrganisationId, totalPrice } = createSalesInquiryDto;
+      const { currentOrganisationId, totalPrice, salesInquiryLineItemsDtos } = createSalesInquiryDto;
       let organisationToBeAdded: Organisation;
       organisationToBeAdded =
         await this.organisationsRepository.findOneByOrFail({
