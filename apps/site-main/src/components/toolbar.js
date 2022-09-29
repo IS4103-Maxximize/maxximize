@@ -49,6 +49,15 @@ export const Toolbar = (props) => {
     <Link
       component={RouterLink}
       underline="hover"
+      key="purchase-requisition"
+      color={subdomain === 'purchase-requisition' ? 'primary' : 'inherit'}
+      to="/procurement/purchase-requisition"
+    >
+      Purchase Requisition
+    </Link>,
+    <Link
+      component={RouterLink}
+      underline="hover"
       key="sales-inquiry"
       color={subdomain === 'sales-inquiry' ? 'primary' : 'inherit'}
       to="/procurement/sales-inquiry"

@@ -11,6 +11,7 @@ import { POMenu } from "../../components/procurement-ordering/purchase-order-men
 import { Toolbar } from "../../components/toolbar";
 import { ConfirmDialog } from "../../components/product/confirm-dialog";
 import { fetchPurchaseOrders, deletePurchaseOrders } from "../../helpers/procurement-ordering/purchase-order";
+import { PoGoodsReceiptDialog } from "../../components/procurement-ordering/po-goods-receipt-dialog";
 // import { purchaseOrders } from "../../__mocks__/purchase-orders";
 
 export const PurchaseOrder = (props) => {
@@ -124,6 +125,14 @@ export const PurchaseOrder = (props) => {
     }
   }, [formDialogOpen]);
 
+  // PoGoodReceiptDialog Helpers
+  const [poGrDialogOpen, setPoGrDialogOpen] = useState(false);
+  const handlePoGrDialogOpen = () => {
+    setPoGrDialogOpen(true);
+  }
+  const handlePoGrDialogClose = () => {
+    setPoGrDialogOpen(false);
+  }
 
   // ConfirmDialog Helpers
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
@@ -157,7 +166,7 @@ export const PurchaseOrder = (props) => {
       headerName: 'Date Created',
       flex: 1,
       valueGetter: (params) => {
-        return format(parseISO(params.row.created), 'dd/MM/yyyy');
+        return format(parseISO(params.row.created), 'dd MMM yyyy');
       }
     },
     {
@@ -165,7 +174,7 @@ export const PurchaseOrder = (props) => {
       headerName: 'Delivery Date',
       flex: 1,
       valueGetter: (params) => {
-        return format(parseISO(params.row.deliveryDate), 'dd/MM/yyyy');
+        return format(parseISO(params.row.deliveryDate), 'dd MMM yyyy');
       }
     },
     {
@@ -252,6 +261,14 @@ export const PurchaseOrder = (props) => {
             // updatePO
             handleAlertOpen={handleAlertOpen}
           />
+          <PoGoodsReceiptDialog
+            open={poGrDialogOpen}
+            handleClose={handlePoGrDialogClose}
+            // string={`Good Receipts`}
+            purchaseOrder={selectedRow}
+            handleAlertOpen={handleAlertOpen}
+            handleAlertClose={handleAlertClose}
+          />
           <ConfirmDialog
             open={confirmDialogOpen}
             handleClose={handleConfirmDialogClose}
@@ -270,7 +287,8 @@ export const PurchaseOrder = (props) => {
               <DataGrid
                 autoHeight
                 rows={rows.filter((row) => {
-                  return row.id.toString().includes(search);
+                  return row.id.toString().includes(search) || 
+                    row.deliveryAddress.toLowerCase().includes(search);
                 })}
                 columns={columns}
                 pageSize={10}
@@ -287,6 +305,13 @@ export const PurchaseOrder = (props) => {
                 isRowSelectable={(params) => {
                   return params.row.status === 'pending' || 
                     params.row.status === 'cancelled'
+                }}
+                onCellDoubleClick={(params, event, details) => {
+                  // console.log(params)
+                  if (params.field === 'goodReceipts') {
+                    setSelectedRow(params.row);
+                    handlePoGrDialogOpen();
+                  }
                 }}
               />
             ) : (
