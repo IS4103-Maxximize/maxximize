@@ -5,7 +5,7 @@ import {
   CardContent,
   Container,
   IconButton,
-  Typography,
+  Typography
 } from '@mui/material';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import { useEffect, useState } from 'react';
@@ -18,8 +18,7 @@ import { ProductListToolbar } from '../components/product/product-list-toolbar';
 import { ProductMenu } from '../components/product/product-menu';
 import {
   deleteProducts,
-  fetchProducts,
-  updateProduct,
+  fetchProducts
 } from '../helpers/products';
 
 const Products = (props) => {
@@ -297,9 +296,18 @@ const Products = (props) => {
                 }}
                 onSelectionModelChange={(ids) => {
                   setSelectedRows(ids);
-                  // setSelectedRows(ids.map((id) => rows.find((row) => row.id === id)));
                 }}
-                experimentalFeatures={{ newEditingApi: true }}
+                disableSelectionOnClick
+                isRowSelectable={(params) => {
+                  if (type === 'raw-materials') {
+                    // disable selection and prevent deletion if used in bomLineItems
+                    return params.row.bomLineItems.length === 0;
+                  }
+                  if (type === 'final-goods') {
+                    // disable selection and prevent deletion if used in BOM
+                    return !params.row.billOfMaterial;
+                  }
+                }}
               />
             ) : (
               <Card

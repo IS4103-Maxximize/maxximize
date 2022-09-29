@@ -81,15 +81,15 @@ export const WarehouseToolbar = ({
                   </IconButton>
                 </Tooltip>
                 <Tooltip title={'Delete Warehouse Entry (Single/Multiple)'}>
-                  <Badge badgeContent={numWarehouse} color="error">
-                    <IconButton
-                      disabled={disabled}
-                      color="error"
-                      onClick={handleConfirmDialogOpen}
-                    >
+                  <IconButton
+                    disabled={disabled}
+                    color="error"
+                    onClick={handleConfirmDialogOpen}
+                  >
+                    <Badge badgeContent={numWarehouse} color="error">
                       <DeleteIcon />
-                    </IconButton>
-                  </Badge>
+                    </Badge>
+                  </IconButton>
                 </Tooltip>
               </Box>
             </Box>

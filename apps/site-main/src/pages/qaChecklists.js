@@ -157,20 +157,20 @@ const QAChecklists = () => {
 
   const tools = [
     {
-      toolTipTitle: 'Add new checklist',
+      toolTipTitle: 'Add New Checklist',
       handleClickMethod: 'handleOpenCreateDialog',
       button: () => {
-        return <AddTaskIcon />;
+        return <AddTaskIcon color="primary" />;
       },
     },
     {
-      toolTipTitle: "Click on line Item's menu button to update",
+      toolTipTitle: "Click on Line Item's menu button to update",
       button: () => {
         return <HelpIcon />;
       },
     },
     {
-      toolTipTitle: 'delete checklist(s)',
+      toolTipTitle: 'Delete Checklist(s)',
       button: () => {
         return <DeleteIcon />;
       },

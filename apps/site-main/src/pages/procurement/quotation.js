@@ -285,11 +285,15 @@ const Quotation = (props) => {
                 pageSize={10}
                 rowsPerPageOptions={[10]}
                 checkboxSelection
+                disableSelectionOnClick
                 components={{
                   Toolbar: GridToolbar,
                 }}
                 onSelectionModelChange={(ids) => {
                   setSelectedRows(ids);
+                }}
+                isRowSelectable={(params) => {
+                  return !params.row.purchaseOrder;
                 }}
                 // experimentalFeatures={{ newEditingApi: true }}
                 // processRowUpdate={handleRowUpdate}

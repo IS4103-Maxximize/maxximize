@@ -129,14 +129,17 @@ export class PurchaseOrdersService {
         organisationId
       }, relations: {
         quotation: true,
+        currentOrganisation: true,
+        orgContact: true,
+        userContact: true,
+        supplierContact: true,
+        goodReceipts: true,
         poLineItems: {
           rawMaterial: true,
         },
-        currentOrganisation: true,
-        followUpLineItems: true,
-        orgContact: true,
-        userContact: true,
-        supplierContact: true
+        followUpLineItems: {
+          rawMaterial: true
+        },
       }
     })
   }
@@ -151,7 +154,8 @@ export class PurchaseOrdersService {
       'followUpLineItems.rawMaterial',
       'orgContact',
       'userContact',
-      'supplierContact'
+      'supplierContact',
+      'goodReceipts'
     ]})
   }
 

@@ -298,6 +298,9 @@ export const BillOfMaterial = (props) => {
                   setSelectedRows(ids);
                 }}
                 experimentalFeatures={{ newEditingApi: true }}
+                isRowSelectable={(params) => {
+                  return params.row.productionOrders.length === 0;
+                }}
               />
             ) : (
               <Card
