@@ -9,6 +9,7 @@ import { GrLineItemsService } from '../gr-line-items/gr-line-items.service';
 import { UpdatePurchaseOrderDto } from '../purchase-orders/dto/update-purchase-order.dto';
 import { PurchaseOrderStatus } from '../purchase-orders/enums/purchaseOrderStatus.enum';
 import { PurchaseOrdersService } from '../purchase-orders/purchase-orders.service';
+import { SalesInquiryService } from '../sales-inquiry/sales-inquiry.service';
 import { UsersService } from '../users/users.service';
 import { CreateGoodsReceiptDto } from './dto/create-goods-receipt.dto';
 import { GoodsReceipt } from './entities/goods-receipt.entity';
@@ -23,6 +24,7 @@ export class GoodsReceiptsService {
     private grLineItemService: GrLineItemsService,
     private batchService: BatchesService,
     private followUpLineItemService: FollowUpLineItemsService,
+    private salesInquiryService: SalesInquiryService,
     private dataSource: DataSource
   ) {}
 
@@ -32,10 +34,10 @@ export class GoodsReceiptsService {
     await queryRunner.startTransaction();
 
     try {
-      const goodReceipt = new GoodsReceipt();
-      goodReceipt.organisationId = createGoodsReceiptDto.organisationId;
-      goodReceipt.createdDateTime = createGoodsReceiptDto.createdDateTime;
-      goodReceipt.description = createGoodsReceiptDto.description;
+      const goodsReceipt = new GoodsReceipt();
+      goodsReceipt.organisationId = createGoodsReceiptDto.organisationId;
+      goodsReceipt.createdDateTime = createGoodsReceiptDto.createdDateTime;
+      goodsReceipt.description = createGoodsReceiptDto.description;
       const createGrLineDtos = createGoodsReceiptDto.goodsReceiptLineItemsDtos;
       const createFollowUpLineItemsDtos = createGoodsReceiptDto.followUpLineItemsDtos;
       const goodsReceiptLineItems = [];
@@ -50,10 +52,10 @@ export class GoodsReceiptsService {
         goodsReceiptLineItems.push(createdGrLineItem);
       }
 
-      goodReceipt.goodReceiptLineItems = goodsReceiptLineItems;
+      goodsReceipt.goodsReceiptLineItems = goodsReceiptLineItems;
 
       const purchaseOrder = await this.purchaseOrderSerivce.findOne(createGoodsReceiptDto.purchaseOrderId);
-      goodReceipt.purchaseOrder = purchaseOrder;
+      goodsReceipt.purchaseOrder = purchaseOrder;
 
       for (const dto of createFollowUpLineItemsDtos) {
         dto.purchaseOrderId = createGoodsReceiptDto.purchaseOrderId;
@@ -63,21 +65,26 @@ export class GoodsReceiptsService {
 
       purchaseOrder.followUpLineItems = followUpLineItems
       if (createFollowUpLineItemsDtos === undefined || createFollowUpLineItemsDtos.length === 0) {
-		purchaseOrder.status = PurchaseOrderStatus.FULFILLED;
+        purchaseOrder.status = PurchaseOrderStatus.FULFILLED;
       } else {
         purchaseOrder.status = PurchaseOrderStatus.PARTIALLYFULFILLED;
       }
       queryRunner.manager.save(purchaseOrder);
 
       const recipient = await this.userService.findOne(createGoodsReceiptDto.recipientId);
-      goodReceipt.recipientName = recipient.firstName + ' ' + recipient.lastName;
+      goodsReceipt.recipientName = recipient.firstName + ' ' + recipient.lastName;
 
       createBatchDto.batchNumber = "B-" + randomUUID().substring(0, 5) + "-" + 
         new Date().toLocaleDateString().replace(/\//g, "-") + "-" + new Date().toLocaleTimeString();
       const batch = await this.batchService.createWithExistingTransaction(createBatchDto, goodsReceiptLineItems, queryRunner);
-      goodReceipt.batch = batch;
+      goodsReceipt.batch = batch;
 
-      const createdGr = await queryRunner.manager.save(goodReceipt);
+      const quotation = purchaseOrder.quotation;
+      const salesInquiry = await this.salesInquiryService.findOne(quotation.salesInquiryId);
+      const purchaseReqs = salesInquiry.purchaseRequisitions
+      
+
+      const createdGr = await queryRunner.manager.save(goodsReceipt);
       await queryRunner.commitTransaction();
 
       return createdGr;
@@ -92,7 +99,7 @@ export class GoodsReceiptsService {
   async findAll() {
     const goodsReceipts = await this.goodsReceiptRepository.find({
       relations: {
-        goodReceiptLineItems: {
+        goodsReceiptLineItems: {
 			product: true,
 		},
         purchaseOrder: true,
@@ -108,7 +115,7 @@ export class GoodsReceiptsService {
         id: id,
       },
       relations: {
-        goodReceiptLineItems: {
+        goodsReceiptLineItems: {
 			product: true,
 		},
         purchaseOrder: true,
@@ -123,38 +130,20 @@ export class GoodsReceiptsService {
   }
 
   async findAllByOrganisationId(organisationId: number) {
-    const goodReceipts = await this.goodsReceiptRepository.find({
+    const goodsReceipts = await this.goodsReceiptRepository.find({
       where: {
         organisationId: organisationId
       },
       relations: {
-        goodReceiptLineItems: {
+        goodsReceiptLineItems: {
 			product: true,
 		},
         purchaseOrder: true,
         batch: true
       }
     });
-    return goodReceipts;
+    return goodsReceipts;
   }
-
-  /*
-  async update(id: number, updateGoodsReceiptDto: UpdateGoodsReceiptDto) {
-    const goodReceipt = await this.findOne(id);
-    const recipient = await this.userService.findOne(
-      updateGoodsReceiptDto.recipientId
-    );
-    // const purchaseOrder = await this.purchaseOrderSerivce.findOne(updateGoodsReceiptDto.purchaseOrderId);
-
-    //goodReceipt.purchaseOrder = purchaseOrder;
-    goodReceipt.recipientName = recipient.firstName + ' ' + recipient.lastName;
-    // goodReceipt.goodReceiptLineItems = updateGoodsReceiptDto.goodsReceiptLineItems;
-
-    // update batch line items
-
-    return this.goodsReceiptRepository.save(goodReceipt);
-  }
-  */
 
   remove(id: number) {
     return this.goodsReceiptRepository.softDelete(id);

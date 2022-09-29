@@ -6,13 +6,14 @@ import { FollowUpLineItemsModule } from '../follow-up-line-items/follow-up-line-
 import { GrLineItem } from '../gr-line-items/entities/gr-line-item.entity';
 import { GrLineItemsModule } from '../gr-line-items/gr-line-items.module';
 import { PurchaseOrdersModule } from '../purchase-orders/purchase-orders.module';
+import { SalesInquiryModule } from '../sales-inquiry/sales-inquiry.module';
 import { UsersModule } from '../users/users.module';
 import { GoodsReceipt } from './entities/goods-receipt.entity';
 import { GoodsReceiptsController } from './goods-receipts.controller';
 import { GoodsReceiptsService } from './goods-receipts.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([GoodsReceipt, GrLineItem, Batch]), PurchaseOrdersModule, UsersModule, BatchesModule, GrLineItemsModule, FollowUpLineItemsModule],
+  imports: [TypeOrmModule.forFeature([GoodsReceipt, GrLineItem, Batch]), PurchaseOrdersModule, UsersModule, BatchesModule, GrLineItemsModule, FollowUpLineItemsModule, SalesInquiryModule],
   controllers: [GoodsReceiptsController],
   providers: [GoodsReceiptsService]
 })

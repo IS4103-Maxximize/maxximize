@@ -5,7 +5,7 @@ import { LineItem } from "../../line-Items/LineItem";
 @Entity()
 export class GrLineItem extends LineItem {
 
-    @ManyToOne(() => GoodsReceipt, goodsReceipt => goodsReceipt.goodReceiptLineItems)
-    goodReceipt: GoodsReceipt;
+    @ManyToOne(() => GoodsReceipt, goodsReceipt => goodsReceipt.goodsReceiptLineItems)
+    goodsReceipt: GoodsReceipt;
 
 }
