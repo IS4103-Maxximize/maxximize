@@ -1,21 +1,17 @@
 /* eslint-disable prefer-const */
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Product } from '../products/entities/product.entity';
+import { Organisation } from '../organisations/entities/organisation.entity';
 import { CreateRawMaterialDto } from './dto/create-raw-material.dto';
 import { UpdateRawMaterialDto } from './dto/update-raw-material.dto';
 import { RawMaterial } from './entities/raw-material.entity';
-import { NotFoundException } from '@nestjs/common';
-import { Organisation } from '../organisations/entities/organisation.entity';
 
 @Injectable()
 export class RawMaterialsService {
   constructor(
     @InjectRepository(RawMaterial)
     private readonly rawMaterialRepository: Repository<RawMaterial>,
-    @InjectRepository(Product)
-    private readonly productRepository: Repository<Product>,
     @InjectRepository(Organisation)
     private readonly organisationsRepository: Repository<Organisation>
   ){}
@@ -39,8 +35,12 @@ export class RawMaterialsService {
   }
 
   findAll(): Promise<RawMaterial[]> {
-    return this.rawMaterialRepository.find({relations: {
-      organisation: true}
+    return this.rawMaterialRepository.find({
+      relations: {
+        organisation: true,
+        suppliers: true,
+        bomLineItems: true,
+      }
     })
   }
 
@@ -54,6 +54,7 @@ export class RawMaterialsService {
       relations: {
         organisation: true,
         suppliers: true,
+        bomLineItems: true,
       }
     })
   }
@@ -63,7 +64,9 @@ export class RawMaterialsService {
       const product =  await this.rawMaterialRepository.findOne({where: {
         id
       }, relations: {
-        organisation: true
+        organisation: true,
+        suppliers: true,
+        bomLineItems: true,
     }})
       return product
     } catch (err) {
@@ -97,10 +100,8 @@ export class RawMaterialsService {
             product[key] = value;
           }
       }
-      await this.rawMaterialRepository.save(product)
-      return this.rawMaterialRepository.findOne({where: {
-        id
-      }})
+      await this.rawMaterialRepository.save(product);
+      return this.findOne(id);
     } catch (err) {
       throw new NotFoundException(`update Failed as Raw Material with id: ${id} cannot be found`)
     }

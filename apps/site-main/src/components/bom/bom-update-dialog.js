@@ -67,6 +67,13 @@ export const BOMUpdateDialog = (props) => {
       return oldRow;
     }
 
+    // BOM used in Production Order(s)
+    if (bom.productionOrders.length > 0) {
+      const message = 'BOM used in Production Order(s), unable to edit'
+      handleAlertOpen(message, 'warning');
+      return oldRow;
+    }
+
     // Open error alert if quantity is < 1
     if (newRow.quantity < 1) {
       const message = 'Quantity must be positive!'

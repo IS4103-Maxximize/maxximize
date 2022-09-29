@@ -153,11 +153,6 @@ export const PurchaseOrder = (props) => {
       flex: 1,
     },
     {
-      field: 'status',
-      headerName: 'Status',
-      flex: 1,
-    },
-    {
       field: 'created',
       headerName: 'Date Created',
       flex: 1,
@@ -177,6 +172,21 @@ export const PurchaseOrder = (props) => {
       field: 'deliveryAddress',
       headerName: 'Delivery Address',
       flex: 3,
+    },
+    {
+      field: 'status',
+      headerName: 'Status',
+      flex: 1,
+    },
+    {
+      field: 'goodReceipts',
+      headerName: 'Good Receipts ID',
+      flex: 1,
+      valueGetter: (params) => {
+        return params.row.goodReceipts.reduce((a, b) => {
+          return a.concat(`${b.id}, `)
+        }, '').slice(0, -2);
+      }
     },
     {
       field: 'actions',
@@ -274,6 +284,10 @@ export const PurchaseOrder = (props) => {
                   setSelectedRows(ids);
                 }}
                 experimentalFeatures={{ newEditingApi: true }}
+                isRowSelectable={(params) => {
+                  return params.row.status === 'pending' || 
+                    params.row.status === 'cancelled'
+                }}
               />
             ) : (
               <Card

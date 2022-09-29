@@ -13,6 +13,7 @@ import {
 } from '@mui/material';
 import { Stack } from '@mui/system';
 import { useFormik } from 'formik';
+import { useState, useEffect } from 'react';
 import * as Yup from 'yup';
 import { createProduct, updateProduct } from '../../helpers/products';
 
@@ -30,7 +31,21 @@ export const ProductDialog = (props) => {
     handleAlertOpen,
     organisationId,
     updateProducts,
+    ...rest
   } = props;
+
+  const [disabled, setDisabled] = useState(false);
+
+  useEffect(() => {
+    if (product) {
+      if (type === 'raw-materials') {
+        setDisabled(product.bomLineItems.length > 0);
+      }
+      if (type === 'final-goods') {
+        setDisabled(product.billOfMaterial);
+      }
+    }
+  }, [product])
 
   let initialValues = {
     id: product ? product.id : null,
@@ -46,9 +61,20 @@ export const ProductDialog = (props) => {
     name: Yup.string().max(255).required('Name is required'),
     description: Yup.string(),
     unit: Yup.string(),
-    unitPrice: Yup.number().required('Unit Price is required'),
-    expiry: Yup.number().required('Expiry (days) is required'),
-    lotQuantity: Yup.number().required('Lot quantity is required'),
+    unitPrice: Yup
+      .number()
+      .positive('Unit Price must be positive')
+      .required('Unit Price is required'),
+    expiry: Yup
+      .number()
+      .positive('Days must be a positive integer')
+      .integer('Days must be a positive integer')
+      .required('Expiry (days) is required'),
+    lotQuantity: Yup
+      .number()
+      .positive('Lot Quantity must be a positive integer')
+      .integer('Lot Quantity must be a positive integer')
+      .required('Lot quantity is required'),
   };
 
   const handleOnSubmit = async (values) => {
@@ -81,6 +107,7 @@ export const ProductDialog = (props) => {
 
   const onClose = () => {
     formik.resetForm();
+    setDisabled(false);
     handleClose();
   };
 
@@ -95,8 +122,7 @@ export const ProductDialog = (props) => {
         <DialogContent>
           <DialogContentText>
             Enter {typeString} Name, Description, Measurement Unit, Unit Price,
-            Expiry (in days)
-            {type === 'final-goods' && ', Lot Quantity'}
+            Lot Quantity, Expiry (in days)
           </DialogContentText>
           <TextField
             required
@@ -170,6 +196,7 @@ export const ProductDialog = (props) => {
           </Stack>
           <TextField
             required
+            disabled={disabled}
             error={Boolean(formik.touched.unitPrice && formik.errors.unitPrice)}
             fullWidth
             helperText={formik.touched.unitPrice && formik.errors.unitPrice}
@@ -184,6 +211,7 @@ export const ProductDialog = (props) => {
           />
           <TextField
             required
+            disabled={disabled}
             error={Boolean(
               formik.touched.lotQuantity && formik.errors.lotQuantity
             )}
@@ -202,6 +230,7 @@ export const ProductDialog = (props) => {
           />
           <TextField
             required
+            disabled={disabled}
             error={Boolean(formik.touched.expiry && formik.errors.expiry)}
             fullWidth
             helperText={formik.touched.expiry && formik.errors.expiry}

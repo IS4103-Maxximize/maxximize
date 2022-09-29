@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 import * as Yup from "yup";
 import { fetchQuotations } from "../../helpers/procurement-ordering";
 import { createPurchaseOrder, fetchWarehouses } from "../../helpers/procurement-ordering/purchase-order";
-
+import PendingIcon from '@mui/icons-material/Pending';
 
 export const PODialog = (props) => {
   const {
@@ -179,6 +179,30 @@ export const PODialog = (props) => {
     },
   ]
 
+  const columnsFollowup = [
+    {
+      field: "quantity",
+      headerName: "Quantity",
+      flex: 1,
+    },
+    {
+      field: "name",
+      headerName: "Raw Material Name",
+      flex: 2,
+      valueGetter: (params) => {
+        return params.row ? params.row.rawMaterial.name : '';
+      }
+    },
+    {
+      field: "skuCode",
+      headerName: "SKU",
+      flex: 1,
+      valueGetter: (params) => {
+        return params.row ? params.row.rawMaterial.skuCode : '';
+      }
+    },
+  ]
+
   return (
     <form onSubmit={formik.handleSubmit}>
       <Dialog fullScreen open={open} onClose={onClose}>
@@ -209,23 +233,36 @@ export const PODialog = (props) => {
           </Toolbar>
         </AppBar>
         <DialogContent>
-          <TextField
-            fullWidth
-            error={Boolean(
-              formik.touched.totalPrice && formik.errors.totalPrice
-            )}
-            helperText={formik.touched.totalPrice && formik.errors.totalPrice}
-            label="Total Price"
-            margin="normal"
-            name="totalPrice"
-            type="number"
-            onBlur={formik.handleBlur}
-            onChange={formik.handleChange}
-            value={formik.values.totalPrice}
-            variant="outlined"
-            disabled
-          />
-          <Stack direction="row" spacing={1}>
+          <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
+            {purchaseOrder && <TextField
+              sx={{ width: 150 }}
+              label="Purchase Order ID"
+              value={purchaseOrder.id}
+              disabled={purchaseOrder}
+            />}
+            <TextField
+              error={Boolean(
+                formik.touched.totalPrice && formik.errors.totalPrice
+              )}
+              helperText={formik.touched.totalPrice && formik.errors.totalPrice}
+              label="Total Price"
+              margin="normal"
+              name="totalPrice"
+              type="number"
+              onBlur={formik.handleBlur}
+              onChange={formik.handleChange}
+              value={formik.values.totalPrice}
+              variant="outlined"
+              disabled
+            />
+            {purchaseOrder && <TextField
+              sx={{ width: 150 }}
+              label="Status"
+              value={purchaseOrder.status}
+              disabled={purchaseOrder}
+            />}
+          </Stack>
+          <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
             {/* Quotation Selection */}
             {!purchaseOrder && (
               <Autocomplete
@@ -241,6 +278,7 @@ export const PODialog = (props) => {
             )}
             {purchaseOrder && (
               <TextField
+                sx={{ width: 150 }}
                 label="Quotation ID"
                 value={purchaseOrder.quotation.id}
                 disabled={purchaseOrder}
@@ -260,7 +298,7 @@ export const PODialog = (props) => {
             {!purchaseOrder && (
               <Autocomplete
                 id="warehouse-selector"
-                sx={{ width: 600 }}
+                sx={{ width: 500 }}
                 options={warehouses}
                 getOptionLabel={(option) => `[${option.name}] : ${option.address}`}
                 isOptionEqualToValue={(option, value) => option.id === value.id}
@@ -272,35 +310,39 @@ export const PODialog = (props) => {
             )}
             {purchaseOrder && (
               <TextField
-                sx={{ width: 600 }}
+                sx={{ width: 500 }}
                 label="Deliver To"
                 value={purchaseOrder.deliveryAddress}
                 disabled={purchaseOrder}
               />
             )}
           </Stack>
+          <Typography>Purchase Order Line Items</Typography>
           <DataGrid
             autoHeight
             rows={purchaseOrder ? purchaseOrder.poLineItems : formik.values.poLineItems}
             columns={columns}
             pageSize={5}
             rowsPerPageOptions={[5]}
-            // onSelectionModelChange={(ids) => setSelectedRows(ids)}
-            // experimentalFeatures={{ newEditingApi: true }}
-            // processRowUpdate={handleRowUpdate}
           />
           
-          {/* For Future Partial Fulfillment of Line Items */}
-          {/* <DataGrid
-            autoHeight
-            rows={formik.values.followUpPoLineItems}
-            columns={columns}
-            pageSize={5}
-            rowsPerPageOptions={[5]}
-            // onSelectionModelChange={(ids) => setSelectedRows(ids)}
-            // experimentalFeatures={{ newEditingApi: true }}
-            // processRowUpdate={handleRowUpdate}
-          /> */}
+          {/* For Partial Fulfillment of Line Items */}
+          {purchaseOrder && 
+          // eslint-disable-next-line react/jsx-no-useless-fragment
+          <>
+            {purchaseOrder.followUpLineItems.length > 0 && 
+            <>
+              <Typography>Follow up Line Items</Typography>
+              <DataGrid
+                autoHeight
+                rows={purchaseOrder ? purchaseOrder.followUpLineItems : formik.values.followUpLineItems}
+                columns={columnsFollowup}
+                pageSize={5}
+                rowsPerPageOptions={[5]}
+              />
+            </>
+            }
+          </>}
         </DialogContent>
       </Dialog>
     </form>

@@ -79,7 +79,8 @@ export class BillOfMaterialsService {
       },
       relations: [
         "finalGood",
-        "bomLineItems.rawMaterial"
+        "bomLineItems.rawMaterial",
+        "productionOrders"
       ]
     });
   }
@@ -90,7 +91,8 @@ export class BillOfMaterialsService {
         id
       }, relations: [
         "finalGood",
-        "bomLineItems.rawMaterial"
+        "bomLineItems.rawMaterial",
+        "productionOrders"
       ]})
       return billOfMaterial
     } catch (err) {
