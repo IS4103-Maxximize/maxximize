@@ -17,4 +17,8 @@ export class RetrieveSchedulesDto {
   @IsNumber()
   @Type(() => Number)
   days: number;
+
+  @IsNumber()
+  @Type(() => Number)
+  organisationId: number
 }
