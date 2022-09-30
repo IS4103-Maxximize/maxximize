@@ -51,7 +51,7 @@ export class GrLineItemsService {
   findOne(id: number) {
     return this.grLineItemRepository.findOne({
       where: { id },
-      relations: ["goodReceipt", "product"]
+      relations: ["goodsReceipt", "product"]
     });
   }
 

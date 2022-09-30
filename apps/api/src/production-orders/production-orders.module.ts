@@ -9,10 +9,20 @@ import { Organisation } from '../organisations/entities/organisation.entity';
 import { PurchaseOrder } from '../purchase-orders/entities/purchase-order.entity';
 import { Batch } from '../batches/entities/batch.entity';
 import { BillOfMaterial } from '../bill-of-materials/entities/bill-of-material.entity';
+import { BillOfMaterialsModule } from '../bill-of-materials/bill-of-materials.module';
+import { OrganisationsModule } from '../organisations/organisations.module';
+import { RawMaterialsModule } from '../raw-materials/raw-materials.module';
+import { FinalGoodsModule } from '../final-goods/final-goods.module';
+import { BatchLineItem } from '../batch-line-items/entities/batch-line-item.entity';
+import { SchedulesModule } from '../schedules/schedules.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { ProductionLinesModule } from '../production-lines/production-lines.module';
+import { BatchLineItemsModule } from '../batch-line-items/batch-line-items.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([ProductionOrder, Schedule, ProductionLineItem, Organisation, PurchaseOrder, Batch, BillOfMaterial])],
+  imports: [TypeOrmModule.forFeature([ProductionOrder, Schedule, ProductionLineItem, Organisation, PurchaseOrder, Batch, BatchLineItem, BillOfMaterial]), BillOfMaterialsModule, OrganisationsModule, RawMaterialsModule, FinalGoodsModule, ScheduleModule.forRoot(), SchedulesModule, ProductionLinesModule, BatchLineItemsModule],
   controllers: [ProductionOrdersController],
   providers: [ProductionOrdersService],
+  exports: [ProductionOrdersService]
 })
 export class ProductionOrdersModule {}

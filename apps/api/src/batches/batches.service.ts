@@ -38,7 +38,7 @@ export class BatchesService {
     }
   }
 
-  async createWithExistingTransaction(createBatchDto: CreateBatchDto, goodReceiptLineItems: GrLineItem[], queryRunner: QueryRunner) {
+  async createWithExistingTransaction(createBatchDto: CreateBatchDto, goodsReceiptLineItems: GrLineItem[], queryRunner: QueryRunner) {
     const batch = new Batch();
     batch.batchNumber = createBatchDto.batchNumber;
     batch.organisationId = createBatchDto.organisationId;
@@ -51,11 +51,11 @@ export class BatchesService {
       bins = [...bins, ...warehouse.bins];
     }
     
-    // Duplicate goodReceiptLineItems
-    const unassigned = goodReceiptLineItems.slice();
+    // Duplicate goodsReceiptLineItems
+    const unassigned = goodsReceiptLineItems.slice();
 
     // Try to allocate those line items fully
-    for (const lineItem of goodReceiptLineItems) {
+    for (const lineItem of goodsReceiptLineItems) {
       for (const bin of bins) {
         const lineItemCapacity = lineItem.product.lotQuantity * lineItem.quantity;
         if (lineItemCapacity <= bin.capacity - bin.currentCapacity) {
@@ -123,14 +123,14 @@ export class BatchesService {
 
   async findAll() {
     return await this.batchRepository.find({
-      relations: ["batchLineItems", "goodReceipt"]
+      relations: ["batchLineItems", "goodsReceipt"]
     });
   }
 
   async findOne(id: number) {
     return await this.batchRepository.findOne({
       where: { id },
-      relations: ["batchLineItems", "goodReceipt"]
+      relations: ["batchLineItems", "goodsReceipt"]
     });
   }
 
@@ -139,7 +139,7 @@ export class BatchesService {
       where: {
         organisationId: id
       },
-      relations: ["batchLineItems", "goodReceipt"]
+      relations: ["batchLineItems", "goodsReceipt"]
     });
   }
 
@@ -150,7 +150,7 @@ export class BatchesService {
     
     try {
       const batch = await this.findOne(id);
-      batch.goodReceipt = updateBatchDto.goodReceipt;
+      batch.goodsReceipt = updateBatchDto.goodsReceipt;
       batch.batchLineItems = updateBatchDto.batchLineItems;
       await queryRunner.manager.update(Batch, id, updateBatchDto);
       await queryRunner.commitTransaction();
