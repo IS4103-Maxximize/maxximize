@@ -67,13 +67,20 @@ export class ProductionLinesService {
   }
 
   async findAllByOrg(id: number): Promise<ProductionLine[]> {
-    return this.productionLineRepository.find({where: {
-      organisationId: id
-    }, relations: {
-      finalGood: true,
-      schedules: true,
-      machines: true,
-    }})
+    const [productionLines, count] = await this.productionLineRepository.findAndCount({
+      where: {
+        organisationId: id
+      }, relations: {
+        finalGood: true,
+        schedules: true,
+        machines: true
+      }
+    })
+    if (count > 0) {
+      return productionLines
+    } else {
+      throw new NotFoundException('No production Lines found!')
+    }
   }
 
   async update(id: number, updateProductionLineDto: UpdateProductionLineDto): Promise<ProductionLine> {
@@ -97,8 +104,8 @@ export class ProductionLinesService {
     
   }
 
-  async getNextEarliestMapping(finalGoodId: number) {
-    const allProductionLines = await this.findAll()
+  async getNextEarliestMapping(finalGoodId: number, organisationId: number) {
+    const allProductionLines = await this.findAllByOrg(organisationId)
     const productionLines = allProductionLines.filter(productionLine => productionLine.finalGoodId === finalGoodId)
     let mapping = {}
     for (let i = 0; i < productionLines.length; i++) {
@@ -198,10 +205,13 @@ export class ProductionLinesService {
 
   }
 
-  async retrieveSchedulesForProductionOrder(quantity: number, finalGoodId: number, daily: Boolean, days: number) {
+  async retrieveSchedulesForProductionOrder(quantity: number, finalGoodId: number, daily: Boolean, days: number, organisationId: number) {
     const schedules = []
     let requiredQuantity = quantity
-    let mapping =  await this.getNextEarliestMapping(finalGoodId)
+    let mapping =  await this.getNextEarliestMapping(finalGoodId, organisationId)
+    if (Object.keys(mapping).length === 0) {
+      return schedules
+    }
     let nextAvailablePlandTime = await this.getNextAvailableNearestDateTime(mapping, daily)
     let {productionLineId, nextAvailableNearestDateTime} = nextAvailablePlandTime
     let productionLine = await this.findOne(productionLineId)
@@ -216,7 +226,8 @@ export class ProductionLinesService {
         schedules.push({
           productionLineId: productionLineId,
           startDateTime: new Date(startDateTime),
-          endDateTime: new Date(startDateTime.getTime() + timeRequiredInMilliseconds)
+          endDateTime: new Date(startDateTime.getTime() + timeRequiredInMilliseconds),
+          quantity: quantity
         })
         startDateTime = new Date(startDateTime.setDate(startDateTime.getDate() + 1))
       }
@@ -228,7 +239,6 @@ export class ProductionLinesService {
         productionLine = await this.findOne(productionLineId)
         timeRequiredInMilliseconds = (requiredQuantity / productionLine.outputPerHour) * 60 * 60 * 1000
         endOfDayOfNextAvailableTime = new Date(nextAvailableNearestDateTime).setHours(productionLine.endTime, 0, 0)
-        
         if (timeRequiredInMilliseconds > endOfDayOfNextAvailableTime - nextAvailableNearestDateTime) {
           //it exceeds the end of day, so have to reduce the requiredQty
           const outputWithinFrame = Math.round((endOfDayOfNextAvailableTime - nextAvailableNearestDateTime) / 3600000 * productionLine.outputPerHour)
@@ -238,7 +248,8 @@ export class ProductionLinesService {
           schedules.push({
             productionLineId: productionLineId,
             startDateTime: new Date(nextAvailableNearestDateTime),
-            endDateTime: new Date(endOfDayOfNextAvailableTime)
+            endDateTime: new Date(endOfDayOfNextAvailableTime),
+            quantity: outputWithinFrame
           })
   
           //need to update the mapping
@@ -246,17 +257,21 @@ export class ProductionLinesService {
           mapping[productionLineId][keyDateToUpdate] = endOfDayOfNextAvailableTime
         } else {
           //if its within the end of day, required Quantity becomes 0
-          requiredQuantity = 0
           //save this schedule
           schedules.push({
             productionLineId: productionLineId,
             startDateTime: new Date(nextAvailableNearestDateTime),
-            endDateTime: new Date(nextAvailableNearestDateTime + timeRequiredInMilliseconds)
+            endDateTime: new Date(nextAvailableNearestDateTime + timeRequiredInMilliseconds),
+            quantity: requiredQuantity
           })
+          requiredQuantity = 0
           //don't need to update the mapping
         }
       }
     }
+    schedules.map((value, index) => {
+      return value.id = index + 1
+    })
     return schedules
   }
 

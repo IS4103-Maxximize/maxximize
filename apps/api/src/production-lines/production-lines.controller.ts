@@ -21,7 +21,7 @@ export class ProductionLinesController {
   @Get('/earliestSchedules')
   @UsePipes(new ValidationPipe( {transform: true}))
   getSchedulesForQty(@Query() dto: RetrieveSchedulesDto) {
-    return this.productionLinesService.retrieveSchedulesForProductionOrder(dto.quantity, dto.finalGoodId, dto.daily, dto.days)
+    return this.productionLinesService.retrieveSchedulesForProductionOrder(dto.quantity, dto.finalGoodId, dto.daily, dto.days, dto.organisationId)
   }
 
 
