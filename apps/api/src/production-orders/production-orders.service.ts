@@ -82,16 +82,16 @@ export class ProductionOrdersService {
           const startJob = new CronJob(this.dateToCron(start), async () => {
             this.update(newProductionOrder.id, {status : ProductionOrderStatus.ONGOING})
             this.schedulesService.update(schedule.id, {status : ScheduleType.ONGOING})
-            this.logger.warn(`time (${start}) for start job ${newProductionOrder.id} to run!`);
+            this.logger.warn(`time (${start}) for start job ${schedule.id} to run!`);
           })
           const endJob = new CronJob(this.dateToCron(end), async () => {
             this.update(newProductionOrder.id, {status : ProductionOrderStatus.COMPLETED})
             this.schedulesService.update(schedule.id, {status : ScheduleType.COMPLETED})
-            this.logger.warn(`time (${end}) for end job ${newProductionOrder.id} to run!`);
+            this.logger.warn(`time (${end}) for end job ${schedule.id} to run!`);
           })
-          this.schedulerRegistry.addCronJob(`start ${newProductionOrder.id}`, startJob);
+          this.schedulerRegistry.addCronJob(`start ${schedule.id}`, startJob);
           startJob.start()
-          this.schedulerRegistry.addCronJob(`end ${newProductionOrder.id}`, endJob);
+          this.schedulerRegistry.addCronJob(`end ${schedule.id}`, endJob);
           endJob.start()
         }
         let prodLineItems: CreateProductionLineItemDto[];
@@ -190,16 +190,16 @@ export class ProductionOrdersService {
           const startJob = new CronJob(this.dateToCron(start), async () => {
             this.update(newProductionOrder.id, {status : ProductionOrderStatus.ONGOING})
             this.schedulesService.update(schedule.id, {status : ScheduleType.ONGOING})
-            this.logger.warn(`time (${start}) for start job ${newProductionOrder.id} to run!`);
+            this.logger.warn(`time (${start}) for start job ${schedule.id} to run!`);
           })
           const endJob = new CronJob(this.dateToCron(end), async () => {
             this.update(newProductionOrder.id, {status : ProductionOrderStatus.COMPLETED})
             this.schedulesService.update(schedule.id, {status : ScheduleType.COMPLETED})
-            this.logger.warn(`time (${end}) for end job ${newProductionOrder.id} to run!`);
+            this.logger.warn(`time (${end}) for end job ${schedule.id} to run!`);
           })
-          this.schedulerRegistry.addCronJob(`start ${newProductionOrder.id}`, startJob);
+          this.schedulerRegistry.addCronJob(`start ${schedule.id}`, startJob);
           startJob.start()
-          this.schedulerRegistry.addCronJob(`end ${newProductionOrder.id}`, endJob);
+          this.schedulerRegistry.addCronJob(`end ${schedule.id}`, endJob);
           endJob.start()
         }
         let prodLineItems: CreateProductionLineItemDto[];
@@ -350,16 +350,16 @@ export class ProductionOrdersService {
               const startJob = new CronJob(this.dateToCron(start), async () => {
                 this.update(productionOrderToUpdate.id, {status : ProductionOrderStatus.ONGOING})
                 this.schedulesService.update(schedule.id, {status : ScheduleType.ONGOING})
-                this.logger.warn(`time (${start}) for start job ${productionOrderToUpdate.id} to run!`);
+                this.logger.warn(`time (${start}) for start job ${schedule.id} to run!`);
               })
               const endJob = new CronJob(this.dateToCron(end), async () => {
                 this.update(productionOrderToUpdate.id, {status : ProductionOrderStatus.COMPLETED})
                 this.schedulesService.update(schedule.id, {status : ScheduleType.COMPLETED})
-                this.logger.warn(`time (${end}) for end job ${productionOrderToUpdate.id} to run!`);
+                this.logger.warn(`time (${end}) for end job ${schedule.id} to run!`);
               })
-              this.schedulerRegistry.addCronJob(`start ${productionOrderToUpdate.id}`, startJob);
+              this.schedulerRegistry.addCronJob(`start ${schedule.id}`, startJob);
               startJob.start()
-              this.schedulerRegistry.addCronJob(`end ${productionOrderToUpdate.id}`, endJob);
+              this.schedulerRegistry.addCronJob(`end ${schedule.id}`, endJob);
               endJob.start()
             }
           })
