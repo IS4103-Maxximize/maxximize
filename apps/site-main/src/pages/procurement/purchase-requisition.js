@@ -13,6 +13,7 @@ import { useEffect, useState } from 'react';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { DashboardLayout } from '../../components/dashboard-layout';
 import { NotificationAlert } from '../../components/notification-alert';
+import { CreatePRSalesInquiryDialog } from '../../components/procurement-ordering/create-pr-sales-inquiry-dialog';
 import { ConfirmDialog } from '../../components/product/confirm-dialog';
 import { ProductMenu } from '../../components/product/product-menu';
 import { Toolbar } from '../../components/toolbar';
@@ -273,7 +274,7 @@ export const PurchaseRequisition = (props) => {
       quantity: 10, // expected
       fulfilled: 0,
       status: 'pending',
-      created: new Date(),
+      created: new Date('2022-09-29'),
       rawMaterial : {
         "id": 1,
         "name": "Tomato",
@@ -295,7 +296,7 @@ export const PurchaseRequisition = (props) => {
       quantity: 5, // expected
       fulfilled: 0,
       status: 'pending',
-      created: new Date(),
+      created: new Date('2022-09-29'),
       rawMaterial : {
         "id": 2,
         "name": "Olive Oil",
@@ -310,9 +311,29 @@ export const PurchaseRequisition = (props) => {
       productionOrder: {
         id: 1
       },
-      salesInquiry: {
-        id: 123
-      }
+      salesInquiry: null
+    },
+    {
+      id: 3,
+      quantity: 15, // expected
+      fulfilled: 0,
+      status: 'pending',
+      created: new Date('2022-09-29'),
+      rawMaterial : {
+        "id": 2,
+        "name": "Olive Oil",
+        "description": "From Italy, A2.1 quality",
+        "skuCode": "2-OLI",
+        "unit": "litre",
+        "unitPrice": 30,
+        "lotQuantity": 10,
+        "type": "RawMaterial",
+        "expiry": 150,
+      },
+      productionOrder: {
+        id: 2
+      },
+      salesInquiry: null
     }
   ]
 
@@ -351,13 +372,22 @@ export const PurchaseRequisition = (props) => {
           />
           {/* Should be triggered on ProductionOrder View
           Temporary location for testing */}
-          <PurchaseRequisitionNew
+          {/* <PurchaseRequisitionNew
             key="purchase-req-new"
             open={createDialogOpen}
             handleClose={handleCreateDialogClose}
             string={name}
             prodOrderId={1} // temp
             prodLineItems={mock_prodLineItems} // mock for now
+            handleAlertOpen={handleAlertOpen}
+            handleAlertClose={handleAlertClose}
+          /> */}
+          <CreatePRSalesInquiryDialog
+            key="create-pr-si-dialog"
+            open={createDialogOpen}
+            handleClose={handleCreateDialogClose}
+            // string={name}
+            purchaseRequisitions={mock_prs} // mock for now
             handleAlertOpen={handleAlertOpen}
             handleAlertClose={handleAlertClose}
           />
