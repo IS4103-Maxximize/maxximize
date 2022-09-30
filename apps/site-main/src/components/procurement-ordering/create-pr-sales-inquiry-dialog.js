@@ -14,6 +14,7 @@ import { DataGrid } from '@mui/x-data-grid';
 import { useFormik } from 'formik';
 import { useEffect, useState } from 'react';
 import * as Yup from 'yup';
+import { createSalesInquiryFromPurchaseRequisition } from '../../helpers/procurement-ordering/purchase-requisition';
 
 export const CreatePRSalesInquiryDialog = (props) => {
   const user = JSON.parse(localStorage.getItem('user'));
@@ -42,60 +43,32 @@ export const CreatePRSalesInquiryDialog = (props) => {
   };
 
   const handleOnSubmit = async (values) => {
-    // if (action === 'POST') {
-    //   const newLineItems = values.lineItems;
-    //   let totalPrice = 0;
+    const salesInquiryLineItemsDtos = [];
 
-    //   const lineItems = [];
+    values.lineItems.forEach((item) => {
+      const lineItemDto = {
+        quantity: item.quantity,
+        indicativePrice: item.rawMaterial.unitPrice,
+        rawMaterialId: item.rawMaterial.id,
+      }
+      salesInquiryLineItemsDtos.push(lineItemDto);
+    })
 
-    //   for (const newLineItem of newLineItems) {
-    //     let lineItem = {
-    //       quantity: newLineItem.quantity,
-    //       indicativePrice: newLineItem.rawMaterial.unitPrice,
-    //       rawMaterialId: newLineItem.rawMaterial.id,
-    //     };
-    //     totalPrice += lineItem.quantity * lineItem.indicativePrice;
+    const purchaseRequisitionIds = purchaseRequisitions.map(pr => pr.id);
 
-    //     lineItems.push(lineItem);
-    //   }
-    //   const user = JSON.parse(localStorage.getItem('user'));
-    //   const currentOrganisationId = user.organisation.id;
+    const createSalesInquiryDto = {
+      currentOrganisationId: organisationId,
+      totalPrice: formik.values.totalPrice,
+      salesInquiryLineItemsDtos: salesInquiryLineItemsDtos,
+      purchaseRequisitionIds: purchaseRequisitionIds
+    }
 
-    //   const salesInquiry = {
-    //     totalPrice: totalPrice,
-    //     currentOrganisationId: currentOrganisationId,
-    //     salesInquiryLineItemsDtos: lineItems,
-    //   };
-
-    //   const lineItemJSON = JSON.stringify(salesInquiry);
-
-    //   const response = await fetch('http://localhost:3000/api/sales-inquiry', {
-    //     method: 'POST',
-    //     headers: {
-    //       Accept: 'application/json',
-    //       'Content-Type': 'application/json',
-    //     },
-    //     body: lineItemJSON,
-    //   }).then((res) => res.json());
-
-    //   //   // create
-    //   //   const result = await createSalesInquiry(
-    //   //     user.organisation.id,
-    //   //     values.lineItems
-    //   //   ).catch((err) => handleAlertOpen(`Error creating ${string}`, 'error'));
-
-    //   // newly created SI doesn't return relations
-    //   // fetch SI with relations
-    //   const result = await response; 
-    //   const inquiry = await fetchSalesInquiry(result.id);
-
-    //   addSalesInquiry(inquiry);
-    // } else if (action === 'PATCH') {
-    //   // update
-    //   const result = await updateSalesInquiry(updateTotalPrice, values);
-    //   updateInquiry(result);
-    // }
-    onClose();
+    createSalesInquiryFromPurchaseRequisition(createSalesInquiryDto)
+      .then((result) => {
+        onClose();
+        handleAlertOpen(`Successfully Created Sales Inquiry ${result.id}!`, 'success')
+      })
+      .catch((error) => handleAlertOpen(`Failed to Create Sales Inquiry from Purchase Requisitions`, 'error'))
   };
 
   const onClose = () => {
@@ -113,17 +86,16 @@ export const CreatePRSalesInquiryDialog = (props) => {
   useEffect(() => {
     if (open) {
       // Collate similar raw-materials from PRs into 1 line item
-      // key: rawM.id
-      // value: subtotal (sum of all quantity for prs)
       const collatePRs = {};
 
+      // Map raw-materials using rawM.id for key
       purchaseRequisitions.forEach((pr) => {
-        collatePRs[pr.rawMaterial.id] = {id: pr.rawMaterial.id, original: 0, subtotal: 0, rawMaterial: pr.rawMaterial};
+        collatePRs[pr.rawMaterial.id] = {id: pr.rawMaterial.id, original: 0, quantity: 0, rawMaterial: pr.rawMaterial};
       })
 
       purchaseRequisitions.forEach((pr) => {
-        collatePRs[pr.rawMaterial.id].original += pr.quantity;
-        collatePRs[pr.rawMaterial.id].subtotal += pr.quantity;
+        collatePRs[pr.rawMaterial.id].original += pr.expectedQuantity;
+        collatePRs[pr.rawMaterial.id].quantity += pr.expectedQuantity;
       })
 
       const lineItems = []
@@ -131,6 +103,11 @@ export const CreatePRSalesInquiryDialog = (props) => {
         lineItems.push(item);
       })
 
+      const totalPrice = lineItems.reduce((a, b) => {
+        return a + b.quantity * b.rawMaterial.unitPrice;
+      }, 0)
+
+      formik.setFieldValue('totalPrice', totalPrice);
       formik.setFieldValue('lineItems', lineItems);
     }
   }, [open])
@@ -140,11 +117,35 @@ export const CreatePRSalesInquiryDialog = (props) => {
 
   const handleRowUpdate = (newRow, oldRow) => {
     // Check if quantity doesnt change
+    if (newRow.quantity === oldRow.quantity) {
+      return oldRow;
+    }
 
-    // Check quantity must be >= minimum
+    // Check quantity must be >= original
+    if (newRow.quantity <= newRow.original) {
+      const message = 'Quantity cannot be less than original quantity!';
+      handleAlertOpen(message, 'error');
+      throw new Error(message);
+    }
 
+    // Update line items to trigger total price update
+    const newLineItems = formik.values.lineItems.map((item) => {
+      return item.id === newRow.id ? newRow : item;
+    })
+    formik.setFieldValue('lineItems', newLineItems);
+    handleAlertClose();
     return newRow;
   };
+
+  // Update total price if quantity for line item changes
+  useEffect(() => {
+    if (formik.values.lineItems.length > 0) {
+      const totalPrice = formik.values.lineItems.reduce((a, b) => {
+        return a + b.quantity * b.rawMaterial.unitPrice;
+      }, 0)
+      formik.setFieldValue('totalPrice', totalPrice);
+    }
+  }, [formik.values.lineItems])
 
   const prColumns = [
     {
@@ -157,7 +158,7 @@ export const CreatePRSalesInquiryDialog = (props) => {
       headerName: 'Prod. Order ID',
       flex: 1,
       valueGetter: (params) => {
-        return params.row ? params.row.productionOrder.id : ''
+        return params.row ? params.row.productionLineItem.productionOrder.id : ''
       }
     },
     {
@@ -169,26 +170,18 @@ export const CreatePRSalesInquiryDialog = (props) => {
       },
     },
     {
-      field: 'quantity',
-      headerName: 'Quantity',
+      field: 'expectedQuantity',
+      headerName: 'Expected Quantity',
       flex: 1,
     },
   ]
 
   const columns = [
     {
-      field: 'subtotal',
+      field: 'quantity',
       headerName: 'Quantity *',
       flex: 1,
       editable: formik.values.status === 'draft',
-    },
-    {
-      field: 'unit',
-      headerName: 'Unit',
-      flex: 1,
-      valueGetter: (params) => {
-        return params.row ? params.row.rawMaterial.unit : '';
-      },
     },
     {
       field: 'unitPrice',
@@ -196,6 +189,14 @@ export const CreatePRSalesInquiryDialog = (props) => {
       flex: 1,
       valueGetter: (params) => {
         return params.row ? params.row.rawMaterial.unitPrice : 0;
+      },
+    },
+    {
+      field: 'unit',
+      headerName: 'Unit',
+      flex: 1,
+      valueGetter: (params) => {
+        return params.row ? params.row.rawMaterial.unit : '';
       },
     },
     {
@@ -285,7 +286,6 @@ export const CreatePRSalesInquiryDialog = (props) => {
                 autoHeight
                 rows={purchaseRequisitions}
                 columns={prColumns}
-                checkboxSelection={formik.values.status !== 'sent'}
                 disableSelectionOnClick
                 pageSize={5}
                 rowsPerPageOptions={[5]}
@@ -297,13 +297,15 @@ export const CreatePRSalesInquiryDialog = (props) => {
             autoHeight
             rows={formik.values.lineItems}
             columns={columns}
-            checkboxSelection={formik.values.status !== 'sent'}
             disableSelectionOnClick
             pageSize={5}
             rowsPerPageOptions={[5]}
             onSelectionModelChange={(ids) => setSelectedRows(ids)}
             experimentalFeatures={{ newEditingApi: true }}
             processRowUpdate={handleRowUpdate}
+            onProcessRowUpdateError={(error) => {
+              console.log(error)
+            }}
           />
         </DialogContent>
       </Dialog>

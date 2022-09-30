@@ -8,7 +8,7 @@ import {
   Typography
 } from '@mui/material';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
-import { format } from 'date-fns';
+import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { DashboardLayout } from '../../components/dashboard-layout';
@@ -16,8 +16,7 @@ import { NotificationAlert } from '../../components/notification-alert';
 import { CreatePRSalesInquiryDialog } from '../../components/procurement-ordering/create-pr-sales-inquiry-dialog';
 import { ConfirmDialog } from '../../components/product/confirm-dialog';
 import { ProductMenu } from '../../components/product/product-menu';
-import { Toolbar } from '../../components/toolbar';
-import { PurchaseRequisitionNew } from './purchase-requisition-new';
+import { PurchaseRequisitionToolbar } from '../../components/procurement-ordering/purchase-requisition-toolbar';
 
 export const PurchaseRequisition = (props) => {
   const user = JSON.parse(localStorage.getItem('user'));
@@ -30,6 +29,7 @@ export const PurchaseRequisition = (props) => {
   const [rows, setRows] = useState([]);
   const [selectedRows, setSelectedRows] = useState([]); // Selected Row IDs
   const [selectedRow, setSelectedRow] = useState();
+  const [selectedPRs, setSelectedPRs] = useState([]);
 
   const getPurchaseRequisitions = async () => {
     setRows(mock_prs); // mock for now
@@ -72,7 +72,8 @@ export const PurchaseRequisition = (props) => {
   // Add Button
   const handleAddClick = () => {
     // setAction('POST');
-    setSelectedRow(null);
+    // setSelectedRow(null);
+    setSelectedPRs(rows.filter(row => selectedRows.includes(row.id)));
   };
   // Delete Button
   const deleteDisabled = Boolean(selectedRows.length === 0);
@@ -122,6 +123,7 @@ export const PurchaseRequisition = (props) => {
     }
     if (createDialogOpen) {
       // console.log(selectedRow);
+      // setSelectedPRs([]);
     }
   }, [createDialogOpen]);
 
@@ -174,15 +176,15 @@ export const PurchaseRequisition = (props) => {
       headerName: 'Prod. Order ID',
       flex: 1,
       valueGetter: (params) => {
-        return params.row ? params.row.productionOrder.id : '';
+        return params.row ? params.row.productionLineItem.productionOrder.id : '';
       }
     },
     {
-      field: 'created',
+      field: 'createdDateTime',
       headerName: 'Date Created',
       flex: 1,
       valueGetter: (params) => {
-        return params.row ? format(params.row.created, 'dd MMM yyyy') : '';
+        return params.row ? dayjs(params.row.created).format('DD MMM YYYY') : '';
       }
     },
     {
@@ -202,13 +204,13 @@ export const PurchaseRequisition = (props) => {
       }
     },
     {
-      field: 'quantity',
+      field: 'expectedQuantity',
       headerName: 'Expected Qty',
       flex: 1,
     },
     {
-      field: 'fulfilled',
-      headerName: 'Fulfilled Qty',
+      field: 'quantityToFulfill',
+      headerName: 'To Fulfill',
       flex: 1,
     },
     {
@@ -224,57 +226,13 @@ export const PurchaseRequisition = (props) => {
     // },
   ];
 
-  const mock_prodLineItems = [
-    {
-      id: 1,
-      quantity: 10,
-      sufficient: false,
-      rawMaterial: {
-        "id": 1,
-        "name": "Tomato",
-        "description": "from Italy bestest farm ever",
-        "skuCode": "1-TOM",
-        "unit": "kilogram",
-        "unitPrice": 10,
-        "lotQuantity": 50,
-        "type": "RawMaterial",
-        "expiry": 30,
-      },
-      productionOrder: {
-        id: 1
-      }
-    },
-    {
-      id: 2,
-      quantity: 5,
-      sufficient: false,
-      rawMaterial: {
-        "id": 2,
-        "name": "Olive Oil",
-        "description": "From Italy, A2.1 quality",
-        "skuCode": "2-OLI",
-        "unit": "litre",
-        "unitPrice": 30,
-        "lotQuantity": 10,
-        "type": "RawMaterial",
-        "expiry": 150,
-      },
-      productionOrder: {
-        id: 1
-      }
-    },
-  ]
-
-  // pr.rawMaterial.id
-  // pr.prodO.prLineItem.rawMaterial.id
-
   const mock_prs = [
     {
       id: 1,
-      quantity: 10, // expected
-      fulfilled: 0,
+      expectedQuantity: 10, // expected
+      quantityToFulfill: 10,
       status: 'pending',
-      created: new Date('2022-09-29'),
+      createdDateTime: new Date('2022-09-29'),
       rawMaterial : {
         "id": 1,
         "name": "Tomato",
@@ -286,17 +244,20 @@ export const PurchaseRequisition = (props) => {
         "type": "RawMaterial",
         "expiry": 30,
       },
-      productionOrder: {
-        id: 1
+      productionLineItem: {
+        id: 1,
+        productionOrder: {
+          id: 1
+        }
       },
       salesInquiry: null
     },
     {
       id: 2,
-      quantity: 5, // expected
-      fulfilled: 0,
+      expectedQuantity: 5, // expected
+      quantityToFulfill: 5,
       status: 'pending',
-      created: new Date('2022-09-29'),
+      createdDateTime: new Date('2022-09-29'),
       rawMaterial : {
         "id": 2,
         "name": "Olive Oil",
@@ -308,15 +269,18 @@ export const PurchaseRequisition = (props) => {
         "type": "RawMaterial",
         "expiry": 150,
       },
-      productionOrder: {
-        id: 1
+      productionLineItem: {
+        id: 2,
+        productionOrder: {
+          id: 1
+        }
       },
       salesInquiry: null
     },
     {
       id: 3,
-      quantity: 15, // expected
-      fulfilled: 0,
+      expectedQuantity: 15, // expected
+      quantityToFulfill: 15,
       status: 'pending',
       created: new Date('2022-09-29'),
       rawMaterial : {
@@ -330,8 +294,11 @@ export const PurchaseRequisition = (props) => {
         "type": "RawMaterial",
         "expiry": 150,
       },
-      productionOrder: {
-        id: 2
+      productionLineItem: {
+        id: 3,
+        productionOrder: {
+          id: 2
+        }
       },
       salesInquiry: null
     }
@@ -360,7 +327,7 @@ export const PurchaseRequisition = (props) => {
             text={alertText}
             handleClose={handleAlertClose}
           />
-          <Toolbar
+          <PurchaseRequisitionToolbar
             key="toolbar"
             name={name}
             numRows={selectedRows.length}
@@ -387,7 +354,7 @@ export const PurchaseRequisition = (props) => {
             open={createDialogOpen}
             handleClose={handleCreateDialogClose}
             // string={name}
-            purchaseRequisitions={mock_prs} // mock for now
+            purchaseRequisitions={selectedPRs}
             handleAlertOpen={handleAlertOpen}
             handleAlertClose={handleAlertClose}
           />
