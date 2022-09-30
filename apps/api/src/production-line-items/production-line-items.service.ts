@@ -22,10 +22,11 @@ export class ProductionLineItemsService {
   ){}
   async create(createProductionLineItemDto: CreateProductionLineItemDto): Promise<ProductionLineItem>{
     try {
-      const { quantity, sufficient, batchLineItemId, rawMaterialId, productionOrderId } =
+      const { quantity, sufficient, batchLineItemId, rawMaterial, productionOrderId } =
         createProductionLineItemDto;
         let productionOrder = await this.productionOrdersRepository.findOneByOrFail({id: productionOrderId})
         let newProductionLineItem: ProductionLineItem;
+        let rawMaterialToBeAdded: RawMaterial;
       if(sufficient && batchLineItemId) {
         let batchLineItem = await this.batchLineItemsRepository.findOneByOrFail({id: batchLineItemId})
         newProductionLineItem = this.prodLineItemsRepository.create({
@@ -35,11 +36,11 @@ export class ProductionLineItemsService {
           productionOrder
         })
       } else if (!sufficient && rawMaterialId) {
-        let rawMaterial = await this.rawMaterialsRepository.findOneByOrFail({ id: rawMaterialId })
+        rawMaterialToBeAdded = await this.rawMaterialsRepository.findOneByOrFail({ id: rawMaterial.idd })
         newProductionLineItem = this.prodLineItemsRepository.create({
           quantity,
           sufficient,
-          rawMaterial,
+          rawMaterial: rawMaterialToBeAdded,
           productionOrder
         })
         return this.prodLineItemsRepository.save(newProductionLineItem)

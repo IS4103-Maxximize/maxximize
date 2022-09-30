@@ -5,6 +5,6 @@ export class CreateProductionLineItemDto {
     quantity: number;
     sufficient?: boolean;
     batchLineItemId?: number;
-    rawMaterialId?: number;
+    rawMaterial?: RawMaterial;
     productionOrderId?: number;
 }
