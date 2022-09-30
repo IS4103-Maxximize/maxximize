@@ -22,7 +22,7 @@ export class ProductionLineItemsService {
   ){}
   async create(createProductionLineItemDto: CreateProductionLineItemDto): Promise<ProductionLineItem>{
     try {
-      const { quantity, sufficient, batchLineItemId, rawMaterialId, productionOrderId } =
+      const { quantity, sufficient, batchLineItemId, rawMaterial, productionOrderId } =
         createProductionLineItemDto;
         let productionOrder = await this.productionOrdersRepository.findOneByOrFail({id: productionOrderId})
         let newProductionLineItem: ProductionLineItem;
@@ -34,8 +34,8 @@ export class ProductionLineItemsService {
           batchLineItem,
           productionOrder
         })
-      } else if (!sufficient && rawMaterialId) {
-        let rawMaterial = await this.rawMaterialsRepository.findOneByOrFail({ id: rawMaterialId })
+      } else if (!sufficient && rawMaterial) {
+        // let rawMaterial = await this.rawMaterialsRepository.findOneByOrFail({ id: rawMaterialId })
         newProductionLineItem = this.prodLineItemsRepository.create({
           quantity,
           sufficient,

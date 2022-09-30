@@ -6,9 +6,9 @@ import { BatchesService } from '../batches/batches.service';
 import { CreateBatchDto } from '../batches/dto/create-batch.dto';
 import { FollowUpLineItemsService } from '../follow-up-line-items/follow-up-line-items.service';
 import { GrLineItemsService } from '../gr-line-items/gr-line-items.service';
-import { UpdatePurchaseOrderDto } from '../purchase-orders/dto/update-purchase-order.dto';
 import { PurchaseOrderStatus } from '../purchase-orders/enums/purchaseOrderStatus.enum';
 import { PurchaseOrdersService } from '../purchase-orders/purchase-orders.service';
+import { SalesInquiryService } from '../sales-inquiry/sales-inquiry.service';
 import { UsersService } from '../users/users.service';
 import { CreateGoodsReceiptDto } from './dto/create-goods-receipt.dto';
 import { GoodsReceipt } from './entities/goods-receipt.entity';
@@ -45,15 +45,15 @@ export class GoodsReceiptsService {
       createBatchDto.batchLineItems = [];
       createBatchDto.organisationId = createGoodsReceiptDto.organisationId;
 
+      const purchaseOrder = await this.purchaseOrderSerivce.findOne(createGoodsReceiptDto.purchaseOrderId);
+      goodsReceipt.purchaseOrder = purchaseOrder;
+      
       for (const dto of createGrLineDtos) {
         const createdGrLineItem = await this.grLineItemService.createWithExistingTransaction(dto, queryRunner);
         goodsReceiptLineItems.push(createdGrLineItem);
       }
 
       goodsReceipt.goodsReceiptLineItems = goodsReceiptLineItems;
-
-      const purchaseOrder = await this.purchaseOrderSerivce.findOne(createGoodsReceiptDto.purchaseOrderId);
-      goodsReceipt.purchaseOrder = purchaseOrder;
 
       for (const dto of createFollowUpLineItemsDtos) {
         dto.purchaseOrderId = createGoodsReceiptDto.purchaseOrderId;
@@ -74,7 +74,8 @@ export class GoodsReceiptsService {
 
       createBatchDto.batchNumber = "B-" + randomUUID().substring(0, 5) + "-" + 
         new Date().toLocaleDateString().replace(/\//g, "-") + "-" + new Date().toLocaleTimeString();
-      const batch = await this.batchService.createWithExistingTransaction(createBatchDto, goodsReceiptLineItems, queryRunner);
+      const batch = await this.batchService.createWithExistingTransaction(createBatchDto, goodsReceiptLineItems, 
+        purchaseOrder.quotation.salesInquiryId, queryRunner);
       goodsReceipt.batch = batch;
 
       const createdGr = await queryRunner.manager.save(goodsReceipt);

@@ -112,14 +112,14 @@ export class BatchLineItemsService {
             const createProductionLineItemDto = new CreateProductionLineItemDto();
             createProductionLineItemDto.quantity = batchLineItem.quantity - batchLineItem.reservedQuantity;
             createProductionLineItemDto.sufficient = true;
-            createProductionLineItemDto.rawMaterialId = batchLineItem.product.id;
+            createProductionLineItemDto.rawMaterial = key;
             createProductionLineItemDto.batchLineItemId = batchLineItem.id;
             createProductionLineItemDtos.push(createProductionLineItemDto);
           }
           const createProductionLineItemDto = new CreateProductionLineItemDto();
           createProductionLineItemDto.quantity = value - totalQty;
           createProductionLineItemDto.sufficient = false;
-          createProductionLineItemDto.rawMaterialId = key.id;
+          createProductionLineItemDto.rawMaterial = key;
           createProductionLineItemDtos.push(createProductionLineItemDto);
         } else {
           lineItems.sort((lineItemOne, lineItemTwo) => 
@@ -134,7 +134,7 @@ export class BatchLineItemsService {
               createProductionLineItemDto.quantity = batchLineItem.quantity - batchLineItem.reservedQuantity;
             }
             createProductionLineItemDto.sufficient = true;
-            createProductionLineItemDto.rawMaterialId = batchLineItem.product.id;
+            createProductionLineItemDto.rawMaterial = key;
             createProductionLineItemDto.batchLineItemId = batchLineItem.id;
             createProductionLineItemDtos.push(createProductionLineItemDto);
             quantityRequired -= qty;
@@ -147,9 +147,15 @@ export class BatchLineItemsService {
         const createProductionLineItemDto = new CreateProductionLineItemDto();
         createProductionLineItemDto.quantity = quantityRequired;
         createProductionLineItemDto.sufficient = false;
-        createProductionLineItemDto.rawMaterialId = key.id;
+        createProductionLineItemDto.rawMaterial = key;
         createProductionLineItemDtos.push(createProductionLineItemDto);
       }
+    }
+
+    let num = 1;
+    for (const createProductionLineItemDto of createProductionLineItemDtos) {
+      createProductionLineItemDto.id = num;
+      num++;
     }
     return createProductionLineItemDtos;
   }

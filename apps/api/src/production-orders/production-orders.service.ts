@@ -96,7 +96,7 @@ export class ProductionOrdersService {
         prodLineItems = await this.batchLineItemsService.getLineItems(bomId, plannedQuantity, organisationId)
         console.log(prodLineItems)
         for (const dto of prodLineItems){
-          const {quantity, sufficient, batchLineItemId, rawMaterialId} = dto
+          const {quantity, sufficient, batchLineItemId, rawMaterial} = dto
           if (batchLineItemId && sufficient) {
             let batchLineItem = await transactionalEntityManager.findOneByOrFail(BatchLineItem, {
               id: batchLineItemId
@@ -108,10 +108,10 @@ export class ProductionOrdersService {
               productionOrder: newProductionOrder
             })
             transactionalEntityManager.update(BatchLineItem, batchLineItemId, { reservedQuantity: batchLineItem.reservedQuantity+quantity })
-          } else if (rawMaterialId && !sufficient) {
-            let rawMaterial = await transactionalEntityManager.findOneByOrFail(RawMaterial, {
-              id: rawMaterialId
-            })
+          } else if (rawMaterial && !sufficient) {
+            // let rawMaterial = await transactionalEntityManager.findOneByOrFail(RawMaterial, {
+            //   id: rawMaterialId
+            // })
             transactionalEntityManager.create(ProductionLineItem, {
               quantity,
               sufficient,
@@ -133,7 +133,7 @@ export class ProductionOrdersService {
         let prodLineItems: CreateProductionLineItemDto[];
         prodLineItems = await this.batchLineItemsService.getLineItems(bomId, plannedQuantity, organisationId)
         for (const dto of prodLineItems){
-          const {quantity, sufficient, batchLineItemId, rawMaterialId} = dto
+          const {quantity, sufficient, batchLineItemId, rawMaterial} = dto
           if (batchLineItemId && sufficient) {
             let batchLineItem = await transactionalEntityManager.findOneByOrFail(BatchLineItem, {
               id: batchLineItemId
@@ -145,10 +145,10 @@ export class ProductionOrdersService {
               productionOrder: newProductionOrder
             })
             transactionalEntityManager.update(BatchLineItem, batchLineItemId, { reservedQuantity: batchLineItem.reservedQuantity+quantity })
-          } else if (rawMaterialId && !sufficient) {
-            let rawMaterial = await transactionalEntityManager.findOneByOrFail(RawMaterial, {
-              id: rawMaterialId
-            })
+          } else if (rawMaterial && !sufficient) {
+            // let rawMaterial = await transactionalEntityManager.findOneByOrFail(RawMaterial, {
+            //   id: rawMaterialId
+            // })
             transactionalEntityManager.create(ProductionLineItem, {
               quantity,
               sufficient,
@@ -198,7 +198,7 @@ export class ProductionOrdersService {
         prodLineItems = await this.batchLineItemsService.getLineItems(bomId, plannedQuantity, organisationId)
         console.log(prodLineItems)
         for (const dto of prodLineItems){
-          const {quantity, sufficient, batchLineItemId, rawMaterialId} = dto
+          const {quantity, sufficient, batchLineItemId, rawMaterial} = dto
           if (batchLineItemId) {
             let batchLineItem = await transactionalEntityManager.findOneByOrFail(BatchLineItem, {
               id: batchLineItemId
@@ -211,9 +211,9 @@ export class ProductionOrdersService {
             })
             transactionalEntityManager.update(BatchLineItem, batchLineItemId, { reservedQuantity: batchLineItem.reservedQuantity+quantity })
           } else {
-            let rawMaterial = await transactionalEntityManager.findOneByOrFail(RawMaterial, {
-              id: rawMaterialId
-            })
+            // let rawMaterial = await transactionalEntityManager.findOneByOrFail(RawMaterial, {
+            //   id: rawMaterialId
+            // })
             transactionalEntityManager.create(ProductionLineItem, {
               quantity,
               rawMaterial,
@@ -287,7 +287,7 @@ export class ProductionOrdersService {
           }
           prodLineItems = await this.batchLineItemsService.getLineItems(productionOrder.bom.id, productionOrder.plannedQuantity, productionOrder.organisationId)
           for (const dto of prodLineItems){
-            const {quantity, sufficient, batchLineItemId, rawMaterialId} = dto
+            const {quantity, sufficient, batchLineItemId, rawMaterial} = dto
             if (batchLineItemId && sufficient) {
               let batchLineItem = await transactionalEntityManager.findOneByOrFail(BatchLineItem, {
                 id: batchLineItemId
@@ -299,10 +299,10 @@ export class ProductionOrdersService {
                 productionOrder
               })
             transactionalEntityManager.update(BatchLineItem, batchLineItemId, { reservedQuantity: batchLineItem.reservedQuantity+quantity })
-          } else if (rawMaterialId && !sufficient) {
-            let rawMaterial = await transactionalEntityManager.findOneByOrFail(RawMaterial, {
-              id: rawMaterialId
-            })
+          } else if (rawMaterial && !sufficient) {
+            // let rawMaterial = await transactionalEntityManager.findOneByOrFail(RawMaterial, {
+            //   id: rawMaterialId
+            // })
             transactionalEntityManager.create(ProductionLineItem, {
               quantity,
               sufficient,

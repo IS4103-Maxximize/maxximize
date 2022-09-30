@@ -84,6 +84,7 @@ export class SalesInquiryService {
         salesInquiryLineItems: {
           rawMaterial: true,
         },
+        purchaseRequisitions: true
       },
     });
   }
@@ -102,6 +103,7 @@ export class SalesInquiryService {
         salesInquiryLineItems: {
           rawMaterial: true,
         },
+        purchaseRequisitions: true
       },
     });
   }
@@ -116,6 +118,7 @@ export class SalesInquiryService {
         'suppliers',
         'quotations',
         'salesInquiryLineItems.rawMaterial',
+        'purchaseRequisitions'
       ],
     });
   }
