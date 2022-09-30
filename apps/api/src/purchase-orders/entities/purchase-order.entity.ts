@@ -55,7 +55,7 @@ export class PurchaseOrder {
     @JoinColumn()
     quotation: Quotation
 
-	@OneToMany(() => GoodsReceipt, goodReceipt => goodReceipt.purchaseOrder)
+	@OneToMany(() => GoodsReceipt, goodsReceipt => goodsReceipt.purchaseOrder)
     @JoinColumn()
-    goodReceipts: GoodsReceipt[];
+    goodsReceipts: GoodsReceipt[];
 }

@@ -133,7 +133,7 @@ export class PurchaseOrdersService {
         orgContact: true,
         userContact: true,
         supplierContact: true,
-        goodReceipts: true,
+        goodsReceipts: true,
         poLineItems: {
           rawMaterial: true,
         },
@@ -155,7 +155,7 @@ export class PurchaseOrdersService {
       'orgContact',
       'userContact',
       'supplierContact',
-      'goodReceipts'
+      'goodsReceipts'
     ]})
   }
 
