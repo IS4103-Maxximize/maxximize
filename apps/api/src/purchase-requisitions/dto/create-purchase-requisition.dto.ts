@@ -2,7 +2,7 @@ import { PRStatus } from "../enums/prStatus.enum"
 
 export class CreatePurchaseRequisitionDto {
     expectedQuantity: number
-    productionOrderId: number
+    productionLineItemId: number
     organisationId: number
     rawMaterialId: number
 }

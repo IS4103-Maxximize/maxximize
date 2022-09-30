@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { OrganisationsService } from '../organisations/organisations.service';
+import { ProductionLineItemsService } from '../production-line-items/production-line-items.service';
 import { ProductionOrdersService } from '../production-orders/production-orders.service';
 import { RawMaterialsService } from '../raw-materials/raw-materials.service';
 import { SalesInquiryService } from '../sales-inquiry/sales-inquiry.service';
@@ -15,19 +16,19 @@ export class PurchaseRequisitionsService {
   constructor(
     @InjectRepository(PurchaseRequisition)
     private readonly purchaseRequisitionsRepository: Repository<PurchaseRequisition>,
-    private productionOrderService: ProductionOrdersService,
+    private productionLineItemService: ProductionLineItemsService,
     private salesInquiryService: SalesInquiryService,
     private rawMaterialService: RawMaterialsService,
-    private OrganisationService: OrganisationsService
+    private organisationService: OrganisationsService
   ) {}
   async create(createPurchaseRequisitionDto: CreatePurchaseRequisitionDto) {
-    const {productionOrderId, expectedQuantity, organisationId, rawMaterialId} = createPurchaseRequisitionDto
-    const productionOrder = await this.productionOrderService.findOne(productionOrderId)
-    const organisation = await this.OrganisationService.findOne(organisationId)
+    const {productionLineItemId, expectedQuantity, organisationId, rawMaterialId} = createPurchaseRequisitionDto
+    const productionLineItem = await this.productionLineItemService.findOne(productionLineItemId)
+    const organisation = await this.organisationService.findOne(organisationId)
     const rawMaterial = await this.rawMaterialService.findOne(rawMaterialId)
     const newPurchaseRequisition = this.purchaseRequisitionsRepository.create({
       status: PRStatus.PENDING,
-      productionOrderId: productionOrder.id,
+      productionLineItem: productionLineItem,
       organisationId: organisation.id,
       expectedQuantity,
       rawMaterialId: rawMaterial.id,
@@ -40,7 +41,7 @@ export class PurchaseRequisitionsService {
     const [purchaseRequisitions, count] = await this.purchaseRequisitionsRepository.findAndCount({
       relations: {
         salesInquiry: true,
-        productionOrder: true,
+        productionLineItem: true,
         rawMaterial: true
       }
     })
@@ -56,7 +57,7 @@ export class PurchaseRequisitionsService {
       organisationId: id
     }, relations: {
       salesInquiry: true,
-      productionOrder: true,
+      productionLineItem: true,
       rawMaterial: true
     }})
     if (count > 0) {
@@ -73,7 +74,7 @@ export class PurchaseRequisitionsService {
           id
         }, relations: {
           salesInquiry: true,
-          productionOrder: true,
+          productionLineItem: true,
           rawMaterial: true
         }
       }) 

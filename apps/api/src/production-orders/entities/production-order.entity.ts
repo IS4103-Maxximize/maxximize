@@ -47,7 +47,4 @@ export class ProductionOrder {
     @ManyToOne(() => Organisation, organisation => organisation.productionOrders)
     @JoinColumn({name: 'organisationId'})
     organisation: Organisation
-
-    @OneToMany(() => PurchaseRequisition, purchaseRequsition => purchaseRequsition.productionOrder)
-    purchaseRequisitions: PurchaseRequisition[]
 }

@@ -1,6 +1,7 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { BatchLineItem } from "../../batch-line-items/entities/batch-line-item.entity";
 import { ProductionOrder } from "../../production-orders/entities/production-order.entity";
+import { PurchaseRequisition } from "../../purchase-requisitions/entities/purchase-requisition.entity";
 import { RawMaterial } from "../../raw-materials/entities/raw-material.entity";
 
 @Entity()
@@ -22,4 +23,7 @@ export class ProductionLineItem {
 
     @ManyToOne(() => ProductionOrder, productionOrder => productionOrder.prodLineItems, {onDelete: "CASCADE"})
     productionOrder: ProductionOrder
+
+    @OneToOne(() => PurchaseRequisition, purchaseRequisition => purchaseRequisition.productionLineItem)
+    purchaseRequisition: PurchaseRequisition;
 }
