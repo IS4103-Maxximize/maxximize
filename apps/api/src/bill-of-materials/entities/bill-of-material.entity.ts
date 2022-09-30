@@ -15,6 +15,6 @@ export class BillOfMaterial {
     @OneToMany(() => BomLineItem, bomLineItem => bomLineItem.billOfMaterial, {cascade:true})
     bomLineItems: BomLineItem[]
 
-    @OneToMany(() => ProductionOrder, productionOrder => productionOrder.billOfMaterial)
+    @OneToMany(() => ProductionOrder, productionOrder => productionOrder.bom)
     productionOrders: ProductionOrder[]
 }

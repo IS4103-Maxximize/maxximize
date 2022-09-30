@@ -1,6 +1,7 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { BatchLineItemsService } from './batch-line-items.service';
 import { CreateBatchLineItemDto } from './dto/create-batch-line-item.dto';
+import { GetBatchLineItemProdDto } from './dto/get-batch-line-item-prod.dto';
 import { UpdateBatchLineItemDto } from './dto/update-batch-line-item.dto';
 
 @Controller('batch-line-items')
@@ -22,12 +23,11 @@ export class BatchLineItemsController {
     return this.batchLineItemsService.findOne(+id);
   }
 
-  /*
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateBatchLineItemDto: UpdateBatchLineItemDto) {
-    return this.batchLineItemsService.update(+id, updateBatchLineItemDto);
+  @Get('getLineItem/:billOfMaterialId/:quantity/:organisationId')
+  getLineItems(@Param('billOfMaterialId') billOfMaterialId: number, 
+    @Param('quantity') quantity: number, @Param('organisationId') organisationId: number) {
+    return this.batchLineItemsService.getLineItems(billOfMaterialId, quantity, organisationId);
   }
-  */
 
   @Delete(':id')
   remove(@Param('id') id: string) {

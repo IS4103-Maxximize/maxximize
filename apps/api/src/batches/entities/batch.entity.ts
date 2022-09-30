@@ -19,10 +19,10 @@ export class Batch {
     })
     batchLineItems: BatchLineItem[];
 
-    @OneToOne(() => GoodsReceipt, goodReceipt => goodReceipt.batch, {
+    @OneToOne(() => GoodsReceipt, goodsReceipt => goodsReceipt.batch, {
         onDelete: 'CASCADE'
     })
-    goodReceipt: GoodsReceipt;
+    goodsReceipt: GoodsReceipt;
 
     @OneToOne(() => ProductionOrder, productionOrder => productionOrder.completedGoods, {nullable: true})
     productionOrder?: ProductionOrder

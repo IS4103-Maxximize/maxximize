@@ -135,7 +135,7 @@ export class PurchaseOrdersService {
         'supplierContact',
         'poLineItems.rawMaterial',
         'followUpLineItems.rawMaterial',
-        'goodReceipts.goodReceiptLineItems.product'
+        'goodsReceipts.goodsReceiptLineItems.product'
       ]
     })
   }
@@ -151,7 +151,7 @@ export class PurchaseOrdersService {
       'supplierContact',
       'poLineItems.rawMaterial',
       'followUpLineItems.rawMaterial',
-      'goodReceipts.goodReceiptLineItems.product'
+      'goodsReceipts.goodsReceiptLineItems.product'
     ]})
   }
 
