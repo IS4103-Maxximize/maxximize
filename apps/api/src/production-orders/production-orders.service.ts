@@ -9,6 +9,7 @@ import { Batch } from '../batches/entities/batch.entity';
 import { BillOfMaterialsService } from '../bill-of-materials/bill-of-materials.service';
 import { BillOfMaterial } from '../bill-of-materials/entities/bill-of-material.entity';
 import { FinalGoodsService } from '../final-goods/final-goods.service';
+import { Organisation } from '../organisations/entities/organisation.entity';
 import { OrganisationsService } from '../organisations/organisations.service';
 import { CreateProductionLineItemDto } from '../production-line-items/dto/create-production-line-item.dto';
 import { ProductionLineItem } from '../production-line-items/entities/production-line-item.entity';
@@ -49,133 +50,15 @@ export class ProductionOrdersService {
     private datasource: DataSource
   ){}
   async create(createProductionOrderDto: CreateProductionOrderDto): Promise<ProductionOrder> {
-    const { plannedQuantity, bomId, status, daily, organisationId, duration, purchaseOrderId } = createProductionOrderDto
+    const { plannedQuantity, bomId, daily, organisationId, duration, purchaseOrderId } = createProductionOrderDto
     let bomToBeAdded: BillOfMaterial
     let newProductionOrder: ProductionOrder
     await this.datasource.manager.transaction(async (transactionalEntityManager) => {
       bomToBeAdded = await this.billOfMaterialsService.findOne(bomId)
       let finalGoodId: number = bomToBeAdded.finalGood.id
-      if (daily) {
-        newProductionOrder = transactionalEntityManager.create(ProductionOrder, {
-          plannedQuantity,
-          daily,
-          status,
-          bom: bomToBeAdded,
-          schedules:[],
-          prodLineItems:[],
-          organisationId
-        })
-        await transactionalEntityManager.save(newProductionOrder)
+      if(daily){
         let schedules: CreateScheduleDto[];
-        schedules = await this.productionLinesService.retrieveSchedulesForProductionOrder(plannedQuantity, finalGoodId, daily, duration, organisationId)
-        console.log(schedules)
-        for (const dto of schedules){
-          const {start, end, productionLineId} = dto
-          const schedule: Schedule = transactionalEntityManager.create(Schedule,{
-            start,
-            end,
-            productionLineId,
-            status: ScheduleType.PLANNED,
-            productionOrder: newProductionOrder
-          })
-          await transactionalEntityManager.save(schedule)
-          const startJob = new CronJob(this.dateToCron(start), async () => {
-            this.update(newProductionOrder.id, {status : ProductionOrderStatus.ONGOING})
-            this.schedulesService.update(schedule.id, {status : ScheduleType.ONGOING})
-            this.logger.warn(`time (${start}) for start job ${schedule.id} to run!`);
-          })
-          const endJob = new CronJob(this.dateToCron(end), async () => {
-            this.update(newProductionOrder.id, {status : ProductionOrderStatus.COMPLETED})
-            this.schedulesService.update(schedule.id, {status : ScheduleType.COMPLETED})
-            this.logger.warn(`time (${end}) for end job ${schedule.id} to run!`);
-          })
-          this.schedulerRegistry.addCronJob(`start ${schedule.id}`, startJob);
-          startJob.start()
-          this.schedulerRegistry.addCronJob(`end ${schedule.id}`, endJob);
-          endJob.start()
-        }
-        let prodLineItems: CreateProductionLineItemDto[];
-        prodLineItems = await this.batchLineItemsService.getLineItems(bomId, plannedQuantity, organisationId)
-        console.log(prodLineItems)
-        for (const dto of prodLineItems){
-          const {quantity, sufficient, batchLineItemId, rawMaterial} = dto
-          if (batchLineItemId) {
-            let batchLineItem = await transactionalEntityManager.findOneByOrFail(BatchLineItem, {
-              id: batchLineItemId
-            })
-            let prodLineItem: ProductionLineItem = transactionalEntityManager.create(ProductionLineItem, {
-              quantity,
-              sufficient: true,
-              batchLineItem,
-              productionOrder: newProductionOrder
-            })
-            await transactionalEntityManager.save(prodLineItem)
-            await transactionalEntityManager.update(BatchLineItem, batchLineItemId, { reservedQuantity: batchLineItem.reservedQuantity+quantity })
-          } else {
-            let rawMaterialToBeAdded = await transactionalEntityManager.findOneByOrFail(RawMaterial, {
-              id: rawMaterial.id
-            })
-            let prodLineItem: ProductionLineItem = transactionalEntityManager.create(ProductionLineItem, {
-              quantity,
-              sufficient,
-              rawMaterial: rawMaterialToBeAdded,
-              productionOrder: newProductionOrder
-            })
-            await transactionalEntityManager.save(prodLineItem)
-          }
-        }
-      } else if (status == ProductionOrderStatus.CREATED) {
-        newProductionOrder = transactionalEntityManager.create(ProductionOrder, {
-          plannedQuantity,
-          daily,
-          status,
-          bom: bomToBeAdded,
-          schedules:[],
-          prodLineItems:[],
-          organisationId
-        })
-        await transactionalEntityManager.save(newProductionOrder)
-        let prodLineItems: CreateProductionLineItemDto[];
-        prodLineItems = await this.batchLineItemsService.getLineItems(bomId, plannedQuantity, organisationId)
-        for (const dto of prodLineItems){
-          const {quantity, sufficient, batchLineItemId, rawMaterial} = dto
-          if (batchLineItemId) {
-            let batchLineItem = await transactionalEntityManager.findOneByOrFail(BatchLineItem, {
-              id: batchLineItemId
-            })
-            let prodLineItem: ProductionLineItem = transactionalEntityManager.create(ProductionLineItem, {
-              quantity,
-              sufficient: true,
-              batchLineItem,
-              productionOrder: newProductionOrder
-            })
-            await transactionalEntityManager.save(prodLineItem)
-            await transactionalEntityManager.update(BatchLineItem, batchLineItemId, { reservedQuantity: batchLineItem.reservedQuantity+quantity })
-          } else {
-            let rawMaterialToBeAdded = await transactionalEntityManager.findOneByOrFail(RawMaterial, {
-              id: rawMaterial.id
-            })
-            let prodLineItem: ProductionLineItem = transactionalEntityManager.create(ProductionLineItem, {
-              quantity,
-              sufficient,
-              rawMaterial: rawMaterialToBeAdded,
-              productionOrder: newProductionOrder
-            })
-            await transactionalEntityManager.save(prodLineItem)
-          }
-        }
-      } else if (status == ProductionOrderStatus.RELEASED) {
-        newProductionOrder = transactionalEntityManager.create(ProductionOrder, {
-          plannedQuantity,
-          daily,
-          status,
-          bom: bomToBeAdded,
-          schedules:[],
-          prodLineItems:[],
-          organisationId
-        })
-        await transactionalEntityManager.save(newProductionOrder)
-        let schedules: CreateScheduleDto[];
+        let schedulesToBeAdded: Schedule[] = [];
         schedules = await this.productionLinesService.retrieveSchedulesForProductionOrder(plannedQuantity, finalGoodId, daily, 0, organisationId)
         for (const dto of schedules){
           const {start, end, productionLineId} = dto
@@ -186,7 +69,7 @@ export class ProductionOrdersService {
             status: ScheduleType.PLANNED,
             productionOrder: newProductionOrder
           })
-          await transactionalEntityManager.save(schedule)
+          schedulesToBeAdded.push(await transactionalEntityManager.save(schedule)) 
           const startJob = new CronJob(this.dateToCron(start), async () => {
             this.update(newProductionOrder.id, {status : ProductionOrderStatus.ONGOING})
             this.schedulesService.update(schedule.id, {status : ScheduleType.ONGOING})
@@ -203,21 +86,28 @@ export class ProductionOrdersService {
           endJob.start()
         }
         let prodLineItems: CreateProductionLineItemDto[];
+        let prodLineItemsToBeAdded: ProductionLineItem[] = [];
         prodLineItems = await this.batchLineItemsService.getLineItems(bomId, plannedQuantity, organisationId)
         for (const dto of prodLineItems){
           const {quantity, sufficient, batchLineItemId, rawMaterial} = dto
-          if (batchLineItemId) {
+          if (sufficient) {
             let batchLineItem = await transactionalEntityManager.findOneByOrFail(BatchLineItem, {
               id: batchLineItemId
+            })
+            let rawMaterialToBeAdded = await transactionalEntityManager.findOneByOrFail(RawMaterial, {
+              id: rawMaterial.id
             })
             let prodLineItem: ProductionLineItem = transactionalEntityManager.create(ProductionLineItem, {
               quantity,
               batchLineItem,
-              sufficient: true,
-              productionOrder: newProductionOrder
+              sufficient,
+              productionOrder: newProductionOrder,
+              rawMaterial
             })
-            await transactionalEntityManager.save(prodLineItem)
+            
             await transactionalEntityManager.update(BatchLineItem, batchLineItemId, { reservedQuantity: batchLineItem.reservedQuantity+quantity })
+            prodLineItemsToBeAdded.push(await transactionalEntityManager.save(prodLineItem))
+
           } else {
             let rawMaterialToBeAdded = await transactionalEntityManager.findOneByOrFail(RawMaterial, {
               id: rawMaterial.id
@@ -231,8 +121,96 @@ export class ProductionOrdersService {
             await transactionalEntityManager.save(prodLineItem)
           }
         }
-      }
-      return null;
+        newProductionOrder = transactionalEntityManager.create(ProductionOrder, {
+          plannedQuantity,
+          daily,
+          status: ProductionOrderStatus.RELEASED,
+          bom: bomToBeAdded,
+          schedules: schedulesToBeAdded,
+          prodLineItems:prodLineItemsToBeAdded,
+          organisationId
+        })
+        newProductionOrder = await transactionalEntityManager.save(newProductionOrder)
+      } else {
+        let finalStatus = ProductionOrderStatus.READYTORELEASE
+        let prodLineItems: CreateProductionLineItemDto[];
+        let prodLineItemsToBeAdded: ProductionLineItem[] = [];
+        prodLineItems = await this.batchLineItemsService.getLineItems(bomId, plannedQuantity, organisationId)
+        for (const dto of prodLineItems){
+          const {quantity, sufficient, batchLineItemId, rawMaterial} = dto
+          if (sufficient) {
+            let batchLineItem = await transactionalEntityManager.findOneByOrFail(BatchLineItem, {
+              id: batchLineItemId
+            })
+            let rawMaterialToBeAdded = await transactionalEntityManager.findOneByOrFail(RawMaterial, {
+              id: rawMaterial.id
+            })
+            let prodLineItem: ProductionLineItem = transactionalEntityManager.create(ProductionLineItem, {
+              quantity,
+              batchLineItem,
+              sufficient,
+              rawMaterial
+            })
+            
+            await transactionalEntityManager.update(BatchLineItem, batchLineItemId, { reservedQuantity: batchLineItem.reservedQuantity+quantity })
+            prodLineItemsToBeAdded.push(await transactionalEntityManager.save(prodLineItem))
+
+          } else {
+            finalStatus = ProductionOrderStatus.CREATED
+            let rawMaterialToBeAdded = await transactionalEntityManager.findOneByOrFail(RawMaterial, {
+              id: rawMaterial.id
+            })
+            let prodLineItem: ProductionLineItem = transactionalEntityManager.create(ProductionLineItem, {
+              quantity,
+              rawMaterial: rawMaterialToBeAdded,
+              sufficient,
+              productionOrder: newProductionOrder
+            })
+            prodLineItemsToBeAdded.push(await transactionalEntityManager.save(prodLineItem))
+          }
+        }
+        // let schedules: CreateScheduleDto[];
+        // let schedulesToBeAdded: Schedule[] = [];
+        // schedules = await this.productionLinesService.retrieveSchedulesForProductionOrder(plannedQuantity, finalGoodId, daily, 0, organisationId)
+        // for (const dto of schedules){
+        //   const {start, end, productionLineId} = dto
+        //   const schedule: Schedule = transactionalEntityManager.create(Schedule,{
+        //     start,
+        //     end,
+        //     productionLineId,
+        //     status: ScheduleType.PLANNED,
+        //     productionOrder: newProductionOrder
+        //   })
+        //   schedulesToBeAdded.push(await transactionalEntityManager.save(schedule)) 
+        //   console.log(newProductionOrder)
+        //   const startJob = new CronJob(this.dateToCron(start), async () => {
+        //     this.update(newProductionOrder.id, {status : ProductionOrderStatus.ONGOING})
+        //     this.schedulesService.update(schedule.id, {status : ScheduleType.ONGOING})
+        //     this.logger.warn(`time (${start}) for start job ${schedule.id} to run!`);
+        //   })
+        //   const endJob = new CronJob(this.dateToCron(end), async () => {
+        //     this.update(newProductionOrder.id, {status : ProductionOrderStatus.COMPLETED})
+        //     this.schedulesService.update(schedule.id, {status : ScheduleType.COMPLETED})
+        //     this.logger.warn(`time (${end}) for end job ${schedule.id} to run!`);
+        //   })
+        //   this.schedulerRegistry.addCronJob(`start ${schedule.id}`, startJob);
+        //   startJob.start()
+        //   this.schedulerRegistry.addCronJob(`end ${schedule.id}`, endJob);
+        //   endJob.start()
+        // }
+        // console.log(prodLineItemsToBeAdded)
+        newProductionOrder = transactionalEntityManager.create(ProductionOrder, {
+          plannedQuantity,
+          daily,
+          status:finalStatus,
+          bom: bomToBeAdded,
+          schedules: [],
+          prodLineItems:prodLineItemsToBeAdded,
+          organisationId
+        })
+        return await transactionalEntityManager.save(newProductionOrder)
+      }   
+      // return null;
       
     })
     return this.findOne(newProductionOrder.id)
@@ -260,7 +238,8 @@ export class ProductionOrdersService {
         completedGoods: true,
         schedules: true,
         prodLineItems: {
-          batchLineItem: true
+          batchLineItem: true,
+          rawMaterial: true
         },
         purchaseOrder: true,
         organisation: true
@@ -279,11 +258,13 @@ export class ProductionOrdersService {
         completedGoods: true,
         schedules: true,
         prodLineItems: {
-          batchLineItem: true
+          batchLineItem: true,
+          rawMaterial: true
         },
         purchaseOrder: true,
         organisation: true
       }})
+      
       if (productionOrder.status == ProductionOrderStatus.CREATED || productionOrder.status == ProductionOrderStatus.READYTORELEASE) {
         let newProdLineItems: ProductionLineItem[] = []
         let prodLineItems: CreateProductionLineItemDto[] = []
@@ -297,32 +278,54 @@ export class ProductionOrdersService {
           prodLineItems = await this.batchLineItemsService.getLineItems(productionOrder.bom.id, productionOrder.plannedQuantity, productionOrder.organisationId)
           for (const dto of prodLineItems){
             const {quantity, sufficient, batchLineItemId, rawMaterial} = dto
-            if (batchLineItemId && sufficient) {
+            if (sufficient) {
               let batchLineItem = await transactionalEntityManager.findOneByOrFail(BatchLineItem, {
                 id: batchLineItemId
               })
-              transactionalEntityManager.create(ProductionLineItem, {
+              let rawMaterialToBeAdded = await transactionalEntityManager.findOneByOrFail(RawMaterial, {
+                id: rawMaterial.id
+              })
+              let prodLineItem = await transactionalEntityManager.create(ProductionLineItem, {
                 quantity,
                 sufficient,
                 batchLineItem,
+                rawMaterial: rawMaterialToBeAdded,
                 productionOrder
               })
-            transactionalEntityManager.update(BatchLineItem, batchLineItemId, { reservedQuantity: batchLineItem.reservedQuantity+quantity })
-          } else if (rawMaterial && !sufficient) {
-            let rawMaterialToBeAdded = await transactionalEntityManager.findOneByOrFail(RawMaterial, {
-              id: rawMaterial.id
-            })
-            transactionalEntityManager.create(ProductionLineItem, {
-              quantity,
-              sufficient,
-              rawMaterial: rawMaterialToBeAdded,
-              productionOrder
-            })
+              await transactionalEntityManager.save(prodLineItem)
+              await transactionalEntityManager.update(BatchLineItem, batchLineItemId, { reservedQuantity: batchLineItem.reservedQuantity+quantity })
+            } else if (!sufficient) {
+              let rawMaterialToBeAdded = await transactionalEntityManager.findOneByOrFail(RawMaterial, {
+                id: rawMaterial.id
+              })
+              let prodLineItem = transactionalEntityManager.create(ProductionLineItem, {
+                quantity,
+                sufficient,
+                rawMaterial: rawMaterialToBeAdded,
+                productionOrder
+              })
+              await transactionalEntityManager.save(prodLineItem)
+            }
           }
-        }
+          return null
         })
       }
-      return productionOrder
+      
+      return this.productionOrdersRepository.findOneOrFail({where: {
+        id
+      }, relations: {
+        bom: {
+          finalGood: true
+        },
+        completedGoods: true,
+        schedules: true,
+        prodLineItems: {
+          batchLineItem: true,
+          rawMaterial: true
+        },
+        purchaseOrder: true,
+        organisation: true
+      }})
     } catch (error) {
       throw new NotFoundException('Production Order not found')
     }
@@ -336,6 +339,7 @@ export class ProductionOrdersService {
         if (value == ProductionOrderStatus.RELEASED) {
           await this.datasource.manager.transaction(async (transactionalEntityManager) => {
             let schedules: CreateScheduleDto[];
+            let schedulesToBeAdded: Schedule[] = [];
             schedules = await this.productionLinesService.retrieveSchedulesForProductionOrder(productionOrderToUpdate.plannedQuantity, productionOrderToUpdate.bom.finalGood.id, productionOrderToUpdate.daily, 0, productionOrderToUpdate.organisationId)
             for (const dto of schedules){
               const {start, end, productionLineId} = dto
@@ -346,7 +350,7 @@ export class ProductionOrdersService {
                 status: ScheduleType.PLANNED,
                 productionOrder: productionOrderToUpdate
               })
-              await transactionalEntityManager.save(schedule)
+              schedulesToBeAdded.push(await transactionalEntityManager.save(schedule)) 
               const startJob = new CronJob(this.dateToCron(start), async () => {
                 this.update(productionOrderToUpdate.id, {status : ProductionOrderStatus.ONGOING})
                 this.schedulesService.update(schedule.id, {status : ScheduleType.ONGOING})
@@ -362,19 +366,22 @@ export class ProductionOrdersService {
               this.schedulerRegistry.addCronJob(`end ${schedule.id}`, endJob);
               endJob.start()
             }
+            return await transactionalEntityManager.update(ProductionOrder, id, {status: value})
           })
           
         } else if(value == ProductionOrderStatus.ONGOING) {
           await this.datasource.manager.transaction(async (transactionalEntityManager) => {
+
             for (const lineItem of productionOrderToUpdate.prodLineItems){
-              transactionalEntityManager.update(BatchLineItem, lineItem.batchLineItem.id, {reservedQuantity: lineItem.batchLineItem.reservedQuantity-lineItem.quantity, quantity: lineItem.batchLineItem.quantity-lineItem.quantity})
+              await transactionalEntityManager.update(BatchLineItem, lineItem.batchLineItem.id, {reservedQuantity: lineItem.batchLineItem.reservedQuantity-lineItem.quantity, quantity: lineItem.batchLineItem.quantity-lineItem.quantity})
+              await transactionalEntityManager.save(lineItem)
             }
+            return await transactionalEntityManager.update(ProductionOrder, id, {status: value})
           })
         }
       }
-      productionOrderToUpdate[key] = value
     })
-    return this.productionOrdersRepository.save(productionOrderToUpdate)
+    return this.findOne(id)
   }
 
   async remove(id: number): Promise<ProductionOrder> {
