@@ -188,11 +188,11 @@ export const PurchaseOrder = (props) => {
       flex: 1,
     },
     {
-      field: 'goodReceipts',
+      field: 'goodsReceipts',
       headerName: 'Good Receipts ID',
       flex: 1,
       valueGetter: (params) => {
-        return params.row.goodReceipts.reduce((a, b) => {
+        return params.row.goodsReceipts.reduce((a, b) => {
           return a.concat(`${b.id}, `)
         }, '').slice(0, -2);
       }
@@ -309,7 +309,7 @@ export const PurchaseOrder = (props) => {
                 }}
                 onCellDoubleClick={(params, event, details) => {
                   // console.log(params)
-                  if (params.field === 'goodReceipts' && params.row.goodReceipts.length > 0) {
+                  if (params.field === 'goodsReceipts' && params.row.goodsReceipts.length > 0) {
                     setSelectedRow(params.row);
                     handlePoGrDialogOpen();
                   }

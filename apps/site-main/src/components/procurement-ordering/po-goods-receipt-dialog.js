@@ -1,12 +1,10 @@
 import CloseIcon from "@mui/icons-material/Close";
-import { Accordion, AccordionSummary, AppBar, Box, Dialog, DialogContent, IconButton, Stack, TextField, Toolbar, Typography } from "@mui/material";
+import { AppBar, Box, Dialog, DialogContent, IconButton, Stack, TextField, Toolbar, Typography } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
-import { format, parseISO } from "date-fns";
 import dayjs from "dayjs";
 import { useFormik } from "formik";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import * as Yup from "yup";
-import { apiHost } from "../../helpers/constants";
 
 
 export const PoGoodsReceiptDialog = (props) => {
@@ -24,14 +22,9 @@ export const PoGoodsReceiptDialog = (props) => {
   const user = JSON.parse(localStorage.getItem('user'));
   const organisationId = user.organisation.id;
 
-  // Selected Line Items
-  // const [selectedRows, setSelectedRows] = useState([])
-
-  // const [goodReceipts, setGrs] = useState([])
-
   const formik = useFormik({
     initialValues: {
-      goodReceipts: purchaseOrder ? purchaseOrder.goodReceipts : [],
+      goodsReceipts: purchaseOrder ? purchaseOrder.goodsReceipts : [],
     },
     validationSchema: Yup.object({
       // bomLineItems: Yup.array()
@@ -40,31 +33,10 @@ export const PoGoodsReceiptDialog = (props) => {
     // handleSubmit: () => {}
   });
 
-  const fetchGoodsReceipts = async (ids) => {
-    const apiUrl = `${apiHost}/goods-receipts`;
-    const grs = []
-    try {
-      await ids.forEach(async (id) => {
-        const gr = await fetch(`${apiUrl}/${id}`).then(res => res.json());
-        grs.push(gr);
-      })
-      formik.setFieldValue('goodReceipts', grs);
-    }
-    catch (error) {
-      formik.setFieldValue('goodReceipts', []);
-      // setLoading(false);
-    }
-  }
-
-  // useEffect(() => {
-  //   if (open) {
-  //     fetchGoodsReceipts(purchaseOrder.goodReceipts.map(gr => gr.id));
-  //   }
-  // }, [open])
 
   useEffect(() => {
-    console.log(formik.values.goodReceipts)
-  }, [formik.values.goodReceipts])
+    console.log(formik.values.goodsReceipts)
+  }, [formik.values.goodsReceipts])
 
   // // Opening and Closing Dialog helpers
   // useEffect(() => {
@@ -123,7 +95,7 @@ export const PoGoodsReceiptDialog = (props) => {
             </IconButton>
             <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
               {'View '}
-              {`Purchase Order ${purchaseOrder ? purchaseOrder.id : ''}'s Good Receipts`}
+              {`Purchase Order ${purchaseOrder ? purchaseOrder.id : ''}'s Goods Receipts`}
             </Typography>
           </Toolbar>
         </AppBar>
@@ -140,8 +112,8 @@ export const PoGoodsReceiptDialog = (props) => {
               disabled
             />
           </Stack>
-          {formik.values.goodReceipts.map(
-              (goodreceipt, index) => {
+          {formik.values.goodsReceipts.map(
+              (goodsreceipt, index) => {
                 return (
                   // <Accordion>
                   //   <AccordionSummary>
@@ -152,21 +124,21 @@ export const PoGoodsReceiptDialog = (props) => {
                     key={index}
                     sx={{ my: 2 }}
                   >
-                    <Typography>{`Good Receipt ${goodreceipt.id}`}</Typography>
+                    <Typography>{`Good Receipt ${goodsreceipt.id}`}</Typography>
                     <Stack direction="row" spacing={2}>
                     <TextField
                       sx={{ width: 300 }}
                       label="Description"
                       margin="normal"
                       name="description"
-                      value={formik.values.description}
+                      value={goodsreceipt.description}
                       variant="outlined"
                       multiline
                       minRows={3}
                     />
                       <DataGrid
                         autoHeight
-                        rows={goodreceipt ? goodreceipt.goodReceiptLineItems : []}
+                        rows={goodsreceipt ? goodsreceipt.goodsReceiptLineItems : []}
                         columns={columns}
                         pageSize={5}
                         rowsPerPageOptions={[5]}

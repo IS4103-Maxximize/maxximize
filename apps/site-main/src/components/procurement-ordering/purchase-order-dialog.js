@@ -263,7 +263,7 @@ export const PODialog = (props) => {
               value={purchaseOrder.status}
               disabled={purchaseOrder}
             />}
-            {(purchaseOrder && purchaseOrder.goodReceipts.length > 0) && 
+            {(purchaseOrder && purchaseOrder.goodsReceipts.length > 0) && 
               <Button
                 size="small"
                 variant="contained"
