@@ -260,6 +260,7 @@ export const PurchaseOrder = (props) => {
             // addPO
             // updatePO
             handleAlertOpen={handleAlertOpen}
+            handlePoGrDialogOpen={handlePoGrDialogOpen}
           />
           <PoGoodsReceiptDialog
             open={poGrDialogOpen}
@@ -308,7 +309,7 @@ export const PurchaseOrder = (props) => {
                 }}
                 onCellDoubleClick={(params, event, details) => {
                   // console.log(params)
-                  if (params.field === 'goodReceipts') {
+                  if (params.field === 'goodReceipts' && params.row.goodReceipts.length > 0) {
                     setSelectedRow(params.row);
                     handlePoGrDialogOpen();
                   }

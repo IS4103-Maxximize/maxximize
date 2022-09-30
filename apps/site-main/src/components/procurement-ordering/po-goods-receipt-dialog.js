@@ -153,35 +153,32 @@ export const PoGoodsReceiptDialog = (props) => {
                     sx={{ my: 2 }}
                   >
                     <Typography>{`Good Receipt ${goodreceipt.id}`}</Typography>
-                    <DataGrid
-                      // key={index}
-                      autoHeight
-                      rows={goodreceipt ? goodreceipt.goodReceiptLineItems : []}
-                      columns={columns}
-                      pageSize={5}
-                      rowsPerPageOptions={[5]}
-                      disableSelectionOnClick
+                    <Stack direction="row" spacing={2}>
+                    <TextField
+                      sx={{ width: 300 }}
+                      label="Description"
+                      margin="normal"
+                      name="description"
+                      value={formik.values.description}
+                      variant="outlined"
+                      multiline
+                      minRows={3}
                     />
+                      <DataGrid
+                        autoHeight
+                        rows={goodreceipt ? goodreceipt.goodReceiptLineItems : []}
+                        columns={columns}
+                        pageSize={5}
+                        rowsPerPageOptions={[5]}
+                        disableSelectionOnClick
+                      />
+                    </Stack>
+                    
                   </Box>
                 )
               }
             )
           }
-          {/* <DataGrid
-            autoHeight
-            rows={formik.values.goodReceipts}
-            columns={columns}
-            pageSize={5}
-            rowsPerPageOptions={[5]}
-            disableSelectionOnClick
-            onSelectionModelChange={(ids) => setSelectedRows(ids)}
-            // experimentalFeatures={{ newEditingApi: true }}
-            // processRowUpdate={handleRowUpdate}
-            // onProcessRowUpdateError={(error) => {
-            //   console.log(error);
-            //   // remain in editing mode
-            // }}
-          /> */}
         </DialogContent>
       </Dialog>
     </form>
