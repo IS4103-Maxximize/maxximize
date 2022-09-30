@@ -6,6 +6,11 @@ import { BinsService } from '../bins/bins.service';
 import { UpdateBinDto } from '../bins/dto/update-bin.dto';
 import { Bin } from '../bins/entities/bin.entity';
 import { GrLineItem } from '../gr-line-items/entities/gr-line-item.entity';
+import { CreateProductionLineItemDto } from '../production-line-items/dto/create-production-line-item.dto';
+import { UpdatePurchaseRequisitionDto } from '../purchase-requisitions/dto/update-purchase-requisition.dto';
+import { PurchaseRequisition } from '../purchase-requisitions/entities/purchase-requisition.entity';
+import { PurchaseRequisitionsService } from '../purchase-requisitions/purchase-requisitions.service';
+import { SalesInquiryService } from '../sales-inquiry/sales-inquiry.service';
 import { WarehousesService } from '../warehouses/warehouses.service';
 import { CreateBatchDto } from './dto/create-batch.dto';
 import { UpdateBatchDto } from './dto/update-batch.dto';
@@ -17,6 +22,8 @@ export class BatchesService {
   private readonly batchRepository: Repository<Batch>,
   private warehouseService: WarehousesService,
   private binService: BinsService,
+  private salesInquiryService: SalesInquiryService,
+  private purchaseRequisitionService: PurchaseRequisitionsService,
   private dataSource: DataSource) {}
 
   async create(createBatchDto: CreateBatchDto) {
@@ -38,11 +45,12 @@ export class BatchesService {
     }
   }
 
-  async createWithExistingTransaction(createBatchDto: CreateBatchDto, goodReceiptLineItems: GrLineItem[], queryRunner: QueryRunner) {
+  async createWithExistingTransaction(createBatchDto: CreateBatchDto, goodsReceiptLineItems: GrLineItem[], 
+    salesInquiryId: number, queryRunner: QueryRunner) {
     const batch = new Batch();
     batch.batchNumber = createBatchDto.batchNumber;
     batch.organisationId = createBatchDto.organisationId;
-    
+
     const warehouses = await this.warehouseService.findAll();
     const batchLineItems = [];
     let bins : Bin[];
@@ -51,11 +59,11 @@ export class BatchesService {
       bins = [...bins, ...warehouse.bins];
     }
     
-    // Duplicate goodReceiptLineItems
-    const unassigned = goodReceiptLineItems.slice();
+    // Duplicate goodsReceiptLineItems
+    const unassigned = goodsReceiptLineItems.slice();
 
     // Try to allocate those line items fully
-    for (const lineItem of goodReceiptLineItems) {
+    for (const lineItem of goodsReceiptLineItems) {
       for (const bin of bins) {
         const lineItemCapacity = lineItem.product.lotQuantity * lineItem.quantity;
         if (lineItemCapacity <= bin.capacity - bin.currentCapacity) {
@@ -70,7 +78,7 @@ export class BatchesService {
           batchLineItems.push(batchLineItem);
 
           bin.currentCapacity = bin.currentCapacity + lineItemCapacity;
-          
+
           const index = unassigned.indexOf(lineItem);
           unassigned.splice(index, 1);
           break;
@@ -82,7 +90,7 @@ export class BatchesService {
     // and allocate partially till all of the product is allocated
     for (const unallocated of unassigned) {
       let qty = unallocated.quantity * unallocated.product.lotQuantity;
-      while (qty > 0) {
+      while (qty > 0) { // can remove, no need this qty > 0 
         for (const bin of bins) {
           const availableSpace = bin.capacity - bin.currentCapacity;
           if (availableSpace > 0) {
@@ -118,19 +126,75 @@ export class BatchesService {
     batch.batchLineItems = batchLineItems;
 
     const createdBatch = await queryRunner.manager.save(batch);
+
+    const salesInquiry = await this.salesInquiryService.findOne(salesInquiryId);
+    const purchaseReqs: PurchaseRequisition[] = salesInquiry.purchaseRequisitions;    
+
+    // Collate purchase requisitions according to raw material
+    const rawMaterialPurchaseReqMap = new Map<number, PurchaseRequisition[]>();
+    if (purchaseReqs != undefined || purchaseReqs != null) {
+      for (const purchaseReq of purchaseReqs) {
+        if (rawMaterialPurchaseReqMap.has(purchaseReq.rawMaterialId)) {
+          const purchaseReqArr = rawMaterialPurchaseReqMap.get(purchaseReq.rawMaterialId);
+          purchaseReqArr.push(purchaseReq);
+          rawMaterialPurchaseReqMap.set(purchaseReq.rawMaterialId, purchaseReqArr);
+        } else {
+          const arr: PurchaseRequisition[] = [];
+          arr.push(purchaseReq);
+          rawMaterialPurchaseReqMap.set(purchaseReq.rawMaterialId, arr);
+        }
+      }
+    }
+
+    // Update product requisitions
+    for (const grLineItem of goodsReceiptLineItems) {
+      if (rawMaterialPurchaseReqMap.has(grLineItem.product.id)) {
+        const arr = rawMaterialPurchaseReqMap.get(grLineItem.product.id);
+        const totalQtyReq = arr.reduce((seed, pr) => {
+          return seed + pr.expectedQuantity
+        }, 0);
+        let grLineQty = grLineItem.quantity;
+        if (grLineItem.quantity >= totalQtyReq) {
+          for (const purchaseReq of arr) {
+            const updatePurchaseReqDto = new UpdatePurchaseRequisitionDto();
+            updatePurchaseReqDto.quantityToFulfill = 0;
+            this.purchaseRequisitionService.update(purchaseReq.id, updatePurchaseReqDto);
+          }
+        } else {
+          arr.sort((pr1, pr2) => pr1.createdDateTime.getTime() - pr2.createdDateTime.getTime());
+          for (const purchaseReq of arr) {
+            if (purchaseReq.quantityToFulfill >= grLineQty) {
+              const updatePurchaseReqDto = new UpdatePurchaseRequisitionDto();
+              updatePurchaseReqDto.quantityToFulfill = purchaseReq.quantityToFulfill - grLineQty;
+              this.purchaseRequisitionService.update(purchaseReq.id, updatePurchaseReqDto);
+              grLineQty = 0;
+            } else {
+              const updatePurchaseReqDto = new UpdatePurchaseRequisitionDto();
+              updatePurchaseReqDto.quantityToFulfill = 0;
+              this.purchaseRequisitionService.update(purchaseReq.id, updatePurchaseReqDto);
+              grLineQty -= purchaseReq.quantityToFulfill;
+            }
+            if (grLineQty <= 0) {
+              break;
+            }
+          }
+        }
+      }
+    }
+
     return createdBatch;
   }
 
   async findAll() {
     return await this.batchRepository.find({
-      relations: ["batchLineItems", "goodReceipt"]
+      relations: ["batchLineItems", "goodsReceipt"]
     });
   }
 
   async findOne(id: number) {
     return await this.batchRepository.findOne({
       where: { id },
-      relations: ["batchLineItems", "goodReceipt"]
+      relations: ["batchLineItems", "goodsReceipt"]
     });
   }
 
@@ -139,7 +203,7 @@ export class BatchesService {
       where: {
         organisationId: id
       },
-      relations: ["batchLineItems", "goodReceipt"]
+      relations: ["batchLineItems", "goodsReceipt"]
     });
   }
 
@@ -150,7 +214,7 @@ export class BatchesService {
     
     try {
       const batch = await this.findOne(id);
-      batch.goodReceipt = updateBatchDto.goodReceipt;
+      batch.goodsReceipt = updateBatchDto.goodsReceipt;
       batch.batchLineItems = updateBatchDto.batchLineItems;
       await queryRunner.manager.update(Batch, id, updateBatchDto);
       await queryRunner.commitTransaction();

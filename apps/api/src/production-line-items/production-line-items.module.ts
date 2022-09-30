@@ -11,5 +11,6 @@ import { ProductionOrder } from '../production-orders/entities/production-order.
   imports: [TypeOrmModule.forFeature([ProductionLineItem, BatchLineItem, RawMaterial, ProductionOrder])],
   controllers: [ProductionLineItemsController],
   providers: [ProductionLineItemsService],
+  exports: [ProductionLineItemsService]
 })
 export class ProductionLineItemsModule {}

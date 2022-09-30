@@ -24,14 +24,14 @@ export class GoodsReceipt {
     @DeleteDateColumn()
     deletedDateTime: Date;
 
-    @OneToMany(() => GrLineItem, grLineItem => grLineItem.goodReceipt)
-    goodReceiptLineItems: GrLineItem[];
+    @OneToMany(() => GrLineItem, grLineItem => grLineItem.goodsReceipt)
+    goodsReceiptLineItems: GrLineItem[];
 
-    @ManyToOne(() => PurchaseOrder, purchaseOrder => purchaseOrder.goodReceipts)
+    @ManyToOne(() => PurchaseOrder, purchaseOrder => purchaseOrder.goodsReceipts)
     @JoinColumn()
     purchaseOrder: PurchaseOrder;
 
-    @OneToOne(() => Batch, batch => batch.goodReceipt) // delete batch when gr is deleted
+    @OneToOne(() => Batch, batch => batch.goodsReceipt) // delete batch when gr is deleted
     @JoinColumn()
     batch: Batch;
 }

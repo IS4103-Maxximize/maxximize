@@ -67,7 +67,7 @@ export class ProductionOrdersService {
         })
         await transactionalEntityManager.save(newProductionOrder)
         let schedules: CreateScheduleDto[];
-        schedules = await this.productionLinesService.retrieveSchedulesForProductionOrder(plannedQuantity, finalGoodId, daily, duration)
+        schedules = await this.productionLinesService.retrieveSchedulesForProductionOrder(plannedQuantity, finalGoodId, daily, duration, organisationId)
         console.log(schedules)
         for (const dto of schedules){
           const {start, end, productionLineId} = dto
@@ -176,7 +176,7 @@ export class ProductionOrdersService {
         })
         await transactionalEntityManager.save(newProductionOrder)
         let schedules: CreateScheduleDto[];
-        schedules = await this.productionLinesService.retrieveSchedulesForProductionOrder(plannedQuantity, finalGoodId, daily, 0)
+        schedules = await this.productionLinesService.retrieveSchedulesForProductionOrder(plannedQuantity, finalGoodId, daily, 0, organisationId)
         for (const dto of schedules){
           const {start, end, productionLineId} = dto
           const schedule: Schedule = transactionalEntityManager.create(Schedule,{
@@ -336,7 +336,7 @@ export class ProductionOrdersService {
         if (value == ProductionOrderStatus.RELEASED) {
           await this.datasource.manager.transaction(async (transactionalEntityManager) => {
             let schedules: CreateScheduleDto[];
-            schedules = await this.productionLinesService.retrieveSchedulesForProductionOrder(productionOrderToUpdate.plannedQuantity, productionOrderToUpdate.bom.finalGood.id, productionOrderToUpdate.daily, 0)
+            schedules = await this.productionLinesService.retrieveSchedulesForProductionOrder(productionOrderToUpdate.plannedQuantity, productionOrderToUpdate.bom.finalGood.id, productionOrderToUpdate.daily, 0, productionOrderToUpdate.organisationId)
             for (const dto of schedules){
               const {start, end, productionLineId} = dto
               const schedule: Schedule = transactionalEntityManager.create(Schedule,{

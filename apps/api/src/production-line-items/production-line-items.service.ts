@@ -35,8 +35,8 @@ export class ProductionLineItemsService {
           batchLineItem,
           productionOrder
         })
-      } else if (!sufficient && rawMaterialId) {
-        rawMaterialToBeAdded = await this.rawMaterialsRepository.findOneByOrFail({ id: rawMaterial.idd })
+      } else if (!sufficient && rawMaterial) {
+        rawMaterialToBeAdded = await this.rawMaterialsRepository.findOneByOrFail({ id: rawMaterial.id })
         newProductionLineItem = this.prodLineItemsRepository.create({
           quantity,
           sufficient,

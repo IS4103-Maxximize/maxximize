@@ -111,10 +111,16 @@ export class BatchLineItemsService {
           for (const batchLineItem of lineItems) {
             const createProductionLineItemDto = new CreateProductionLineItemDto();
             createProductionLineItemDto.quantity = batchLineItem.quantity - batchLineItem.reservedQuantity;
-            createProductionLineItemDto.rawMaterialId = batchLineItem.product.id;
+            createProductionLineItemDto.sufficient = true;
+            createProductionLineItemDto.rawMaterial = key;
             createProductionLineItemDto.batchLineItemId = batchLineItem.id;
             createProductionLineItemDtos.push(createProductionLineItemDto);
           }
+          const createProductionLineItemDto = new CreateProductionLineItemDto();
+          createProductionLineItemDto.quantity = value - totalQty;
+          createProductionLineItemDto.sufficient = false;
+          createProductionLineItemDto.rawMaterial = key;
+          createProductionLineItemDtos.push(createProductionLineItemDto);
         } else {
           lineItems.sort((lineItemOne, lineItemTwo) => 
             lineItemOne.expiryDate.getTime() - lineItemTwo.expiryDate.getTime()
@@ -127,7 +133,8 @@ export class BatchLineItemsService {
             } else {
               createProductionLineItemDto.quantity = batchLineItem.quantity - batchLineItem.reservedQuantity;
             }
-            createProductionLineItemDto.rawMaterialId = batchLineItem.product.id;
+            createProductionLineItemDto.sufficient = true;
+            createProductionLineItemDto.rawMaterial = key;
             createProductionLineItemDto.batchLineItemId = batchLineItem.id;
             createProductionLineItemDtos.push(createProductionLineItemDto);
             quantityRequired -= qty;
@@ -136,7 +143,19 @@ export class BatchLineItemsService {
             }
           } 
         }
+      } else {
+        const createProductionLineItemDto = new CreateProductionLineItemDto();
+        createProductionLineItemDto.quantity = quantityRequired;
+        createProductionLineItemDto.sufficient = false;
+        createProductionLineItemDto.rawMaterial = key;
+        createProductionLineItemDtos.push(createProductionLineItemDto);
       }
+    }
+
+    let num = 1;
+    for (const createProductionLineItemDto of createProductionLineItemDtos) {
+      createProductionLineItemDto.id = num;
+      num++;
     }
     return createProductionLineItemDtos;
   }

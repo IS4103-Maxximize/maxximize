@@ -13,5 +13,5 @@ export class CreateBatchDto {
     batchLineItems: BatchLineItem[];
 
     @IsNotEmpty()
-    goodReceipt: GoodsReceipt;
+    goodsReceipt: GoodsReceipt;
 }
