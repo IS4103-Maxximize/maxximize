@@ -23,10 +23,10 @@ export class BatchLineItemsController {
     return this.batchLineItemsService.findOne(+id);
   }
 
-  @Post('/batchLineItemsProd')
-  getLineItem(@Body() getBatchLineItemProdDto: GetBatchLineItemProdDto) {
-    return this.batchLineItemsService.getLineItems(getBatchLineItemProdDto.billOfMaterialId,
-      getBatchLineItemProdDto.quantity, getBatchLineItemProdDto.organisationId);
+  @Get('getLineItem/:billOfMaterialId/:quantity/:organisationId')
+  getLineItems(@Param('billOfMaterialId') billOfMaterialId: number, 
+    @Param('quantity') quantity: number, @Param('organisationId') organisationId: number) {
+    return this.batchLineItemsService.getLineItems(billOfMaterialId, quantity, organisationId);
   }
 
   @Delete(':id')
