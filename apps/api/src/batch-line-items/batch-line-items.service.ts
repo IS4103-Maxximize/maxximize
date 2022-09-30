@@ -111,10 +111,16 @@ export class BatchLineItemsService {
           for (const batchLineItem of lineItems) {
             const createProductionLineItemDto = new CreateProductionLineItemDto();
             createProductionLineItemDto.quantity = batchLineItem.quantity - batchLineItem.reservedQuantity;
+            createProductionLineItemDto.sufficient = true;
             createProductionLineItemDto.rawMaterialId = batchLineItem.product.id;
             createProductionLineItemDto.batchLineItemId = batchLineItem.id;
             createProductionLineItemDtos.push(createProductionLineItemDto);
           }
+          const createProductionLineItemDto = new CreateProductionLineItemDto();
+          createProductionLineItemDto.quantity = value - totalQty;
+          createProductionLineItemDto.sufficient = false;
+          createProductionLineItemDto.rawMaterialId = key.id;
+          createProductionLineItemDtos.push(createProductionLineItemDto);
         } else {
           lineItems.sort((lineItemOne, lineItemTwo) => 
             lineItemOne.expiryDate.getTime() - lineItemTwo.expiryDate.getTime()
@@ -127,6 +133,7 @@ export class BatchLineItemsService {
             } else {
               createProductionLineItemDto.quantity = batchLineItem.quantity - batchLineItem.reservedQuantity;
             }
+            createProductionLineItemDto.sufficient = true;
             createProductionLineItemDto.rawMaterialId = batchLineItem.product.id;
             createProductionLineItemDto.batchLineItemId = batchLineItem.id;
             createProductionLineItemDtos.push(createProductionLineItemDto);
@@ -136,6 +143,12 @@ export class BatchLineItemsService {
             }
           } 
         }
+      } else {
+        const createProductionLineItemDto = new CreateProductionLineItemDto();
+        createProductionLineItemDto.quantity = quantityRequired;
+        createProductionLineItemDto.sufficient = false;
+        createProductionLineItemDto.rawMaterialId = key.id;
+        createProductionLineItemDtos.push(createProductionLineItemDto);
       }
     }
     return createProductionLineItemDtos;
