@@ -9,9 +9,10 @@ import { Organisation } from '../organisations/entities/organisation.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { MailModule } from '../mail/mail.module';
 import { RawMaterial } from '../raw-materials/entities/raw-material.entity';
+import { PurchaseRequisition } from '../purchase-requisitions/entities/purchase-requisition.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([SalesInquiry, SalesInquiryLineItem, ShellOrganisation, Quotation, Organisation, RawMaterial]), MailModule],
+  imports: [TypeOrmModule.forFeature([SalesInquiry, SalesInquiryLineItem, ShellOrganisation, Quotation, Organisation, RawMaterial, PurchaseRequisition]), MailModule],
   controllers: [SalesInquiryController],
   providers: [SalesInquiryService],
   exports: [SalesInquiryService]

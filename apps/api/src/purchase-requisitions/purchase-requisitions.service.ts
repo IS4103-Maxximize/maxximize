@@ -34,7 +34,8 @@ export class PurchaseRequisitionsService {
       rawMaterialId: rawMaterial.id,
       quantityToFulfill: expectedQuantity
     })
-    return this.purchaseRequisitionsRepository.save(newPurchaseRequisition)
+    const newPR = await this.purchaseRequisitionsRepository.save(newPurchaseRequisition);
+    return await this.findOne(newPR.id);
   }
 
   async findAll() {
@@ -57,7 +58,9 @@ export class PurchaseRequisitionsService {
       organisationId: id
     }, relations: {
       salesInquiry: true,
-      productionLineItem: true,
+      productionLineItem: {
+        productionOrder: true
+      },
       rawMaterial: true
     }})
     if (count > 0) {
@@ -74,7 +77,9 @@ export class PurchaseRequisitionsService {
           id
         }, relations: {
           salesInquiry: true,
-          productionLineItem: true,
+          productionLineItem: {
+            productionOrder: true
+          },
           rawMaterial: true
         }
       }) 
@@ -95,7 +100,8 @@ export class PurchaseRequisitionsService {
         }
       }
     }
-    return this.purchaseRequisitionsRepository.save(purchaseRequisitionToUpdate)
+    await this.purchaseRequisitionsRepository.save(purchaseRequisitionToUpdate)
+    return this.findOne(id);
   }
 
   async remove(id: number) {
