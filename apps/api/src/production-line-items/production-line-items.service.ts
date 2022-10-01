@@ -89,4 +89,9 @@ export class ProductionLineItemsService {
     const productionLineItem = await this.prodLineItemsRepository.findOneBy({id})
     return this.prodLineItemsRepository.remove(productionLineItem)
   }
+
+  async softDelete(id: number) {
+    await this.prodLineItemsRepository.softDelete(id)
+  }
+
 }
