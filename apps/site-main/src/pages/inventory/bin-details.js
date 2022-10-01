@@ -67,8 +67,9 @@ const BinDetails = () => {
       flex: 3,
       width: 300,
       valueGetter: (params) => {
-        if (params.row.product.name) {
-          return params.row.product.name;
+        console.log(params.row);
+        if (params.row.product?.name) {
+          return params.row.product?.name;
         } else {
           return '';
         }

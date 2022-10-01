@@ -25,8 +25,6 @@ export class Bin {
   @ManyToOne(() => Warehouse, (warehouse) => warehouse.bins)
   warehouse: Warehouse;
 
-  @OneToMany(() => BatchLineItem, (batchLineItem) => batchLineItem.bin, {
-    eager: true,
-  })
+  @OneToMany(() => BatchLineItem, (batchLineItem) => batchLineItem.bin)
   batchLineItems: BatchLineItem[];
 }

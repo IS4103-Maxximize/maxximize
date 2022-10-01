@@ -198,7 +198,7 @@ export class AppService implements OnApplicationBootstrap {
           unit: MeasurementUnit.KILOGRAM,
           unitPrice: 10,
           expiry: 5,
-          organisationId: 1
+          organisationId: 2
         });
 
         await this.rawMaterialsService.create({
@@ -208,7 +208,7 @@ export class AppService implements OnApplicationBootstrap {
           unit: MeasurementUnit.KILOGRAM,
           unitPrice: 5,
           expiry: 2,
-          organisationId: 1
+          organisationId: 2
         });
 
         await this.rawMaterialsService.create({

@@ -72,11 +72,16 @@ export class BinsService {
       where: {
         warehouse: {
           organisation: {
-            id: id
-          }
-        }
+            id: id,
+          },
+        },
       },
-      relations: ["warehouse", "batchLineItems.product"]
+      relations: {
+        warehouse: true,
+        batchLineItems: {
+          product: true,
+        },
+      },
     });
   }
 
