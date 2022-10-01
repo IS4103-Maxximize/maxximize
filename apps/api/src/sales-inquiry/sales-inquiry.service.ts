@@ -1,20 +1,20 @@
 /* eslint-disable prefer-const */
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { MailService } from '../mail/mail.service';
 import { Organisation } from '../organisations/entities/organisation.entity';
+import { PurchaseRequisition } from '../purchase-requisitions/entities/purchase-requisition.entity';
+import { PurchaseRequisitionsService } from '../purchase-requisitions/purchase-requisitions.service';
 import { Quotation } from '../quotations/entities/quotation.entity';
 import { RawMaterial } from '../raw-materials/entities/raw-material.entity';
 import { SalesInquiryLineItem } from '../sales-inquiry-line-items/entities/sales-inquiry-line-item.entity';
 import { ShellOrganisation } from '../shell-organisations/entities/shell-organisation.entity';
-import { SendEmailDto } from './dto/send-email.dto';
 import { CreateSalesInquiryDto } from './dto/create-sales-inquiry.dto';
+import { SendEmailDto } from './dto/send-email.dto';
 import { UpdateSalesInquiryDto } from './dto/update-sales-inquiry.dto';
 import { SalesInquiry } from './entities/sales-inquiry.entity';
 import { SalesInquiryStatus } from './enums/salesInquiryStatus.enum';
-import { PurchaseRequisition } from '../purchase-requisitions/entities/purchase-requisition.entity';
-import { PurchaseRequisitionsService } from '../purchase-requisitions/purchase-requisitions.service';
 
 @Injectable()
 export class SalesInquiryService {
@@ -34,6 +34,7 @@ export class SalesInquiryService {
     @InjectRepository(PurchaseRequisition)
     private readonly purchaseRequisitionRepository: Repository<PurchaseRequisition>,
     private mailerService: MailService,
+    @Inject(forwardRef(() => PurchaseRequisitionsService))
     private purchaseRequisitionSevice: PurchaseRequisitionsService
   ) {}
 
