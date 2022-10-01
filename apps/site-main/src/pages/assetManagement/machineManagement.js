@@ -180,11 +180,11 @@ const MachineManagement = (props) => {
       headerName: 'Last Serviced',
       flex: 1,
     },
-    {
-      field: 'isOperating',
-      headerName: 'Status',
-      flex: 1,
-    },
+    // {
+    //   field: 'isOperating',
+    //   headerName: 'Status',
+    //   flex: 1,
+    // },
     {
       field: 'remarks',
       headerName: 'Remarks',
