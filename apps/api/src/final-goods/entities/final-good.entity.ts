@@ -8,6 +8,4 @@ export class FinalGood extends Product {
   @OneToOne(() => BillOfMaterial, (billOfMaterial) => billOfMaterial.finalGood)
   billOfMaterial: BillOfMaterial;
 
-  @OneToMany(() => ProductionLine, productionLine => productionLine.finalGood)
-  productionLines: ProductionLine
 }

@@ -1,8 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Exception } from 'handlebars';
+import { __values } from 'tslib';
 import { EntityManager, Repository } from 'typeorm';
-import { FinalGoodsService } from '../final-goods/final-goods.service';
+import { BillOfMaterialsService } from '../bill-of-materials/bill-of-materials.service';
+import { FactoryMachinesService } from '../factory-machines/factory-machines.service';
 import { OrganisationsService } from '../organisations/organisations.service';
 import { Schedule } from '../schedules/entities/schedule.entity';
 import { CreateProductionLineDto } from './dto/create-production-line.dto';
@@ -14,27 +16,36 @@ export class ProductionLinesService {
   constructor(
     @InjectRepository(ProductionLine)
     private readonly productionLineRepository: Repository<ProductionLine>,
-    private finalGoodService: FinalGoodsService,
-    private organisationService: OrganisationsService
+    private bomService: BillOfMaterialsService,
+    private organisationService: OrganisationsService,
+    @Inject(forwardRef(() => FactoryMachinesService))
+    private factoryMachinesService: FactoryMachinesService
   ) {}
   async create(createProductionLineDto: CreateProductionLineDto): Promise<ProductionLine> {
-    const {name, description, finalGoodId, productionCostPerLot, gracePeriod, organisationId, outputPerHour, startTime, endTime} = createProductionLineDto
-
+    const {name, description, bomId, productionCostPerLot, gracePeriod, organisationId, outputPerHour, startTime, endTime, machineIds} = createProductionLineDto
+    let machinesToBeAdded = []
+    console.log(machineIds)
+    for (const id of machineIds) {
+      const machine = await this.factoryMachinesService.findOne(id)
+      machinesToBeAdded.push(machine)
+    }
     const organisation = await this.organisationService.findOne(organisationId)
-    const finalGood = await this.finalGoodService.findOne(finalGoodId)
+    const billOfMaterial = await this.bomService.findOne(bomId)
+    console.log(billOfMaterial)
     const newProductionLine = this.productionLineRepository.create({
       name,
       description,
       productionCostPerLot,
       gracePeriod: gracePeriod,
       created: new Date(),
-      finalGoodId: finalGood.id,
+      bomId: billOfMaterial.id,
       isAvailable: true,
       lastStopped: null,
       outputPerHour,
       organisationId: organisation.id ,
       startTime,
-      endTime
+      endTime,
+      machines: machinesToBeAdded 
     })
     const newPL =  await this.productionLineRepository.save(newProductionLine)
     return this.findOne(newPL.id);
@@ -43,7 +54,7 @@ export class ProductionLinesService {
   async findAll(): Promise<ProductionLine[]> {
     return this.productionLineRepository.find({
       relations: {
-        finalGood: true,
+        bom: true,
         schedules: true,
         organisation: true,
         machines: true
@@ -56,7 +67,9 @@ export class ProductionLinesService {
       return await this.productionLineRepository.findOneOrFail({where: {
         id
       }, relations: {
-        finalGood: true,
+        bom: {
+          finalGood: true
+        },
         schedules: true,
         organisation: true,
         machines: true
@@ -71,7 +84,9 @@ export class ProductionLinesService {
       where: {
         organisationId: id
       }, relations: {
-        finalGood: true,
+        bom: {
+          finalGood: true
+        },
         schedules: true,
         machines: true
       }
@@ -87,7 +102,17 @@ export class ProductionLinesService {
     const productionLineToUpdate = await this.findOne(id)
     const keyValuePairs = Object.entries(updateProductionLineDto)
     for (const [key, value] of keyValuePairs) {
-      productionLineToUpdate[key] = value
+      if (value) {
+        if (key === 'machineIds') {
+          const newMachines = []
+          for (const id of value) {
+            newMachines.push(await this.factoryMachinesService.findOne(id))
+          }
+          productionLineToUpdate['machines'] = newMachines
+        } else {
+          productionLineToUpdate[key] = value
+        }
+      }
     }
     return this.productionLineRepository.save(productionLineToUpdate)
   }
@@ -106,7 +131,7 @@ export class ProductionLinesService {
 
   async getNextEarliestMapping(finalGoodId: number, organisationId: number) {
     const allProductionLines = await this.findAllByOrg(organisationId)
-    const productionLines = allProductionLines.filter(productionLine => productionLine.finalGoodId === finalGoodId)
+    const productionLines = allProductionLines.filter(productionLine => productionLine.bom.finalGood.id === finalGoodId)
     let mapping = {}
     for (let i = 0; i < productionLines.length; i++) {
       const map = new Map()

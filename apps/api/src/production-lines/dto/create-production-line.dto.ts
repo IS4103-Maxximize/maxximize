@@ -1,11 +1,14 @@
+import { Machine } from "../../vehicles/entities/vehicle.entity"
+
 export class CreateProductionLineDto {
     name: string
     description: string
-    finalGoodId: number
+    bomId: number
     productionCostPerLot: number
     gracePeriod: number
     organisationId: number
     outputPerHour: number
     startTime: number
     endTime: number
+    machineIds: number[]
 }

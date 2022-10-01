@@ -1,6 +1,6 @@
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { BillOfMaterial } from "../../bill-of-materials/entities/bill-of-material.entity";
 import { FactoryMachine } from "../../factory-machines/entities/factory-machine.entity";
-import { FinalGood } from "../../final-goods/entities/final-good.entity";
 import { Organisation } from "../../organisations/entities/organisation.entity";
 import { Schedule } from "../../schedules/entities/schedule.entity";
 
@@ -40,10 +40,10 @@ export class ProductionLine {
     created: Date
 
     @Column()
-    finalGoodId: number
-    @ManyToOne(() => FinalGood, finalGood => finalGood.productionLines)
-    @JoinColumn()
-    finalGood: FinalGood
+    bomId: number
+    @ManyToOne(() => BillOfMaterial, bom => bom.productionLines)
+    @JoinColumn({name: 'bomId'})
+    bom: BillOfMaterial
 
     //schedules
     @OneToMany(() => Schedule, schedule => schedule.productionLine)
