@@ -50,7 +50,7 @@ import {
       lastServiced: machine ? machine.lastServiced : '',
       remarks: machine ? machine.remarks : '',
       productionLineId: machine ? machine.productionLine : '',
-      isOperating: machine ? machine.isOperating : "not operating" ,
+      isOperating: machine ? machine.isOperating : "operating" ,
     };
 
     let schema = {
@@ -81,9 +81,7 @@ import {
           year: formik.values.year,
           lastServiced: selectedDate,
           remarks: formik.values.remarks,
-          productionLineId: selectedProductionLines,
           isOperating: formik.values.isOperating,
-          // lastStopped: selectedDate.toJSON()
         }),
       });
   
@@ -100,7 +98,6 @@ import {
       }
       } else if (action === 'PATCH') {
         console.log(machine)
-        console.log(selectedProductionLines)
           const response = await fetch(`http://localhost:3000/api/factory-machines/${machine.id}`, {
               method: 'PATCH',
               headers: {
@@ -114,7 +111,6 @@ import {
                 year: formik.values.year,
                 lastServiced: selectedDate,
                 remarks: formik.values.remarks,
-                productionLineId: selectedProductionLines,
                 isOperating: formik.values.isOperating,
                   }),
                 });
@@ -143,6 +139,7 @@ import {
       formik.resetForm();
       handleClose();
     };
+
     const [dateTime, setDateTime] = useState([]);
 
     const [selectedDate, handleDateChange] = useState([]);
@@ -156,34 +153,7 @@ import {
       if(action=="PATCH") {
         const selectedDate = machine?.lastServiced;
       }
-  },[open]);
-
-    const [productionLineOptions, setProductionLineOptions] = useState([]);
-    const [selectedProductionLines, setSelectedProductionLines] = useState([]);
-  
-    const fetchData = async () => {
-      const productionLines = await fetchProductionLines(user.organisation.id);
-      setProductionLineOptions(productionLines);
-    };
-
-    useEffect(() => {  
-        fetchData();
-        if(action=="POST") {
-          setSelectedProductionLines('')
-        }else if(action=="PATCH") {
-          setSelectedProductionLines(machine?.productionLineId)
-        }
     },[open]);
-
-    const handleChange = (event) => {
-      const {
-        target: { value },
-      } = event;
-      setSelectedProductionLines(
-        // On autofill we get a stringified value.
-        typeof value === 'string' ? value.split(',') : value,
-      );
-    };
   
 
     return (
@@ -226,7 +196,6 @@ import {
               variant="outlined"
               multiline
               minRows={4}
-              autoFocus={action === 'PATCH'}
             />
             <TextField
                 required
@@ -240,6 +209,7 @@ import {
                 onChange={formik.handleChange}
                 value={formik.values.make}
                 variant="outlined"   
+                disabled={action === 'PATCH'}
               />
             <TextField
                 required
@@ -253,6 +223,7 @@ import {
                 onChange={formik.handleChange}
                 value={formik.values.model}
                 variant="outlined"
+                disabled={action === 'PATCH'}
                 
               />
             <TextField
@@ -267,13 +238,13 @@ import {
                 onChange={formik.handleChange}
                 value={formik.values.year}
                 variant="outlined"
+                disabled={action === 'PATCH'}
                 
               />         
             <TextField
               required
               error={Boolean(formik.touched.remarks && formik.errors.remarks)}
               fullWidth
-              helperText={formik.touched.remarks && formik.errors.remarks}
               label="Remarks"
               margin="normal"
               name="remarks"
@@ -294,28 +265,7 @@ import {
             disableFuture={true}
             />
             </Stack>
-            <Stack direction="row" spacing={1} alignItems="center">
-            <Typography>Production Line :</Typography>
-            <FormControl sx={{ m: 1, width: 300 }}>
-            <InputLabel id="productionLineNamesLabel">Production Lines</InputLabel>
-        <Select
-          labelId="productionLineNamesLabel"
-          id="productionLineNames"
-          value={selectedProductionLines}
-          onChange={handleChange}
-          input={<OutlinedInput label="Production Line Name" />}
-        >
-          {productionLineOptions.map((option) => (
-            <MenuItem
-            key={option.id}
-            value={option.id}
-          >
-            {option.name}
-          </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-          </Stack>
+
             <Stack direction="row" spacing={1} alignItems="center">
               <Typography>Status :</Typography>
               <RadioGroup

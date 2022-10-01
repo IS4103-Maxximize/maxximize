@@ -13,6 +13,7 @@ export const Toolbar = (props) => {
     deleteDisabled,
     handleSearch,
     handleAdd,
+    handleDelete,
     handleFormDialogOpen,
     handleConfirmDialogOpen,
   } = props;

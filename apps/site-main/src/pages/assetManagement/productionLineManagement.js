@@ -12,32 +12,57 @@ import { useEffect, useState } from 'react';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { DashboardLayout } from '../../components/dashboard-layout';
 import { NotificationAlert } from '../../components/notification-alert';
-import { ProductionLineManagementDialog } from '../../components/assetManagement/production-line-management-dialog';
+import { ProductionLineDialog } from '../../components/assetManagement/production-line-dialog';
 import { ProductionLineManagementMenu } from '../../components/assetManagement/production-line-management-menu';
 import { Toolbar } from '../../components/assetManagement/toolbar';
 import { MachineViewDialog } from '../../components/assetManagement/machine-view-dialog';
 import { ScheduleViewDialog } from '../../components/assetManagement/schedule-view-dialog';
 import { ConfirmDialog } from '../../components/assetManagement/confirm-dialog';
 import {
-  deleteProductionLines,
+  deleteProductionLine,
   fetchProductionLines,
 } from '../../helpers/assetManagement';
 
 export const ProductionLineManagement = (props) => {
   const user = JSON.parse(localStorage.getItem('user'));
+  const organisationId = user ? user.organisation.id : null;
+
+  const [loading, setLoading] = useState(true); // loading upon entering page
+
+  const [rows, setRows] = useState([]);
+  const [selectedRows, setSelectedRows] = useState([]); // Selected Row IDs
+  const [selectedRow, setSelectedRow] = useState();
+
+  const getProductionLines = async () => {
+    fetchProductionLines(organisationId)
+      .then((result) => setRows(result))
+      .catch((err) =>
+        handleAlertOpen(`Failed to fetch any Production Lines`, 'error')
+      );
+  };
+
+  useEffect(() => {
+    setLoading(true);
+    getProductionLines();
+  }, []);
+
+  useEffect(() => {
+    // show page after fetching data
+    // console.log(rows);
+    setLoading(false);
+  }, [rows]);
+
 
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertText, setAlertText] = useState();
-  const [alertSeverity, setAlertSeverity] = useState('success');
+  const [alertSeverity, setAlertSeverity] = useState('error');
   const handleAlertOpen = (text, severity) => {
-    setAlertText(text);
     setAlertSeverity(severity);
+    setAlertText(text);
     setAlertOpen(true);
   };
   const handleAlertClose = () => {
     setAlertOpen(false);
-    setAlertText(null);
-    setAlertSeverity('success');
   };
 
   const [search, setSearch] = useState('');
@@ -45,15 +70,25 @@ export const ProductionLineManagement = (props) => {
     setSearch(event.target.value.toLowerCase().trim());
   };
 
-  // DataGrid Row and Toolbar helpers
-  const [selectedRow, setSelectedRow] = useState(null);
-  const [selectedRows, setSelectedRows] = useState([]);
-  const [deleteDisabled, setDeleteDisabled] = useState();
+   // Add Button
+   const handleAdd= () => {
+    // setAction('POST');
+    setSelectedRow(null);
+  };
 
-  useEffect(() => {
-    setDeleteDisabled(selectedRows.length === 0);
-  }, [selectedRows]);
+  const [formDialogOpen, setFormDialogOpen] = useState(false);
 
+  const handleFormDialogOpen = () => {
+    setFormDialogOpen(true);
+  };
+  const handleFormDialogClose = () => {
+    setFormDialogOpen(false);
+  };
+
+
+  // Delete Button
+  const deleteDisabled = Boolean(selectedRows.length === 0 ||selectedRows.length > 1 );
+  
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
 
   const handleConfirmDialogOpen = () => {
@@ -63,19 +98,21 @@ export const ProductionLineManagement = (props) => {
     setConfirmDialogOpen(false);
   };
 
+  // Menu Helpers
   const [action, setAction] = useState();
-  const [formDialogOpen, setFormDialogOpen] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const menuOpen = Boolean(anchorEl);
 
-  const handleAdd = () => {
-    setAction('POST');
-    setSelectedRow(null);
+  const handleMenuClick = (event) => {
+    setAnchorEl(event.currentTarget);
   };
-  const handleFormDialogOpen = () => {
-    setFormDialogOpen(true);
+  const handleMenuClose = () => {
+    setAnchorEl(null);
   };
-  const handleFormDialogClose = () => {
-    setFormDialogOpen(false);
+  const handleClickViewEdit = () => {
+    setAction('PATCH');
   };
+  
   // Machine Dialog Helpers
   const [machineDialogOpen, setMachineDialogOpen] = useState(false);
   const handleMachineDialogOpen = () => {
@@ -95,26 +132,6 @@ export const ProductionLineManagement = (props) => {
     setScheduleDialogOpen(false);
   };
 
-  const [anchorEl, setAnchorEl] = useState(null);
-  const menuOpen = Boolean(anchorEl);
-
-  const handleMenuClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
-  const handleClickViewEdit = () => {
-    setAction('PATCH');
-  };
-  // const handleClickViewMachine = () => {
-  //   setAction('GET');
-  // };
-
-  // const handleClickViewSchedule = () => {
-  //   setAction('GET');
-  // };
-
   const menuButton = (params) => {
     return (
       <IconButton
@@ -129,16 +146,6 @@ export const ProductionLineManagement = (props) => {
     );
   };
 
-  const [rows, setRows] = useState([]);
-
-  const getProductionLines = async () => {
-    fetchProductionLines(user.organisation.id)
-      .then((result) => setRows(result))
-      .catch((err) =>
-        handleAlertOpen(`Failed to fetch any Production Lines`, 'error')
-      );
-  };
-
   const addProductionLine = (productionLine) => {
     const updatedProductionLine = [...rows, productionLine];
     console.log(updatedProductionLine);
@@ -148,33 +155,37 @@ export const ProductionLineManagement = (props) => {
       `Added Production Line ${productionLine.id} successfully!`,
       'success'
     );
-  };
+   };
 
   const handleRowUpdate = async (newRow) => {
-    const updatedRow = { ...newRow };
+  const updatedRow = { ...newRow };
 
-    const inquiry = await newRow.json();
-    console.log(inquiry);
+  const inquiry = await newRow.json();
+  console.log(inquiry);
 
     getProductionLines();
-    handleAlertOpen(
-      `Updated Production Line ${inquiry.id} successfully!`,
-      'success'
+      handleAlertOpen(
+    `Updated Production Line ${inquiry.id} successfully!`,
+    'success'
     );
-    return updatedRow;
-  };
+      return updatedRow;
+    };
 
-  const handleDelete = (ids) => {
-    deleteProductionLines(ids)
-      .then(() => {
-        handleAlertOpen(`Successfully deleted Production Line(s)`, 'success');
-      })
-      .then(() => getProductionLines());
-  };
-
-  useEffect(() => {
-    getProductionLines();
-  }, [rows]);
+  const handleDelete  = async (id) => {
+    const response = await fetch('http://localhost:3000/api/production-lines', {
+      method: 'DELETE',
+    });
+      if (response.status === 200 || response.status === 201) {
+        setSelectedRow([]);
+        deleteProductionLine(id)
+        .then(() => {
+          handleAlertOpen(`Successfully deleted Production Line`, 'success');
+        })
+        .then(() => getProductionLines())
+      } else {
+        handleAlertOpen(`Failed to delete Production Line with ongoing or planned schedule`, 'error');
+      }
+    };
 
   const columns = [
     {
@@ -210,25 +221,31 @@ export const ProductionLineManagement = (props) => {
       },
     },
     {
-      field: 'lastStopped',
-      headerName: 'Last Stopped',
-      flex: 2,
-    },
-    {
-      field: 'changeOverTime',
-      headerName: 'COT',
-      flex: 1,
-    },
-    {
-      field: 'nextAvailableDateTime',
-      headerName: 'NADT',
-      flex: 2,
-    },
-    {
       field: 'productionCostPerLot',
       headerName: 'PCPL',
       flex: 1,
     },
+    {
+      field: 'gracePeriod',
+      headerName: 'Grace period',
+      flex: 2,
+    },
+    {
+      field: 'outputPerHour',
+      headerName: 'Output Per Hour',
+      flex: 2,
+    },
+    {
+      field: 'startTime',
+      headerName: 'Start',
+      flex: 1,
+    },
+    {
+      field: 'endTime',
+      headerName: 'End',
+      flex: 1,
+    },
+
     {
       field: 'actions',
       headerName: 'Actions',
@@ -284,13 +301,13 @@ export const ProductionLineManagement = (props) => {
           <ConfirmDialog
             open={confirmDialogOpen}
             handleClose={handleConfirmDialogClose}
-            dialogTitle={`Delete Production Line(s)`}
-            dialogContent={`Confirm deletion of Production Line(s)?`}
+            dialogTitle={`Delete Production Line`}
+            dialogContent={`Confirm deletion of Production Line?`}
             dialogAction={() => {
-              handleDelete(selectedRows);
+              handleDelete(selectedRow);
             }}
           />
-          <ProductionLineManagementDialog
+          <ProductionLineDialog
             action={action}
             open={formDialogOpen}
             productionLine={selectedRow}
@@ -300,12 +317,14 @@ export const ProductionLineManagement = (props) => {
             selectedRow={selectedRow}
             handleAlertOpen={handleAlertOpen}
           />
+          
 
           <Toolbar
             name="Production Line"
             deleteDisabled={deleteDisabled}
             handleSearch={handleSearch}
             handleAdd={handleAdd}
+            handleDelete={handleDelete}
             handleFormDialogOpen={handleFormDialogOpen}
             handleConfirmDialogOpen={handleConfirmDialogOpen}
           />
@@ -337,6 +356,7 @@ export const ProductionLineManagement = (props) => {
                 onSelectionModelChange={(ids) => {
                   setSelectedRows(ids);
                 }}
+                disableSelectionOnClick
               />
             ) : (
               <Card
