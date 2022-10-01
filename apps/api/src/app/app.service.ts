@@ -3,10 +3,12 @@ import { DataSource } from "typeorm";
 import { BinsService } from '../bins/bins.service';
 import { ContactsService } from '../contacts/contacts.service';
 import { Contact } from '../contacts/entities/contact.entity';
+import { FinalGoodsService } from '../final-goods/final-goods.service';
 import { OrganisationType } from '../organisations/enums/organisationType.enum';
 import { OrganisationsService } from '../organisations/organisations.service';
 import { MeasurementUnit } from '../products/enums/measurementUnit.enum';
 import { RawMaterialsService } from '../raw-materials/raw-materials.service';
+import { ShellOrganisationsService } from '../shell-organisations/shell-organisations.service';
 import { User } from '../users/entities/user.entity';
 import { Role } from '../users/enums/role.enum';
 import { UsersService } from '../users/users.service';
@@ -14,13 +16,17 @@ import { WarehousesService } from '../warehouses/warehouses.service';
 
 @Injectable()
 export class AppService implements OnApplicationBootstrap {
-  constructor(private organisationsService: OrganisationsService,
+  constructor(
+    private organisationsService: OrganisationsService,
     private usersService: UsersService,
-    private contactService: ContactsService,
-    private warehouseService: WarehousesService,
-    private binService: BinsService,
-    private rawMaterialService: RawMaterialsService,
-    private dataSource: DataSource) {}
+    private contactsService: ContactsService,
+    private warehousesService: WarehousesService,
+    private binsService: BinsService,
+    private rawMaterialsService: RawMaterialsService,
+    private finalGoodsService: FinalGoodsService,
+    private shellOrganisationsService: ShellOrganisationsService,
+    private dataSource: DataSource
+  ) {}
   getData(): { message: string } {
     return { message: 'Welcome to api!' };
   }
@@ -123,7 +129,7 @@ export class AppService implements OnApplicationBootstrap {
             passwordChanged: false,
             role: Role.SUPERADMIN,
             organisation: await this.organisationsService.findOne(2),
-            contact: await this.contactService.findOne(5)
+            contact: await this.contactsService.findOne(5)
           },
           {
             id: 3,
@@ -136,7 +142,7 @@ export class AppService implements OnApplicationBootstrap {
             passwordChanged: false,
             role: Role.ADMIN,
             organisation: await this.organisationsService.findOne(3),
-            contact: await this.contactService.findOne(6)
+            contact: await this.contactsService.findOne(6)
           },
           {
             id: 4,
@@ -149,43 +155,43 @@ export class AppService implements OnApplicationBootstrap {
             passwordChanged: false,
             role: Role.ADMIN,
             organisation: await this.organisationsService.findOne(1),
-            contact: await this.contactService.findOne(7)
+            contact: await this.contactsService.findOne(7)
           }
         ]).execute();
 
-        await this.warehouseService.create({
+        await this.warehousesService.create({
           name: "Warehouse 1",
           description: "Warehouse 1 Description",
           address: "Address for Warehouse 1",
           organisationId: 2
         });
 
-        await this.warehouseService.create({
+        await this.warehousesService.create({
           name: "Warehouse 2",
           description: "Warehouse 2 Description",
           address: "Address for Warehouse 2",
           organisationId: 2
         });
 
-        await this.binService.create({
+        await this.binsService.create({
           name: "SLOC-001-Warehouse1",
           capacity: 10000,
           warehouseId: 1
         });
 
-        await this.binService.create({
+        await this.binsService.create({
           name: "SLOC-002-Warehouse1",
           capacity: 10000,
           warehouseId: 1
         });
 
-        await this.binService.create({
+        await this.binsService.create({
           name: "SLOC-001-Warehouse2",
           capacity: 10000,
           warehouseId: 2
         });
 
-        await this.rawMaterialService.create({
+        await this.rawMaterialsService.create({
           name: "Tomato",
           description: "Fresh Tomato",
           lotQuantity: 50,
@@ -195,7 +201,7 @@ export class AppService implements OnApplicationBootstrap {
           organisationId: 2
         });
 
-        await this.rawMaterialService.create({
+        await this.rawMaterialsService.create({
           name: "Cababge",
           description: "Fresh Cabbage",
           lotQuantity: 50,
@@ -204,6 +210,62 @@ export class AppService implements OnApplicationBootstrap {
           expiry: 2,
           organisationId: 2
         });
+
+        await this.rawMaterialsService.create({
+          name: "Olive Oil",
+          description: "Extra Virgin Olive Oil",
+          lotQuantity: 50,
+          unit: MeasurementUnit.LITRE,
+          unitPrice: 20,
+          expiry: 60,
+          organisationId: 1
+        });
+
+        await this.finalGoodsService.create({
+          name: "Salad",
+          description: "Fresh Cabbage Salad drizzled with olive oil",
+          lotQuantity: 20,
+          unit: MeasurementUnit.KILOGRAM,
+          unitPrice: 50,
+          expiry: 10,
+          organisationId: 1
+        });
+
+        await this.finalGoodsService.create({
+          name: "Tomatoes Canned",
+          description: "Canned Tomatoes in olive oil",
+          lotQuantity: 40,
+          unit: MeasurementUnit.KILOGRAM,
+          unitPrice: 45,
+          expiry: 150,
+          organisationId: 1
+        });
+
+        await this.shellOrganisationsService.create({
+          name: "Tomato Farm Bali",
+          uen: "123TOM123",
+          type: OrganisationType.SUPPLIER,
+          contact: {
+            phoneNumber: "123123123",
+            email: "maxximizetest@gmail.com",
+            address: "Tomato Farm Road 123",
+            postalCode: "123123"
+          },
+          organisationId: 1
+        });
+
+        await this.shellOrganisationsService.create({
+          name: "Olive Oil Vineyard 23",
+          uen: "23OIL23",
+          type: OrganisationType.SUPPLIER,
+          contact: {
+            phoneNumber: "2323232323",
+            email: "maxximizetest@gmail.com",
+            address: "233 Olive Avenue Italy",
+            postalCode: "233233"
+          },
+          organisationId: 1
+        })
     }
   }
 }
