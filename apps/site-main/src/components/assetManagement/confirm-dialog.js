@@ -10,6 +10,7 @@ import {
       dialogTitle, 
       dialogContent,
       dialogAction,
+      ...rest
     } = props;
   
     return (

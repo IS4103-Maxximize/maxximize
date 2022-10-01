@@ -7,7 +7,8 @@ export const MachineMenu = (props) => {
     menuOpen, 
     handleClickOpen, 
     handleMenuClose, 
-    handleClickViewEdit
+    handleClickViewEdit,
+    ...rest
   } = props;
   return (
     <Menu 

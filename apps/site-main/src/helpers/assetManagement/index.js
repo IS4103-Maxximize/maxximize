@@ -219,7 +219,7 @@ export const createProductionLine = async (createProductionLineDto) => {
       );
     };
     
-    const deleteMachine = async (id) => {
+    export const deleteMachine = async (id) => {
       const apiUrl = `${apiHost}/factory-machines/${id}`;
       const requestOptions = {
         method: 'DELETE',
