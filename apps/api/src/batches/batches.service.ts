@@ -6,10 +6,10 @@ import { BinsService } from '../bins/bins.service';
 import { UpdateBinDto } from '../bins/dto/update-bin.dto';
 import { Bin } from '../bins/entities/bin.entity';
 import { GrLineItem } from '../gr-line-items/entities/gr-line-item.entity';
-import { CreateProductionLineItemDto } from '../production-line-items/dto/create-production-line-item.dto';
-import { UpdatePurchaseRequisitionDto } from '../purchase-requisitions/dto/update-purchase-requisition.dto';
+import { ProductionLineItem } from '../production-line-items/entities/production-line-item.entity';
 import { PurchaseRequisition } from '../purchase-requisitions/entities/purchase-requisition.entity';
 import { PurchaseRequisitionsService } from '../purchase-requisitions/purchase-requisitions.service';
+import { RawMaterial } from '../raw-materials/entities/raw-material.entity';
 import { SalesInquiryService } from '../sales-inquiry/sales-inquiry.service';
 import { WarehousesService } from '../warehouses/warehouses.service';
 import { CreateBatchDto } from './dto/create-batch.dto';
@@ -52,7 +52,7 @@ export class BatchesService {
     batch.organisationId = createBatchDto.organisationId;
 
     const warehouses = await this.warehouseService.findAll();
-    const batchLineItems = [];
+    const batchLineItems: BatchLineItem[] = [];
     let bins : Bin[];
     bins = [];
     for (const warehouse of warehouses) {
@@ -130,9 +130,27 @@ export class BatchesService {
     const salesInquiry = await this.salesInquiryService.findOne(salesInquiryId);
     const purchaseReqs: PurchaseRequisition[] = salesInquiry.purchaseRequisitions;    
 
-    // Collate purchase requisitions according to raw material
     const rawMaterialPurchaseReqMap = new Map<number, PurchaseRequisition[]>();
-    if (purchaseReqs != undefined || purchaseReqs != null) {
+    const rawMaterialsStock = new Map<number, BatchLineItem[]>();
+
+    if (purchaseReqs != undefined || purchaseReqs != null || purchaseReqs.length != 0) {
+      // Collate batch line items according to raw material
+      for (const batchLineItem of batchLineItems) {
+        const product = batchLineItem.product;
+        if (product instanceof RawMaterial) {
+          const lineItems = rawMaterialsStock.get(product.id);
+          if (lineItems === undefined) {
+            const lineItemsArr: BatchLineItem[] = [];
+            lineItemsArr.push(batchLineItem);
+            rawMaterialsStock.set(product.id, lineItemsArr);
+          } else {
+            lineItems.push(batchLineItem);
+            rawMaterialsStock.set(product.id, lineItems);
+          }
+        }
+      }
+
+      // Collate purchase requisitions according to raw material
       for (const purchaseReq of purchaseReqs) {
         if (rawMaterialPurchaseReqMap.has(purchaseReq.rawMaterialId)) {
           const purchaseReqArr = rawMaterialPurchaseReqMap.get(purchaseReq.rawMaterialId);
@@ -146,36 +164,77 @@ export class BatchesService {
       }
     }
 
-    // Update product requisitions
+    // Update product requisitions and allocate batch line items to production line items
     for (const grLineItem of goodsReceiptLineItems) {
       if (rawMaterialPurchaseReqMap.has(grLineItem.product.id)) {
         const arr = rawMaterialPurchaseReqMap.get(grLineItem.product.id);
         const totalQtyReq = arr.reduce((seed, pr) => {
           return seed + pr.expectedQuantity
         }, 0);
-        let grLineQty = grLineItem.quantity;
         if (grLineItem.quantity >= totalQtyReq) {
           for (const purchaseReq of arr) {
-            const updatePurchaseReqDto = new UpdatePurchaseRequisitionDto();
-            updatePurchaseReqDto.quantityToFulfill = 0;
-            this.purchaseRequisitionService.update(purchaseReq.id, updatePurchaseReqDto);
+            const batchLineItems = rawMaterialsStock.get(grLineItem.product.id);
+            for (const batchLine of batchLineItems) {
+              if (batchLine.quantity - batchLine.reservedQuantity == 0) {
+                continue;
+              }
+              const productionOrder = purchaseReq.productionLineItem.productionOrder;
+              const productionLineItem = new ProductionLineItem();
+              productionLineItem.productionOrder = productionOrder;
+              productionLineItem.purchaseRequisition = purchaseReq;
+              productionLineItem.rawMaterial = purchaseReq.rawMaterial;
+              productionLineItem.sufficient = true;
+
+              if (batchLine.quantity - batchLine.reservedQuantity > purchaseReq.quantityToFulfill) {
+                productionLineItem.quantity = purchaseReq.quantityToFulfill;
+                batchLine.reservedQuantity += purchaseReq.quantityToFulfill;
+                break;
+              } else {
+                productionLineItem.quantity = batchLine.quantity - batchLine.reservedQuantity;
+                batchLine.reservedQuantity += (batchLine.quantity - batchLine.reservedQuantity);
+              }
+              productionLineItem.batchLineItem = batchLine;
+              queryRunner.manager.save(batchLine);
+              productionOrder.prodLineItems.push(productionLineItem);
+              queryRunner.manager.save(productionOrder);
+            }
+
+            purchaseReq.quantityToFulfill = 0;
+            this.purchaseRequisitionService.updateFulfilledQty(purchaseReq, 0); 
           }
         } else {
           arr.sort((pr1, pr2) => pr1.createdDateTime.getTime() - pr2.createdDateTime.getTime());
           for (const purchaseReq of arr) {
-            if (purchaseReq.quantityToFulfill >= grLineQty) {
-              const updatePurchaseReqDto = new UpdatePurchaseRequisitionDto();
-              updatePurchaseReqDto.quantityToFulfill = purchaseReq.quantityToFulfill - grLineQty;
-              this.purchaseRequisitionService.update(purchaseReq.id, updatePurchaseReqDto);
-              grLineQty = 0;
-            } else {
-              const updatePurchaseReqDto = new UpdatePurchaseRequisitionDto();
-              updatePurchaseReqDto.quantityToFulfill = 0;
-              this.purchaseRequisitionService.update(purchaseReq.id, updatePurchaseReqDto);
-              grLineQty -= purchaseReq.quantityToFulfill;
-            }
-            if (grLineQty <= 0) {
-              break;
+            const batchLineItems = rawMaterialsStock.get(grLineItem.product.id);
+            for (const batchLine of batchLineItems) {
+              if (batchLine.quantity - batchLine.reservedQuantity == 0) {
+                continue;
+              }
+
+              const productionOrder = purchaseReq.productionLineItem.productionOrder;
+              const productionLineItem = new ProductionLineItem();
+              productionLineItem.productionOrder = productionOrder;
+              productionLineItem.purchaseRequisition = purchaseReq;
+              productionLineItem.rawMaterial = purchaseReq.rawMaterial;
+              productionLineItem.sufficient = true;
+
+              if (batchLine.quantity - batchLine.reservedQuantity > purchaseReq.quantityToFulfill) {
+                productionLineItem.quantity = purchaseReq.quantityToFulfill;
+                batchLine.reservedQuantity += purchaseReq.quantityToFulfill;
+                purchaseReq.quantityToFulfill = 0;
+                this.purchaseRequisitionService.updateFulfilledQty(purchaseReq, 0);
+                break;
+              } else {
+                productionLineItem.quantity = batchLine.quantity - batchLine.reservedQuantity;
+                batchLine.reservedQuantity += (batchLine.quantity - batchLine.reservedQuantity);
+                purchaseReq.quantityToFulfill -= batchLine.quantity - batchLine.reservedQuantity;
+                this.purchaseRequisitionService.updateFulfilledQty(purchaseReq, purchaseReq.quantityToFulfill);
+              }
+              productionLineItem.batchLineItem = batchLine;
+              queryRunner.manager.save(batchLine);
+              productionOrder.prodLineItems.push(productionLineItem);
+              queryRunner.manager.save(productionOrder);
+
             }
           }
         }
