@@ -115,14 +115,16 @@ export class BatchLineItemsService {
     }
 
     const createProductionLineItemDtos: CreateProductionLineItemDto[] = [];
-
-    if (smallestRatio < 1) {
+    let id = 1;
+    if (smallestRatio < 1 || rawMaterialsQuantity.size == 0) {
       for (const bomLineItem of billOfMaterial.bomLineItems) {
         const createProductionLineItemDto = new CreateProductionLineItemDto();
+        createProductionLineItemDto.id = id;
         createProductionLineItemDto.quantity = quantity * bomLineItem.quantity;
         createProductionLineItemDto.sufficient = false;
         createProductionLineItemDto.rawMaterial = await this.rawMaterialService.findOne(bomLineItem.rawMaterial.id);
         createProductionLineItemDtos.push(createProductionLineItemDto);
+        id++;
       }
       return createProductionLineItemDtos;
     }
