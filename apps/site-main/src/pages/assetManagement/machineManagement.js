@@ -124,19 +124,25 @@ const MachineManagement = (props) => {
     getMachines();
   }, [rows]);
 
-  const handleDelete = async (ids) => {
-    deleteMachines(ids)
-      .then(() => {
-        handleAlertOpen(`Successfully deleted Machine(s)`, 'success');
-      })
-      .then(() => getMachines());
-  };
+  const handleDelete  = async (id) => {
+    const requestOptions = {
+      method: 'DELETE',
+      redirect: 'follow',
+    };
+    
+    const response = await fetch(
+      `http://localhost:3000/api/factory-machines/${id}`,
+      requestOptions
+    );
+      if (response.status === 200 || response.status === 201) {
+          handleAlertOpen(`Successfully deleted Machine`, 'success');
+          getMachines()
+      } else {
+        handleAlertOpen(`Cannot delete Machine with ongoing or planned schedule, try again later!`, 'error');
+      }
+    };
 
-  const [deleteDisabled, setDeleteDisabled] = useState();
-
-  useEffect(() => {
-    setDeleteDisabled(selectedRows.length === 0);
-  }, [selectedRows]);
+  const deleteDisabled = Boolean(selectedRows.length === 0 ||selectedRows.length > 1 );
 
   let columns = [
     {
@@ -241,10 +247,10 @@ const MachineManagement = (props) => {
           <ConfirmDialog
             open={confirmDialogOpen}
             handleClose={handleConfirmDialogClose}
-            dialogTitle={`Delete Machine(s)`}
-            dialogContent={`Confirm deletion of Machine(s)?`}
+            dialogTitle={`Delete Machine`}
+            dialogContent={`Confirm deletion of Machine?`}
             dialogAction={() => {
-              handleDelete(selectedRows);
+              handleDelete(selectedRows[0]);
             }}
           />
           <MachineDialog

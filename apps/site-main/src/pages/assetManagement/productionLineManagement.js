@@ -172,18 +172,22 @@ export const ProductionLineManagement = (props) => {
     };
 
   const handleDelete  = async (id) => {
-    const response = await fetch('http://localhost:3000/api/production-lines', {
+    const requestOptions = {
       method: 'DELETE',
-    });
+      redirect: 'follow',
+    };
+    
+    const response = await fetch(
+      `http://localhost:3000/api/production-lines/${id}`,
+      requestOptions
+    );
       if (response.status === 200 || response.status === 201) {
-        setSelectedRow([]);
-        deleteProductionLine(id)
-        .then(() => {
+        // setSelectedRow([]);
+        // deleteProductionLine(id)
           handleAlertOpen(`Successfully deleted Production Line`, 'success');
-        })
-        .then(() => getProductionLines())
+       getProductionLines()
       } else {
-        handleAlertOpen(`Failed to delete Production Line with ongoing or planned schedule`, 'error');
+        handleAlertOpen(`Cannot delete Production Line with ongoing or planned schedule, try again later!`, 'error');
       }
     };
 
@@ -304,7 +308,7 @@ export const ProductionLineManagement = (props) => {
             dialogTitle={`Delete Production Line`}
             dialogContent={`Confirm deletion of Production Line?`}
             dialogAction={() => {
-              handleDelete(selectedRow);
+              handleDelete(selectedRows[0]);
             }}
           />
           <ProductionLineDialog

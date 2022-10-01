@@ -23,7 +23,6 @@ import {
   import { DateTimePicker } from '@mui/x-date-pickers';
   import { useEffect, useState } from 'react';
   
-  const options = ['operating', 'not operating'];
   const user = JSON.parse(localStorage.getItem('user'));
   const organisationId = user.organisation.id;
 
@@ -50,7 +49,7 @@ import {
       lastServiced: machine ? machine.lastServiced : '',
       remarks: machine ? machine.remarks : '',
       productionLineId: machine ? machine.productionLine : '',
-      isOperating: machine ? machine.isOperating : "operating" ,
+      isOperating: machine ? machine.isOperating : true ,
     };
 
     let schema = {
@@ -59,10 +58,7 @@ import {
       make: Yup.string(),
       model: Yup.string(),
       year: Yup.string(),
-      // lastServiced: Yup.date(),
       remarks: Yup.string(),
-      // productionLineId: Yup.string(),
-      // status: Yup.boolean().required('Status is required'),
     };
   
     const handleOnSubmit = async () => {
@@ -245,6 +241,7 @@ import {
               required
               error={Boolean(formik.touched.remarks && formik.errors.remarks)}
               fullWidth
+              helperText={formik.touched.remarks && formik.errors.remarks}
               label="Remarks"
               margin="normal"
               name="remarks"
@@ -266,7 +263,7 @@ import {
             />
             </Stack>
 
-            <Stack direction="row" spacing={1} alignItems="center">
+            {/* <Stack direction="row" spacing={1} alignItems="center">
               <Typography>Status :</Typography>
               <RadioGroup
                 label="isOperating"
@@ -275,7 +272,7 @@ import {
                 onBlur={formik.handleBlur}
                 onChange={formik.handleChange}
                 value={formik.values.isOperating}
-                defaultValue={formik.values.isOperating}
+                defaultValue={options[0]}
                 row
               >
                 {options.map((option) => (
@@ -284,11 +281,13 @@ import {
                     value={option}
                     control={<Radio />}
                     label={option}
+                    disabled={action === 'POST'}
                     
                   />
                 ))}
               </RadioGroup>
-            </Stack>
+            </Stack> */}
+            
           </DialogContent>
           <DialogActions>
             <Button
