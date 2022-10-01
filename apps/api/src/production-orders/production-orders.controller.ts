@@ -27,6 +27,11 @@ export class ProductionOrdersController {
     return this.productionOrdersService.findAll();
   }
 
+  @Get('cron')
+  retrieveCronJobs() {
+    return this.productionOrdersService.retrieveCronJobs();
+  }
+
   @Get('all/:id')
   findAllByOrgId(@Param('id') id: string) {
     return this.productionOrdersService.findAllByOrgId(+id);
