@@ -5,24 +5,23 @@ import {
   CardContent,
   Container,
   IconButton,
-  Typography,
+  Typography
 } from '@mui/material';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import { useEffect, useState } from 'react';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
+import { ConfirmDialog } from '../../components/assetManagement/confirm-dialog';
+import { MachineViewDialog } from '../../components/assetManagement/machine-view-dialog';
+import { ProductionLineDialogNew } from '../../components/assetManagement/production-line-dialog-new';
+import { ProductionLineDialogUpdate } from '../../components/assetManagement/production-line-dialog-update';
+import { ProductionLineManagementMenu } from '../../components/assetManagement/production-line-management-menu';
+import { ScheduleViewDialog } from '../../components/assetManagement/schedule-view-dialog';
+import { Toolbar } from '../../components/assetManagement/toolbar';
 import { DashboardLayout } from '../../components/dashboard-layout';
 import { NotificationAlert } from '../../components/notification-alert';
-import { ProductionLineManagementDialog } from '../../components/assetManagement/production-line-management-dialog';
-import { ProductionLineManagementMenu } from '../../components/assetManagement/production-line-management-menu';
-import { Toolbar } from '../../components/assetManagement/toolbar';
-import { MachineViewDialog } from '../../components/assetManagement/machine-view-dialog';
-import { ScheduleViewDialog } from '../../components/assetManagement/schedule-view-dialog';
-import { ConfirmDialog } from '../../components/assetManagement/confirm-dialog';
 import {
-  deleteProductionLines,
-  fetchProductionLines,
+  deleteProductionLine, fetchProductionLines
 } from '../../helpers/assetManagement';
-import { ProductionLineDialogNew } from '../../components/assetManagement/production-line-dialog-new';
 
 export const ProductionLineManagement = (props) => {
   const user = JSON.parse(localStorage.getItem('user'));
@@ -47,13 +46,9 @@ export const ProductionLineManagement = (props) => {
   };
 
   // DataGrid Row and Toolbar helpers
+  const [selectedRowId, setSelectedRowId] = useState(null);
   const [selectedRow, setSelectedRow] = useState(null);
-  const [selectedRows, setSelectedRows] = useState([]);
   const [deleteDisabled, setDeleteDisabled] = useState();
-
-  useEffect(() => {
-    setDeleteDisabled(selectedRows.length === 0);
-  }, [selectedRows]);
 
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
 
@@ -77,6 +72,16 @@ export const ProductionLineManagement = (props) => {
   const handleFormDialogClose = () => {
     setFormDialogOpen(false);
   };
+
+  const [updateFormDialogOpen, setUpdateFormDialogOpen] = useState(false);
+  const handleUpdateFormDialogOpen = () => {
+    setUpdateFormDialogOpen(true);
+  }
+  const handleUpdateFormDialogClose = () => {
+    setUpdateFormDialogOpen(false);
+  }
+
+
   // Machine Dialog Helpers
   const [machineDialogOpen, setMachineDialogOpen] = useState(false);
   const handleMachineDialogOpen = () => {
@@ -165,10 +170,10 @@ export const ProductionLineManagement = (props) => {
     return updatedRow;
   };
 
-  const handleDelete = (ids) => {
-    deleteProductionLines(ids)
+  const handleDelete = (id) => {
+    deleteProductionLine(id)
       .then(() => {
-        handleAlertOpen(`Successfully deleted Production Line(s)`, 'success');
+        handleAlertOpen(`Successfully deleted Production Line`, 'success');
       })
       .then(() => getProductionLines());
   };
@@ -176,6 +181,10 @@ export const ProductionLineManagement = (props) => {
   useEffect(() => {
     getProductionLines();
   }, [rows]);
+
+  useEffect(() => {
+    setDeleteDisabled(!selectedRowId)
+  }, [selectedRowId])
 
   const columns = [
     {
@@ -238,6 +247,7 @@ export const ProductionLineManagement = (props) => {
       renderCell: menuButton,
     },
   ];
+
   return (
     <>
       <HelmetProvider>
@@ -266,7 +276,7 @@ export const ProductionLineManagement = (props) => {
           <ProductionLineManagementMenu
             anchorEl={anchorEl}
             menuOpen={menuOpen}
-            handleClickOpen={handleFormDialogOpen}
+            handleClickOpen={handleUpdateFormDialogOpen}
             handleMenuClose={handleMenuClose}
             handleClickViewEdit={handleClickViewEdit}
             handleClickViewMachine={handleMachineDialogOpen}
@@ -285,27 +295,26 @@ export const ProductionLineManagement = (props) => {
           <ConfirmDialog
             open={confirmDialogOpen}
             handleClose={handleConfirmDialogClose}
-            dialogTitle={`Delete Production Line(s)`}
-            dialogContent={`Confirm deletion of Production Line(s)?`}
+            dialogTitle={`Delete Production Line`}
+            dialogContent={`Confirm deletion of Production Line?`}
             dialogAction={() => {
-              handleDelete(selectedRows);
+              handleDelete(selectedRowId);
             }}
           />
-          {/* <ProductionLineManagementDialog
-            action={action}
-            open={formDialogOpen}
-            productionLine={selectedRow}
-            addProductionLine={addProductionLine}
-            updateProductionLine={handleRowUpdate}
-            handleClose={handleFormDialogClose}
-            selectedRow={selectedRow}
-            handleAlertOpen={handleAlertOpen}
-          /> */}
 
           <ProductionLineDialogNew
             open={formDialogOpen}
             string={'Production Line'}
             handleClose={handleFormDialogClose}
+            handleAlertOpen={handleAlertOpen}
+            handleAlertClose={handleAlertClose}
+          />
+          
+          <ProductionLineDialogUpdate
+            open={updateFormDialogOpen}
+            string={'Production Line'}
+            productionLine={selectedRow}
+            handleClose={handleUpdateFormDialogClose}
             handleAlertOpen={handleAlertOpen}
             handleAlertClose={handleAlertClose}
           />
@@ -339,12 +348,12 @@ export const ProductionLineManagement = (props) => {
                 columns={columns}
                 pageSize={10}
                 rowsPerPageOptions={[10]}
-                checkboxSelection
+                // checkboxSelection
                 components={{
                   Toolbar: GridToolbar,
                 }}
                 onSelectionModelChange={(ids) => {
-                  setSelectedRows(ids);
+                  setSelectedRowId(ids[0]);
                 }}
               />
             ) : (
