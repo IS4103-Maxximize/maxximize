@@ -66,7 +66,6 @@ export class ProductionOrdersService {
     await this.datasource.manager.transaction(async (transactionalEntityManager) => {
       if(daily) {
         scheduleDtos = await this.productionLinesService.retrieveSchedulesForProductionOrder(plannedQuantity, finalGoodId, daily, duration, organisationId)
-        console.log(scheduleDtos)
         let latestDate: Date = scheduleDtos[scheduleDtos.length - 1].end
         prodLineItemDtos = await this.batchLineItemsService.getLineItems(bomId, plannedQuantity * duration, organisationId, latestDate)
         for (const dto of prodLineItemDtos) {
@@ -206,13 +205,11 @@ export class ProductionOrdersService {
             startJob.start()
             this.schedulerRegistry.addCronJob(`end ${schedule.id}`, endJob);
             endJob.start()
-            console.log(startJob.nextDate())
-            console.log(endJob.nextDate())
 
           }
         } else {
           let possibleQuantity: number = rawMaterialCount/bomMaterialCount
-          if ([possibleQuantity > 0]){
+          if (possibleQuantity > 0){
             scheduleDtos = await this.productionLinesService.retrieveSchedulesForProductionOrder(possibleQuantity, finalGoodId, daily, 0, organisationId)
             for (const dto of scheduleDtos){
               const {start, end, productionLineId} = dto
@@ -263,6 +260,9 @@ export class ProductionOrdersService {
             organisationId
           })
           createdProductionOrder = await transactionalEntityManager.save(createdProductionOrder)
+          if (possibleQuantity <= 0) {
+            newProductionOrder = createdProductionOrder
+          }
         }
       }
       return null
