@@ -131,6 +131,7 @@ export class BatchLineItemsService {
     for (const bomLineItem of bomLineItems) {
       const rawMaterial = bomLineItem.rawMaterial;
       let qty = bomLineItem.quantity * quantity;
+      rawMaterialsRequiredMap.set(rawMaterial.id, quantity * bomLineItem.quantity);
       if (smallestRatio < quantity) {
         qty = bomLineItem.quantity * (quantity - Math.floor(smallestRatio));
         const createProductionLineItemDto = new CreateProductionLineItemDto();
@@ -138,8 +139,8 @@ export class BatchLineItemsService {
         createProductionLineItemDto.sufficient = false;
         createProductionLineItemDto.rawMaterial = await this.rawMaterialService.findOne(bomLineItem.rawMaterial.id);
         createProductionLineItemDtos.push(createProductionLineItemDto);
+        rawMaterialsRequiredMap.set(rawMaterial.id, Math.floor(smallestRatio) * bomLineItem.quantity);
       }
-      rawMaterialsRequiredMap.set(rawMaterial.id, Math.floor(smallestRatio) * bomLineItem.quantity);
     }
 
     for (const [key, value] of rawMaterialsRequiredMap.entries()) {
