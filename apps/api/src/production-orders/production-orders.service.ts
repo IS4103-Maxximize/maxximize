@@ -445,31 +445,11 @@ export class ProductionOrdersService {
               } else {
                 await transactionalEntityManager.update(BatchLineItem, lineItem.batchLineItem.id, {reservedQuantity: lineItem.batchLineItem.reservedQuantity-lineItem.quantity, quantity: lineItem.batchLineItem.quantity-lineItem.quantity})
               }
-<<<<<<< HEAD
-=======
               await transactionalEntityManager.save(lineItem)
             }
             await transactionalEntityManager.update(ProductionOrder, id, {status: value})
             return null
           })
-        }
-        else if(value == ProductionOrderStatus.ONGOING && productionOrderToUpdate.daily) {
-          await this.datasource.manager.transaction(async (transactionalEntityManager) => {
-
-            for (const lineItem of productionOrderToUpdate.prodLineItems){
-              if (lineItem.quantity >= lineItem.batchLineItem.quantity) {
-                await transactionalEntityManager.softDelete(BatchLineItem, lineItem.batchLineItem.id)
-              } else {
-                await transactionalEntityManager.update(BatchLineItem, lineItem.batchLineItem.id, {reservedQuantity: lineItem.batchLineItem.reservedQuantity-lineItem.quantity, quantity: lineItem.batchLineItem.quantity-lineItem.quantity})
-              }
-              
->>>>>>> master
-              await transactionalEntityManager.save(lineItem)
-            }
-            await transactionalEntityManager.update(ProductionOrder, id, {status: value})
-            return null
-          })
-<<<<<<< HEAD
         }
         else if(value == ProductionOrderStatus.ONGOING && productionOrderToUpdate.daily) {
           await this.datasource.manager.transaction(async (transactionalEntityManager) => {
@@ -523,8 +503,6 @@ export class ProductionOrdersService {
             await transactionalEntityManager.update(ProductionOrder, id, {status: value})
             return null
           })
-=======
->>>>>>> master
         }  else {
           productionOrderToUpdate[key] = value
           await this.productionOrdersRepository.save(productionOrderToUpdate)
