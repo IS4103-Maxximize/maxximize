@@ -93,7 +93,7 @@ export class ProductionOrdersService {
           endJob.start()
         }
         let prodLineItems: CreateProductionLineItemDto[];
-        prodLineItems = await this.batchLineItemsService.getLineItems(bomId, plannedQuantity, organisationId)
+        // prodLineItems = await this.batchLineItemsService.getLineItems(bomId, plannedQuantity, organisationId)
         console.log(prodLineItems)
         for (const dto of prodLineItems){
           const {quantity, sufficient, batchLineItemId, rawMaterial} = dto
@@ -131,7 +131,7 @@ export class ProductionOrdersService {
           organisationId
         })
         let prodLineItems: CreateProductionLineItemDto[];
-        prodLineItems = await this.batchLineItemsService.getLineItems(bomId, plannedQuantity, organisationId)
+        // prodLineItems = await this.batchLineItemsService.getLineItems(bomId, plannedQuantity, organisationId)
         for (const dto of prodLineItems){
           const {quantity, sufficient, batchLineItemId, rawMaterial} = dto
           if (batchLineItemId && sufficient) {
@@ -195,7 +195,7 @@ export class ProductionOrdersService {
           endJob.start()
         }
         let prodLineItems: CreateProductionLineItemDto[];
-        prodLineItems = await this.batchLineItemsService.getLineItems(bomId, plannedQuantity, organisationId)
+        // prodLineItems = await this.batchLineItemsService.getLineItems(bomId, plannedQuantity, organisationId)
         console.log(prodLineItems)
         for (const dto of prodLineItems){
           const {quantity, sufficient, batchLineItemId, rawMaterial} = dto
@@ -285,7 +285,7 @@ export class ProductionOrdersService {
             }
             transactionalEntityManager.remove(lineItem)
           }
-          prodLineItems = await this.batchLineItemsService.getLineItems(productionOrder.bom.id, productionOrder.plannedQuantity, productionOrder.organisationId)
+          // prodLineItems = await this.batchLineItemsService.getLineItems(productionOrder.bom.id, productionOrder.plannedQuantity, productionOrder.organisationId)
           for (const dto of prodLineItems){
             const {quantity, sufficient, batchLineItemId, rawMaterial} = dto
             if (batchLineItemId && sufficient) {

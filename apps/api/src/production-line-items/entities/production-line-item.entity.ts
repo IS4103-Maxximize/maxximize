@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, DeleteDateColumn, Entity, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { BatchLineItem } from "../../batch-line-items/entities/batch-line-item.entity";
 import { ProductionOrder } from "../../production-orders/entities/production-order.entity";
 import { PurchaseRequisition } from "../../purchase-requisitions/entities/purchase-requisition.entity";
@@ -14,6 +14,9 @@ export class ProductionLineItem {
 
     @Column({default:true})
     sufficient: boolean
+
+    @DeleteDateColumn()
+    deletedDateTime: Date;
 
     @ManyToOne(() => BatchLineItem, {nullable: true})
     batchLineItem?: BatchLineItem
