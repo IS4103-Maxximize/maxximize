@@ -189,7 +189,7 @@ const MachineManagement = (props) => {
       headerName: 'PL Id',
       flex: 1,
       valueGetter: (params) => {
-        if (params.row.productionLine.id) {
+        if (params.row.productionLine) {
           return params.row.productionLine.id;
         } else {
           return '';
