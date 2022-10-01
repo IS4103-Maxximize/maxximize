@@ -66,7 +66,6 @@ export class ProductionOrdersService {
     await this.datasource.manager.transaction(async (transactionalEntityManager) => {
       if(daily) {
         scheduleDtos = await this.productionLinesService.retrieveSchedulesForProductionOrder(plannedQuantity, finalGoodId, daily, duration, organisationId)
-        console.log(scheduleDtos)
         let latestDate: Date = scheduleDtos[scheduleDtos.length - 1].end
         prodLineItemDtos = await this.batchLineItemsService.getLineItems(bomId, plannedQuantity * duration, organisationId, latestDate)
         for (const dto of prodLineItemDtos) {
@@ -206,51 +205,50 @@ export class ProductionOrdersService {
             startJob.start()
             this.schedulerRegistry.addCronJob(`end ${schedule.id}`, endJob);
             endJob.start()
-            console.log(startJob.nextDate())
-            console.log(endJob.nextDate())
 
           }
         } else {
           let possibleQuantity: number = rawMaterialCount/bomMaterialCount
-          scheduleDtos = await this.productionLinesService.retrieveSchedulesForProductionOrder(possibleQuantity, finalGoodId, daily, 0, organisationId)
-          for (const dto of scheduleDtos){
-            const {start, end, productionLineId} = dto
-            const schedule: Schedule = transactionalEntityManager.create(Schedule, {
-              start,
-              end,
-              productionLineId,
-              status: ScheduleType.PLANNED
+          if (possibleQuantity > 0){
+            scheduleDtos = await this.productionLinesService.retrieveSchedulesForProductionOrder(possibleQuantity, finalGoodId, daily, 0, organisationId)
+            for (const dto of scheduleDtos){
+              const {start, end, productionLineId} = dto
+              const schedule: Schedule = transactionalEntityManager.create(Schedule, {
+                start,
+                end,
+                productionLineId,
+                status: ScheduleType.PLANNED
+              })
+              schedulesToBeAdded.push(await transactionalEntityManager.save(schedule))
+            }
+            newProductionOrder = transactionalEntityManager.create(ProductionOrder, {
+              plannedQuantity: possibleQuantity,
+              daily,
+              status: ProductionOrderStatus.RELEASED,
+              bom: bomToBeAdded,
+              schedules: schedulesToBeAdded,
+              prodLineItems:prodLineItemsToBeAdded,
+              organisationId
             })
-            schedulesToBeAdded.push(await transactionalEntityManager.save(schedule))
+            newProductionOrder = await transactionalEntityManager.save(newProductionOrder)
+            for (const schedule of schedulesToBeAdded){
+              const startJob = new CronJob(new Date((new Date()).getTime() + 30000), async () => {
+                this.update(newProductionOrder.id, {status : ProductionOrderStatus.ONGOING})
+                this.schedulesService.update(schedule.id, {status : ScheduleType.ONGOING})
+                this.logger.warn(`time (${schedule.start}) for start job ${schedule.id} to run!`);
+              })
+              const endJob = new CronJob(new Date((new Date()).getTime() + 60000), async () => {
+                this.update(newProductionOrder.id, {status : ProductionOrderStatus.COMPLETED})
+                this.schedulesService.update(schedule.id, {status : ScheduleType.COMPLETED})
+                this.logger.warn(`time (${schedule.end}) for end job ${schedule.id} to run!`);
+              })
+              this.schedulerRegistry.addCronJob(`start ${schedule.id}`, startJob);
+              startJob.start()
+              this.schedulerRegistry.addCronJob(`end ${schedule.id}`, endJob);
+              endJob.start()
+            }
           }
-          newProductionOrder = transactionalEntityManager.create(ProductionOrder, {
-            plannedQuantity: possibleQuantity,
-            daily,
-            status: ProductionOrderStatus.RELEASED,
-            bom: bomToBeAdded,
-            schedules: schedulesToBeAdded,
-            prodLineItems:prodLineItemsToBeAdded,
-            organisationId
-          })
-          newProductionOrder = await transactionalEntityManager.save(newProductionOrder)
-          for (const schedule of schedulesToBeAdded){
-            const startJob = new CronJob(new Date((new Date()).getTime() + 30000), async () => {
-              this.update(newProductionOrder.id, {status : ProductionOrderStatus.ONGOING})
-              this.schedulesService.update(schedule.id, {status : ScheduleType.ONGOING})
-              this.logger.warn(`time (${schedule.start}) for start job ${schedule.id} to run!`);
-            })
-            const endJob = new CronJob(new Date((new Date()).getTime() + 60000), async () => {
-              this.update(newProductionOrder.id, {status : ProductionOrderStatus.COMPLETED})
-              this.schedulesService.update(schedule.id, {status : ScheduleType.COMPLETED})
-              this.logger.warn(`time (${schedule.end}) for end job ${schedule.id} to run!`);
-            })
-            this.schedulerRegistry.addCronJob(`start ${schedule.id}`, startJob);
-            startJob.start()
-            this.schedulerRegistry.addCronJob(`end ${schedule.id}`, endJob);
-            endJob.start()
-            console.log(startJob.nextDate())
-            console.log(endJob.nextDate())
-          }
+          
           let remainingQuantity: number = plannedQuantity - possibleQuantity
           let createdProductionOrder: ProductionOrder = transactionalEntityManager.create(ProductionOrder, {
             plannedQuantity: remainingQuantity,
@@ -262,6 +260,9 @@ export class ProductionOrdersService {
             organisationId
           })
           createdProductionOrder = await transactionalEntityManager.save(createdProductionOrder)
+          if (possibleQuantity <= 0) {
+            newProductionOrder = createdProductionOrder
+          }
         }
       }
       return null
