@@ -1,10 +1,8 @@
-import MoreVert from '@mui/icons-material/MoreVert';
 import {
   Box,
   Card,
   CardContent,
   Container,
-  IconButton,
   Typography
 } from '@mui/material';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
@@ -14,9 +12,9 @@ import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { DashboardLayout } from '../../components/dashboard-layout';
 import { NotificationAlert } from '../../components/notification-alert';
 import { CreatePRSalesInquiryDialog } from '../../components/procurement-ordering/create-pr-sales-inquiry-dialog';
-import { ConfirmDialog } from '../../components/product/confirm-dialog';
-import { ProductMenu } from '../../components/product/product-menu';
 import { PurchaseRequisitionToolbar } from '../../components/procurement-ordering/purchase-requisition-toolbar';
+import { fetchPurchaseRequistions } from '../../helpers/procurement-ordering/purchase-requisition';
+import { mock_prs } from '../../__mocks__/purchase-requisitions';
 
 export const PurchaseRequisition = (props) => {
   const user = JSON.parse(localStorage.getItem('user'));
@@ -28,18 +26,17 @@ export const PurchaseRequisition = (props) => {
   // DataGrid Helpers
   const [rows, setRows] = useState([]);
   const [selectedRows, setSelectedRows] = useState([]); // Selected Row IDs
-  const [selectedRow, setSelectedRow] = useState();
   const [selectedPRs, setSelectedPRs] = useState([]);
 
   const getPurchaseRequisitions = async () => {
     setRows(mock_prs); // mock for now
-    // fetchProdOrders(organisationId)
+    // fetchPurchaseRequistions(organisationId)
     //   .then(res => setRows(res))
-    //   .catch(err => handleAlertOpen('Failed to fetch Production Orders', 'error'))
+    //   .catch(err => handleAlertOpen('Failed to fetch Purchase Requisitions', 'error'))
   };
 
   useEffect(() => {
-    // get Prod Orders
+    // get Purchase Requisitions
     setLoading(true);
     getPurchaseRequisitions();
   }, []);
@@ -49,6 +46,7 @@ export const PurchaseRequisition = (props) => {
     // console.log(rows);
     setLoading(false);
   }, [rows]);
+
 
   // Alert Helpers
   const [alertOpen, setAlertOpen] = useState(false);
@@ -63,6 +61,7 @@ export const PurchaseRequisition = (props) => {
     setAlertOpen(false);
   };
 
+
   // Toolbar Helpers
   // Searchbar
   const [search, setSearch] = useState('');
@@ -71,41 +70,11 @@ export const PurchaseRequisition = (props) => {
   };
   // Add Button
   const handleAddClick = () => {
-    // setAction('POST');
-    // setSelectedRow(null);
     setSelectedPRs(rows.filter(row => selectedRows.includes(row.id)));
   };
   // Delete Button
   const deleteDisabled = Boolean(selectedRows.length === 0);
 
-  // Menu Helpers
-  const [action, setAction] = useState();
-  const [anchorEl, setAnchorEl] = useState(null);
-  const menuOpen = Boolean(anchorEl);
-
-  const handleMenuClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
-  const handleClickViewEdit = () => {
-    setAction('PATCH');
-  };
-
-  const menuButton = (params) => {
-    return (
-      <IconButton
-        onClick={(event) => {
-          // console.log(params.row)
-          setSelectedRow(params.row);
-          handleMenuClick(event);
-        }}
-      >
-        <MoreVert />
-      </IconButton>
-    );
-  };
 
   // Create Dialog Helpers
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
@@ -127,25 +96,6 @@ export const PurchaseRequisition = (props) => {
     }
   }, [createDialogOpen]);
 
-  // Update Dialog Helpers
-  const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
-  const handleUpdateDialogOpen = () => {
-    setUpdateDialogOpen(true);
-  };
-  const handleUpdateDialogClose = () => {
-    setUpdateDialogOpen(false);
-  };
-
-  useEffect(() => {
-    console.log(updateDialogOpen);
-    if (!updateDialogOpen) {
-      setLoading(true);
-      getPurchaseRequisitions();
-    }
-    if (updateDialogOpen) {
-      console.log(selectedRow);
-    }
-  }, [updateDialogOpen]);
 
   // ConfirmDialog Helpers
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
@@ -226,84 +176,6 @@ export const PurchaseRequisition = (props) => {
     // },
   ];
 
-  const mock_prs = [
-    {
-      id: 1,
-      expectedQuantity: 10, // expected
-      quantityToFulfill: 10,
-      status: 'pending',
-      createdDateTime: new Date('2022-09-29'),
-      rawMaterial : {
-        "id": 1,
-        "name": "Tomato",
-        "description": "from Italy bestest farm ever",
-        "skuCode": "1-TOM",
-        "unit": "kilogram",
-        "unitPrice": 10,
-        "lotQuantity": 50,
-        "type": "RawMaterial",
-        "expiry": 30,
-      },
-      productionLineItem: {
-        id: 1,
-        productionOrder: {
-          id: 1
-        }
-      },
-      salesInquiry: null
-    },
-    {
-      id: 2,
-      expectedQuantity: 5, // expected
-      quantityToFulfill: 5,
-      status: 'pending',
-      createdDateTime: new Date('2022-09-29'),
-      rawMaterial : {
-        "id": 2,
-        "name": "Olive Oil",
-        "description": "From Italy, A2.1 quality",
-        "skuCode": "2-OLI",
-        "unit": "litre",
-        "unitPrice": 30,
-        "lotQuantity": 10,
-        "type": "RawMaterial",
-        "expiry": 150,
-      },
-      productionLineItem: {
-        id: 2,
-        productionOrder: {
-          id: 1
-        }
-      },
-      salesInquiry: null
-    },
-    {
-      id: 3,
-      expectedQuantity: 15, // expected
-      quantityToFulfill: 15,
-      status: 'pending',
-      created: new Date('2022-09-29'),
-      rawMaterial : {
-        "id": 2,
-        "name": "Olive Oil",
-        "description": "From Italy, A2.1 quality",
-        "skuCode": "2-OLI",
-        "unit": "litre",
-        "unitPrice": 30,
-        "lotQuantity": 10,
-        "type": "RawMaterial",
-        "expiry": 150,
-      },
-      productionLineItem: {
-        id: 3,
-        productionOrder: {
-          id: 2
-        }
-      },
-      salesInquiry: null
-    }
-  ]
-
   return (
     <>
       <HelmetProvider>
@@ -357,38 +229,6 @@ export const PurchaseRequisition = (props) => {
             purchaseRequisitions={selectedPRs}
             handleAlertOpen={handleAlertOpen}
             handleAlertClose={handleAlertClose}
-          />
-          {/* <ProductionOrderCreateDialog
-            key="prod-order-create-dialog"
-            open={createDialogOpen}
-            handleClose={handleCreateDialogClose}
-            string={name}
-            handleAlertOpen={handleAlertOpen}
-          /> */}
-          {/* <BOMUpdateDialog
-            key="bom-update-dialog"
-            open={updateDialogOpen}
-            handleClose={handleUpdateDialogClose}
-            string={'Bill Of Material'}
-            bom={selectedRow}
-            handleAlertOpen={handleAlertOpen}
-          /> */}
-          <ProductMenu
-            key="purchase-req-menu"
-            anchorEl={anchorEl}
-            menuOpen={menuOpen}
-            handleClickOpen={handleUpdateDialogOpen}
-            handleMenuClose={handleMenuClose}
-            handleClickViewEdit={handleClickViewEdit}
-          />
-          <ConfirmDialog
-            open={confirmDialogOpen}
-            handleClose={handleConfirmDialogClose}
-            dialogTitle={`Delete ${name}(s)`}
-            dialogContent={`Confirm deletion of ${name}(s)?`}
-            dialogAction={() => {
-              handleDelete(selectedRows);
-            }}
           />
           <Box
             sx={{
