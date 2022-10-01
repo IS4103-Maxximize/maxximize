@@ -29,10 +29,9 @@ export const PurchaseRequisition = (props) => {
   const [selectedPRs, setSelectedPRs] = useState([]);
 
   const getPurchaseRequisitions = async () => {
-    setRows(mock_prs); // mock for now
-    // fetchPurchaseRequistions(organisationId)
-    //   .then(res => setRows(res))
-    //   .catch(err => handleAlertOpen('Failed to fetch Purchase Requisitions', 'error'))
+    fetchPurchaseRequistions(organisationId)
+      .then(res => setRows(res))
+      .catch(err => handleAlertOpen('Failed to fetch Purchase Requisitions', 'error'))
   };
 
   useEffect(() => {
@@ -209,18 +208,6 @@ export const PurchaseRequisition = (props) => {
             handleFormDialogOpen={handleCreateDialogOpen}
             handleConfirmDialogOpen={handleConfirmDialogOpen}
           />
-          {/* Should be triggered on ProductionOrder View
-          Temporary location for testing */}
-          {/* <PurchaseRequisitionNew
-            key="purchase-req-new"
-            open={createDialogOpen}
-            handleClose={handleCreateDialogClose}
-            string={name}
-            prodOrderId={1} // temp
-            prodLineItems={mock_prodLineItems} // mock for now
-            handleAlertOpen={handleAlertOpen}
-            handleAlertClose={handleAlertClose}
-          /> */}
           <CreatePRSalesInquiryDialog
             key="create-pr-si-dialog"
             open={createDialogOpen}

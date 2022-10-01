@@ -286,6 +286,8 @@ export const ProductionOrder = (props) => {
             productionOrder={selectedRow}
             openViewDialog={openViewDialog}
             closeViewDialog={handleCloseViewDialog}
+            handleAlertOpen={handleAlertOpen}
+            handleAlertClose={handleAlertClose}
           />
           <ConfirmDialog
             open={confirmDialogOpen}

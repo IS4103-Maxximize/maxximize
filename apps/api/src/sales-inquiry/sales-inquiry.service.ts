@@ -1,6 +1,7 @@
 /* eslint-disable prefer-const */
 import { forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Console } from 'console';
 import { Repository } from 'typeorm';
 import { MailService } from '../mail/mail.service';
 import { Organisation } from '../organisations/entities/organisation.entity';
@@ -42,6 +43,7 @@ export class SalesInquiryService {
     createSalesInquiryDto: CreateSalesInquiryDto
   ): Promise<SalesInquiry> {
     try {
+      console.log('create SI')
       const { currentOrganisationId, totalPrice, salesInquiryLineItemsDtos, purchaseRequisitionIds } = createSalesInquiryDto;
       let organisationToBeAdded: Organisation;
       organisationToBeAdded =
@@ -81,12 +83,14 @@ export class SalesInquiryService {
 
       const newSI = await this.salesInquiriesRepository.save(newSalesInquiry);
 
+      console.log(newSI)
+
       // link PRs with sales inquiry
       if (purchaseRequisitionIds) {
         for (const id of purchaseRequisitionIds) {
           await this.purchaseRequisitionSevice.update(id, {
             salesInquiryId: newSI.id
-          })
+          }).then((res) => console.log(res));
         }
       }
 

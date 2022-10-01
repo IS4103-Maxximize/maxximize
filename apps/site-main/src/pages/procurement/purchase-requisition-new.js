@@ -3,6 +3,7 @@ import { DataGrid } from "@mui/x-data-grid";
 import { useFormik } from "formik";
 import { useEffect, useState } from "react";
 import * as Yup from "yup";
+import { createPurchaseRequisitions } from "../../helpers/procurement-ordering/purchase-requisition";
 
 
 export const PurchaseRequisitionNew = (props) => {
@@ -12,7 +13,6 @@ export const PurchaseRequisitionNew = (props) => {
     string,
     prodOrderId,
     prodLineItems,
-    // purchaseRequisitions
     handleAlertOpen,
     handleAlertClose,
     ...rest
@@ -24,28 +24,25 @@ export const PurchaseRequisitionNew = (props) => {
   // Create PRs and close dialog
   const handleOnSubmit = async (values) => {
     // submit
-    // console.log(values);
+    console.log(values);
 
-    // const finalGoodId = values.finalGoodId;
+    const purchaseRequisitionDtos = formik.values.purchaseRequisitions.map((item) => {
+      return {
+        expectedQuantity: item.quantity,
+        productionLineItemId: item.id,
+        organisationId: organisationId,
+        rawMaterialId: item.rawMaterial.id
+      }
+    });
 
-    // const bomLineItems = formik.values.bomLineItems.map((item) => {
-    //   return {
-    //     quantity: item.quantity,
-    //     rawMaterialId: item.rawMaterial.id,
-    //   }
-    // })
+    console.log(purchaseRequisitionDtos)
 
-    // console.log(finalGoodId);
-    // console.log(bomLineItems);
-
-    // // Create BOM
-    // // call create api
-    // createBOM(finalGoodId, bomLineItems)
-    //   .then((res) => {
-    //     onClose();
-    //     handleAlertOpen(`Successfully Created ${string} ${res.id}!`, 'success');
-    //   })
-    //   .catch(err => handleAlertOpen(`Failed to Create ${string}'`, 'error'));
+    createPurchaseRequisitions(purchaseRequisitionDtos)
+      .then(res => {
+        onClose();
+        handleAlertOpen(`Successfully Created ${string}(s)!`, 'success');
+      })
+      .catch(err => handleAlertOpen(`Failed to Create ${string}`, 'error'))
   };
 
   // Selected Line Items
@@ -72,7 +69,6 @@ export const PurchaseRequisitionNew = (props) => {
             id: item.id,
             quantity: item.quantity,
             rawMaterial: item.rawMaterial,
-            productionOrder: item.productionOrder
           }
         })
       )
