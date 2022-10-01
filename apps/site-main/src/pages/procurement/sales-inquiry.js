@@ -1,3 +1,5 @@
+import CancelIcon from '@mui/icons-material/Cancel';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import MoreVert from '@mui/icons-material/MoreVert';
 import {
   Box,
@@ -5,7 +7,7 @@ import {
   CardContent,
   Container,
   IconButton,
-  Typography,
+  Typography
 } from '@mui/material';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import { useEffect, useState } from 'react';
@@ -15,12 +17,13 @@ import { NotificationAlert } from '../../components/notification-alert';
 import { SalesInquiryDialog } from '../../components/procurement-ordering/sales-inquiry-dialog';
 import { SalesInquiryMenu } from '../../components/procurement-ordering/sales-inquiry.menu';
 import { SupplierDialog } from '../../components/procurement-ordering/supplier-dialog';
-import { Toolbar } from '../../components/toolbar';
 import { ConfirmDialog } from '../../components/product/confirm-dialog';
+import { Toolbar } from '../../components/toolbar';
 import {
   deleteSalesInquiries,
-  fetchSalesInquiries,
+  fetchSalesInquiries
 } from '../../helpers/procurement-ordering';
+
 
 export const SalesInquiry = (props) => {
   const user = JSON.parse(localStorage.getItem('user'));
@@ -197,6 +200,18 @@ export const SalesInquiry = (props) => {
       flex: 1,
     },
     {
+      field: 'hasPRs',
+      headerName: 'Purchase Requistions?',
+      flex: 1,
+      renderCell: (params) => {
+        return params.row.purchaseRequisitions.length === 0 ? (
+          <CancelIcon color="error" />
+        ) : (
+          <CheckCircleIcon color="success" />
+        );
+      }
+    },
+    {
       field: 'actions',
       headerName: '',
       flex: 1,
@@ -294,7 +309,10 @@ export const SalesInquiry = (props) => {
                 pageSize={10}
                 rowsPerPageOptions={[10]}
                 checkboxSelection
-                isRowSelectable={(params) => params.row.status === 'draft'}
+                isRowSelectable={(params) => 
+                  params.row.status === 'draft' && 
+                  params.row.purchaseRequisitions.length === 0
+                }
                 components={{
                   Toolbar: GridToolbar,
                 }}

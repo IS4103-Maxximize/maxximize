@@ -238,6 +238,9 @@ export const SalesInquiryDialog = (props) => {
     return updatedRow;
   };
 
+  // Check if SI has no PRs ==> Normal SI
+  const noPRs = inquiry ? inquiry.purchaseRequisitions.length === 0 : true;
+
   const columns = [
     {
       field: 'skuCode',
@@ -252,7 +255,7 @@ export const SalesInquiryDialog = (props) => {
       field: 'quantity',
       headerName: 'Quantity *',
       flex: 1,
-      editable: formik.values.status === 'draft',
+      editable: formik.values.status === 'draft' && noPRs
     },
     {
       field: 'name',
@@ -369,7 +372,9 @@ export const SalesInquiryDialog = (props) => {
             variant="outlined"
             disabled
           />
-          {formik.values.status !== 'sent' && (
+          {/* Adding and Removing of SI Line Items
+          Only available if draft SI and not linked to PRs */}
+          {(formik.values.status !== 'sent' && noPRs) && (
             <Box my={2} display="flex" justifyContent="space-between">
               <Stack direction="row" spacing={1}>
                 <Autocomplete
@@ -426,7 +431,7 @@ export const SalesInquiryDialog = (props) => {
             autoHeight
             rows={formik.values.lineItems}
             columns={columns}
-            checkboxSelection={formik.values.status !== 'sent'}
+            checkboxSelection={formik.values.status !== 'sent' && noPRs}
             disableSelectionOnClick
             pageSize={5}
             rowsPerPageOptions={[5]}
