@@ -94,13 +94,11 @@ export class FactoryMachinesService {
     //can't remove FM if there is an ongoing schedule in the PL
     const productionLineId = factoryMachineToDelete.productionLineId
     const schedules = (await this.productionLinesService.findOne(productionLineId)).schedules
-    const hasOngoingSchedule = schedules.some(schedule => schedule.status === 'ongoing')
-    if (!hasOngoingSchedule) {
+    const hasOngoingPlannedSchedule = schedules.some(schedule => schedule.status === 'ongoing' || schedule.status === 'planned')
+    if (!hasOngoingPlannedSchedule) {
       return this.factoryMachineRepository.remove(factoryMachineToDelete)
     } else {
-      throw new NotFoundException('There is a schedule that is ongoing, delete Machine after this is done!')
+      throw new NotFoundException('There is a schedule that is ongoing/planned, delete Machine after these are done!')
     }
-
-    
   }
 }
