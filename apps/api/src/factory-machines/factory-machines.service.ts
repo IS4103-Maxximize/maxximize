@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, EntityManager, Repository } from 'typeorm';
 import { OrganisationsService } from '../organisations/organisations.service';
@@ -12,12 +12,12 @@ export class FactoryMachinesService {
   constructor(private organisationService: OrganisationsService,
     @InjectRepository(FactoryMachine)
     private readonly factoryMachineRepository: Repository<FactoryMachine>,
-    private productionLineService: ProductionLinesService,
+    @Inject(forwardRef(() => ProductionLinesService))
+    private productionLinesService: ProductionLinesService,
     private dataSource: DataSource ) {}
   async create(createFactoryMachineDto: CreateFactoryMachineDto): Promise<FactoryMachine> {
-    const {serialNumber , description, isOperating, make, model, year, lastServiced, remarks, organisationId, productionLineId } = createFactoryMachineDto
+    const {serialNumber , description, isOperating, make, model, year, lastServiced, remarks, organisationId } = createFactoryMachineDto
     const organisation = await this.organisationService.findOne(organisationId)
-    const productionLine = await this.productionLineService.findOne(productionLineId)
     const newFactoryMachine = this.factoryMachineRepository.create({
       serialNumber,
       description,
@@ -27,8 +27,7 @@ export class FactoryMachinesService {
       year,
       lastServiced,
       remarks,
-      organisationId: organisation.id,
-      productionLineId: productionLine.id
+      organisationId: organisation.id
     })
     const newMachine = await this.factoryMachineRepository.save(newFactoryMachine)
     return this.findOne(newMachine.id);
@@ -74,15 +73,15 @@ export class FactoryMachinesService {
           id
         }
       })
-      const productionLineId = factoryMachineToUpdate.productionLineId
+      // const productionLineId = factoryMachineToUpdate.productionLineId
       const keyValuePairs = Object.entries(updateFactoryMachineDto)
       for (const [key, value] of keyValuePairs) {
         // if (key === 'isOperating' && factoryMachineToUpdate.productionLineId) {
         //   await this.productionLineService.machineTriggerChange(value, factoryMachineToUpdate.id, productionLineId, transactionalEntityManager)
         // }
-        if (key === 'productionLineId') {
-          await this.productionLineService.findOne(value)
-        }
+        // if (key === 'productionLineId') {
+        //   await this.productionLineService.findOne(value)
+        // }
         factoryMachineToUpdate[key] = value
       }
       return transactionalEntityManager.save(factoryMachineToUpdate)
@@ -94,14 +93,12 @@ export class FactoryMachinesService {
     const factoryMachineToDelete = await this.findOne(id)
     //can't remove FM if there is an ongoing schedule in the PL
     const productionLineId = factoryMachineToDelete.productionLineId
-    const schedules = (await this.productionLineService.findOne(productionLineId)).schedules
-    const hasOngoingSchedule = schedules.some(schedule => schedule.status === 'ongoing')
-    if (!hasOngoingSchedule) {
+    const schedules = (await this.productionLinesService.findOne(productionLineId)).schedules
+    const hasOngoingPlannedSchedule = schedules.some(schedule => schedule.status === 'ongoing' || schedule.status === 'planned')
+    if (!hasOngoingPlannedSchedule) {
       return this.factoryMachineRepository.remove(factoryMachineToDelete)
     } else {
-      throw new NotFoundException('There is a schedule that is ongoing, delete Machine after this is done!')
+      throw new NotFoundException('There is a schedule that is ongoing/planned, delete Machine after these are done!')
     }
-
-    
   }
 }

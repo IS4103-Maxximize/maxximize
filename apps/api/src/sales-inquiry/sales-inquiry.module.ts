@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { SalesInquiryService } from './sales-inquiry.service';
 import { SalesInquiryController } from './sales-inquiry.controller';
 import { SalesInquiry } from './entities/sales-inquiry.entity';
@@ -9,9 +9,15 @@ import { Organisation } from '../organisations/entities/organisation.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { MailModule } from '../mail/mail.module';
 import { RawMaterial } from '../raw-materials/entities/raw-material.entity';
+import { PurchaseRequisition } from '../purchase-requisitions/entities/purchase-requisition.entity';
+import { PurchaseRequisitionsModule } from '../purchase-requisitions/purchase-requisitions.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([SalesInquiry, SalesInquiryLineItem, ShellOrganisation, Quotation, Organisation, RawMaterial]), MailModule],
+  imports: [
+    TypeOrmModule.forFeature([SalesInquiry, SalesInquiryLineItem, ShellOrganisation, Quotation, Organisation, RawMaterial, PurchaseRequisition]), 
+    MailModule, 
+    forwardRef(() => PurchaseRequisitionsModule)
+  ],
   controllers: [SalesInquiryController],
   providers: [SalesInquiryService],
   exports: [SalesInquiryService]

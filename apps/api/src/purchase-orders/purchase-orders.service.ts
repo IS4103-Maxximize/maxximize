@@ -127,20 +127,16 @@ export class PurchaseOrdersService {
     return this.purchaseOrdersRepository.find({
       where: {
         organisationId
-      }, relations: {
-        quotation: true,
-        currentOrganisation: true,
-        orgContact: true,
-        userContact: true,
-        supplierContact: true,
-        goodsReceipts: true,
-        poLineItems: {
-          rawMaterial: true,
-        },
-        followUpLineItems: {
-          rawMaterial: true
-        },
-      }
+      }, relations: [
+        'quotation',
+        'currentOrganisation',
+        'orgContact',
+        'userContact',
+        'supplierContact',
+        'poLineItems.rawMaterial',
+        'followUpLineItems.rawMaterial',
+        'goodsReceipts.goodsReceiptLineItems.product'
+      ]
     })
   }
 
@@ -149,13 +145,13 @@ export class PurchaseOrdersService {
       id
     }, relations: [
       'quotation',
-      'poLineItems.rawMaterial',
       'currentOrganisation',
-      'followUpLineItems.rawMaterial',
       'orgContact',
       'userContact',
       'supplierContact',
-      'goodsReceipts'
+      'poLineItems.rawMaterial',
+      'followUpLineItems.rawMaterial',
+      'goodsReceipts.goodsReceiptLineItems.product'
     ]})
   }
 
@@ -165,7 +161,8 @@ export class PurchaseOrdersService {
     arrayOfKeyValues.forEach(([key, value]) => {
       purchaseOrderToUpdate[key] = value
     })
-    return this.purchaseOrdersRepository.save(purchaseOrderToUpdate)
+    await this.purchaseOrdersRepository.save(purchaseOrderToUpdate)
+    return this.findOne(id);
   }
 
   async remove(id: number): Promise<PurchaseOrder> {

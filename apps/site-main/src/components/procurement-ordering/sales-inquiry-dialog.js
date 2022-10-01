@@ -46,6 +46,7 @@ export const SalesInquiryDialog = (props) => {
   useEffect(() => {
     const retrieveSalesInquiry = async () => {
       if (action === 'POST') {
+        setUpdateTotalPrice(0);
         formik.setFieldValue('lineItems', []);
       }
       if (inquiry) {
@@ -249,7 +250,7 @@ export const SalesInquiryDialog = (props) => {
     },
     {
       field: 'quantity',
-      headerName: 'Quantity',
+      headerName: 'Quantity *',
       flex: 1,
       editable: formik.values.status === 'draft',
     },

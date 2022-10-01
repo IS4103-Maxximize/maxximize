@@ -20,6 +20,7 @@ export const PODialog = (props) => {
     addPO,
     updatePO,
     handleAlertOpen,
+    handlePoGrDialogOpen,
     ...rest
   } = props;
 
@@ -233,6 +234,7 @@ export const PODialog = (props) => {
           </Toolbar>
         </AppBar>
         <DialogContent>
+          {/* PO Information */}
           <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
             {purchaseOrder && <TextField
               sx={{ width: 150 }}
@@ -261,6 +263,15 @@ export const PODialog = (props) => {
               value={purchaseOrder.status}
               disabled={purchaseOrder}
             />}
+            {(purchaseOrder && purchaseOrder.goodsReceipts.length > 0) && 
+              <Button
+                size="small"
+                variant="contained"
+                onClick={handlePoGrDialogOpen}
+              >
+                View Goods Receipts
+              </Button>
+            }
           </Stack>
           <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
             {/* Quotation Selection */}
@@ -339,6 +350,7 @@ export const PODialog = (props) => {
                 columns={columnsFollowup}
                 pageSize={5}
                 rowsPerPageOptions={[5]}
+                disableSelectionOnClick
               />
             </>
             }

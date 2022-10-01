@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { FactoryMachinesService } from './factory-machines.service';
 import { FactoryMachinesController } from './factory-machines.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -8,8 +8,9 @@ import { OrganisationsModule } from '../organisations/organisations.module';
 import { ProductionLinesModule } from '../production-lines/production-lines.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([FactoryMachine, Machine]), OrganisationsModule, ProductionLinesModule],
+  imports: [TypeOrmModule.forFeature([FactoryMachine, Machine]), OrganisationsModule, forwardRef(() => ProductionLinesModule)],
   controllers: [FactoryMachinesController],
-  providers: [FactoryMachinesService]
+  providers: [FactoryMachinesService],
+  exports: [FactoryMachinesService]
 })
 export class FactoryMachinesModule {}

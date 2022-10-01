@@ -19,6 +19,7 @@ import OrganisationSelection from './pages/organisationSelection';
 import ProcurementForecast from './pages/procurement/forecast';
 import ProcurementGoodReceipt from './pages/procurement/good-receipt';
 import PurchaseOrder from './pages/procurement/purchase-order';
+import PurchaseRequisition from './pages/procurement/purchase-requisition';
 import Quotation from './pages/procurement/quotation';
 import SalesInquiry from './pages/procurement/sales-inquiry';
 import BillOfMaterial from './pages/production/bom';
@@ -110,11 +111,11 @@ const routes = (
           >
             {/* Product Management */}
             <Route
-              path="raw-materials"
+              path="products/raw-materials"
               element={<Products type="raw-materials" key={1} />}
             ></Route>
             <Route
-              path="final-goods"
+              path="products/final-goods"
               element={<Products type="final-goods" key={2} />}
             ></Route>
 
@@ -149,6 +150,10 @@ const routes = (
           >
             {/* Procurement */}
             {/* Procurement Modules */}
+            <Route
+              path="procurement/purchase-requisition"
+              element={<PurchaseRequisition />}
+            ></Route>
             <Route
               path="procurement/sales-inquiry"
               element={<SalesInquiry />}

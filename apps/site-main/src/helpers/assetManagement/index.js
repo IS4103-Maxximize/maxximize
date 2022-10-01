@@ -1,7 +1,7 @@
 import { apiHost, headers } from '../constants';
 
-export const fetchProductionLines = async () => {
-    const apiUrl = `${apiHost}/production-lines`;
+export const fetchProductionLines = async (orgId) => {
+    const apiUrl = `${apiHost}/production-lines/orgId/${orgId}`;
     return await fetch(apiUrl).then((response) => response.json());
   };
 
@@ -65,25 +65,12 @@ export const fetchProductionLines = async () => {
   };
 */
 
-export const createProductionLine = async (
-    productionLineId,
-    values,
-  ) => {
+export const createProductionLine = async (createProductionLineDto) => {
     const apiUrl = `${apiHost}/production-lines`;
-    let body = {
-      productionLineId: productionLineId,
-      name: values.name,
-      description: values.description,
-      finalGoodId: values.finalGoodId,
-      productionCostPerLot: values.productionCostPerLot,
-      changeOverTime: values.changeOverTime
-    };
-    body = JSON.stringify(body);
-
     const requestOptions = {
       method: 'POST',
       headers: headers,
-      body: body,
+      body: JSON.stringify(createProductionLineDto),
     };
     return await fetch(apiUrl, requestOptions).then((response) =>
       response.json()
@@ -125,15 +112,15 @@ export const createProductionLine = async (
     });
   };
 
-  export const fetchMachines = async () => {
-      const apiUrl = `${apiHost}/factory-machines`;
-      return await fetch(apiUrl).then((response) => response.json());
-    };
+  export const fetchMachines = async (orgId) => {
+    const apiUrl = `${apiHost}/factory-machines/orgId/${orgId}`;
+    return await fetch(apiUrl).then((response) => response.json());
+  };
     
-    export const fetchMachine = async (id) => {
-      const apiUrl = `${apiHost}/factory-machines/${id}`;
-      return await fetch(apiUrl).then((response) => response.json());
-    };
+  export const fetchMachine = async (id) => {
+    const apiUrl = `${apiHost}/factory-machines/${id}`;
+    return await fetch(apiUrl).then((response) => response.json());
+  };
 
     // const createProductionLineMachines = async ( productionLines) => {
     //   const apiUrl = `${apiHost}/factory-machines`;

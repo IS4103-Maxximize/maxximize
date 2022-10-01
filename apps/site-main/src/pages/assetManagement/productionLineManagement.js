@@ -22,6 +22,7 @@ import {
   deleteProductionLines,
   fetchProductionLines,
 } from '../../helpers/assetManagement';
+import { ProductionLineDialogNew } from '../../components/assetManagement/production-line-dialog-new';
 
 export const ProductionLineManagement = (props) => {
   const user = JSON.parse(localStorage.getItem('user'));
@@ -202,8 +203,8 @@ export const ProductionLineManagement = (props) => {
       headerName: 'Final Good',
       flex: 2,
       valueGetter: (params) => {
-        if (params.row.finalGood.name) {
-          return params.row.finalGood.name;
+        if (params.row) {
+          return params.row.bom.finalGood.name;
         } else {
           return '';
         }
@@ -290,7 +291,7 @@ export const ProductionLineManagement = (props) => {
               handleDelete(selectedRows);
             }}
           />
-          <ProductionLineManagementDialog
+          {/* <ProductionLineManagementDialog
             action={action}
             open={formDialogOpen}
             productionLine={selectedRow}
@@ -299,6 +300,14 @@ export const ProductionLineManagement = (props) => {
             handleClose={handleFormDialogClose}
             selectedRow={selectedRow}
             handleAlertOpen={handleAlertOpen}
+          /> */}
+
+          <ProductionLineDialogNew
+            open={formDialogOpen}
+            string={'Production Line'}
+            handleClose={handleFormDialogClose}
+            handleAlertOpen={handleAlertOpen}
+            handleAlertClose={handleAlertClose}
           />
 
           <Toolbar

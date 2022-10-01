@@ -1,6 +1,7 @@
 import { Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { BomLineItem } from "../../bom-line-items/entities/bom-line-item.entity";
 import { FinalGood } from "../../final-goods/entities/final-good.entity";
+import { ProductionLine } from "../../production-lines/entities/production-line.entity";
 import { ProductionOrder } from "../../production-orders/entities/production-order.entity";
 
 @Entity()
@@ -17,4 +18,7 @@ export class BillOfMaterial {
 
     @OneToMany(() => ProductionOrder, productionOrder => productionOrder.bom)
     productionOrders: ProductionOrder[]
+
+    @OneToMany(() => ProductionLine, productionLine => productionLine.bom)
+    productionLines: ProductionLine[]
 }

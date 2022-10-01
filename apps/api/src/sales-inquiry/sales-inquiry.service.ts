@@ -1,15 +1,17 @@
 /* eslint-disable prefer-const */
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { MailService } from '../mail/mail.service';
 import { Organisation } from '../organisations/entities/organisation.entity';
+import { PurchaseRequisition } from '../purchase-requisitions/entities/purchase-requisition.entity';
+import { PurchaseRequisitionsService } from '../purchase-requisitions/purchase-requisitions.service';
 import { Quotation } from '../quotations/entities/quotation.entity';
 import { RawMaterial } from '../raw-materials/entities/raw-material.entity';
 import { SalesInquiryLineItem } from '../sales-inquiry-line-items/entities/sales-inquiry-line-item.entity';
 import { ShellOrganisation } from '../shell-organisations/entities/shell-organisation.entity';
-import { SendEmailDto } from './dto/send-email.dto';
 import { CreateSalesInquiryDto } from './dto/create-sales-inquiry.dto';
+import { SendEmailDto } from './dto/send-email.dto';
 import { UpdateSalesInquiryDto } from './dto/update-sales-inquiry.dto';
 import { SalesInquiry } from './entities/sales-inquiry.entity';
 import { SalesInquiryStatus } from './enums/salesInquiryStatus.enum';
@@ -29,14 +31,18 @@ export class SalesInquiryService {
     private readonly salesInquiryLineItemsRepository: Repository<SalesInquiryLineItem>,
     @InjectRepository(RawMaterial)
     private readonly rawMaterialsRepository: Repository<RawMaterial>,
-    private mailerService: MailService
+    @InjectRepository(PurchaseRequisition)
+    private readonly purchaseRequisitionRepository: Repository<PurchaseRequisition>,
+    private mailerService: MailService,
+    @Inject(forwardRef(() => PurchaseRequisitionsService))
+    private purchaseRequisitionSevice: PurchaseRequisitionsService
   ) {}
 
   async create(
     createSalesInquiryDto: CreateSalesInquiryDto
   ): Promise<SalesInquiry> {
     try {
-      const { currentOrganisationId, totalPrice, salesInquiryLineItemsDtos } = createSalesInquiryDto;
+      const { currentOrganisationId, totalPrice, salesInquiryLineItemsDtos, purchaseRequisitionIds } = createSalesInquiryDto;
       let organisationToBeAdded: Organisation;
       organisationToBeAdded =
         await this.organisationsRepository.findOneByOrFail({
@@ -44,7 +50,7 @@ export class SalesInquiryService {
         });
       const salesInquiryLineItems = [];
 
-      for (const dto of createSalesInquiryDto.salesInquiryLineItemsDtos) {
+      for (const dto of salesInquiryLineItemsDtos) {
         const salesInquiryLineItem = new SalesInquiryLineItem();
         salesInquiryLineItem.quantity = dto.quantity;
         salesInquiryLineItem.rawMaterial =
@@ -57,14 +63,33 @@ export class SalesInquiryService {
         salesInquiryLineItems.push(salesInquiryLineItem);
       }
 
+      const purchaseRequisitions = []
+      if (purchaseRequisitionIds) {
+        for (const id of purchaseRequisitionIds) {
+          const purchaseRequisition = await this.purchaseRequisitionRepository.findOne({where: {id}});
+          purchaseRequisitions.push(purchaseRequisition);
+        }
+      }
+
       const newSalesInquiry = this.salesInquiriesRepository.create({
         status: SalesInquiryStatus.DRAFT,
         totalPrice: totalPrice,
         created: new Date(),
         currentOrganisation: organisationToBeAdded,
         salesInquiryLineItems: salesInquiryLineItems,
+        purchaseRequisitions: purchaseRequisitions,
       });
-      return this.salesInquiriesRepository.save(newSalesInquiry);
+
+      const newSI = await this.salesInquiriesRepository.save(newSalesInquiry);
+
+      // link PRs with sales inquiry
+      for (const id of purchaseRequisitionIds) {
+        this.purchaseRequisitionSevice.update(id, {
+          salesInquiryId: newSI.id
+        })
+      }
+
+      return this.findOne(newSI.id);
     } catch (error) {
       console.log(error);
       throw new NotFoundException(
