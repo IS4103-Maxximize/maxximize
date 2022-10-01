@@ -1,6 +1,7 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { Cron, CronExpression, SchedulerRegistry } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
+import { ValidationError } from 'class-validator';
 import { CronJob } from 'cron';
 import { start } from 'repl';
 import { endWith } from 'rxjs';
@@ -109,12 +110,12 @@ export class ProductionOrdersService {
         })
         newProductionOrder = await transactionalEntityManager.save(newProductionOrder)
         for (const schedule of schedulesToBeAdded){
-          const startJob = new CronJob(this.dateToCron(schedule.start), async () => {
+          const startJob = new CronJob(new Date((new Date()).getTime() + 30000), async () => {
             this.update(newProductionOrder.id, {status : ProductionOrderStatus.ONGOING})
             this.schedulesService.update(schedule.id, {status : ScheduleType.ONGOING})
             this.logger.warn(`time (${schedule.start}) for start job ${schedule.id} to run!`);
           })
-          const endJob = new CronJob(this.dateToCron(schedule.end), async () => {
+          const endJob = new CronJob(new Date((new Date()).getTime() + 60000), async () => {
             this.update(newProductionOrder.id, {status : ProductionOrderStatus.COMPLETED})
             this.schedulesService.update(schedule.id, {status : ScheduleType.COMPLETED})
             this.logger.warn(`time (${schedule.end}) for end job ${schedule.id} to run!`);
@@ -187,16 +188,14 @@ export class ProductionOrdersService {
           })
           newProductionOrder = await transactionalEntityManager.save(newProductionOrder)
           for (const schedule of schedulesToBeAdded){
-            const startJob = new CronJob(new Date((new Date()).getTime() + 60000), async () => {
-              await this.update(newProductionOrder.id, {status : ProductionOrderStatus.ONGOING})
+            const startJob = new CronJob(new Date((new Date()).getTime() + 30000), async () => {
               await this.schedulesService.update(schedule.id, {status : ScheduleType.ONGOING})
-              console.log(await this.findOne(newProductionOrder.id))
+              await this.update(newProductionOrder.id, {status : ProductionOrderStatus.ONGOING})
               this.logger.warn(`time (${schedule.start}) for start job ${schedule.id} to run!`);
             })
-            const endJob = new CronJob(schedule.end, async () => {
-              await this.update(newProductionOrder.id, {status : ProductionOrderStatus.COMPLETED})
+            const endJob = new CronJob(new Date((new Date()).getTime() + 60000), async () => {
               await this.schedulesService.update(schedule.id, {status : ScheduleType.COMPLETED})
-              console.log(await this.findOne(newProductionOrder.id))
+              await this.update(newProductionOrder.id, {status : ProductionOrderStatus.COMPLETED})
               this.logger.warn(`time (${schedule.end}) for end job ${schedule.id} to run!`);
             })
             this.schedulerRegistry.addCronJob(`start ${schedule.id}`, startJob);
@@ -231,12 +230,12 @@ export class ProductionOrdersService {
           })
           newProductionOrder = await transactionalEntityManager.save(newProductionOrder)
           for (const schedule of schedulesToBeAdded){
-            const startJob = new CronJob(schedule.start, async () => {
+            const startJob = new CronJob(new Date((new Date()).getTime() + 30000), async () => {
               this.update(newProductionOrder.id, {status : ProductionOrderStatus.ONGOING})
               this.schedulesService.update(schedule.id, {status : ScheduleType.ONGOING})
               this.logger.warn(`time (${schedule.start}) for start job ${schedule.id} to run!`);
             })
-            const endJob = new CronJob(schedule.end, async () => {
+            const endJob = new CronJob(new Date((new Date()).getTime() + 60000), async () => {
               this.update(newProductionOrder.id, {status : ProductionOrderStatus.COMPLETED})
               this.schedulesService.update(schedule.id, {status : ScheduleType.COMPLETED})
               this.logger.warn(`time (${schedule.end}) for end job ${schedule.id} to run!`);
@@ -245,6 +244,8 @@ export class ProductionOrdersService {
             startJob.start()
             this.schedulerRegistry.addCronJob(`end ${schedule.id}`, endJob);
             endJob.start()
+            console.log(startJob.nextDate())
+            console.log(endJob.nextDate())
           }
           let remainingQuantity: number = plannedQuantity - possibleQuantity
           let createdProductionOrder: ProductionOrder = transactionalEntityManager.create(ProductionOrder, {
@@ -406,12 +407,12 @@ export class ProductionOrdersService {
                 productionOrder: productionOrderToUpdate
               })
               schedulesToBeAdded.push(await transactionalEntityManager.save(schedule)) 
-              const startJob = new CronJob(start, async () => {
+              const startJob = new CronJob(new Date((new Date()).getTime() + 30000), async () => {
                 this.update(productionOrderToUpdate.id, {status : ProductionOrderStatus.ONGOING})
                 this.schedulesService.update(schedule.id, {status : ScheduleType.ONGOING})
                 this.logger.warn(`time (${start}) for start job ${schedule.id} to run!`);
               })
-              const endJob = new CronJob(end, async () => {
+              const endJob = new CronJob(new Date((new Date()).getTime() + 60000), async () => {
                 this.update(productionOrderToUpdate.id, {status : ProductionOrderStatus.COMPLETED})
                 this.schedulesService.update(schedule.id, {status : ScheduleType.COMPLETED})
                 this.logger.warn(`time (${end}) for end job ${schedule.id} to run!`);
@@ -421,7 +422,8 @@ export class ProductionOrdersService {
               this.schedulerRegistry.addCronJob(`end ${schedule.id}`, endJob);
               endJob.start()
             }
-            return await transactionalEntityManager.update(ProductionOrder, id, {status: value})
+            await transactionalEntityManager.update(ProductionOrder, id, {status: value})
+            return null
           })
           
         } else if(value == ProductionOrderStatus.ONGOING) {
@@ -432,7 +434,8 @@ export class ProductionOrdersService {
               
               await transactionalEntityManager.save(lineItem)
             }
-            return transactionalEntityManager.update(ProductionOrder, id, {status: value})
+            await transactionalEntityManager.update(ProductionOrder, id, {status: value})
+            return null
           })
         } else {
           productionOrderToUpdate[key] = value
