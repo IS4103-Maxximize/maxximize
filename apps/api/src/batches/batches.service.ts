@@ -181,26 +181,26 @@ export class BatchesService {
               const productionOrder = purchaseReq.productionLineItem.productionOrder;
               const productionLineItem = new ProductionLineItem();
               productionLineItem.productionOrder = productionOrder;
-              productionLineItem.purchaseRequisition = purchaseReq;
+              // productionLineItem.purchaseRequisition = purchaseReq;
               productionLineItem.rawMaterial = purchaseReq.rawMaterial;
               productionLineItem.sufficient = true;
 
               if (batchLine.quantity - batchLine.reservedQuantity > purchaseReq.quantityToFulfill) {
                 productionLineItem.quantity = purchaseReq.quantityToFulfill;
                 batchLine.reservedQuantity += purchaseReq.quantityToFulfill;
-                break;
               } else {
                 productionLineItem.quantity = batchLine.quantity - batchLine.reservedQuantity;
                 batchLine.reservedQuantity += (batchLine.quantity - batchLine.reservedQuantity);
               }
               productionLineItem.batchLineItem = batchLine;
               queryRunner.manager.save(batchLine);
-              productionOrder.prodLineItems.push(productionLineItem);
+              const prodLine = await queryRunner.manager.save(productionLineItem);
+              productionOrder.prodLineItems.push(prodLine);
               queryRunner.manager.save(productionOrder);
             }
 
+            await this.purchaseRequisitionService.updateFulfilledQty(purchaseReq, 0); 
             purchaseReq.quantityToFulfill = 0;
-            this.purchaseRequisitionService.updateFulfilledQty(purchaseReq, 0); 
           }
         } else {
           arr.sort((pr1, pr2) => pr1.createdDateTime.getTime() - pr2.createdDateTime.getTime());
@@ -214,25 +214,23 @@ export class BatchesService {
               const productionOrder = purchaseReq.productionLineItem.productionOrder;
               const productionLineItem = new ProductionLineItem();
               productionLineItem.productionOrder = productionOrder;
-              productionLineItem.purchaseRequisition = purchaseReq;
               productionLineItem.rawMaterial = purchaseReq.rawMaterial;
               productionLineItem.sufficient = true;
-
               if (batchLine.quantity - batchLine.reservedQuantity > purchaseReq.quantityToFulfill) {
                 productionLineItem.quantity = purchaseReq.quantityToFulfill;
                 batchLine.reservedQuantity += purchaseReq.quantityToFulfill;
+                await this.purchaseRequisitionService.updateFulfilledQty(purchaseReq, 0);
                 purchaseReq.quantityToFulfill = 0;
-                this.purchaseRequisitionService.updateFulfilledQty(purchaseReq, 0);
-                break;
               } else {
+                await this.purchaseRequisitionService.updateFulfilledQty(purchaseReq, purchaseReq.quantityToFulfill - (batchLine.quantity - batchLine.reservedQuantity));
                 productionLineItem.quantity = batchLine.quantity - batchLine.reservedQuantity;
                 batchLine.reservedQuantity += (batchLine.quantity - batchLine.reservedQuantity);
                 purchaseReq.quantityToFulfill -= batchLine.quantity - batchLine.reservedQuantity;
-                this.purchaseRequisitionService.updateFulfilledQty(purchaseReq, purchaseReq.quantityToFulfill);
               }
               productionLineItem.batchLineItem = batchLine;
               queryRunner.manager.save(batchLine);
-              productionOrder.prodLineItems.push(productionLineItem);
+              const prodLine = await queryRunner.manager.save(productionLineItem);
+              productionOrder.prodLineItems.push(prodLine);
               queryRunner.manager.save(productionOrder);
 
             }
@@ -240,7 +238,6 @@ export class BatchesService {
         }
       }
     }
-
     return createdBatch;
   }
 

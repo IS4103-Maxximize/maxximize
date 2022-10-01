@@ -83,6 +83,7 @@ export class GoodsReceiptsService {
 
       return createdGr;
     } catch (err) {
+      console.log(err);
       await queryRunner.rollbackTransaction();
       throw new InternalServerErrorException(err);
     } finally {
