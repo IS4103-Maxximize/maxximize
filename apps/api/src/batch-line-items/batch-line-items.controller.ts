@@ -26,7 +26,7 @@ export class BatchLineItemsController {
   @Get('getLineItem/:billOfMaterialId/:quantity/:organisationId')
   getLineItems(@Param('billOfMaterialId') billOfMaterialId: number, 
     @Param('quantity') quantity: number, @Param('organisationId') organisationId: number) {
-    return this.batchLineItemsService.getLineItems(billOfMaterialId, quantity, organisationId);
+    return this.batchLineItemsService.getLineItems(billOfMaterialId, quantity, organisationId, new Date());
   }
 
   @Delete(':id')

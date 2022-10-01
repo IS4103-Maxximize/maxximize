@@ -15,6 +15,9 @@ export class ProductionLineItem {
     @Column({default:true})
     sufficient: boolean
 
+    @DeleteDateColumn()
+    deletedDateTime: Date;
+
     @ManyToOne(() => BatchLineItem, {nullable: true})
     batchLineItem?: BatchLineItem
 

@@ -71,84 +71,113 @@ export class BatchLineItemsService {
     });
   }
 
-  async getLineItems(billOfMaterialId: number, quantity: number, organisationId: number) {
+  async getLineItems(billOfMaterialId: number, quantity: number, organisationId: number, dateOfProduction: Date) {
     const billOfMaterial = await this.billOfMaterialService.findOne(billOfMaterialId);
     const bomLineItems = billOfMaterial.bomLineItems;
-    const rawMaterialsRequiredMap = new Map<RawMaterial, number>();
-    for (const bomLineItem of bomLineItems) {
-      const rawMaterial = bomLineItem.rawMaterial;
-      const qty = bomLineItem.quantity * quantity;
-      rawMaterialsRequiredMap.set(rawMaterial, qty);
-    }
 
     const batchLineItems = await this.findAllByOrganisationId(organisationId);
     const rawMaterialsStock = new Map<number, BatchLineItem[]>();
+    const rawMaterialsQuantity = new Map<number, number>();
+
+    // Retrieve all batch line items and add to map only if batch line item does not expire before end of production
     for (const batchLineItem of batchLineItems) {
       const product = batchLineItem.product;
-      if (product instanceof RawMaterial) {
-        const lineItems = rawMaterialsStock.get(product.id);
-        if (lineItems === undefined) {
+      if (product instanceof RawMaterial && batchLineItem.expiryDate > dateOfProduction) {
+        if (!rawMaterialsStock.has(product.id)) {
           const lineItemsArr: BatchLineItem[] = [];
           lineItemsArr.push(batchLineItem);
           rawMaterialsStock.set(product.id, lineItemsArr);
         } else {
+          const lineItems = rawMaterialsStock.get(product.id);
           lineItems.push(batchLineItem);
           rawMaterialsStock.set(product.id, lineItems);
         }
+        if (rawMaterialsQuantity.has(product.id)) {
+          let sum = rawMaterialsQuantity.get(product.id);
+          sum += (batchLineItem.quantity - batchLineItem.reservedQuantity);
+          rawMaterialsQuantity.set(product.id, sum);
+        } else {
+          rawMaterialsQuantity.set(product.id, (batchLineItem.quantity - batchLineItem.reservedQuantity));
+        }
+      }
+    }
+
+    let smallestRatio = Number.MAX_VALUE;
+    for (const bomLineItem of billOfMaterial.bomLineItems) {
+      if (!rawMaterialsQuantity.has(bomLineItem.rawMaterial.id) || smallestRatio < 1) {
+        break;
+      }
+      const stock = rawMaterialsQuantity.get(bomLineItem.rawMaterial.id);
+      const ratio = stock / bomLineItem.quantity;
+      if (ratio < smallestRatio) {
+        smallestRatio = ratio;
       }
     }
 
     const createProductionLineItemDtos: CreateProductionLineItemDto[] = [];
 
+    if (smallestRatio < 1) {
+      for (const bomLineItem of billOfMaterial.bomLineItems) {
+        const createProductionLineItemDto = new CreateProductionLineItemDto();
+        createProductionLineItemDto.quantity = quantity * bomLineItem.quantity;
+        createProductionLineItemDto.sufficient = false;
+        createProductionLineItemDto.rawMaterial = await this.rawMaterialService.findOne(bomLineItem.rawMaterial.id);
+        createProductionLineItemDtos.push(createProductionLineItemDto);
+      }
+      return createProductionLineItemDtos;
+    }
+
+    const rawMaterialsRequiredMap = new Map<number, number>();
+    for (const bomLineItem of bomLineItems) {
+      const rawMaterial = bomLineItem.rawMaterial;
+      let qty = bomLineItem.quantity * quantity;
+      if (smallestRatio < quantity) {
+        qty = bomLineItem.quantity * (quantity - Math.floor(smallestRatio));
+        const createProductionLineItemDto = new CreateProductionLineItemDto();
+        createProductionLineItemDto.quantity = qty;
+        createProductionLineItemDto.sufficient = false;
+        createProductionLineItemDto.rawMaterial = await this.rawMaterialService.findOne(bomLineItem.rawMaterial.id);
+        createProductionLineItemDtos.push(createProductionLineItemDto);
+      }
+      rawMaterialsRequiredMap.set(rawMaterial.id, Math.floor(smallestRatio) * bomLineItem.quantity);
+    }
+
     for (const [key, value] of rawMaterialsRequiredMap.entries()) {
       let quantityRequired = value;
-      if (rawMaterialsStock.has(key.id)) {
-        const lineItems = rawMaterialsStock.get(key.id);
-        const totalQty = lineItems.reduce((seed, lineItem) => {
-          return seed + (lineItem.quantity - lineItem.reservedQuantity)
-        }, 0); 
-        if (totalQty <= value) {
-          for (const batchLineItem of lineItems) {
-            const createProductionLineItemDto = new CreateProductionLineItemDto();
-            createProductionLineItemDto.quantity = batchLineItem.quantity - batchLineItem.reservedQuantity;
-            createProductionLineItemDto.sufficient = true;
-            createProductionLineItemDto.rawMaterial = key;
-            createProductionLineItemDto.batchLineItemId = batchLineItem.id;
-            createProductionLineItemDtos.push(createProductionLineItemDto);
-          }
+      const lineItems = rawMaterialsStock.get(key);
+      const totalQty = lineItems.reduce((seed, lineItem) => {
+        return seed + (lineItem.quantity - lineItem.reservedQuantity)
+      }, 0); 
+      if (totalQty <= value) {
+        for (const batchLineItem of lineItems) {
           const createProductionLineItemDto = new CreateProductionLineItemDto();
-          createProductionLineItemDto.quantity = value - totalQty;
-          createProductionLineItemDto.sufficient = false;
-          createProductionLineItemDto.rawMaterial = key;
+          createProductionLineItemDto.quantity = batchLineItem.quantity - batchLineItem.reservedQuantity;
+          createProductionLineItemDto.sufficient = true;
+          createProductionLineItemDto.rawMaterial = await this.rawMaterialService.findOne(key);
+          createProductionLineItemDto.batchLineItemId = batchLineItem.id;
           createProductionLineItemDtos.push(createProductionLineItemDto);
-        } else {
-          lineItems.sort((lineItemOne, lineItemTwo) => 
-            lineItemOne.expiryDate.getTime() - lineItemTwo.expiryDate.getTime()
-          );
-          for (const batchLineItem of lineItems) {
-            const createProductionLineItemDto = new CreateProductionLineItemDto();
-            const qty = batchLineItem.quantity - batchLineItem.reservedQuantity;
-            if (qty > quantityRequired) {
-              createProductionLineItemDto.quantity = quantityRequired
-            } else {
-              createProductionLineItemDto.quantity = batchLineItem.quantity - batchLineItem.reservedQuantity;
-            }
-            createProductionLineItemDto.sufficient = true;
-            createProductionLineItemDto.rawMaterial = key;
-            createProductionLineItemDto.batchLineItemId = batchLineItem.id;
-            createProductionLineItemDtos.push(createProductionLineItemDto);
-            quantityRequired -= qty;
-            if (quantityRequired <= 0) {
-              break;
-            }
-          } 
         }
       } else {
-        const createProductionLineItemDto = new CreateProductionLineItemDto();
-        createProductionLineItemDto.quantity = quantityRequired;
-        createProductionLineItemDto.sufficient = false;
-        createProductionLineItemDto.rawMaterial = key;
-        createProductionLineItemDtos.push(createProductionLineItemDto);
+        lineItems.sort((lineItemOne, lineItemTwo) => 
+          lineItemOne.expiryDate.getTime() - lineItemTwo.expiryDate.getTime()
+        );
+        for (const batchLineItem of lineItems) {
+          const createProductionLineItemDto = new CreateProductionLineItemDto();
+          const qty = batchLineItem.quantity - batchLineItem.reservedQuantity;
+          if (qty > quantityRequired) {
+            createProductionLineItemDto.quantity = quantityRequired
+          } else {
+            createProductionLineItemDto.quantity = batchLineItem.quantity - batchLineItem.reservedQuantity;
+          }
+          createProductionLineItemDto.sufficient = true;
+          createProductionLineItemDto.rawMaterial = await this.rawMaterialService.findOne(key);
+          createProductionLineItemDto.batchLineItemId = batchLineItem.id;
+          createProductionLineItemDtos.push(createProductionLineItemDto);
+          quantityRequired -= qty;
+          if (quantityRequired <= 0) {
+            break;
+          }
+        }
       }
     }
 
