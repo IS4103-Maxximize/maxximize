@@ -77,16 +77,17 @@ export class SalesInquiryService {
         created: new Date(),
         currentOrganisation: organisationToBeAdded,
         salesInquiryLineItems: salesInquiryLineItems,
-        purchaseRequisitions: purchaseRequisitions,
       });
 
       const newSI = await this.salesInquiriesRepository.save(newSalesInquiry);
 
       // link PRs with sales inquiry
-      for (const id of purchaseRequisitionIds) {
-        this.purchaseRequisitionSevice.update(id, {
-          salesInquiryId: newSI.id
-        })
+      if (purchaseRequisitionIds) {
+        for (const id of purchaseRequisitionIds) {
+          await this.purchaseRequisitionSevice.update(id, {
+            salesInquiryId: newSI.id
+          })
+        }
       }
 
       return this.findOne(newSI.id);
@@ -138,13 +139,29 @@ export class SalesInquiryService {
       where: {
         id,
       },
-      relations: [
-        'currentOrganisation',
-        'suppliers',
-        'quotations',
-        'salesInquiryLineItems.rawMaterial',
-        'purchaseRequisitions'
-      ],
+      // relations: [
+      //   'currentOrganisation',
+      //   'suppliers',
+      //   'quotations',
+      //   'salesInquiryLineItems.rawMaterial',
+      //   'purchaseRequisitions.productionLineItem.productionOrder.prodLineItems'
+      // ],
+      relations: {
+        currentOrganisation: true,
+        suppliers: true,
+        quotations: true,
+        salesInquiryLineItems: {
+          rawMaterial: true
+        },
+        purchaseRequisitions:{
+          productionLineItem: {
+            productionOrder: {
+              prodLineItems: true
+            }
+          },
+          rawMaterial: true
+        }
+      }
     });
   }
 

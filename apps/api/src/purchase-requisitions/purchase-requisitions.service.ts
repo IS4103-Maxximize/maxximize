@@ -110,6 +110,7 @@ export class PurchaseRequisitionsService {
   }
 
   async retrieveSalesInquiry(purchaseRequisition: PurchaseRequisition, salesInquiryId: number) {
+    console.log(purchaseRequisition)
     if (purchaseRequisition.salesInquiryId === null && purchaseRequisition.status === 'pending') {
       const salesInquiry = await this.salesInquiryService.findOne(salesInquiryId)
       if (salesInquiry) {
@@ -133,7 +134,7 @@ export class PurchaseRequisitionsService {
         await this.productionLineItemService.softDelete(prodLineItemId)
 
       }
-      return purchaseRequisition
+      return await this.purchaseRequisitionsRepository.save(purchaseRequisition);
     } else {
       throw new NotFoundException('purchase requisition is not in processing or quantityToFulfill is already 0!')
     }

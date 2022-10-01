@@ -269,7 +269,39 @@ export class ProductionOrdersService {
     return this.findOne(newProductionOrder.id)
   }
 
-  findAll() {
+  async findAll() {
+    const productionOrders = await this.productionOrdersRepository.find({
+      relations: {
+        bom: {
+          finalGood: true,
+          bomLineItems: true
+        },
+        completedGoods: true,
+        schedules: true,
+        prodLineItems: {
+          batchLineItem: true,
+          rawMaterial: true
+        },
+        purchaseOrder: true,
+        organisation: true
+      }
+    });
+
+    for (const prodO of productionOrders) {
+      let flag = true;
+      if (prodO.status == ProductionOrderStatus.CREATED) {
+        for (const prodLine of prodO.prodLineItems) {
+          if (prodLine.sufficient == false) {
+            flag = false;
+            break;
+          }
+        }
+        if (flag) {
+          prodO.status = ProductionOrderStatus.READYTORELEASE;
+          await this.productionOrdersRepository.save(prodO);
+        }
+      }
+    }
     return this.productionOrdersRepository.find({
       relations: {
         bom: {
@@ -285,11 +317,11 @@ export class ProductionOrdersService {
         purchaseOrder: true,
         organisation: true
       }
-    })
+    });
   }
 
-  findAllByOrgId(organisationId: number): Promise<ProductionOrder[]> {
-    return this.productionOrdersRepository.find({
+  async findAllByOrgId(organisationId: number): Promise<ProductionOrder[]> {
+    const productionOrders = await this.productionOrdersRepository.find({
       where: {
         organisationId
       }, relations: {
@@ -307,73 +339,75 @@ export class ProductionOrdersService {
         organisation: true
       }
     })
+    for (const prodO of productionOrders) {
+      let flag = true;
+      if (prodO.status == ProductionOrderStatus.CREATED) {
+        for (const prodLine of prodO.prodLineItems) {
+          if (prodLine.sufficient == false) {
+            flag = false;
+            break;
+          }
+        }
+        if (flag) {
+          prodO.status = ProductionOrderStatus.READYTORELEASE;
+          await this.productionOrdersRepository.save(prodO);
+        }
+      }
+    }
+    return await this.productionOrdersRepository.find({
+      where: {
+        organisationId
+      }, relations: {
+        bom: {
+          finalGood: true,
+          bomLineItems: true
+        },
+        completedGoods: true,
+        schedules: true,
+        prodLineItems: {
+          batchLineItem: true,
+          rawMaterial: true
+        },
+        purchaseOrder: true,
+        organisation: true
+      }
+    });
   }
 
-  findOne(id: number): Promise<ProductionOrder> {
+  async findOne(id: number): Promise<ProductionOrder> {
     try {
-      // let productionOrder: ProductionOrder = await this.productionOrdersRepository.findOneOrFail({where: {
-      //   id
-      // }, relations: {
-      //   bom: {
-      //     finalGood: true
-      //   },
-      //   completedGoods: true,
-      //   schedules: true,
-      //   prodLineItems: {
-      //     batchLineItem: true,
-      //     rawMaterial: true
-      //   },
-      //   purchaseOrder: true,
-      //   organisation: true
-      // }})
-      
-      // if (productionOrder.status == ProductionOrderStatus.CREATED || productionOrder.status == ProductionOrderStatus.READYTORELEASE) {
-      //   let newProdLineItems: ProductionLineItem[] = []
-      //   let prodLineItems: CreateProductionLineItemDto[] = []
-      //   await this.datasource.manager.transaction(async (transactionalEntityManager) => {
-      //     for(const lineItem of productionOrder.prodLineItems) {
-      //       if (lineItem.sufficient && lineItem.batchLineItem) {
-      //         transactionalEntityManager.update(BatchLineItem, lineItem.batchLineItem.id, { reservedQuantity: lineItem.batchLineItem.reservedQuantity-lineItem.quantity })
-      //       }
-      //       transactionalEntityManager.remove(lineItem)
-      //     }
-      //     prodLineItems = await this.batchLineItemsService.getLineItems(productionOrder.bom.id, productionOrder.plannedQuantity, productionOrder.organisationId)
-      //     for (const dto of prodLineItems){
-      //       const {quantity, sufficient, batchLineItemId, rawMaterial} = dto
-      //       if (sufficient) {
-      //         let batchLineItem = await transactionalEntityManager.findOneByOrFail(BatchLineItem, {
-      //           id: batchLineItemId
-      //         })
-      //         let rawMaterialToBeAdded = await transactionalEntityManager.findOneByOrFail(RawMaterial, {
-      //           id: rawMaterial.id
-      //         })
-      //         let prodLineItem = await transactionalEntityManager.create(ProductionLineItem, {
-      //           quantity,
-      //           sufficient,
-      //           batchLineItem,
-      //           rawMaterial: rawMaterialToBeAdded,
-      //           productionOrder
-      //         })
-      //         await transactionalEntityManager.save(prodLineItem)
-      //         await transactionalEntityManager.update(BatchLineItem, batchLineItemId, { reservedQuantity: batchLineItem.reservedQuantity+quantity })
-      //       } else if (!sufficient) {
-      //         let rawMaterialToBeAdded = await transactionalEntityManager.findOneByOrFail(RawMaterial, {
-      //           id: rawMaterial.id
-      //         })
-      //         let prodLineItem = transactionalEntityManager.create(ProductionLineItem, {
-      //           quantity,
-      //           sufficient,
-      //           rawMaterial: rawMaterialToBeAdded,
-      //           productionOrder
-      //         })
-      //         await transactionalEntityManager.save(prodLineItem)
-      //       }
-      //     }
-      //     return null
-      //   })
-      // }
-      
-      return this.productionOrdersRepository.findOneOrFail({where: {
+      const prodO = await this.productionOrdersRepository.findOneOrFail({where: {
+        id
+      }, relations: {
+        bom: {
+          finalGood: true,
+          bomLineItems: {
+            rawMaterial: true
+          }
+        },
+        completedGoods: true,
+        schedules: true,
+        prodLineItems: {
+          batchLineItem: true,
+          rawMaterial: true
+        },
+        purchaseOrder: true,
+        organisation: true
+      }})
+      if (prodO.status == ProductionOrderStatus.CREATED) {
+        let flag = true;
+        for (const prodLine of prodO.prodLineItems) {
+          if (prodLine.sufficient == false) {
+            flag = false;
+            break;
+          }
+        }
+        if (flag) {
+          prodO.status = ProductionOrderStatus.READYTORELEASE;
+          await this.productionOrdersRepository.save(prodO);
+        }
+      }
+      return await this.productionOrdersRepository.findOneOrFail({where: {
         id
       }, relations: {
         bom: {
