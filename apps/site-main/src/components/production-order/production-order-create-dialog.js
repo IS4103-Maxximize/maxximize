@@ -292,6 +292,8 @@ export const ProductionOrderCreateDialog = (props) => {
         (prodLineItem) => prodLineItem.sufficient === false
       );
 
+      console.log(insufficientLineItem);
+
       if (insufficientLineItem) {
         const insufficientQuantity = insufficientLineItem.quantity;
         const insufficientRawMaterialId = insufficientLineItem.rawMaterial.id;
