@@ -14,6 +14,7 @@ import { UpdateSalesInquiryDto } from './dto/update-sales-inquiry.dto';
 import { SalesInquiry } from './entities/sales-inquiry.entity';
 import { SalesInquiryStatus } from './enums/salesInquiryStatus.enum';
 import { PurchaseRequisition } from '../purchase-requisitions/entities/purchase-requisition.entity';
+import { PurchaseRequisitionsService } from '../purchase-requisitions/purchase-requisitions.service';
 
 @Injectable()
 export class SalesInquiryService {
@@ -32,7 +33,8 @@ export class SalesInquiryService {
     private readonly rawMaterialsRepository: Repository<RawMaterial>,
     @InjectRepository(PurchaseRequisition)
     private readonly purchaseRequisitionRepository: Repository<PurchaseRequisition>,
-    private mailerService: MailService
+    private mailerService: MailService,
+    private purchaseRequisitionSevice: PurchaseRequisitionsService
   ) {}
 
   async create(
@@ -76,7 +78,16 @@ export class SalesInquiryService {
         salesInquiryLineItems: salesInquiryLineItems,
         purchaseRequisitions: purchaseRequisitions,
       });
+
       const newSI = await this.salesInquiriesRepository.save(newSalesInquiry);
+
+      // link PRs with sales inquiry
+      for (const id of purchaseRequisitionIds) {
+        this.purchaseRequisitionSevice.update(id, {
+          salesInquiryId: newSI.id
+        })
+      }
+
       return this.findOne(newSI.id);
     } catch (error) {
       console.log(error);
