@@ -8,5 +8,4 @@ export class CreateFactoryMachineDto {
     lastServiced: Date
     remarks: string
     organisationId: number
-    productionLineId: number
 }
