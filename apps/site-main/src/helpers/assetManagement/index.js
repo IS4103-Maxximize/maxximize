@@ -77,28 +77,19 @@ export const createProductionLine = async (createProductionLineDto) => {
     );
   };
   
-  export const updateProductionLine = async (values, productionLineId) => {
-  
-    const apiUrl = `${apiHost}/production-lines/${productionLineId}`;
-    let body = {
-      nextAvailableDateTime: values.nextAvailableDateTime,
-      isAvailable: values.isAvailable,
-      lastStopped: values.lastStopped
-    };
-  
-    body = JSON.stringify(body);
-  
+  export const updateProductionLine = async (productionLineId, updateProductionLineDto) => {
+    const apiUrl = `${apiHost}/production-lines/${productionLineId}`;  
     const requestOptions = {
       method: 'PATCH',
       headers: headers,
-      body: body,
+      body: JSON.stringify(updateProductionLineDto),
     };
     return await fetch(apiUrl, requestOptions).then((response) =>
       response.json()
     );
   };
 
-  const deleteProductionLine = async (id) => {
+  export const deleteProductionLine = async (id) => {
     const apiUrl = `${apiHost}/production-lines/${id}`;
     const requestOptions = {
       method: 'DELETE',
