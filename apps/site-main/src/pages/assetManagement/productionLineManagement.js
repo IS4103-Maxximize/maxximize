@@ -87,7 +87,7 @@ export const ProductionLineManagement = (props) => {
 
 
   // Delete Button
-  const deleteDisabled = Boolean(selectedRows.length === 0);
+  const deleteDisabled = Boolean(selectedRows.length === 0 ||selectedRows.length > 1 );
   
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
 
@@ -174,13 +174,9 @@ export const ProductionLineManagement = (props) => {
   const handleDelete  = async (id) => {
     const response = await fetch('http://localhost:3000/api/production-lines', {
       method: 'DELETE',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
     });
       if (response.status === 200 || response.status === 201) {
-        setSelectedRows([]);
+        setSelectedRow([]);
         deleteProductionLine(id)
         .then(() => {
           handleAlertOpen(`Successfully deleted Production Line`, 'success');

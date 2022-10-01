@@ -245,7 +245,6 @@ import {
               required
               error={Boolean(formik.touched.remarks && formik.errors.remarks)}
               fullWidth
-              helperText={formik.touched.remarks && formik.errors.remarks}
               label="Remarks"
               margin="normal"
               name="remarks"
