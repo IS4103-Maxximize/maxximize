@@ -273,7 +273,8 @@ export class ProductionOrdersService {
     return this.productionOrdersRepository.find({
       relations: {
         bom: {
-          finalGood: true
+          finalGood: true,
+          bomLineItems: true
         },
         completedGoods: true,
         schedules: true,
@@ -293,7 +294,8 @@ export class ProductionOrdersService {
         organisationId
       }, relations: {
         bom: {
-          finalGood: true
+          finalGood: true,
+          bomLineItems: true
         },
         completedGoods: true,
         schedules: true,
@@ -375,7 +377,10 @@ export class ProductionOrdersService {
         id
       }, relations: {
         bom: {
-          finalGood: true
+          finalGood: true,
+          bomLineItems: {
+            rawMaterial: true
+          }
         },
         completedGoods: true,
         schedules: true,
@@ -449,15 +454,52 @@ export class ProductionOrdersService {
         else if(value == ProductionOrderStatus.ONGOING && productionOrderToUpdate.daily) {
           await this.datasource.manager.transaction(async (transactionalEntityManager) => {
 
+            const rawMaterialProdLineItems = new Map<number, ProductionLineItem[]>();
+
             for (const lineItem of productionOrderToUpdate.prodLineItems){
-              if (lineItem.quantity >= lineItem.batchLineItem.quantity) {
-                await transactionalEntityManager.softDelete(BatchLineItem, lineItem.batchLineItem.id)
+              const rawMaterial = lineItem.rawMaterial
+              if (!rawMaterialProdLineItems.has(rawMaterial.id)){
+                const lineItemsArr: ProductionLineItem[] = []
+                lineItemsArr.push(lineItem)
+                rawMaterialProdLineItems.set(rawMaterial.id, lineItemsArr)
               } else {
-                await transactionalEntityManager.update(BatchLineItem, lineItem.batchLineItem.id, {reservedQuantity: lineItem.batchLineItem.reservedQuantity-lineItem.quantity, quantity: lineItem.batchLineItem.quantity-lineItem.quantity})
+                const lineItemsArr = rawMaterialProdLineItems.get(rawMaterial.id)
+                lineItemsArr.push(lineItem)
+                rawMaterialProdLineItems.set(rawMaterial.id, lineItemsArr)
               }
-              
-              await transactionalEntityManager.save(lineItem)
             }
+
+            for (const [id, lineItemsArr] of rawMaterialProdLineItems.entries()) {
+              lineItemsArr.sort((lineItemOne, lineItemTwo) => lineItemOne.batchLineItem.expiryDate.getTime() - lineItemTwo.batchLineItem.expiryDate.getTime())
+            }
+
+            for (const lineItem of productionOrderToUpdate.bom.bomLineItems) {
+              let quantityRequired = productionOrderToUpdate.plannedQuantity * lineItem.quantity
+              let lineItemsArr = rawMaterialProdLineItems.get(lineItem.rawMaterial.id)
+              for (const lineItem of lineItemsArr) {
+                if (quantityRequired <= 0) {
+                  break
+                }
+                if (quantityRequired >= lineItem.quantity) {
+                  quantityRequired -= lineItem.quantity
+                  if (lineItem.quantity >= lineItem.batchLineItem.quantity) {
+                    await transactionalEntityManager.softDelete(BatchLineItem, lineItem.batchLineItem.id)
+                  } else {
+                    await transactionalEntityManager.update(BatchLineItem, lineItem.batchLineItem.id, {reservedQuantity: lineItem.batchLineItem.reservedQuantity-lineItem.quantity, quantity: lineItem.batchLineItem.quantity-lineItem.quantity})
+                  }
+                  await transactionalEntityManager.save(lineItem)
+                } else {
+                  if (quantityRequired >= lineItem.batchLineItem.quantity) {
+                    await transactionalEntityManager.softDelete(BatchLineItem, lineItem.batchLineItem.id)
+                  } else {
+                    await transactionalEntityManager.update(BatchLineItem, lineItem.batchLineItem.id, {reservedQuantity: lineItem.batchLineItem.reservedQuantity-quantityRequired, quantity: lineItem.batchLineItem.quantity-quantityRequired})
+                  }
+                  await transactionalEntityManager.save(lineItem)
+                  quantityRequired = 0
+                }
+              }
+            }
+
             await transactionalEntityManager.update(ProductionOrder, id, {status: value})
             return null
           })
