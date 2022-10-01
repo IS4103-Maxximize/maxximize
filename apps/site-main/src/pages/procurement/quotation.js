@@ -21,6 +21,7 @@ import {
   fetchQuotations,
 } from '../../helpers/procurement-ordering';
 import format from 'date-fns/format';
+import dayjs from 'dayjs';
 
 const Quotation = (props) => {
   const user = JSON.parse(localStorage.getItem('user'));
@@ -172,7 +173,7 @@ const Quotation = (props) => {
       headerName: 'Date Created',
       flex: 2,
       valueGetter: (params) => {
-        return format(new Date(params.row.created), 'dd MMMM yyyy');
+        return dayjs(params.row.created).format('DD MMM YYYY');
       },
     },
     {

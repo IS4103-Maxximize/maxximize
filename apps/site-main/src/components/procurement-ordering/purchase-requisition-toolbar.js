@@ -1,27 +1,20 @@
 import AddBoxIcon from '@mui/icons-material/AddBox';
-import DeleteIcon from '@mui/icons-material/Delete';
 import {
-  Badge,
   Box,
-  Breadcrumbs,
-  Card,
-  CardContent,
-  IconButton,
-  InputAdornment,
+  Breadcrumbs, Button, Card,
+  CardContent, InputAdornment,
   Stack,
   SvgIcon,
   TextField,
   Tooltip,
-  Typography,
-  Link,
+  Typography
 } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { Search as SearchIcon } from '../icons/search';
-import { Link as RouterLink } from 'react-router-dom';
-import { procurementBreadcrumbs } from '../helpers/constants';
+import { procurementBreadcrumbs } from '../../helpers/constants';
+import { Search as SearchIcon } from '../../icons/search';
 
-export const Toolbar = (props) => {
+export const PurchaseRequisitionToolbar = (props) => {
   const {
     name,
     numRows,
@@ -45,27 +38,6 @@ export const Toolbar = (props) => {
     setSubDomain(subdomain);
   }, [location]);
 
-  const productionBreadcrumbs = [
-    <Link
-      component={RouterLink}
-      underline="hover"
-      key="bill-of-material"
-      color={subdomain === 'bill-of-material' ? 'primary' : 'inherit'}
-      to="/production/bill-of-material"
-    >
-      Bill Of Material
-    </Link>,
-    <Link
-      component={RouterLink}
-      underline="hover"
-      key="production-order"
-      color={subdomain === 'production-order' ? 'primary' : 'inherit'}
-      to="/production/production-order"
-    >
-      Production Order
-    </Link>,
-  ];
-
   return (
     <Box {...props}>
       <Box
@@ -82,7 +54,6 @@ export const Toolbar = (props) => {
         </Typography>
         <Breadcrumbs separator="-">
           {domain === 'procurement' && procurementBreadcrumbs(subdomain)}
-          {domain === 'production' && productionBreadcrumbs}
         </Breadcrumbs>
       </Box>
       <Box sx={{ mt: 3 }}>
@@ -117,19 +88,21 @@ export const Toolbar = (props) => {
               </Stack>
 
               <Box sx={{ m: 1 }}>
-                <Tooltip title={`Add ${name}`}>
-                  <IconButton
+                <Tooltip title={`Add Sales Inquiry from PRs`}>
+                  <Button 
+                    disabled={numRows < 1}
+                    startIcon={<AddBoxIcon />}
                     color="primary"
+                    variant="contained"
                     onClick={() => {
                       handleAdd && handleAdd();
                       handleFormDialogOpen();
                     }}
-                    sx={{ mr: 1 }}
                   >
-                    <AddBoxIcon />
-                  </IconButton>
+                    {`Create Sales Inquiry from PRs [${numRows}]`}
+                  </Button>
                 </Tooltip>
-                <Tooltip title={`Delete ${name}(s)`}>
+                {/* <Tooltip title={`Delete ${name}(s)`}>
                   <IconButton
                     color="error"
                     disabled={deleteDisabled}
@@ -139,7 +112,7 @@ export const Toolbar = (props) => {
                       <DeleteIcon />
                     </Badge>
                   </IconButton>
-                </Tooltip>
+                </Tooltip> */}
               </Box>
             </Box>
           </CardContent>

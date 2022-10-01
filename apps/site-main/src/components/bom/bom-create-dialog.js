@@ -253,7 +253,7 @@ export const BOMCreateDialog = (props) => {
               name="final-good-unit"
               value={
                 formik.values.finalGoodId ? 
-                finalGoods.find(item => item.id === formik.values.finalGoodId).unit : 0
+                finalGoods.find(item => item.id === formik.values.finalGoodId).unit : ''
               }
               variant="outlined"
               disabled

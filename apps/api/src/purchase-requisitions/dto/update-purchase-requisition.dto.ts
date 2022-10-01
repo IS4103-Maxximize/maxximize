@@ -3,4 +3,5 @@ import { CreatePurchaseRequisitionDto } from './create-purchase-requisition.dto'
 
 export class UpdatePurchaseRequisitionDto extends PartialType(CreatePurchaseRequisitionDto) {
     quantityToFulfill?: number;
+    salesInquiryId?: number;
 }

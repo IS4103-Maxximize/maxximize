@@ -1,9 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { OrganisationsService } from '../organisations/organisations.service';
 import { ProductionLineItemsService } from '../production-line-items/production-line-items.service';
-import { ProductionOrdersService } from '../production-orders/production-orders.service';
 import { RawMaterialsService } from '../raw-materials/raw-materials.service';
 import { SalesInquiryService } from '../sales-inquiry/sales-inquiry.service';
 import { CreatePurchaseRequisitionDto } from './dto/create-purchase-requisition.dto';
@@ -17,9 +16,10 @@ export class PurchaseRequisitionsService {
     @InjectRepository(PurchaseRequisition)
     private readonly purchaseRequisitionsRepository: Repository<PurchaseRequisition>,
     private productionLineItemService: ProductionLineItemsService,
-    private salesInquiryService: SalesInquiryService,
     private rawMaterialService: RawMaterialsService,
-    private organisationService: OrganisationsService
+    private organisationService: OrganisationsService,
+    @Inject(forwardRef(() => SalesInquiryService))
+    private salesInquiryService: SalesInquiryService,
   ) {}
   async create(createPurchaseRequisitionDto: CreatePurchaseRequisitionDto) {
     const {productionLineItemId, expectedQuantity, organisationId, rawMaterialId} = createPurchaseRequisitionDto
@@ -34,7 +34,8 @@ export class PurchaseRequisitionsService {
       rawMaterialId: rawMaterial.id,
       quantityToFulfill: expectedQuantity
     })
-    return this.purchaseRequisitionsRepository.save(newPurchaseRequisition)
+    const newPR = await this.purchaseRequisitionsRepository.save(newPurchaseRequisition);
+    return await this.findOne(newPR.id);
   }
 
   async findAll() {
@@ -57,7 +58,9 @@ export class PurchaseRequisitionsService {
       organisationId: id
     }, relations: {
       salesInquiry: true,
-      productionLineItem: true,
+      productionLineItem: {
+        productionOrder: true
+      },
       rawMaterial: true
     }})
     if (count > 0) {
@@ -74,7 +77,9 @@ export class PurchaseRequisitionsService {
           id
         }, relations: {
           salesInquiry: true,
-          productionLineItem: true,
+          productionLineItem: {
+            productionOrder: true
+          },
           rawMaterial: true
         }
       }) 
@@ -95,7 +100,8 @@ export class PurchaseRequisitionsService {
         }
       }
     }
-    return this.purchaseRequisitionsRepository.save(purchaseRequisitionToUpdate)
+    await this.purchaseRequisitionsRepository.save(purchaseRequisitionToUpdate)
+    return this.findOne(id);
   }
 
   async remove(id: number) {

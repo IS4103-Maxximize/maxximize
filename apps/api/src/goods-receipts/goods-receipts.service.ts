@@ -94,8 +94,8 @@ export class GoodsReceiptsService {
     const goodsReceipts = await this.goodsReceiptRepository.find({
       relations: {
         goodsReceiptLineItems: {
-			product: true,
-		},
+          product: true,
+        },
         purchaseOrder: true,
         batch: true
       }
@@ -110,8 +110,8 @@ export class GoodsReceiptsService {
       },
       relations: {
         goodsReceiptLineItems: {
-			product: true,
-		},
+          product: true,
+        },
         purchaseOrder: true,
         batch: true
       }
@@ -130,8 +130,8 @@ export class GoodsReceiptsService {
       },
       relations: {
         goodsReceiptLineItems: {
-			product: true,
-		},
+          product: true,
+        },
         purchaseOrder: true,
         batch: true
       }
