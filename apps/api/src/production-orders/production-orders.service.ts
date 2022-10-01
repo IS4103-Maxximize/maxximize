@@ -65,9 +65,10 @@ export class ProductionOrdersService {
     let finalGoodId: number = bomToBeAdded.finalGood.id
     await this.datasource.manager.transaction(async (transactionalEntityManager) => {
       if(daily) {
-        scheduleDtos = await this.productionLinesService.retrieveSchedulesForProductionOrder(plannedQuantity, finalGoodId, daily, 0, organisationId)
+        scheduleDtos = await this.productionLinesService.retrieveSchedulesForProductionOrder(plannedQuantity, finalGoodId, daily, duration, organisationId)
+        console.log(scheduleDtos)
         let latestDate: Date = scheduleDtos[scheduleDtos.length - 1].end
-        prodLineItemDtos = await this.batchLineItemsService.getLineItems(bomId, plannedQuantity, organisationId)
+        prodLineItemDtos = await this.batchLineItemsService.getLineItems(bomId, plannedQuantity * duration, organisationId, latestDate)
         for (const dto of prodLineItemDtos) {
           const {quantity, sufficient, batchLineItemId, rawMaterial} = dto
           if (sufficient){
@@ -109,17 +110,20 @@ export class ProductionOrdersService {
           organisationId
         })
         newProductionOrder = await transactionalEntityManager.save(newProductionOrder)
+        let cronTest = 10000;
         for (const schedule of schedulesToBeAdded){
-          const startJob = new CronJob(new Date((new Date()).getTime() + 30000), async () => {
+          const startJob = new CronJob(new Date((new Date()).getTime() + cronTest), async () => {
             this.update(newProductionOrder.id, {status : ProductionOrderStatus.ONGOING})
             this.schedulesService.update(schedule.id, {status : ScheduleType.ONGOING})
             this.logger.warn(`time (${schedule.start}) for start job ${schedule.id} to run!`);
           })
-          const endJob = new CronJob(new Date((new Date()).getTime() + 60000), async () => {
+          cronTest += 10000
+          const endJob = new CronJob(new Date((new Date()).getTime() + cronTest), async () => {
             this.update(newProductionOrder.id, {status : ProductionOrderStatus.COMPLETED})
             this.schedulesService.update(schedule.id, {status : ScheduleType.COMPLETED})
             this.logger.warn(`time (${schedule.end}) for end job ${schedule.id} to run!`);
           })
+          cronTest += 10000
           this.schedulerRegistry.addCronJob(`start ${schedule.id}`, startJob);
           startJob.start()
           this.schedulerRegistry.addCronJob(`end ${schedule.id}`, endJob);
@@ -128,7 +132,7 @@ export class ProductionOrdersService {
       } else {
         scheduleDtos = await this.productionLinesService.retrieveSchedulesForProductionOrder(plannedQuantity, finalGoodId, daily, 0, organisationId)
         let latestDate: Date = scheduleDtos[scheduleDtos.length - 1].end
-        prodLineItemDtos = await this.batchLineItemsService.getLineItems(bomId, plannedQuantity, organisationId)
+        prodLineItemDtos = await this.batchLineItemsService.getLineItems(bomId, plannedQuantity, organisationId, latestDate)
         let insufficientLineItems: ProductionLineItem[] = [];
         let rawMaterialCount: number = 0;
         let bomMaterialCount: number = 0;
@@ -188,12 +192,12 @@ export class ProductionOrdersService {
           })
           newProductionOrder = await transactionalEntityManager.save(newProductionOrder)
           for (const schedule of schedulesToBeAdded){
-            const startJob = new CronJob(new Date((new Date()).getTime() + 30000), async () => {
+            const startJob = new CronJob(schedule.start, async () => {
               await this.schedulesService.update(schedule.id, {status : ScheduleType.ONGOING})
               await this.update(newProductionOrder.id, {status : ProductionOrderStatus.ONGOING})
               this.logger.warn(`time (${schedule.start}) for start job ${schedule.id} to run!`);
             })
-            const endJob = new CronJob(new Date((new Date()).getTime() + 60000), async () => {
+            const endJob = new CronJob(schedule.end, async () => {
               await this.schedulesService.update(schedule.id, {status : ScheduleType.COMPLETED})
               await this.update(newProductionOrder.id, {status : ProductionOrderStatus.COMPLETED})
               this.logger.warn(`time (${schedule.end}) for end job ${schedule.id} to run!`);
@@ -426,18 +430,38 @@ export class ProductionOrdersService {
             return null
           })
           
-        } else if(value == ProductionOrderStatus.ONGOING) {
+        } else if(value == ProductionOrderStatus.ONGOING && !productionOrderToUpdate.daily) {
           await this.datasource.manager.transaction(async (transactionalEntityManager) => {
 
             for (const lineItem of productionOrderToUpdate.prodLineItems){
-              await transactionalEntityManager.update(BatchLineItem, lineItem.batchLineItem.id, {reservedQuantity: lineItem.batchLineItem.reservedQuantity-lineItem.quantity, quantity: lineItem.batchLineItem.quantity-lineItem.quantity})
+
+              if (lineItem.quantity >= lineItem.batchLineItem.quantity) {
+                await transactionalEntityManager.softDelete(BatchLineItem, lineItem.batchLineItem.id)
+              } else {
+                await transactionalEntityManager.update(BatchLineItem, lineItem.batchLineItem.id, {reservedQuantity: lineItem.batchLineItem.reservedQuantity-lineItem.quantity, quantity: lineItem.batchLineItem.quantity-lineItem.quantity})
+              }
+              await transactionalEntityManager.save(lineItem)
+            }
+            await transactionalEntityManager.update(ProductionOrder, id, {status: value})
+            return null
+          })
+        }
+        else if(value == ProductionOrderStatus.ONGOING && productionOrderToUpdate.daily) {
+          await this.datasource.manager.transaction(async (transactionalEntityManager) => {
+
+            for (const lineItem of productionOrderToUpdate.prodLineItems){
+              if (lineItem.quantity >= lineItem.batchLineItem.quantity) {
+                await transactionalEntityManager.softDelete(BatchLineItem, lineItem.batchLineItem.id)
+              } else {
+                await transactionalEntityManager.update(BatchLineItem, lineItem.batchLineItem.id, {reservedQuantity: lineItem.batchLineItem.reservedQuantity-lineItem.quantity, quantity: lineItem.batchLineItem.quantity-lineItem.quantity})
+              }
               
               await transactionalEntityManager.save(lineItem)
             }
             await transactionalEntityManager.update(ProductionOrder, id, {status: value})
             return null
           })
-        } else {
+        }  else {
           productionOrderToUpdate[key] = value
           await this.productionOrdersRepository.save(productionOrderToUpdate)
         }
