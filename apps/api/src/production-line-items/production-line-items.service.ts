@@ -26,6 +26,7 @@ export class ProductionLineItemsService {
         createProductionLineItemDto;
         let productionOrder = await this.productionOrdersRepository.findOneByOrFail({id: productionOrderId})
         let newProductionLineItem: ProductionLineItem;
+        let rawMaterialToBeAdded: RawMaterial;
       if(sufficient && batchLineItemId) {
         let batchLineItem = await this.batchLineItemsRepository.findOneByOrFail({id: batchLineItemId})
         newProductionLineItem = this.prodLineItemsRepository.create({
@@ -35,11 +36,11 @@ export class ProductionLineItemsService {
           productionOrder
         })
       } else if (!sufficient && rawMaterial) {
-        // let rawMaterial = await this.rawMaterialsRepository.findOneByOrFail({ id: rawMaterialId })
+        rawMaterialToBeAdded = await this.rawMaterialsRepository.findOneByOrFail({ id: rawMaterial.id })
         newProductionLineItem = this.prodLineItemsRepository.create({
           quantity,
           sufficient,
-          rawMaterial,
+          rawMaterial: rawMaterialToBeAdded,
           productionOrder
         })
         return this.prodLineItemsRepository.save(newProductionLineItem)
@@ -89,4 +90,9 @@ export class ProductionLineItemsService {
     const productionLineItem = await this.prodLineItemsRepository.findOneBy({id})
     return this.prodLineItemsRepository.remove(productionLineItem)
   }
+
+  async softDelete(id: number) {
+    await this.prodLineItemsRepository.softDelete(id)
+  }
+
 }

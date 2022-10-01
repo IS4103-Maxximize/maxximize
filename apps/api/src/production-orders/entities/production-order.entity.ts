@@ -32,7 +32,7 @@ export class ProductionOrder {
     @ManyToOne(() => BillOfMaterial, bom => bom.productionOrders, {onDelete:"CASCADE"})
     bom: BillOfMaterial
 
-    @OneToMany(() => Schedule, schedule => schedule.productionOrder, {cascade: true})
+    @OneToMany(() => Schedule, schedule => schedule.productionOrder)
     schedules: Schedule[]
 
     @OneToMany(() => ProductionLineItem, prodLineItem => prodLineItem.productionOrder)

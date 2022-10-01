@@ -91,7 +91,7 @@ export class PurchaseRequisitionsService {
         if (key === 'salesInquiryId') {
          purchaseRequisitionToUpdate = await this.retrieveSalesInquiry(purchaseRequisitionToUpdate, value)
         } else if (key === 'fulfilledQuantity') {
-          purchaseRequisitionToUpdate = this.updateFulfilledQty(purchaseRequisitionToUpdate, value)
+          purchaseRequisitionToUpdate = await this.updateFulfilledQty(purchaseRequisitionToUpdate, value)
         }
       }
     }
@@ -116,13 +116,16 @@ export class PurchaseRequisitionsService {
     }
   }
 
-  updateFulfilledQty(purchaseRequisition: PurchaseRequisition, qty: number) {
+  async updateFulfilledQty(purchaseRequisition: PurchaseRequisition, qty: number) {
     if (purchaseRequisition.status === 'processing' && purchaseRequisition.quantityToFulfill !== 0) {
       purchaseRequisition.quantityToFulfill = qty
       if (qty === 0) {
         //means its fulfilled
         purchaseRequisition.status = PRStatus.FULFILLED
         //TODO: update PR's ProdO status to readytorelease
+        const prodLineItemId = purchaseRequisition.productionLineItem.id
+        await this.productionLineItemService.softDelete(prodLineItemId)
+
       }
       return purchaseRequisition
     } else {

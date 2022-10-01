@@ -26,7 +26,7 @@ export class Schedule {
     @JoinColumn({name: 'productionLineId'})
     productionLine: ProductionLine
 
-    @ManyToOne(() => ProductionOrder, productionOrder => productionOrder.schedules, {onDelete: "CASCADE"})
+    @ManyToOne(() => ProductionOrder, productionOrder => productionOrder.schedules, {onDelete: "CASCADE", cascade: true})
     @JoinColumn()
     productionOrder: ProductionOrder
 }

@@ -40,7 +40,8 @@ export class SchedulesService {
   findAll() {
     return this.scheduleRepository.find({
       relations: {
-        productionLine: true
+        productionLine: true,
+        productionOrder: true
       }
     })
   }
@@ -50,7 +51,8 @@ export class SchedulesService {
       const schedule = await this.scheduleRepository.findOne({where: {
         id
       }, relations: {
-        productionLine: true
+        productionLine: true,
+        productionOrder: true
       }})
       return schedule
     } catch (error) {

@@ -24,9 +24,12 @@ export class ProductionLineItem {
     @ManyToOne(() => RawMaterial, {nullable: true})
     rawMaterial?: RawMaterial
 
-    @ManyToOne(() => ProductionOrder, productionOrder => productionOrder.prodLineItems, {onDelete: "CASCADE"})
+    @ManyToOne(() => ProductionOrder, productionOrder => productionOrder.prodLineItems, {onDelete: "CASCADE", cascade: true})
     productionOrder: ProductionOrder
 
     @OneToOne(() => PurchaseRequisition, purchaseRequisition => purchaseRequisition.productionLineItem)
     purchaseRequisition: PurchaseRequisition;
+
+    @DeleteDateColumn()
+    deletedAt: Date;
 }
