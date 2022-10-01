@@ -15,6 +15,8 @@ import { NotificationAlert } from '../../components/notification-alert';
 import { ConfirmDialog } from '../../components/product/confirm-dialog';
 import { ProductMenu } from '../../components/product/product-menu';
 import { ProductionOrderCreateDialog } from '../../components/production-order/production-order-create-dialog';
+import { ProductionOrderMenu } from '../../components/production-order/production-order-menu';
+import { ProductionOrderViewDialog } from '../../components/production-order/production-order-view-dialog';
 import { Toolbar } from '../../components/toolbar';
 
 export const ProductionOrder = (props) => {
@@ -25,27 +27,30 @@ export const ProductionOrder = (props) => {
   const [loading, setLoading] = useState(true); // loading upon entering page
 
   // DataGrid Helpers
-  const [rows, setRows] = useState([]);
+  const [productionOrders, setProductionOrders] = useState([]);
   const [selectedRows, setSelectedRows] = useState([]); // Selected Row IDs
   const [selectedRow, setSelectedRow] = useState();
 
   const getProductionOrders = async () => {
-    // fetchProdOrders(organisationId)
-    //   .then(res => setRows(res))
-    //   .catch(err => handleAlertOpen('Failed to fetch Production Orders', 'error'))
+    const response = await fetch(
+      `http://localhost:3000/api/production-orders/all/${organisationId}`
+    );
+
+    let result = [];
+
+    if (response.status == 200 || response.status == 201) {
+      result = await response.json();
+    }
+
+    setProductionOrders(result);
   };
 
   useEffect(() => {
-    // get Prod Orders
+    // Get Prod Orders
     setLoading(true);
     getProductionOrders();
+    console.log(selectedRow);
   }, []);
-
-  useEffect(() => {
-    // show page after fetching data
-    // console.log(rows);
-    setLoading(false);
-  }, [rows]);
 
   // Alert Helpers
   const [alertOpen, setAlertOpen] = useState(false);
@@ -66,11 +71,24 @@ export const ProductionOrder = (props) => {
   const handleSearch = (event) => {
     setSearch(event.target.value.toLowerCase().trim());
   };
+
   // Add Button
   const handleAddClick = () => {
     // setAction('POST');
     setSelectedRow(null);
   };
+
+  // Add Production Order entry
+  const addProductionOrder = (productionOrder) => {
+    try {
+      const updatedProductionOrders = [...productionOrders, productionOrder];
+
+      setProductionOrders(updatedProductionOrders);
+    } catch {
+      console.log('An error occured please try again later');
+    }
+  };
+
   // Delete Button
   const deleteDisabled = Boolean(selectedRows.length === 0);
 
@@ -85,15 +103,11 @@ export const ProductionOrder = (props) => {
   const handleMenuClose = () => {
     setAnchorEl(null);
   };
-  const handleClickViewEdit = () => {
-    setAction('PATCH');
-  };
 
   const menuButton = (params) => {
     return (
       <IconButton
         onClick={(event) => {
-          // console.log(params.row)
           setSelectedRow(params.row);
           handleMenuClick(event);
         }}
@@ -122,27 +136,18 @@ export const ProductionOrder = (props) => {
     }
   }, [createDialogOpen]);
 
-  // Update Dialog Helpers
-  const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
-  const handleUpdateDialogOpen = () => {
-    setUpdateDialogOpen(true);
-  };
-  const handleUpdateDialogClose = () => {
-    setUpdateDialogOpen(false);
+  //View Dialog Helper
+  const [openViewDialog, setOpenViewDialog] = useState(false);
+
+  const handleOpenViewDialog = () => {
+    setOpenViewDialog(true);
   };
 
-  useEffect(() => {
-    console.log(updateDialogOpen);
-    if (!updateDialogOpen) {
-      setLoading(true);
-      getProductionOrders();
-    }
-    if (updateDialogOpen) {
-      console.log(selectedRow);
-    }
-  }, [updateDialogOpen]);
+  const handleCloseViewDialog = () => {
+    setOpenViewDialog(false);
+  };
 
-  // ConfirmDialog Helpers
+  // Confirm Dialog Helpers
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const handleConfirmDialogOpen = () => {
     setConfirmDialogOpen(true);
@@ -151,19 +156,51 @@ export const ProductionOrder = (props) => {
     setConfirmDialogOpen(false);
   };
 
-  // CRUD handlerss
-  const handleDelete = async (ids) => {
+  // CRUD handlers
+  const handleDelete = async (selectedIds) => {
     setSelectedRows([]);
-    // deleteProductionOrders(ids)
-    //   .then(() => handleAlertOpen('Successfully deleted Production Order(s)!', 'success'))
-    //   .then(() => getProdOrders());
+    const requestOptions = {
+      method: 'DELETE',
+    };
+
+    selectedIds.forEach((currentId) => {
+      fetch(
+        `http://localhost:3000/api/production-orders/${currentId}`,
+        requestOptions
+      )
+        .then(() => {
+          handleAlertOpen(
+            `Successfully deleted production orders(s)`,
+            'success'
+          );
+        })
+        .catch((error) => {
+          handleAlertOpen(
+            `Failed to delete production orders(s):${error}`,
+            'error'
+          );
+        });
+    });
+
+    setProductionOrders(
+      productionOrders.filter(
+        (productionOrder) => !selectedIds.includes(productionOrder.id)
+      )
+    );
   };
+
+  const rows = productionOrders;
+  useEffect(() => {
+    // Show page after fetching data
+    // console.log(rows);
+    setLoading(false);
+  }, [rows]);
 
   // DataGrid Columns
   const columns = [
     {
       field: 'id',
-      headerName: 'PO ID',
+      headerName: 'Production Order ID',
       flex: 1,
     },
     {
@@ -180,8 +217,18 @@ export const ProductionOrder = (props) => {
       },
     },
     {
+      field: 'status',
+      headerName: 'Status',
+      flex: 1,
+      valueFormatter: (params) => {
+        const valueFormatted =
+          params.value[0].toUpperCase() + params.value.slice(1);
+        return `${valueFormatted}`;
+      },
+    },
+    {
       field: 'actions',
-      headerName: '',
+      headerName: 'Action',
       flex: 1,
       renderCell: menuButton,
     },
@@ -225,23 +272,20 @@ export const ProductionOrder = (props) => {
             open={createDialogOpen}
             handleClose={handleCreateDialogClose}
             string={name}
+            addProductionOrder={addProductionOrder}
             handleAlertOpen={handleAlertOpen}
           />
-          {/* <BOMUpdateDialog
-            key="bom-update-dialog"
-            open={updateDialogOpen}
-            handleClose={handleUpdateDialogClose}
-            string={'Bill Of Material'}
-            bom={selectedRow}
-            handleAlertOpen={handleAlertOpen}
-          /> */}
-          <ProductMenu
+          <ProductionOrderMenu
             key="prod-order-menu"
             anchorEl={anchorEl}
             menuOpen={menuOpen}
-            handleClickOpen={handleUpdateDialogOpen}
             handleMenuClose={handleMenuClose}
-            handleClickViewEdit={handleClickViewEdit}
+            handleClickViewEdit={handleOpenViewDialog}
+          />
+          <ProductionOrderViewDialog
+            productionOrder={selectedRow}
+            openViewDialog={openViewDialog}
+            closeViewDialog={handleCloseViewDialog}
           />
           <ConfirmDialog
             open={confirmDialogOpen}
@@ -252,42 +296,46 @@ export const ProductionOrder = (props) => {
               handleDelete(selectedRows);
             }}
           />
+
           <Box
             sx={{
               mt: 3,
             }}
           >
-            {rows.length > 0 ? (
-              <DataGrid
-                autoHeight
-                rows={rows.filter((row) => {
-                  return row.id.toString().includes(search);
-                })}
-                columns={columns}
-                pageSize={10}
-                rowsPerPageOptions={[10]}
-                checkboxSelection
-                disableSelectionOnClick
-                components={{
-                  Toolbar: GridToolbar,
-                }}
-                onSelectionModelChange={(ids) => {
-                  setSelectedRows(ids);
-                }}
-                experimentalFeatures={{ newEditingApi: true }}
-              />
-            ) : (
-              <Card
-                variant="outlined"
-                sx={{
-                  textAlign: 'center',
-                }}
-              >
-                <CardContent>
-                  <Typography>{`No ${name}s Found`}</Typography>
-                </CardContent>
-              </Card>
-            )}
+            <Card>
+              {rows.length > 0 ? (
+                <DataGrid
+                  autoHeight
+                  rows={rows.filter((row) => {
+                    return row.id.toString().includes(search);
+                  })}
+                  columns={columns}
+                  pageSize={10}
+                  rowsPerPageOptions={[10]}
+                  checkboxSelection
+                  disableSelectionOnClick
+                  components={{
+                    Toolbar: GridToolbar,
+                  }}
+                  isRowSelectable={(params) => params.row.status == 'created'}
+                  onSelectionModelChange={(ids) => {
+                    setSelectedRows(ids);
+                  }}
+                  experimentalFeatures={{ newEditingApi: true }}
+                />
+              ) : (
+                <Card
+                  variant="outlined"
+                  sx={{
+                    textAlign: 'center',
+                  }}
+                >
+                  <CardContent>
+                    <Typography>{`No ${name}s Found`}</Typography>
+                  </CardContent>
+                </Card>
+              )}
+            </Card>
           </Box>
         </Container>
       </Box>

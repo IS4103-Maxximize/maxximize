@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { BatchLineItemsService } from './batch-line-items.service';
 import { CreateBatchLineItemDto } from './dto/create-batch-line-item.dto';
 import { GetBatchLineItemProdDto } from './dto/get-batch-line-item-prod.dto';
@@ -23,10 +31,19 @@ export class BatchLineItemsController {
     return this.batchLineItemsService.findOne(+id);
   }
 
-  @Get('getLineItem/:billOfMaterialId/:quantity/:organisationId')
-  getLineItems(@Param('billOfMaterialId') billOfMaterialId: number, 
-    @Param('quantity') quantity: number, @Param('organisationId') organisationId: number) {
-    return this.batchLineItemsService.getLineItems(billOfMaterialId, quantity, organisationId, new Date());
+  @Get('getLineItem/:billOfMaterialId/:quantity/:organisationId/:date')
+  getLineItems(
+    @Param('billOfMaterialId') billOfMaterialId: number,
+    @Param('quantity') quantity: number,
+    @Param('organisationId') organisationId: number,
+    @Param('date') date: string
+  ) {
+    return this.batchLineItemsService.getLineItems(
+      billOfMaterialId,
+      quantity,
+      organisationId,
+      new Date(date)
+    );
   }
 
   @Delete(':id')
