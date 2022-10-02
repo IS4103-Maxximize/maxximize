@@ -49,7 +49,7 @@ const MachineManagement = (props) => {
 
   const handleAdd = () => {
     setAction('POST');
-    setSelectedRow(null);
+	setSelectedRow(null);
   };
   const handleFormDialogOpen = () => {
     setFormDialogOpen(true);
@@ -111,7 +111,7 @@ const MachineManagement = (props) => {
     const indexOfEditMachine = rows.findIndex(
       (currentMachine) => currentMachine.id == updatedMachine.id
     );
-    const newMachines = { ...rows };
+    const newMachines = [ ...rows ];
     newMachines[indexOfEditMachine] = updatedMachine;
     setRows(newMachines);
 
@@ -174,7 +174,7 @@ const MachineManagement = (props) => {
       field: 'lastServiced',
       headerName: 'Last Serviced',
       flex: 2,
-	  valueFormatter: (params) =>
+      valueFormatter: (params) =>
         DayJS(params?.value).format('DD MMM YYYY hh:mm a'),
     },
     {

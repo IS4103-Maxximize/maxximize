@@ -45,7 +45,7 @@ export const ProductionLineDialogNew = (props) => {
         addProductionLine(res)
         handleAlertOpen(`Successfully Created Production Line ${res.id}!`, 'success');
       })
-      .catch(err => handleAlertOpen('Failed to Create Production Line', 'error'));
+      .catch(err => console.log(err)) //handleAlertOpen('Failed to Create Production Line', 'error'));
   };
 
   const [selectedBom, setSelectedBom] = useState();

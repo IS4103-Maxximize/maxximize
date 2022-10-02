@@ -60,8 +60,12 @@ export const ProductionOrderCreateDialog = (props) => {
 
   const handleOnSubmit = async (values) => {
     // submit
-    // Create BOM
     // call create api
+
+    console.log(formik.values.multiplier);
+    console.log(selectedBom.id);
+    console.log(formik.values.daily);
+    console.log(formik.values.noOfDays);
     const response = await fetch(
       'http://localhost:3000/api/production-orders',
       {
@@ -75,7 +79,7 @@ export const ProductionOrderCreateDialog = (props) => {
           bomId: selectedBom.id,
           daily: formik.values.daily,
           organisationId: organisationId,
-          duration: formik.values.numOfDays,
+          duration: formik.values.noOfDays,
         }),
       }
     );
@@ -265,13 +269,14 @@ export const ProductionOrderCreateDialog = (props) => {
 
   // Retrieve Production Line Items (Sufficient/Insufficient)
   const retrieveProductionLineItems = async () => {
+    console.log(firstSchedules);
     try {
       const response = await fetch(
         `http://localhost:3000/api/batch-line-items/getLineItem/${
           selectedBom.id
         }/${formik.values.multiplier}/${organisationId}/${
-          formik.values.schedules.length !== 0
-            ? formik.values.schedules[formik.values.schedules.length - 1].end
+          firstSchedules.length !== 0
+            ? firstSchedules[firstSchedules.length - 1].end
             : null
         }`
       );
@@ -677,7 +682,7 @@ export const ProductionOrderCreateDialog = (props) => {
                   <TextField
                     sx={{ width: '100%' }}
                     disabled={true}
-                    label="Final Goods that can be produced"
+                    label="Lots that can be produced"
                     margin="normal"
                     name="maximumFinalGoodOutput"
                     type="number"

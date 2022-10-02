@@ -98,7 +98,7 @@ export const UpdateDialog = ({
         aria-labelledby="responsive-dialog-title"
       >
         <DialogTitle id="responsive-dialog-title">
-            Add a new rule
+            Update rule
         </DialogTitle>
         <DialogContent>
           <form onSubmit={formik.handleSubmit}>

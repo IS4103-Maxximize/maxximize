@@ -148,8 +148,25 @@ export const ProductionOrder = (props) => {
     if (selectedRow?.status == 'readytorelease') {
       retrievePossibleSchedules();
     }
-    getProductionOrders();
-  }, [openViewDialog]);
+
+    const getProductionOrdersAfterPR = async () => {
+      const response = await fetch(
+        `http://localhost:3000/api/production-orders/all/${organisationId}`
+      );
+
+      let result = [];
+
+      if (response.status == 200 || response.status == 201) {
+        result = await response.json();
+      }
+
+      setProductionOrders(result);
+    };
+
+    // setTimeout(getProductionOrders, 500);
+    getProductionOrdersAfterPR();
+    // clearTimeout(timeoutProdO)
+  }, [openViewDialog, createDialogOpen]);
 
   //Use this to store the new row with a schedule, just for display
   const [tempSelectedRow, setTempSelectedRow] = useState('');

@@ -81,7 +81,7 @@ export class QaChecklistsService {
 
   async update(id: number, updateQaChecklistDto: UpdateQaChecklistDto) {
     //can only update productType and qaRules
-    const {productType, qaRuleIds} = updateQaChecklistDto
+    const {productType, qaRuleIds, name } = updateQaChecklistDto
     const checklistToUpdate = await this.findOne(id)
     if (productType) {
       checklistToUpdate.productType = productType
@@ -89,6 +89,9 @@ export class QaChecklistsService {
     if (qaRuleIds) {
       checklistToUpdate.qaRules = await this.retrieveQaRules(qaRuleIds)
     }
+	if (name) {
+		checklistToUpdate.name = name
+	}
     return this.qaChecklistRepository.save(checklistToUpdate)
   }
 

@@ -125,6 +125,13 @@ export class AppService implements OnApplicationBootstrap {
             address: 'maxximiseAddress',
             postalCode: '839849',
           },
+          {
+            id: 8,
+            phoneNumber: '82949238',
+            email: 'maxxiuser1@gmail.com',
+            address: 'maxximiseAddress',
+            postalCode: '839849',
+          },
         ])
         .execute();
 
@@ -142,7 +149,7 @@ export class AppService implements OnApplicationBootstrap {
               '$2b$10$f6h95DOKlOa4967NYpF4y.ef5vkNYh9zJkl7LajmU7mFP86FU0k5K',
             isActive: 'true',
             salt: '$2b$10$f6h95DOKlOa4967NYpF4y.',
-            passwordChanged: false,
+            passwordChanged: true,
             role: Role.SUPERADMIN,
             organisation: await this.organisationsService.findOne(2),
             contact: await this.contactsService.findOne(5),
@@ -156,9 +163,9 @@ export class AppService implements OnApplicationBootstrap {
               '$2b$10$f6h95DOKlOa4967NYpF4y.ef5vkNYh9zJkl7LajmU7mFP86FU0k5K',
             isActive: 'true',
             salt: '$2b$10$f6h95DOKlOa4967NYpF4y.',
-            passwordChanged: false,
+            passwordChanged: true,
             role: Role.ADMIN,
-            organisation: await this.organisationsService.findOne(3),
+            organisation: await this.organisationsService.findOne(2),
             contact: await this.contactsService.findOne(6),
           },
           {
@@ -170,10 +177,24 @@ export class AppService implements OnApplicationBootstrap {
               '$2b$10$f6h95DOKlOa4967NYpF4y.ef5vkNYh9zJkl7LajmU7mFP86FU0k5K',
             isActive: 'true',
             salt: '$2b$10$f6h95DOKlOa4967NYpF4y.',
-            passwordChanged: false,
+            passwordChanged: true,
             role: Role.ADMIN,
-            organisation: await this.organisationsService.findOne(1),
+            organisation: await this.organisationsService.findOne(2),
             contact: await this.contactsService.findOne(7),
+          },
+          {
+            id: 5,
+            firstName: 'manager1',
+            lastName: 'lim',
+            username: 'manager1',
+            password:
+              '$2b$10$f6h95DOKlOa4967NYpF4y.ef5vkNYh9zJkl7LajmU7mFP86FU0k5K',
+            isActive: 'true',
+            salt: '$2b$10$f6h95DOKlOa4967NYpF4y.',
+            passwordChanged: true,
+            role: Role.MANAGER,
+            organisation: await this.organisationsService.findOne(2),
+            contact: await this.contactsService.findOne(8),
           },
         ])
         .execute();
@@ -192,17 +213,17 @@ export class AppService implements OnApplicationBootstrap {
         organisationId: 2,
       });
 
-        await this.binsService.create({
-          name: "SLOC-001-Warehouse1",
-          capacity: 1000000,
-          warehouseId: 1
-        });
+      await this.binsService.create({
+        name: 'SLOC-001-Warehouse1',
+        capacity: 1000000,
+        warehouseId: 1,
+      });
 
-        await this.binsService.create({
-          name: "SLOC-002-Warehouse1",
-          capacity: 1000000,
-          warehouseId: 1
-        });
+      await this.binsService.create({
+        name: 'SLOC-002-Warehouse1',
+        capacity: 1000000,
+        warehouseId: 1,
+      });
 
       await this.binsService.create({
         name: 'SLOC-001-Warehouse2',
@@ -210,209 +231,211 @@ export class AppService implements OnApplicationBootstrap {
         warehouseId: 2,
       });
 
-        await this.rawMaterialsService.create({
-          name: "Tomato",
-          description: "Fresh Tomato",
-          lotQuantity: 50,
-          unit: MeasurementUnit.KILOGRAM,
-          unitPrice: 10,
-          expiry: 7,
-          organisationId: 2
-        });
+      await this.rawMaterialsService.create({
+        name: 'Tomato',
+        description: 'Fresh Tomato',
+        lotQuantity: 50,
+        unit: MeasurementUnit.KILOGRAM,
+        unitPrice: 10,
+        expiry: 7,
+        organisationId: 2,
+      });
 
-        await this.rawMaterialsService.create({
-          name: "Cababge",
-          description: "Fresh Cabbage",
-          lotQuantity: 50,
-          unit: MeasurementUnit.KILOGRAM,
-          unitPrice: 5,
-          expiry: 6,
-          organisationId: 2
-        });
+      await this.rawMaterialsService.create({
+        name: 'Cabbage',
+        description: 'Fresh Cabbage',
+        lotQuantity: 50,
+        unit: MeasurementUnit.KILOGRAM,
+        unitPrice: 5,
+        expiry: 6,
+        organisationId: 2,
+      });
 
-        await this.rawMaterialsService.create({
-          name: "Olive Oil",
-          description: "Extra Virgin Olive Oil",
-          lotQuantity: 50,
-          unit: MeasurementUnit.LITRE,
-          unitPrice: 20,
-          expiry: 60,
-          organisationId: 2
-        });
+      await this.rawMaterialsService.create({
+        name: 'Olive Oil',
+        description: 'Extra Virgin Olive Oil',
+        lotQuantity: 50,
+        unit: MeasurementUnit.LITRE,
+        unitPrice: 20,
+        expiry: 60,
+        organisationId: 2,
+      });
 
-        await this.finalGoodsService.create({
-          name: "Salad",
-          description: "Fresh Cabbage Salad drizzled with olive oil",
-          lotQuantity: 20,
-          unit: MeasurementUnit.KILOGRAM,
-          unitPrice: 50,
-          expiry: 10,
-          organisationId: 2
-        });
+      await this.finalGoodsService.create({
+        name: 'Salad',
+        description: 'Fresh Cabbage Salad drizzled with olive oil',
+        lotQuantity: 20,
+        unit: MeasurementUnit.KILOGRAM,
+        unitPrice: 50,
+        expiry: 10,
+        organisationId: 2,
+      });
 
-        await this.finalGoodsService.create({
-          name: "Tomatoes Canned",
-          description: "Canned Tomatoes in olive oil",
-          lotQuantity: 40,
-          unit: MeasurementUnit.KILOGRAM,
-          unitPrice: 45,
-          expiry: 150,
-          organisationId: 2
-        });
+      await this.finalGoodsService.create({
+        name: 'Tomatoes Canned',
+        description: 'Canned Tomatoes in olive oil',
+        lotQuantity: 40,
+        unit: MeasurementUnit.KILOGRAM,
+        unitPrice: 45,
+        expiry: 150,
+        organisationId: 2,
+      });
 
-        await this.shellOrganisationsService.create({
-          name: "Tomato Farm Bali",
-          uen: "123TOM123",
-          type: OrganisationType.SUPPLIER,
-          contact: {
-            phoneNumber: "123123123",
-            email: "maxximizetest@gmail.com",
-            address: "Tomato Farm Road 123",
-            postalCode: "123123"
+      await this.shellOrganisationsService.create({
+        name: 'Tomato Farm Bali',
+        uen: '123TOM123',
+        type: OrganisationType.SUPPLIER,
+        contact: {
+          phoneNumber: '123123123',
+          email: 'maxximizetest@gmail.com',
+          address: 'Tomato Farm Road 123',
+          postalCode: '123123',
+        },
+        organisationId: 2,
+      });
+
+      await this.shellOrganisationsService.create({
+        name: 'Olive Oil Vineyard 23',
+        uen: '23OIL23',
+        type: OrganisationType.SUPPLIER,
+        contact: {
+          phoneNumber: '2323232323',
+          email: 'maxximizetest@gmail.com',
+          address: '233 Olive Avenue Italy',
+          postalCode: '233233',
+        },
+        organisationId: 2,
+      });
+
+      //create SI and update suppliers
+      await this.salesInquiryService.create({
+        currentOrganisationId: 2,
+        totalPrice: 1850,
+        salesInquiryLineItemsDtos: [
+          {
+            quantity: 50,
+            indicativePrice: 10,
+            rawMaterialId: 1,
           },
-          organisationId: 2
-        });
-
-        await this.shellOrganisationsService.create({
-          name: "Olive Oil Vineyard 23",
-          uen: "23OIL23",
-          type: OrganisationType.SUPPLIER,
-          contact: {
-            phoneNumber: "2323232323",
-            email: "maxximizetest@gmail.com",
-            address: "233 Olive Avenue Italy",
-            postalCode: "233233"
+          {
+            quantity: 30,
+            indicativePrice: 5,
+            rawMaterialId: 2,
           },
-          organisationId: 2
-        })
+          {
+            quantity: 60,
+            indicativePrice: 20,
+            rawMaterialId: 3,
+          },
+        ],
+      });
+	  await this.salesInquiryService.sendEmail({
+		salesInquiryId: 1,
+		shellOrganisationIds: [1]
+	  })
+    //   const supplier: ShellOrganisation =
+    //     await this.shellOrganisationsService.findOne(1);
+    //   await this.salesInquiryService.update(1, {
+    //     suppliers: [supplier],
+    //     salesInquiryLineItemsDtos: [
+    //       {
+    //         quantity: 50,
+    //         indicativePrice: 10,
+    //         rawMaterialId: 1,
+    //       },
+    //       {
+    //         quantity: 30,
+    //         indicativePrice: 5,
+    //         rawMaterialId: 2,
+    //       },
+    //       {
+    //         quantity: 60,
+    //         indicativePrice: 20,
+    //         rawMaterialId: 3,
+    //       },
+    //     ],
+    //   });
 
-        //create SI and update suppliers
-        await this.salesInquiryService.create({
-          currentOrganisationId: 2,
-          totalPrice: 1850,
-          salesInquiryLineItemsDtos: [
-            {
-              quantity: 50,
-              indicativePrice: 10,
-              rawMaterialId: 1
-            },
-            {
-              quantity: 30,
-              indicativePrice: 5,
-              rawMaterialId: 2
-            },
-            {
-              quantity: 60,
-              indicativePrice: 20,
-              rawMaterialId: 3
-            }
-          ]
-        })
-        const supplier: ShellOrganisation = await this.shellOrganisationsService.findOne(1)
-        await this.salesInquiryService.update(1, {
-          suppliers: [
-            supplier
-          ],
-          salesInquiryLineItemsDtos: [
-            {
-              quantity: 50,
-              indicativePrice: 10,
-              rawMaterialId: 1
-            },
-            {
-              quantity: 30,
-              indicativePrice: 5,
-              rawMaterialId: 2
-            },
-            {
-              quantity: 60,
-              indicativePrice: 20,
-              rawMaterialId: 3
-            }
-          ]
-        })
+      //create Quotation
+      await this.quotationService.create({
+        salesInquiryId: 1,
+        shellOrganisationId: 1,
+        leadTime: 5,
+      });
 
-        //create Quotation
-        await this.quotationService.create({
-          salesInquiryId: 1,
-          shellOrganisationId: 1,
-          leadTime: 5
-        })
+      //create Quotation Line Item
 
-        //create Quotation Line Item
+      await this.quotationLineItemService.create({
+        quantity: 50,
+        price: 10,
+        rawMaterialId: 1,
+        quotationId: 1,
+      });
 
-        await this.quotationLineItemService.create({
-          quantity: 50,
-          price: 10,
-          rawMaterialId: 1,
-          quotationId: 1
-        })
+      await this.quotationLineItemService.create({
+        quantity: 30,
+        price: 5,
+        rawMaterialId: 2,
+        quotationId: 1,
+      });
 
-        await this.quotationLineItemService.create({
-          quantity: 30,
-          price: 5,
-          rawMaterialId: 2,
-          quotationId: 1
-        })
+      await this.quotationLineItemService.create({
+        quantity: 60,
+        price: 20,
+        rawMaterialId: 3,
+        quotationId: 1,
+      });
 
-        await this.quotationLineItemService.create({
-          quantity: 60,
-          price: 20,
-          rawMaterialId: 3,
-          quotationId: 1
-        })
+      //create purchaseOrder
+      await this.purchaseOrderService.create({
+        deliveryAddress: 'ManuAddress1',
+        totalPrice: 1850,
+        deliveryDate: new Date(),
+        currentOrganisationId: 2,
+        quotationId: 1,
+        userContactId: 2,
+        poLineItemDtos: [
+          {
+            quantity: 50,
+            price: 10,
+            rawMaterialId: 1,
+          },
+          {
+            quantity: 30,
+            price: 5,
+            rawMaterialId: 2,
+          },
+          {
+            quantity: 60,
+            price: 20,
+            rawMaterialId: 3,
+          },
+        ],
+      });
 
-        //create purchaseOrder
-        await this.purchaseOrderService.create({
-          deliveryAddress: 'ManuAddress1',
-          totalPrice: 1850,
-          deliveryDate: new Date(),
-          currentOrganisationId: 2,
-          quotationId: 1,
-          userContactId: 2,
-          poLineItemDtos: [
-            {
-              quantity: 50,
-              price: 10,
-              rawMaterialId: 1,
-            },
-            {
-              quantity: 30,
-              price: 5,
-              rawMaterialId: 2
-            },
-            {
-              quantity: 60,
-              price: 20,
-              rawMaterialId: 3
-            }
-          ]
-        })
-
-        //create GR
-        await this.goodsReceiptService.create({
-          recipientId: 2,
-          createdDateTime: new Date(),
-          description: "receive goods for data init",
-          purchaseOrderId: 1,
-          organisationId: 2,
-          goodsReceiptLineItemsDtos: [
-            {
-              quantity: 50,
-              rawMaterialId: 1,
-            },
-            {
-              quantity: 30,
-              rawMaterialId: 2
-            },
-            {
-              quantity: 60,
-              rawMaterialId: 3
-            }
-          ],
-          followUpLineItemsDtos: []
-        })
-
+      //create GR
+      await this.goodsReceiptService.create({
+        recipientId: 2,
+        createdDateTime: new Date(),
+        description: 'receive goods for data init',
+        purchaseOrderId: 1,
+        organisationId: 2,
+        goodsReceiptLineItemsDtos: [
+          {
+            quantity: 50,
+            rawMaterialId: 1,
+          },
+          {
+            quantity: 30,
+            rawMaterialId: 2,
+          },
+          {
+            quantity: 60,
+            rawMaterialId: 3,
+          },
+        ],
+        followUpLineItemsDtos: [],
+      });
     }
   }
 }

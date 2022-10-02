@@ -27,8 +27,9 @@ import {
   Collapse,
   Divider,
   Drawer,
-  Link, Typography,
-  useMediaQuery
+  Link,
+  Typography,
+  useMediaQuery,
 } from '@mui/material';
 import PropTypes from 'prop-types';
 import { useState } from 'react';
@@ -196,7 +197,7 @@ const items = [
 
 export const DashboardSidebar = (props) => {
   const { pathname } = useLocation();
-  const basepath = pathname.slice(1, pathname.lastIndexOf('/'))
+  const basepath = pathname.slice(1, pathname.lastIndexOf('/'));
 
   const { open, onClose, user } = props;
   const lgUp = useMediaQuery((theme) => theme.breakpoints.up('lg'), {
@@ -279,10 +280,7 @@ export const DashboardSidebar = (props) => {
     .filter((subsystem) => subsystem.access.includes(user.role))
     .map((item, index) => {
       return (
-        <Box 
-          key={index} 
-          sx={{ mr: 1 }}
-        >
+        <Box key={index} sx={{ mr: 1 }}>
           <Accordion
             // defaultExpanded={basepath === item.subsystem.toLowerCase()}
             disableGutters
@@ -311,14 +309,9 @@ export const DashboardSidebar = (props) => {
                 },
               }}
             >
-              <Box 
-                display="flex"
-                ml={0.5}
-              >
+              <Box display="flex" ml={-1}>
                 {item.icon}
-                <Box ml={1}>
-                  {item.subsystem}
-                </Box>
+                <Box ml={1}>{item.subsystem}</Box>
               </Box>
             </AccordionSummary>
             <AccordionDetails

@@ -37,7 +37,7 @@ export const MachineDialog = (props) => {
     machine,
     ...rest
   } = props;
-  
+
   const [error, setError] = useState('');
 
   let initialValues = {
@@ -90,7 +90,7 @@ export const MachineDialog = (props) => {
       addMachine(result)
       handleAlertOpen(`Added Machine ${result.id} successfully`);
       setError('');
-      handleClose();
+	  onClose();
     } else {
       const result = await response.json();
       setError(result.message);
@@ -119,7 +119,7 @@ export const MachineDialog = (props) => {
                 updateMachine(result)
                 handleAlertOpen(`Updated Machine ${result.id} successfully`);
                 setError('');
-                handleClose();
+                onClose();
               } else {
                 const result = await response.json();
                 setError(result.message);

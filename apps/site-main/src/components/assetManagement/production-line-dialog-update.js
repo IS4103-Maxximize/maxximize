@@ -13,6 +13,7 @@ export const ProductionLineDialogUpdate = (props) => {
     handleClose,
     string,
     productionLine,
+	handleRowUpdate,
     handleAlertOpen,
     handleAlertClose,
     ...rest
@@ -48,6 +49,7 @@ export const ProductionLineDialogUpdate = (props) => {
 
     updateProductionLine(productionLine.id, updateProductionLineDto)
       .then(res => {
+		handleRowUpdate(res)
         onClose();
         handleAlertOpen(`Successfully Updated Production Line ${res.id}!`, 'success');
       })

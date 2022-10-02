@@ -294,7 +294,6 @@ export const PurchaseOrder = (props) => {
                 columns={columns}
                 pageSize={10}
                 rowsPerPageOptions={[10]}
-                checkboxSelection
                 disableSelectionOnClick
                 components={{
                   Toolbar: GridToolbar,

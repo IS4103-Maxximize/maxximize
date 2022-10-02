@@ -2,7 +2,7 @@ import { apiHost, headers } from '../constants';
 
 export const fetchProductionLines = async (orgId) => {
     const apiUrl = `${apiHost}/production-lines/orgId/${orgId}`;
-    return await fetch(apiUrl).then((response) => response.json());
+    return await fetch(apiUrl);
   };
 
   export const fetchProductionLine = async (id) => {

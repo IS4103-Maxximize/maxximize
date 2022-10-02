@@ -139,11 +139,15 @@ export const ProductionLineManagement = (props) => {
   const [rows, setRows] = useState([]);
 
   const getProductionLines = async () => {
-    fetchProductionLines(user.organisation.id)
-      .then((result) => setRows(result))
-      .catch((err) =>
-        handleAlertOpen(`Failed to fetch any Production Lines`, 'error')
-      );
+    const response = await fetchProductionLines(user.organisation.id)
+
+	if (response.status === 200 || response.status === 201) {
+		const result = await response.json();
+		console.log(result)
+		setRows(result);
+	} else {
+		setRows([])
+	}         
   };
 
   const addProductionLine = (productionLine) => {
@@ -158,17 +162,17 @@ export const ProductionLineManagement = (props) => {
   };
 
   const handleRowUpdate = async (newRow) => {
-    const updatedRow = { ...newRow };
+    // const updatedRow = { ...newRow };
 
-    const inquiry = await newRow.json();
-    console.log(inquiry);
+    // const inquiry = await newRow.json();
+    // console.log(inquiry);
 
-    getProductionLines();
+    await getProductionLines();
     handleAlertOpen(
-      `Updated Production Line ${inquiry.id} successfully!`,
+      `Updated Production Line ${newRow.id} successfully!`,
       'success'
     );
-    return updatedRow;
+    // return updatedRow;
   };
 
   const handleDelete = (id) => {
@@ -205,7 +209,7 @@ export const ProductionLineManagement = (props) => {
     },
     {
       field: 'isAvailable',
-      headerName: 'Status',
+      headerName: 'Available',
       flex: 1,
     },
     {
@@ -320,6 +324,7 @@ export const ProductionLineManagement = (props) => {
             open={updateFormDialogOpen}
             string={'Production Line'}
             productionLine={selectedRow}
+			handleRowUpdate={handleRowUpdate}
             handleClose={handleUpdateFormDialogClose}
             handleAlertOpen={handleAlertOpen}
             handleAlertClose={handleAlertClose}

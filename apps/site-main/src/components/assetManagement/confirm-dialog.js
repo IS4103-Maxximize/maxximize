@@ -29,7 +29,7 @@ import {
             <Button 
               color="error"
               variant="contained"
-              onClick={() => {
+              onClick={async () => {
                 dialogAction();
                 handleClose();
               }}
