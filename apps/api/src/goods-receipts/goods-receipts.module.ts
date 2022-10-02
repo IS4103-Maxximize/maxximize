@@ -14,6 +14,7 @@ import { GoodsReceiptsService } from './goods-receipts.service';
 @Module({
   imports: [TypeOrmModule.forFeature([GoodsReceipt, GrLineItem, Batch]), PurchaseOrdersModule, UsersModule, BatchesModule, GrLineItemsModule, FollowUpLineItemsModule],
   controllers: [GoodsReceiptsController],
-  providers: [GoodsReceiptsService]
+  providers: [GoodsReceiptsService],
+  exports: [GoodsReceiptsService]
 })
 export class GoodsReceiptsModule {}

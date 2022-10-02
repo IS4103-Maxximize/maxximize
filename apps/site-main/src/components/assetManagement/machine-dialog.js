@@ -80,7 +80,7 @@ export const MachineDialog = (props) => {
         lastServiced: selectedDate,
         remarks: formik.values.remarks,
         isOperating: formik.values.isOperating,
-		organisationId: organisationId,
+        organisationId: organisationId
       }),
     });
 
