@@ -281,7 +281,8 @@ export class ProductionOrdersService {
         schedules: true,
         prodLineItems: {
           batchLineItem: true,
-          rawMaterial: true
+          rawMaterial: true,
+          purchaseRequisition: true
         },
         purchaseOrder: true,
         organisation: true
@@ -313,7 +314,8 @@ export class ProductionOrdersService {
         schedules: true,
         prodLineItems: {
           batchLineItem: true,
-          rawMaterial: true
+          rawMaterial: true,
+          purchaseRequisition: true
         },
         purchaseOrder: true,
         organisation: true
@@ -334,7 +336,8 @@ export class ProductionOrdersService {
         schedules: true,
         prodLineItems: {
           batchLineItem: true,
-          rawMaterial: true
+          rawMaterial: true,
+          purchaseRequisition: true
         },
         purchaseOrder: true,
         organisation: true
@@ -367,7 +370,8 @@ export class ProductionOrdersService {
         schedules: true,
         prodLineItems: {
           batchLineItem: true,
-          rawMaterial: true
+          rawMaterial: true,
+          purchaseRequisition: true
         },
         purchaseOrder: true,
         organisation: true
@@ -390,7 +394,8 @@ export class ProductionOrdersService {
         schedules: true,
         prodLineItems: {
           batchLineItem: true,
-          rawMaterial: true
+          rawMaterial: true,
+          purchaseRequisition: true
         },
         purchaseOrder: true,
         organisation: true
@@ -421,7 +426,8 @@ export class ProductionOrdersService {
         schedules: true,
         prodLineItems: {
           batchLineItem: true,
-          rawMaterial: true
+          rawMaterial: true,
+          purchaseRequisition: true
         },
         purchaseOrder: true,
         organisation: true

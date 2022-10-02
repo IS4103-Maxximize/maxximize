@@ -84,7 +84,7 @@ export const ViewGoodReceiptDialog = ({
           <DataGrid
             autoHeight
             minHeight="500"
-            rows={goodReceiptLineItems}
+            rows={goodReceipt?.goodsReceiptLineItems}
             columns={columns}
             pageSize={5}
             rowsPerPageOptions={[5]}
