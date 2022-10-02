@@ -71,7 +71,7 @@ export const ProductionOrderCreateDialog = (props) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          plannedQuantity: formik.values.quantity,
+          plannedQuantity: formik.values.multiplier,
           bomId: selectedBom.id,
           daily: formik.values.daily,
           organisationId: organisationId,
@@ -191,6 +191,7 @@ export const ProductionOrderCreateDialog = (props) => {
 
   const onClose = () => {
     formik.resetForm();
+    setFirstSchedules([]);
     setFinalGoodUnit('');
     setError('');
     setLoading(false);
@@ -203,22 +204,24 @@ export const ProductionOrderCreateDialog = (props) => {
   // Final good unit
   const [finalGoodUnit, setFinalGoodUnit] = useState('');
 
+  const [firstSchedules, setFirstSchedules] = useState([]);
+
   // Earliest Schedules for final product
   const retrievePossibleSchedules = async () => {
     try {
       const response = await fetch(
         `http://localhost:3000/api/production-lines/earliestSchedules?quantity=${formik.values.quantity}&finalGoodId=${selectedBom.finalGood.id}&daily=${formik.values.daily}&days=${formik.values.noOfDays}&organisationId=${organisationId}`
       );
-
+      console.log(response);
       if (response.status === 200 || response.status === 201) {
         const result = await response.json();
 
-        formik.setFieldValue('schedules', result);
+        setFirstSchedules(result);
         setError('');
       } else {
         const result = await response.json();
         setError(result.message);
-        formik.setFieldValue('schedules', []);
+        // formik.setFieldValue('schedules', []);
         if (loading) {
           setLoading(!loading);
         }
@@ -231,13 +234,17 @@ export const ProductionOrderCreateDialog = (props) => {
   // Rerender Earliest Schedules for final product
   const rerenderPossibleSchedules = async () => {
     setError('');
-    if (maximumFinalGoodOutput != 0) {
+    console.log(maximumFinalGoodOutput);
+    if (maximumFinalGoodOutput) {
       try {
-        const maximumAllowed = formik.values.quantity * maximumFinalGoodOutput;
+        const maximumAllowed =
+          selectedBom.finalGood.lotQuantity * maximumFinalGoodOutput;
+        console.log(maximumAllowed);
         const response = await fetch(
           `http://localhost:3000/api/production-lines/earliestSchedules?quantity=${maximumAllowed}&finalGoodId=${selectedBom.finalGood.id}&daily=${formik.values.daily}&days=${formik.values.noOfDays}&organisationId=${organisationId}`
         );
 
+        // console.log(response);
         if (response.status === 200 || response.status === 201) {
           const result = await response.json();
 
@@ -253,8 +260,6 @@ export const ProductionOrderCreateDialog = (props) => {
       } catch (error) {
         setError(error);
       }
-    } else {
-      formik.setFieldValue('schedules', []);
     }
   };
 
@@ -265,7 +270,9 @@ export const ProductionOrderCreateDialog = (props) => {
         `http://localhost:3000/api/batch-line-items/getLineItem/${
           selectedBom.id
         }/${formik.values.multiplier}/${organisationId}/${
-          formik.values.schedules[formik.values.schedules.length - 1].end
+          formik.values.schedules.length !== 0
+            ? formik.values.schedules[formik.values.schedules.length - 1].end
+            : null
         }`
       );
       if (response.status === 200 || response.status === 201) {
@@ -306,26 +313,15 @@ export const ProductionOrderCreateDialog = (props) => {
   };
 
   useEffect(() => {
-    if (
-      formik.values.quantity &&
-      selectedBom &&
-      formik.values.schedules?.length != 0
-    ) {
+    if (formik.values.quantity && selectedBom) {
       retrieveProductionLineItems();
-    } else if (
-      formik.values.quantity &&
-      selectedBom &&
-      formik.values.schedules?.length == 0 &&
-      rerender
-    ) {
+    } else if (formik.values.schedules.length === 0) {
       formik.setFieldValue('prodLineItems', []);
-
-      setError('No production line available for production of final good');
       if (loading) {
         setLoading(!loading);
       }
     }
-  }, [formik.values.schedules]);
+  }, [firstSchedules]);
 
   useEffect(() => {
     if (formik.values.prodLineItems.length > 0) {
@@ -342,12 +338,13 @@ export const ProductionOrderCreateDialog = (props) => {
         );
 
         setMaximumFinalGoodOutput(
-          formik.values.multiplier - insufficientQuantity / bomLineItem.quantity
+          formik.values.multiplier -
+            insufficientQuantity / bomLineItem.quantity >=
+            0
+            ? formik.values.multiplier -
+                insufficientQuantity / bomLineItem.quantity
+            : 0
         );
-
-        if (!rerender) {
-          setError('Please rerender new schedules or change number of lots');
-        }
       } else {
         setMaximumFinalGoodOutput(formik.values.multiplier);
       }
@@ -359,6 +356,10 @@ export const ProductionOrderCreateDialog = (props) => {
       setLoading(!loading);
     }
   }, [formik.values.schedules]);
+
+  useEffect(() => {
+    rerenderPossibleSchedules();
+  }, [maximumFinalGoodOutput]);
 
   // Schedule Headers
   const scheduleColumns = [
@@ -424,7 +425,7 @@ export const ProductionOrderCreateDialog = (props) => {
     },
     {
       field: 'quantity',
-      headerName: 'Lot Quantity',
+      headerName: 'Quantity',
       flex: 1,
       valueGetter: (params) => {
         return params.row ? params.row.quantity : '';
@@ -690,7 +691,7 @@ export const ProductionOrderCreateDialog = (props) => {
                     }}
                   />
                 </Box>
-                <Box m={1}>
+                {/* <Box m={1}>
                   <Button
                     fullWidth
                     style={{ height: '4%', marginTop: 1 }}
@@ -709,7 +710,7 @@ export const ProductionOrderCreateDialog = (props) => {
                   >
                     Reload Schedules
                   </Button>
-                </Box>
+                </Box> */}
               </Card>
               <Typography variant="body1" color="red">
                 {error}

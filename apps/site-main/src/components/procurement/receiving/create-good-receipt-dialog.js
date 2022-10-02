@@ -72,14 +72,14 @@ export const CreateGoodReceiptDialog = ({
   const handleOnSubmit = async () => {
     const processedAcceptedProducts = acceptedProducts.map(
       (acceptedProduct) => ({
-        quantity: acceptedProduct.quantity,
+        quantity: Number(acceptedProduct.quantity),
         rawMaterialId: acceptedProduct.rawMaterial.id,
       })
     );
 
     const processedFollowUpProducts = followUpProducts.map(
       (followUpProduct) => ({
-        quantity: followUpProduct.quantity,
+        quantity: Number(followUpProduct.quantity),
         rawMaterialId: followUpProduct.rawMaterial.id,
       })
     );

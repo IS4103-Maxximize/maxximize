@@ -54,12 +54,13 @@ export const MachineDialog = (props) => {
   };
 
   let schema = {
-    description: Yup.string(),
+    description: Yup.string().required("Description is required"),
     serialNumber: Yup.string().required('Serial Number is required'),
-    make: Yup.string(),
-    model: Yup.string(),
-    year: Yup.string(),
-    remarks: Yup.string(),
+    make: Yup.string().required("Make is required"),
+    model: Yup.string().required("Model is required"),
+    year: Yup.number().integer("Year must be a whole number").positive("Year must be positive").required("Year is required"),
+    remarks: Yup.string().required("Remarks is required"),
+	// lastServiced: Yup.date().required("Last Serviced is required")
   };
 
   const handleOnSubmit = async () => {
@@ -79,6 +80,7 @@ export const MachineDialog = (props) => {
         lastServiced: selectedDate,
         remarks: formik.values.remarks,
         isOperating: formik.values.isOperating,
+		organisationId: organisationId,
       }),
     });
 
@@ -221,6 +223,7 @@ export const MachineDialog = (props) => {
             />
           <TextField
               required
+			  type="number"
               error={Boolean(formik.touched.year && formik.errors.year)}
               fullWidth
               helperText={formik.touched.year && formik.errors.year}
@@ -263,7 +266,7 @@ export const MachineDialog = (props) => {
         </DialogContent>
         <DialogActions>
           <Button
-            disabled={!formik.isValid || formik.isSubmitting}
+            disabled={!formik.isValid || formik.isSubmitting || !selectedDate}
             variant="contained"
             onClick={formik.handleSubmit}
           >

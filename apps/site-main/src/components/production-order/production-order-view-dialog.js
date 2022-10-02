@@ -15,13 +15,14 @@ import {
 import { DataGrid } from '@mui/x-data-grid';
 import DayJS from 'dayjs';
 import { useFormik } from 'formik';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { PurchaseRequisitionNew } from '../../pages/procurement/purchase-requisition-new';
 import { ConfirmDialog } from '../assetManagement/confirm-dialog';
 
 export const ProductionOrderViewDialog = (props) => {
   const {
     productionOrder,
+    getProductionsOrders,
     openViewDialog,
     closeViewDialog,
     handleAlertOpen,
@@ -41,6 +42,10 @@ export const ProductionOrderViewDialog = (props) => {
     setCreateDialogOpen(false);
   };
 
+  useEffect(() => {
+    getProductionsOrders();
+  }, [createDialogOpen, closeViewDialog]);
+
   // State for confirm dialog
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
 
@@ -57,10 +62,35 @@ export const ProductionOrderViewDialog = (props) => {
     handleCreateDialogOpen();
   };
 
+  const [error, setError] = useState('');
+
   // Handle release of production order
-  const handleRelease = () => {
+  const handleRelease = async () => {
     // When the ProdO status changes to readytorelease,
     // Button to release will appear to prompt user to confirm release
+    const response = await fetch(
+      `http://localhost:3000/api/production-orders/${productionOrder.id}`,
+      {
+        method: 'PATCH',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          status: 'released',
+        }),
+      }
+    );
+
+    if (response.status === 200 || response.status === 201) {
+      const result = await response.json();
+      handleAlertOpen(`Updated Production Order ${result.id} successfully`);
+      setError('');
+      onClose();
+    } else {
+      const result = await response.json();
+      setError(result.message);
+    }
   };
 
   const formik = useFormik({
@@ -97,6 +127,45 @@ export const ProductionOrderViewDialog = (props) => {
       },
       valueFormatter: (params) =>
         DayJS(params?.value).format('DD MMM YYYY hh:mm a'),
+    },
+    {
+      field: 'productionLineId',
+      headerName: 'Production Line ID',
+      flex: 1,
+      valueGetter: (params) => {
+        return params.row ? params.row.productionLineId : '';
+      },
+    },
+  ];
+
+  const readyToReleaseScheduleColumns = [
+    {
+      field: 'start',
+      headerName: 'Start Time',
+      flex: 2,
+      valueGetter: (params) => {
+        return params.row ? params.row.start : '';
+      },
+      valueFormatter: (params) =>
+        DayJS(params?.value).format('DD MMM YYYY hh:mm a'),
+    },
+    {
+      field: 'end',
+      headerName: 'End Time',
+      flex: 2,
+      valueGetter: (params) => {
+        return params.row ? params.row.end : '';
+      },
+      valueFormatter: (params) =>
+        DayJS(params?.value).format('DD MMM YYYY hh:mm a'),
+    },
+    {
+      field: 'quantity',
+      headerName: 'Quantity',
+      flex: 1,
+      valueGetter: (params) => {
+        return params.row ? params.row.quantity : '';
+      },
     },
     {
       field: 'productionLineId',
@@ -170,6 +239,7 @@ export const ProductionOrderViewDialog = (props) => {
         prodLineItems={formik.values.prodLineItems}
         handleAlertOpen={handleAlertOpen}
         handleAlertClose={handleAlertClose}
+        closeViewDialog={closeViewDialog}
       />
       <Dialog fullScreen open={openViewDialog} onClose={onClose}>
         <AppBar sx={{ position: 'relative' }}>
@@ -195,7 +265,11 @@ export const ProductionOrderViewDialog = (props) => {
                 <DataGrid
                   autoHeight
                   rows={formik.values.schedules}
-                  columns={scheduleColumns}
+                  columns={
+                    productionOrder?.status == 'readytorelease'
+                      ? readyToReleaseScheduleColumns
+                      : scheduleColumns
+                  }
                   pageSize={10}
                   rowsPerPageOptions={[5]}
                   disableSelectionOnClick
@@ -220,25 +294,30 @@ export const ProductionOrderViewDialog = (props) => {
                   sx={{ marginLeft: 1, marginRight: 1, marginBottom: 1 }}
                 />
               </Card>
+              <Typography variant="body1" color="red">
+                {error}
+              </Typography>
 
-              {productionOrder?.status == 'created' ? (
-                <Button
-                  variant="contained"
-                  onClick={handleSendProductRequisition}
-                >
-                  Send Product Requisition
-                </Button>
-              ) : (
-                <></>
-              )}
+              <Box display="flex" justifyContent="flex-end">
+                {productionOrder?.status == 'created' ? (
+                  <Button
+                    variant="contained"
+                    onClick={handleSendProductRequisition}
+                  >
+                    Send Purchase Requisition
+                  </Button>
+                ) : (
+                  <></>
+                )}
 
-              {productionOrder?.status == 'readytorelease' ? (
-                <Button variant="contained" onClick={handleRelease}>
-                  Release
-                </Button>
-              ) : (
-                <></>
-              )}
+                {productionOrder?.status == 'readytorelease' ? (
+                  <Button variant="contained" onClick={handleRelease}>
+                    Release
+                  </Button>
+                ) : (
+                  <></>
+                )}
+              </Box>
             </Box>
           </Box>
         </DialogContent>

@@ -1,8 +1,11 @@
 import { forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { QueryRunner, Repository } from 'typeorm';
 import { OrganisationsService } from '../organisations/organisations.service';
+import { ProductionLineItem } from '../production-line-items/entities/production-line-item.entity';
 import { ProductionLineItemsService } from '../production-line-items/production-line-items.service';
+import { ProductionOrderStatus } from '../production-orders/enums/production-order-status.enum';
+import { ProductionOrdersService } from '../production-orders/production-orders.service';
 import { RawMaterialsService } from '../raw-materials/raw-materials.service';
 import { SalesInquiryService } from '../sales-inquiry/sales-inquiry.service';
 import { CreatePurchaseRequisitionDto } from './dto/create-purchase-requisition.dto';
@@ -20,10 +23,15 @@ export class PurchaseRequisitionsService {
     private organisationService: OrganisationsService,
     @Inject(forwardRef(() => SalesInquiryService))
     private salesInquiryService: SalesInquiryService,
+	private productionOrdersService: ProductionOrdersService
   ) {}
   async create(createPurchaseRequisitionDto: CreatePurchaseRequisitionDto) {
     const {productionLineItemId, expectedQuantity, organisationId, rawMaterialId} = createPurchaseRequisitionDto
     const productionLineItem = await this.productionLineItemService.findOne(productionLineItemId)
+	const productionOrder = productionLineItem.productionOrder
+	if (productionOrder.status === 'created') {
+		await this.productionOrdersService.update(productionOrder.id, {status: ProductionOrderStatus.AWAITINGPROCUREMENT})
+	}
     const organisation = await this.organisationService.findOne(organisationId)
     const rawMaterial = await this.rawMaterialService.findOne(rawMaterialId)
     const newPurchaseRequisition = this.purchaseRequisitionsRepository.create({
@@ -32,7 +40,8 @@ export class PurchaseRequisitionsService {
       organisationId: organisation.id,
       expectedQuantity,
       rawMaterialId: rawMaterial.id,
-      quantityToFulfill: expectedQuantity
+      quantityToFulfill: expectedQuantity,
+	  createdDateTime: new Date()
     })
     const newPR = await this.purchaseRequisitionsRepository.save(newPurchaseRequisition);
     return await this.findOne(newPR.id);
@@ -110,7 +119,6 @@ export class PurchaseRequisitionsService {
   }
 
   async retrieveSalesInquiry(purchaseRequisition: PurchaseRequisition, salesInquiryId: number) {
-    console.log(purchaseRequisition)
     if (purchaseRequisition.salesInquiryId === null && purchaseRequisition.status === 'pending') {
       const salesInquiry = await this.salesInquiryService.findOne(salesInquiryId)
       if (salesInquiry) {
@@ -124,17 +132,34 @@ export class PurchaseRequisitionsService {
   }
 
   async updateFulfilledQty(purchaseRequisition: PurchaseRequisition, qty: number) {
-    if (purchaseRequisition.status === 'processing' && purchaseRequisition.quantityToFulfill !== 0) {
-      purchaseRequisition.quantityToFulfill = qty
+	let pr = await this.findOne(purchaseRequisition.id);
+    if (pr.status === 'processing' && pr.quantityToFulfill !== 0) {
+		pr.quantityToFulfill = qty
       if (qty === 0) {
         //means its fulfilled
-        purchaseRequisition.status = PRStatus.FULFILLED
+        pr.status = PRStatus.FULFILLED
         //TODO: update PR's ProdO status to readytorelease
         const prodLineItemId = purchaseRequisition.productionLineItem.id
         await this.productionLineItemService.softDelete(prodLineItemId)
-
       }
-      return await this.purchaseRequisitionsRepository.save(purchaseRequisition);
+      return this.purchaseRequisitionsRepository.save(purchaseRequisition);
+    } else {
+      throw new NotFoundException('purchase requisition is not in processing or quantityToFulfill is already 0!')
+    }
+  }
+
+  async updateFulfilledQtyQueryRunner(purchaseRequisition: PurchaseRequisition, qty: number, queryRunner: QueryRunner) {
+	let pr = await this.findOne(purchaseRequisition.id);
+    if (pr.status === 'processing' && pr.quantityToFulfill !== 0) {
+		pr.quantityToFulfill = qty
+      if (qty === 0) {
+        //means its fulfilled
+        pr.status = PRStatus.FULFILLED
+        //TODO: update PR's ProdO status to readytorelease
+        const prodLineItemId = purchaseRequisition.productionLineItem.id
+        await queryRunner.manager.softDelete(ProductionLineItem, prodLineItemId)
+      }
+      return await queryRunner.manager.save(pr);
     } else {
       throw new NotFoundException('purchase requisition is not in processing or quantityToFulfill is already 0!')
     }

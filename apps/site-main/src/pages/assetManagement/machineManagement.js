@@ -17,6 +17,7 @@ import { MachineDialog } from '../../components/assetManagement/machine-dialog';
 import { Toolbar } from '../../components/assetManagement/toolbar';
 import { MachineMenu } from '../../components/assetManagement/machine-menu';
 import { deleteMachine, fetchMachines } from '../../helpers/assetManagement';
+import DayJS from 'dayjs';
 
 const MachineManagement = (props) => {
   const user = JSON.parse(localStorage.getItem('user'));
@@ -122,7 +123,7 @@ const MachineManagement = (props) => {
 
   useEffect(() => {
     getMachines();
-  }, [rows]);
+  }, []);
 
   const handleDelete = async (id) => {
     deleteMachine(id)
@@ -147,7 +148,7 @@ const MachineManagement = (props) => {
     {
       field: 'serialNumber',
       headerName: 'Serial Number',
-      flex: 2,
+      flex: 1,
     },
     {
       field: 'description',
@@ -172,17 +173,19 @@ const MachineManagement = (props) => {
     {
       field: 'lastServiced',
       headerName: 'Last Serviced',
-      flex: 1,
+      flex: 2,
+	  valueFormatter: (params) =>
+        DayJS(params?.value).format('DD MMM YYYY hh:mm a'),
     },
     {
       field: 'isOperating',
-      headerName: 'Status',
+      headerName: 'Operating',
       flex: 1,
     },
     {
       field: 'remarks',
       headerName: 'Remarks',
-      flex: 1,
+      flex: 2,
     },
     {
       field: 'productionLineId',

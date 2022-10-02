@@ -49,7 +49,6 @@ export const ProductionOrder = (props) => {
     // Get Prod Orders
     setLoading(true);
     getProductionOrders();
-    console.log(selectedRow);
   }, []);
 
   // Alert Helpers
@@ -89,6 +88,23 @@ export const ProductionOrder = (props) => {
     }
   };
 
+  // Update production order status to released
+  const updateProductionOrders = (productionOrder) => {
+    console.log(productionOrder);
+    const indexOfEditProductionOrder = productionOrders.findIndex(
+      (currentProductionOrder) =>
+        currentProductionOrder.id === productionOrder.id
+    );
+    console.log(indexOfEditProductionOrder);
+    const newProductionOrders = [...productionOrders];
+    newProductionOrders[indexOfEditProductionOrder] = productionOrder;
+    setProductionOrders(newProductionOrders);
+    handleAlertOpen(
+      `Updated Production Order ${productionOrder.id} successfully!`,
+      'success'
+    );
+  };
+
   // Delete Button
   const deleteDisabled = Boolean(selectedRows.length === 0);
 
@@ -98,9 +114,6 @@ export const ProductionOrder = (props) => {
   const menuOpen = Boolean(anchorEl);
 
   const handleMenuClick = (event) => {
-    if (selectedRow.status == 'readytorelease') {
-      retrievePossibleSchedules();
-    }
     setAnchorEl(event.currentTarget);
   };
   const handleMenuClose = () => {
@@ -142,6 +155,12 @@ export const ProductionOrder = (props) => {
   //View Dialog Helper
   const [openViewDialog, setOpenViewDialog] = useState(false);
 
+  useEffect(() => {
+    if (selectedRow?.status == 'readytorelease') {
+      retrievePossibleSchedules();
+    }
+  }, [openViewDialog]);
+
   //Use this to store the new row with a schedule, just for display
   const [tempSelectedRow, setTempSelectedRow] = useState('');
   // Earliest Schedules for final product
@@ -162,9 +181,6 @@ export const ProductionOrder = (props) => {
       setTempSelectedRow(selectedRow);
     } else {
       const result = await response.json();
-      if (loading) {
-        setLoading(!loading);
-      }
     }
   };
 
@@ -313,10 +329,12 @@ export const ProductionOrder = (props) => {
           />
           <ProductionOrderViewDialog
             productionOrder={
-              selectedRow.status == 'readytorelease'
+              selectedRow?.status == 'readytorelease'
                 ? tempSelectedRow
                 : selectedRow
             }
+            getProductionsOrders={getProductionOrders}
+            updateProductionOrders={updateProductionOrders}
             openViewDialog={openViewDialog}
             closeViewDialog={handleCloseViewDialog}
             handleAlertOpen={handleAlertOpen}
