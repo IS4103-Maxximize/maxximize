@@ -86,7 +86,44 @@ export const ProductionLineDialogNew = (props) => {
       endTime: 0,
     },
     validationSchema: Yup.object({
-      //
+      name: Yup.string().required('Enter Production Line name'),
+      description: Yup.string().required('Enter Production Line Description'),
+      hours: Yup
+        .number()
+        .integer()
+        .min(0, 'Hours must not be negative')
+        .required('Enter number of hours for grace period'),
+      minutes: Yup
+        .number()
+        .integer()
+        .min(0, 'Minutes must not be negative')
+        .max(59, 'Minutes cannot be more than 59')
+        .required('Enter number of minutes for grace period'),
+      seconds: Yup
+        .number()
+        .integer()
+        .min(0, 'Seconds must not be negative')
+        .max(59, 'Seconds cannot be more than 59')
+        .required('Enter number of seconds for grace period'),
+      productionCostPerLot: Yup
+        .number()
+        .positive('Must be positive')
+        .required('Enter Production Cost per Lot'),
+      outputPerHour: Yup
+        .number()
+        .positive('Must be positive').required('Enter Output per Hour'),
+      startTime: Yup
+        .number()
+        .integer()
+        .min(0, 'Must not be negative')
+        .max(23, )
+        .required('Enter Start Time (Hour)'),
+      endTime: Yup.number()
+        .integer()
+        .min(0, 'Must not be negative')
+        .max(23, )
+        .required('Enter End Time (Hour)')
+        .moreThan(Yup.ref('startTime'), 'End Time must be after Start Time'),
     }),
     enableReinitialize: true,
     onSubmit: handleOnSubmit,
