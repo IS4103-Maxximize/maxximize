@@ -243,7 +243,7 @@ export const DashboardSidebar = (props) => {
           key={index}
           color="secondary"
           underline="none"
-          sx={{ mr: 3 }}
+          sx={{ mr: 3, ml: -1.4 }}
         >
           <Button
             component="a"
