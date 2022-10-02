@@ -124,7 +124,7 @@ export const CreatePRSalesInquiryDialog = (props) => {
     }
 
     // Check quantity must be >= original
-    if (newRow.quantity <= newRow.original) {
+    if (newRow.quantity < newRow.original) {
       const message = 'Quantity cannot be less than original quantity!';
       handleAlertOpen(message, 'error');
       throw new Error(message);

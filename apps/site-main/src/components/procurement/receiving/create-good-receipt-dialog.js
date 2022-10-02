@@ -93,7 +93,7 @@ export const CreateGoodReceiptDialog = ({
       body: JSON.stringify({
         organisationId: organisationId,
         purchaseOrderId: formik.values.purchaseOrderId,
-        recipient: userId,
+        recipientId: userId,
         createdDateTime: formik.values.dateReceived,
         goodsReceiptLineItemsDtos: processedAcceptedProducts,
         followUpLineItemsDtos: processedFollowUpProducts,

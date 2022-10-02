@@ -149,22 +149,22 @@ export const ProductionOrder = (props) => {
       retrievePossibleSchedules();
     }
 
-    const getProductionOrdersAfterPR = async () => {
-      const response = await fetch(
-        `http://localhost:3000/api/production-orders/all/${organisationId}`
-      );
+    // const getProductionOrdersAfterPR = async () => {
+    //   const response = await fetch(
+    //     `http://localhost:3000/api/production-orders/all/${organisationId}`
+    //   );
 
-      let result = [];
+    //   let result = [];
 
-      if (response.status == 200 || response.status == 201) {
-        result = await response.json();
-      }
+    //   if (response.status == 200 || response.status == 201) {
+    //     result = await response.json();
+    //   }
 
-      setProductionOrders(result);
-    };
+    //   setProductionOrders(result);
+    // };
 
-    // setTimeout(getProductionOrders, 500);
-    getProductionOrdersAfterPR();
+    setTimeout(getProductionOrders, 500);
+    // getProductionOrdersAfterPR();
     // clearTimeout(timeoutProdO)
   }, [openViewDialog, createDialogOpen]);
 
