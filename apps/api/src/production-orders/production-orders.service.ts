@@ -159,7 +159,7 @@ export class ProductionOrdersService {
           let cronTest = 10000;
           for (const schedule of schedulesToBeAdded) {
             const startJob = new CronJob(
-              new Date(new Date().getTime() + cronTest),
+              schedule.start,
               async () => {
                 this.update(newProductionOrder.id, {
                   status: ProductionOrderStatus.ONGOING,
@@ -174,7 +174,7 @@ export class ProductionOrdersService {
             );
             cronTest += 10000;
             const endJob = new CronJob(
-              new Date(new Date().getTime() + cronTest),
+              schedule.end,
               async () => {
                 this.update(newProductionOrder.id, {
                   status: ProductionOrderStatus.COMPLETED,
@@ -367,7 +367,7 @@ export class ProductionOrdersService {
               );
               for (const schedule of schedulesToBeAdded) {
                 const startJob = new CronJob(
-                  new Date(new Date().getTime() + 30000),
+                  schedule.start,
                   async () => {
                     this.update(newProductionOrder.id, {
                       status: ProductionOrderStatus.ONGOING,
@@ -381,7 +381,7 @@ export class ProductionOrdersService {
                   }
                 );
                 const endJob = new CronJob(
-                  new Date(new Date().getTime() + 60000),
+                  schedule.end,
                   async () => {
                     this.update(newProductionOrder.id, {
                       status: ProductionOrderStatus.COMPLETED,
@@ -656,7 +656,7 @@ export class ProductionOrdersService {
                   await transactionalEntityManager.save(schedule)
                 );
                 const startJob = new CronJob(
-                  new Date(new Date().getTime() + 30000),
+                  schedule.start,
                   async () => {
                     this.update(productionOrderToUpdate.id, {
                       status: ProductionOrderStatus.ONGOING,
@@ -670,7 +670,7 @@ export class ProductionOrdersService {
                   }
                 );
                 const endJob = new CronJob(
-                  new Date(new Date().getTime() + 60000),
+                  schedule.end,
                   async () => {
                     this.update(productionOrderToUpdate.id, {
                       status: ProductionOrderStatus.COMPLETED,
