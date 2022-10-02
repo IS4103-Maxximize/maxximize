@@ -49,13 +49,14 @@ export const ProductionOrderCreateDialog = (props) => {
   } = props;
 
   const [loading, setLoading] = useState(false);
+  const [rerender, setRerender] = useState(true);
 
   const user = JSON.parse(localStorage.getItem('user'));
   const organisationId = user.organisation.id;
 
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
 
-  const [maximumFinalGoodOutput, setMaximumFinalGoodOutput] = useState('');
+  const [maximumFinalGoodOutput, setMaximumFinalGoodOutput] = useState(0);
 
   const handleOnSubmit = async (values) => {
     // submit
@@ -164,7 +165,7 @@ export const ProductionOrderCreateDialog = (props) => {
       formik.setFieldValue('daily', false);
       formik.setFieldValue('noOfDays', 0);
       formik.setFieldTouched('noOfDays', false, false);
-      setMaximumFinalGoodOutput('');
+      setMaximumFinalGoodOutput(0);
     }
   }, [selectedBom]);
 
@@ -183,6 +184,8 @@ export const ProductionOrderCreateDialog = (props) => {
     // fetch when opening create dialog
     if (open) {
       getBOMs();
+      setMaximumFinalGoodOutput(0);
+      setRerender(true);
     }
   }, [open]);
 
@@ -191,8 +194,9 @@ export const ProductionOrderCreateDialog = (props) => {
     setFinalGoodUnit('');
     setError('');
     setLoading(false);
+    setRerender(true);
     setSelectedBom('');
-    setMaximumFinalGoodOutput('');
+    setMaximumFinalGoodOutput(0);
     handleClose();
   };
 
@@ -215,18 +219,47 @@ export const ProductionOrderCreateDialog = (props) => {
         const result = await response.json();
         setError(result.message);
         formik.setFieldValue('schedules', []);
-        setLoading(!loading);
+        if (loading) {
+          setLoading(!loading);
+        }
       }
     } catch (error) {
       setError(error);
     }
   };
 
+  // Rerender Earliest Schedules for final product
+  const rerenderPossibleSchedules = async () => {
+    setError('');
+    if (maximumFinalGoodOutput != 0) {
+      try {
+        const maximumAllowed = formik.values.quantity * maximumFinalGoodOutput;
+        const response = await fetch(
+          `http://localhost:3000/api/production-lines/earliestSchedules?quantity=${maximumAllowed}&finalGoodId=${selectedBom.finalGood.id}&daily=${formik.values.daily}&days=${formik.values.noOfDays}&organisationId=${organisationId}`
+        );
+
+        if (response.status === 200 || response.status === 201) {
+          const result = await response.json();
+
+          formik.setFieldValue('schedules', result);
+
+          setRerender(true);
+          setError('');
+        } else {
+          const result = await response.json();
+          setError(result.message);
+          formik.setFieldValue('schedules', []);
+        }
+      } catch (error) {
+        setError(error);
+      }
+    } else {
+      formik.setFieldValue('schedules', []);
+    }
+  };
+
   // Retrieve Production Line Items (Sufficient/Insufficient)
   const retrieveProductionLineItems = async () => {
-    console.log(selectedBom.id);
-    console.log(formik.values.multiplier);
-
     try {
       const response = await fetch(
         `http://localhost:3000/api/batch-line-items/getLineItem/${
@@ -242,13 +275,13 @@ export const ProductionOrderCreateDialog = (props) => {
           return lineItem1.sufficient - lineItem2.sufficient;
         });
 
-        console.log(result);
-
         formik.setFieldValue('prodLineItems', result);
         setError('');
+        setLoading(!loading);
       } else {
         const result = await response.json();
         setError(result.message);
+        setLoading(!loading);
       }
     } catch (error) {
       setError(error);
@@ -261,8 +294,14 @@ export const ProductionOrderCreateDialog = (props) => {
   const refreshInformation = () => {
     if (selectedBom) {
       retrievePossibleSchedules();
+
       setLoading(!loading);
-      setMaximumFinalGoodOutput('');
+
+      setRerender(false);
+
+      setError('');
+
+      setMaximumFinalGoodOutput(0);
     }
   };
 
@@ -272,17 +311,19 @@ export const ProductionOrderCreateDialog = (props) => {
       selectedBom &&
       formik.values.schedules?.length != 0
     ) {
-      console.log('Schedules retrieved');
       retrieveProductionLineItems();
     } else if (
       formik.values.quantity &&
       selectedBom &&
-      formik.values.schedules?.length == 0
+      formik.values.schedules?.length == 0 &&
+      rerender
     ) {
       formik.setFieldValue('prodLineItems', []);
 
       setError('No production line available for production of final good');
-      setLoading(!loading);
+      if (loading) {
+        setLoading(!loading);
+      }
     }
   }, [formik.values.schedules]);
 
@@ -292,24 +333,21 @@ export const ProductionOrderCreateDialog = (props) => {
         (prodLineItem) => prodLineItem.sufficient === false
       );
 
-      console.log(insufficientLineItem);
-
       if (insufficientLineItem) {
         const insufficientQuantity = insufficientLineItem.quantity;
         const insufficientRawMaterialId = insufficientLineItem.rawMaterial.id;
-        console.log(insufficientRawMaterialId);
-        console.log(selectedBom);
-        console.log(selectedBom.bomLineItems);
         const bomLineItem = selectedBom.bomLineItems.find(
           (bomLineItem) =>
             bomLineItem.rawMaterial.id === insufficientRawMaterialId
         );
 
-        console.log(bomLineItem);
-
         setMaximumFinalGoodOutput(
           formik.values.multiplier - insufficientQuantity / bomLineItem.quantity
         );
+
+        if (!rerender) {
+          setError('Please rerender new schedules or change number of lots');
+        }
       } else {
         setMaximumFinalGoodOutput(formik.values.multiplier);
       }
@@ -317,7 +355,7 @@ export const ProductionOrderCreateDialog = (props) => {
   }, [formik.values.prodLineItems]);
 
   useEffect(() => {
-    if (formik.values.schedules?.length > 0) {
+    if (formik.values.schedules?.length > 0 && loading) {
       setLoading(!loading);
     }
   }, [formik.values.schedules]);
@@ -602,7 +640,7 @@ export const ProductionOrderCreateDialog = (props) => {
                   {loading ? (
                     <LoadingButton
                       fullWidth
-                      loading
+                      loading={loading}
                       loadingPosition="start"
                       startIcon={<SyncIcon />}
                       variant="outlined"
@@ -628,51 +666,72 @@ export const ProductionOrderCreateDialog = (props) => {
                   )}
                 </Box>
               </Card>
+
+              {/* If insufficient raw material */}
+              <Typography sx={{ marginTop: 2 }} variant="h6">
+                Only Able To Produce
+              </Typography>
+              <Card sx={{ padding: 1, marginTop: 2 }}>
+                <Box mb={1} ml={1} mr={1}>
+                  <TextField
+                    sx={{ width: '100%' }}
+                    disabled={true}
+                    label="Final Goods that can be produced"
+                    margin="normal"
+                    name="maximumFinalGoodOutput"
+                    type="number"
+                    value={maximumFinalGoodOutput}
+                    variant="outlined"
+                    size="small"
+                    InputProps={{
+                      inputProps: {
+                        style: { textAlign: 'right' },
+                      },
+                    }}
+                  />
+                </Box>
+                <Box m={1}>
+                  <Button
+                    fullWidth
+                    style={{ height: '4%', marginTop: 1 }}
+                    color="primary"
+                    variant="contained"
+                    disabled={
+                      !selectedBom ||
+                      formik.values.multiplier < 1 ||
+                      (formik.values.daily && formik.values.noOfDays == '') ||
+                      !formik.values.prodLineItems
+                        .map((prodLineItem) => prodLineItem.sufficient)
+                        .includes(false)
+                    }
+                    onClick={rerenderPossibleSchedules}
+                    endIcon={<SyncIcon />}
+                  >
+                    Reload Schedules
+                  </Button>
+                </Box>
+              </Card>
               <Typography variant="body1" color="red">
                 {error}
               </Typography>
-              {maximumFinalGoodOutput ? (
-                <Typography variant="body1" color="red">
-                  Final Goods that can be produced: {maximumFinalGoodOutput}
-                </Typography>
-              ) : (
-                <></>
-              )}
             </Box>
 
             <Box width="75%">
-              <Typography sx={{ mt: 2 }} variant="h6">
-                Schedule(s)
-              </Typography>
-              <Card sx={{ marginTop: 2, marginBottom: 2 }}>
-                <DataGrid
-                  autoHeight
-                  rows={formik.values.schedules}
-                  columns={scheduleColumns}
-                  pageSize={10}
-                  rowsPerPageOptions={[5]}
-                  disableSelectionOnClick
-                  // experimentalFeatures={{ newEditingApi: true }}
-                  // processRowUpdate={handleRowUpdate}
-                  sx={{ marginLeft: 1, marginRight: 1, marginBottom: 1 }}
-                />
-              </Card>
-
-              <Typography variant="h6">Production Line Items</Typography>
+              <Typography variant="h6">Schedule(s)</Typography>
               {loading ? (
                 <Skeleton
-                  sx={{ marginTop: 2 }}
+                  sx={{ marginTop: 2, marginBottom: 2 }}
                   variant="rounded"
                   fullWidth
-                  height={'50%'}
+                  height={'40%'}
                 ></Skeleton>
               ) : (
-                <Card sx={{ marginTop: 2 }}>
+                <Card sx={{ marginTop: 2, marginBottom: 2 }}>
                   <DataGrid
                     autoHeight
-                    rows={formik.values.prodLineItems}
-                    columns={productionOrderColumns}
-                    pageSize={5}
+                    rows={formik.values.schedules}
+                    columns={scheduleColumns}
+                    pageSize={10}
                     rowsPerPageOptions={[5]}
                     disableSelectionOnClick
                     // experimentalFeatures={{ newEditingApi: true }}
@@ -681,6 +740,22 @@ export const ProductionOrderCreateDialog = (props) => {
                   />
                 </Card>
               )}
+
+              <Typography variant="h6">Production Line Items</Typography>
+
+              <Card sx={{ marginTop: 2 }}>
+                <DataGrid
+                  autoHeight
+                  rows={formik.values.prodLineItems}
+                  columns={productionOrderColumns}
+                  pageSize={5}
+                  rowsPerPageOptions={[5]}
+                  disableSelectionOnClick
+                  // experimentalFeatures={{ newEditingApi: true }}
+                  // processRowUpdate={handleRowUpdate}
+                  sx={{ marginLeft: 1, marginRight: 1, marginBottom: 1 }}
+                />
+              </Card>
             </Box>
           </Box>
         </DialogContent>

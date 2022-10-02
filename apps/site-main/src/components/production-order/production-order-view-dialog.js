@@ -1,37 +1,45 @@
-import AddBoxIcon from '@mui/icons-material/AddBox';
+import CancelIcon from '@mui/icons-material/Cancel';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CloseIcon from '@mui/icons-material/Close';
-import DeleteIcon from '@mui/icons-material/Delete';
 import {
   AppBar,
-  Autocomplete,
-  Badge,
   Box,
   Button,
   Card,
-  Checkbox,
   Dialog,
   DialogContent,
-  FormControlLabel,
   IconButton,
-  InputAdornment,
-  Stack,
-  TextField,
   Toolbar,
   Typography,
 } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
+import DayJS from 'dayjs';
 import { useFormik } from 'formik';
 import { useState } from 'react';
+import { PurchaseRequisitionNew } from '../../pages/procurement/purchase-requisition-new';
 import { ConfirmDialog } from '../assetManagement/confirm-dialog';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import CancelIcon from '@mui/icons-material/Cancel';
-import DayJS from 'dayjs';
 
 export const ProductionOrderViewDialog = (props) => {
-  const { productionOrder, openViewDialog, closeViewDialog } = props;
+  const {
+    productionOrder,
+    openViewDialog,
+    closeViewDialog,
+    handleAlertOpen,
+    handleAlertClose,
+    ...rest
+  } = props;
 
   const user = JSON.parse(localStorage.getItem('user'));
   const organisationId = user.organisation.id;
+
+  // PR Dialog Helpers
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const handleCreateDialogOpen = () => {
+    setCreateDialogOpen(true);
+  };
+  const handleCreateDialogClose = () => {
+    setCreateDialogOpen(false);
+  };
 
   // State for confirm dialog
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
@@ -46,6 +54,7 @@ export const ProductionOrderViewDialog = (props) => {
   const handleSendProductRequisition = () => {
     // When ProdO status is still created, there is insufficient quantity of ProdO Line items
     // Require to send product Requisition
+    handleCreateDialogOpen();
   };
 
   // Handle release of production order
@@ -151,6 +160,16 @@ export const ProductionOrderViewDialog = (props) => {
         dialogTitle={`Release Production Order`}
         dialogContent={`Confirm release of production order?`}
         dialogAction={handleRelease}
+      />
+      <PurchaseRequisitionNew
+        key="purchase-req-new"
+        open={createDialogOpen}
+        handleClose={handleCreateDialogClose}
+        string={'Purchase Requisition'}
+        prodOrderId={productionOrder ? productionOrder.id : ''}
+        prodLineItems={formik.values.prodLineItems}
+        handleAlertOpen={handleAlertOpen}
+        handleAlertClose={handleAlertClose}
       />
       <Dialog fullScreen open={openViewDialog} onClose={onClose}>
         <AppBar sx={{ position: 'relative' }}>

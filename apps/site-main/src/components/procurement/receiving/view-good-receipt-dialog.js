@@ -61,7 +61,7 @@ export const ViewGoodReceiptDialog = ({
       aria-labelledby="responsive-dialog-title"
     >
       <DialogTitle id="responsive-dialog-title">
-        {'View Good Receipt'}
+        {'View Goods Receipt'}
       </DialogTitle>
       <DialogContent>
         <Box>
@@ -76,7 +76,8 @@ export const ViewGoodReceiptDialog = ({
             {DayJS(goodReceipt?.createdDateTime).format('DD MMM YYYY hh:mm a')}
           </Typography>
           <Typography sx={{ marginBottom: 2 }}>
-            <b>Description:</b> {goodReceipt?.description}
+            <b>Description:</b>{' '}
+            {goodReceipt?.description ? goodReceipt.description : '-NIL-'}
           </Typography>
         </Box>
         <Box sx={{ minWidth: 500 }}>

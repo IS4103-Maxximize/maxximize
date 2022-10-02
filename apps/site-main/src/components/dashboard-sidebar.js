@@ -173,15 +173,15 @@ const items = [
         access: ['manager', 'superadmin'],
       },
       {
-        href: '/asset-management/production-line',
-        icon: <AddRoadIcon fontSize="small" />,
-        title: 'Production Line',
-        access: ['manager', 'factoryworker', 'superadmin'],
-      },
-      {
         href: '/asset-management/machine',
         icon: <PrecisionManufacturingIcon fontSize="small" />,
         title: 'Machine Management',
+        access: ['manager', 'factoryworker', 'superadmin'],
+      },
+      {
+        href: '/asset-management/production-line',
+        icon: <AddRoadIcon fontSize="small" />,
+        title: 'Production Line',
         access: ['manager', 'factoryworker', 'superadmin'],
       },
       {

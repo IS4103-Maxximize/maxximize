@@ -16,7 +16,7 @@ import { ConfirmDialog } from '../../components/assetManagement/confirm-dialog';
 import { MachineDialog } from '../../components/assetManagement/machine-dialog';
 import { Toolbar } from '../../components/assetManagement/toolbar';
 import { MachineMenu } from '../../components/assetManagement/machine-menu';
-import { deleteMachines, fetchMachines } from '../../helpers/assetManagement';
+import { deleteMachine, fetchMachines } from '../../helpers/assetManagement';
 
 const MachineManagement = (props) => {
   const user = JSON.parse(localStorage.getItem('user'));
@@ -91,8 +91,8 @@ const MachineManagement = (props) => {
   };
 
   const [rows, setRows] = useState([]);
-  const [selectedRow, setSelectedRow] = useState(null);
-  const [selectedRows, setSelectedRows] = useState([]);
+  const [selectedRow, setSelectedRow] = useState();
+  const [selectedRowId, setSelectedRowId] = useState();
 
   const getMachines = async () => {
     fetchMachines(organisationId)
@@ -124,10 +124,10 @@ const MachineManagement = (props) => {
     getMachines();
   }, [rows]);
 
-  const handleDelete = async (ids) => {
-    deleteMachines(ids)
+  const handleDelete = async (id) => {
+    deleteMachine(id)
       .then(() => {
-        handleAlertOpen(`Successfully deleted Machine(s)`, 'success');
+        handleAlertOpen(`Successfully deleted Machine`, 'success');
       })
       .then(() => getMachines());
   };
@@ -135,8 +135,8 @@ const MachineManagement = (props) => {
   const [deleteDisabled, setDeleteDisabled] = useState();
 
   useEffect(() => {
-    setDeleteDisabled(selectedRows.length === 0);
-  }, [selectedRows]);
+    setDeleteDisabled(!selectedRowId);
+  }, [selectedRowId]);
 
   let columns = [
     {
@@ -189,8 +189,8 @@ const MachineManagement = (props) => {
       headerName: 'PL Id',
       flex: 1,
       valueGetter: (params) => {
-        if (params.row.productionLine.id) {
-          return params.row.productionLine.id;
+        if (params.row) {
+          return params.row.productionLineId;
         } else {
           return '';
         }
@@ -241,10 +241,10 @@ const MachineManagement = (props) => {
           <ConfirmDialog
             open={confirmDialogOpen}
             handleClose={handleConfirmDialogClose}
-            dialogTitle={`Delete Machine(s)`}
-            dialogContent={`Confirm deletion of Machine(s)?`}
+            dialogTitle={`Delete Machine`}
+            dialogContent={`Confirm deletion of Machine?`}
             dialogAction={() => {
-              handleDelete(selectedRows);
+              handleDelete(selectedRowId);
             }}
           />
           <MachineDialog
@@ -285,13 +285,13 @@ const MachineManagement = (props) => {
                 columns={columns}
                 pageSize={10}
                 rowsPerPageOptions={[10]}
-                checkboxSelection
                 components={{
                   Toolbar: GridToolbar,
                 }}
                 onSelectionModelChange={(ids) => {
-                  setSelectedRows(ids);
+                  setSelectedRowId(ids[0]);
                 }}
+                isRowSelectable={(params) => !params.row.productionLineId}
               />
             ) : (
               <Card

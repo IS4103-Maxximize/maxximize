@@ -110,7 +110,7 @@ const ProcurementGoodReceipt = () => {
 
   //Load in list of line items
   useEffect(() => {
-    setGoodReceiptLineItems(selectedRow?.goodReceiptLineItems);
+    setGoodReceiptLineItems(selectedRow?.goodsReceiptLineItems);
   }, [openViewDialog]);
 
   //Add a new good receipt entry to the list

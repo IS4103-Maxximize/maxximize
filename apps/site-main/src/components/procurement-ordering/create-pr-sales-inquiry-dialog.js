@@ -63,6 +63,8 @@ export const CreatePRSalesInquiryDialog = (props) => {
       purchaseRequisitionIds: purchaseRequisitionIds
     }
 
+    console.log(createSalesInquiryDto)
+
     createSalesInquiryFromPurchaseRequisition(createSalesInquiryDto)
       .then((result) => {
         onClose();
