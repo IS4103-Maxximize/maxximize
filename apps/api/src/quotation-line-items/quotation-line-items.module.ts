@@ -11,5 +11,6 @@ import { RawMaterial } from '../raw-materials/entities/raw-material.entity';
   imports: [TypeOrmModule.forFeature([QuotationLineItem, Quotation, FinalGood, RawMaterial])],
   controllers: [QuotationLineItemsController],
   providers: [QuotationLineItemsService],
+  exports: [QuotationLineItemsService]
 })
 export class QuotationLineItemsModule {}

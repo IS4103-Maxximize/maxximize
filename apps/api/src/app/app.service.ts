@@ -4,10 +4,16 @@ import { BinsService } from '../bins/bins.service';
 import { ContactsService } from '../contacts/contacts.service';
 import { Contact } from '../contacts/entities/contact.entity';
 import { FinalGoodsService } from '../final-goods/final-goods.service';
+import { GoodsReceiptsService } from '../goods-receipts/goods-receipts.service';
 import { OrganisationType } from '../organisations/enums/organisationType.enum';
 import { OrganisationsService } from '../organisations/organisations.service';
 import { MeasurementUnit } from '../products/enums/measurementUnit.enum';
+import { PurchaseOrdersService } from '../purchase-orders/purchase-orders.service';
+import { QuotationLineItemsService } from '../quotation-line-items/quotation-line-items.service';
+import { QuotationsService } from '../quotations/quotations.service';
 import { RawMaterialsService } from '../raw-materials/raw-materials.service';
+import { SalesInquiryService } from '../sales-inquiry/sales-inquiry.service';
+import { ShellOrganisation } from '../shell-organisations/entities/shell-organisation.entity';
 import { ShellOrganisationsService } from '../shell-organisations/shell-organisations.service';
 import { User } from '../users/entities/user.entity';
 import { Role } from '../users/enums/role.enum';
@@ -25,6 +31,11 @@ export class AppService implements OnApplicationBootstrap {
     private rawMaterialsService: RawMaterialsService,
     private finalGoodsService: FinalGoodsService,
     private shellOrganisationsService: ShellOrganisationsService,
+    private salesInquiryService: SalesInquiryService,
+    private quotationService: QuotationsService,
+    private quotationLineItemService: QuotationLineItemsService,
+    private purchaseOrderService: PurchaseOrdersService,
+    private goodsReceiptService: GoodsReceiptsService,
     private dataSource: DataSource
   ) {}
   getData(): { message: string } {
@@ -175,13 +186,13 @@ export class AppService implements OnApplicationBootstrap {
 
         await this.binsService.create({
           name: "SLOC-001-Warehouse1",
-          capacity: 10000,
+          capacity: 1000000,
           warehouseId: 1
         });
 
         await this.binsService.create({
           name: "SLOC-002-Warehouse1",
-          capacity: 10000,
+          capacity: 1000000,
           warehouseId: 1
         });
 
@@ -197,7 +208,7 @@ export class AppService implements OnApplicationBootstrap {
           lotQuantity: 50,
           unit: MeasurementUnit.KILOGRAM,
           unitPrice: 10,
-          expiry: 5,
+          expiry: 7,
           organisationId: 2
         });
 
@@ -207,7 +218,7 @@ export class AppService implements OnApplicationBootstrap {
           lotQuantity: 50,
           unit: MeasurementUnit.KILOGRAM,
           unitPrice: 5,
-          expiry: 2,
+          expiry: 6,
           organisationId: 2
         });
 
@@ -218,7 +229,7 @@ export class AppService implements OnApplicationBootstrap {
           unit: MeasurementUnit.LITRE,
           unitPrice: 20,
           expiry: 60,
-          organisationId: 1
+          organisationId: 2
         });
 
         await this.finalGoodsService.create({
@@ -228,7 +239,7 @@ export class AppService implements OnApplicationBootstrap {
           unit: MeasurementUnit.KILOGRAM,
           unitPrice: 50,
           expiry: 10,
-          organisationId: 1
+          organisationId: 2
         });
 
         await this.finalGoodsService.create({
@@ -238,7 +249,7 @@ export class AppService implements OnApplicationBootstrap {
           unit: MeasurementUnit.KILOGRAM,
           unitPrice: 45,
           expiry: 150,
-          organisationId: 1
+          organisationId: 2
         });
 
         await this.shellOrganisationsService.create({
@@ -251,7 +262,7 @@ export class AppService implements OnApplicationBootstrap {
             address: "Tomato Farm Road 123",
             postalCode: "123123"
           },
-          organisationId: 1
+          organisationId: 2
         });
 
         await this.shellOrganisationsService.create({
@@ -264,8 +275,136 @@ export class AppService implements OnApplicationBootstrap {
             address: "233 Olive Avenue Italy",
             postalCode: "233233"
           },
-          organisationId: 1
+          organisationId: 2
         })
+
+        //create SI and update suppliers
+        await this.salesInquiryService.create({
+          currentOrganisationId: 2,
+          totalPrice: 1850,
+          salesInquiryLineItemsDtos: [
+            {
+              quantity: 50,
+              indicativePrice: 10,
+              rawMaterialId: 1
+            },
+            {
+              quantity: 30,
+              indicativePrice: 5,
+              rawMaterialId: 2
+            },
+            {
+              quantity: 60,
+              indicativePrice: 20,
+              rawMaterialId: 3
+            }
+          ]
+        })
+        const supplier: ShellOrganisation = await this.shellOrganisationsService.findOne(1)
+        await this.salesInquiryService.update(1, {
+          suppliers: [
+            supplier
+          ],
+          salesInquiryLineItemsDtos: [
+            {
+              quantity: 50,
+              indicativePrice: 10,
+              rawMaterialId: 1
+            },
+            {
+              quantity: 30,
+              indicativePrice: 5,
+              rawMaterialId: 2
+            },
+            {
+              quantity: 60,
+              indicativePrice: 20,
+              rawMaterialId: 3
+            }
+          ]
+        })
+
+        //create Quotation
+        await this.quotationService.create({
+          salesInquiryId: 1,
+          shellOrganisationId: 1,
+          leadTime: 5
+        })
+
+        //create Quotation Line Item
+
+        await this.quotationLineItemService.create({
+          quantity: 50,
+          price: 10,
+          rawMaterialId: 1,
+          quotationId: 1
+        })
+
+        await this.quotationLineItemService.create({
+          quantity: 30,
+          price: 5,
+          rawMaterialId: 2,
+          quotationId: 1
+        })
+
+        await this.quotationLineItemService.create({
+          quantity: 60,
+          price: 20,
+          rawMaterialId: 3,
+          quotationId: 1
+        })
+
+        //create purchaseOrder
+        await this.purchaseOrderService.create({
+          deliveryAddress: 'ManuAddress1',
+          totalPrice: 1850,
+          deliveryDate: new Date(),
+          currentOrganisationId: 2,
+          quotationId: 1,
+          userContactId: 2,
+          poLineItemDtos: [
+            {
+              quantity: 50,
+              price: 10,
+              rawMaterialId: 1,
+            },
+            {
+              quantity: 30,
+              price: 5,
+              rawMaterialId: 2
+            },
+            {
+              quantity: 60,
+              price: 20,
+              rawMaterialId: 3
+            }
+          ]
+        })
+
+        //create GR
+        await this.goodsReceiptService.create({
+          recipientId: 2,
+          createdDateTime: new Date(),
+          description: "receive goods for data init",
+          purchaseOrderId: 1,
+          organisationId: 2,
+          goodsReceiptLineItemsDtos: [
+            {
+              quantity: 50,
+              rawMaterialId: 1,
+            },
+            {
+              quantity: 30,
+              rawMaterialId: 2
+            },
+            {
+              quantity: 60,
+              rawMaterialId: 3
+            }
+          ],
+          followUpLineItemsDtos: []
+        })
+
     }
   }
 }
