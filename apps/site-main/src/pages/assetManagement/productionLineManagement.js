@@ -180,7 +180,7 @@ export const ProductionLineManagement = (props) => {
 
   useEffect(() => {
     getProductionLines();
-  }, [rows]);
+  }, []);
 
   useEffect(() => {
     setDeleteDisabled(!selectedRowId)
@@ -308,6 +308,7 @@ export const ProductionLineManagement = (props) => {
             handleClose={handleFormDialogClose}
             handleAlertOpen={handleAlertOpen}
             handleAlertClose={handleAlertClose}
+            addProductionLine={addProductionLine}
           />
           
           <ProductionLineDialogUpdate

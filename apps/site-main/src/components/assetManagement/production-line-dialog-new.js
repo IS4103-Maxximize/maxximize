@@ -15,6 +15,7 @@ export const ProductionLineDialogNew = (props) => {
     string,
     handleAlertOpen,
     handleAlertClose,
+    addProductionLine,
     ...rest
   } = props;
 
@@ -41,6 +42,7 @@ export const ProductionLineDialogNew = (props) => {
     createProductionLine(createProductionLineDto)
       .then(res => {
         onClose();
+        addProductionLine(res)
         handleAlertOpen(`Successfully Created Production Line ${res.id}!`, 'success');
       })
       .catch(err => handleAlertOpen('Failed to Create Production Line', 'error'));
@@ -319,7 +321,7 @@ export const ProductionLineDialogNew = (props) => {
         </DialogContent>
         <DialogActions>
           <Button
-            disabled={!formik.isValid || formik.isSubmitting}
+            disabled={!formik.isValid || formik.isSubmitting || !selectedBom || selectedMachines.length === 0}
             variant="contained"
             onClick={formik.handleSubmit}
           >
