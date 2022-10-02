@@ -42,7 +42,6 @@ export class SalesInquiryService {
     createSalesInquiryDto: CreateSalesInquiryDto
   ): Promise<SalesInquiry> {
     try {
-      console.log('create SI')
       const { currentOrganisationId, totalPrice, salesInquiryLineItemsDtos, purchaseRequisitionIds } = createSalesInquiryDto;
       let organisationToBeAdded: Organisation;
       organisationToBeAdded =
@@ -82,7 +81,6 @@ export class SalesInquiryService {
 
       const newSI = await this.salesInquiriesRepository.save(newSalesInquiry);
 
-      console.log(newSI)
 
       // link PRs with sales inquiry
       if (purchaseRequisitionIds) {

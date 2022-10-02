@@ -75,7 +75,7 @@ export class GoodsReceiptsService {
       createBatchDto.batchNumber = "B-" + randomUUID().substring(0, 5) + "-" + 
         new Date().toLocaleDateString().replace(/\//g, "-") + "-" + new Date().toLocaleTimeString();
       const batch = await this.batchService.createWithExistingTransaction(createBatchDto, goodsReceiptLineItems, 
-        purchaseOrder.quotation.salesInquiryId, queryRunner);
+        purchaseOrder.quotation.salesInquiryId, createGoodsReceiptDto.organisationId, queryRunner);
       goodsReceipt.batch = batch;
 
       const createdGr = await queryRunner.manager.save(goodsReceipt);

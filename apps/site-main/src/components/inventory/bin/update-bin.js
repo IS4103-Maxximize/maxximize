@@ -59,7 +59,9 @@ export const UpdateBin = ({ bin, updateBin, handleAlertOpen }) => {
         .min(1, 'Name must be at least be 1 character long')
         .max(50, 'Name can at most be 50 characters long')
         .required('Name is required'),
-      capacity: Yup.number().required('Capacity is required'),
+      capacity: Yup.number()
+        .positive('Capacity must be positive')
+        .required('Capacity is required'),
     }),
     onSubmit: handleOnSubmit,
   });

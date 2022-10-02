@@ -22,6 +22,7 @@ import { NotificationAlert } from '../../components/notification-alert';
 import {
   deleteProductionLine, fetchProductionLines
 } from '../../helpers/assetManagement';
+import DayJS from 'dayjs';
 
 export const ProductionLineManagement = (props) => {
   const user = JSON.parse(localStorage.getItem('user'));
@@ -219,24 +220,28 @@ export const ProductionLineManagement = (props) => {
         }
       },
     },
-    {
-      field: 'lastStopped',
-      headerName: 'Last Stopped',
-      flex: 2,
-    },
-    {
-      field: 'changeOverTime',
-      headerName: 'COT',
-      flex: 1,
-    },
-    {
-      field: 'nextAvailableDateTime',
-      headerName: 'NADT',
-      flex: 2,
-    },
+    // {
+    //   field: 'lastStopped',
+    //   headerName: 'Last Stopped',
+    //   flex: 2,
+    // },
+	{
+		field: 'startTime',
+		headerName: 'Start Time',
+		flex: 1,
+		valueFormatter: (params) =>
+        DayJS(new Date().setHours(params?.value,0,0)).format('hh:mm a'),
+	},
+	{
+		field: 'endTime',
+		headerName: 'End Time',
+		flex: 1,
+		valueFormatter: (params) =>
+		DayJS(new Date().setHours(params?.value,0,0)).format('hh:mm a'),
+	},
     {
       field: 'productionCostPerLot',
-      headerName: 'PCPL',
+      headerName: 'Cost /Lot',
       flex: 1,
     },
     {

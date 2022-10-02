@@ -92,13 +92,17 @@ export class FactoryMachinesService {
   async remove(id: number): Promise<FactoryMachine> {
     const factoryMachineToDelete = await this.findOne(id)
     //can't remove FM if there is an ongoing schedule in the PL
-    const productionLineId = factoryMachineToDelete.productionLineId
-    const schedules = (await this.productionLinesService.findOne(productionLineId)).schedules
-    const hasOngoingPlannedSchedule = schedules.some(schedule => schedule.status === 'ongoing' || schedule.status === 'planned')
-    if (!hasOngoingPlannedSchedule) {
-      return this.factoryMachineRepository.remove(factoryMachineToDelete)
+	if (factoryMachineToDelete.productionLineId) {
+	  const productionLineId = factoryMachineToDelete.productionLineId
+      const schedules = (await this.productionLinesService.findOne(productionLineId)).schedules
+      const hasOngoingPlannedSchedule = schedules.some(schedule => schedule.status === 'ongoing' || schedule.status === 'planned')
+      if (!hasOngoingPlannedSchedule) {
+        return this.factoryMachineRepository.remove(factoryMachineToDelete)
+      } else {
+        throw new NotFoundException('There is a schedule that is ongoing/planned, delete Machine after these are done!')
+	  }
     } else {
-      throw new NotFoundException('There is a schedule that is ongoing/planned, delete Machine after these are done!')
-    }
+	  return this.factoryMachineRepository.remove(factoryMachineToDelete)
+	}
   }
 }

@@ -49,7 +49,6 @@ export const ProductionOrder = (props) => {
     // Get Prod Orders
     setLoading(true);
     getProductionOrders();
-    console.log(selectedRow);
   }, []);
 
   // Alert Helpers
@@ -87,6 +86,23 @@ export const ProductionOrder = (props) => {
     } catch {
       console.log('An error occured please try again later');
     }
+  };
+
+  // Update production order status to released
+  const updateProductionOrders = (productionOrder) => {
+    console.log(productionOrder);
+    const indexOfEditProductionOrder = productionOrders.findIndex(
+      (currentProductionOrder) =>
+        currentProductionOrder.id === productionOrder.id
+    );
+    console.log(indexOfEditProductionOrder);
+    const newProductionOrders = [...productionOrders];
+    newProductionOrders[indexOfEditProductionOrder] = productionOrder;
+    setProductionOrders(newProductionOrders);
+    handleAlertOpen(
+      `Updated Production Order ${productionOrder.id} successfully!`,
+      'success'
+    );
   };
 
   // Delete Button
@@ -138,6 +154,35 @@ export const ProductionOrder = (props) => {
 
   //View Dialog Helper
   const [openViewDialog, setOpenViewDialog] = useState(false);
+
+  useEffect(() => {
+    if (selectedRow?.status == 'readytorelease') {
+      retrievePossibleSchedules();
+    }
+  }, [openViewDialog]);
+
+  //Use this to store the new row with a schedule, just for display
+  const [tempSelectedRow, setTempSelectedRow] = useState('');
+  // Earliest Schedules for final product
+  const retrievePossibleSchedules = async () => {
+    const response = await fetch(
+      `http://localhost:3000/api/production-lines/earliestSchedules?quantity=${
+        selectedRow.plannedQuantity
+      }&finalGoodId=${selectedRow.bom.finalGood.id}&daily=${
+        selectedRow.daily
+      }&days=${0}&organisationId=${organisationId}`
+    );
+
+    if (response.status === 200 || response.status === 201) {
+      const result = await response.json();
+      selectedRow.schedules = result;
+
+      console.log(selectedRow);
+      setTempSelectedRow(selectedRow);
+    } else {
+      const result = await response.json();
+    }
+  };
 
   const handleOpenViewDialog = () => {
     setOpenViewDialog(true);
@@ -283,7 +328,13 @@ export const ProductionOrder = (props) => {
             handleClickViewEdit={handleOpenViewDialog}
           />
           <ProductionOrderViewDialog
-            productionOrder={selectedRow}
+            productionOrder={
+              selectedRow?.status == 'readytorelease'
+                ? tempSelectedRow
+                : selectedRow
+            }
+            getProductionsOrders={getProductionOrders}
+            updateProductionOrders={updateProductionOrders}
             openViewDialog={openViewDialog}
             closeViewDialog={handleCloseViewDialog}
             handleAlertOpen={handleAlertOpen}

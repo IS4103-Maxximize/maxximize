@@ -21,7 +21,7 @@ export const GoodReceiptMenu = (props) => {
       <MenuList>
         <MenuItem
           onClick={() => {
-            setGoodReceiptLineItems(goodReceipt.goodReceiptLineItems);
+            setGoodReceiptLineItems(goodReceipt.goodsReceiptLineItems);
             handleMenuClose();
             handleClickView();
           }}

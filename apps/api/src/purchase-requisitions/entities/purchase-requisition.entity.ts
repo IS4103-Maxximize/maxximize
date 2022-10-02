@@ -23,7 +23,7 @@ export class PurchaseRequisition {
     })
     status: PRStatus
 
-    @Column({default: null})
+    @Column()
     createdDateTime: Date;
 
     @Column()

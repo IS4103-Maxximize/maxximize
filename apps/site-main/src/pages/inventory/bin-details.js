@@ -83,6 +83,13 @@ const BinDetails = () => {
       editable: false,
     },
     {
+      field: 'reservedQuantity',
+      headerName: 'Reserved Quantity',
+      flex: 1,
+      width: 120,
+      editable: false,
+    },
+    {
       field: 'expiryDate',
       headerName: 'Expiry Date',
       flex: 2,

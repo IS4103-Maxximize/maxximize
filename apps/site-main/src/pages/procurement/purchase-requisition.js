@@ -41,6 +41,10 @@ export const PurchaseRequisition = (props) => {
   }, []);
 
   useEffect(() => {
+	console.log(rows)
+  }, [rows] )
+
+  useEffect(() => {
     // show page after fetching data
     // console.log(rows);
     setLoading(false);
@@ -125,7 +129,7 @@ export const PurchaseRequisition = (props) => {
       headerName: 'Prod. Order ID',
       flex: 1,
       valueGetter: (params) => {
-        return params.row ? params.row.productionLineItem.productionOrder.id : '';
+        return params.row ? params.row.productionLineItem?.productionOrder.id : '';
       }
     },
     {

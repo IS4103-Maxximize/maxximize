@@ -71,8 +71,8 @@ export const PurchaseOrder = (props) => {
     setAction('POST');
     setSelectedRow(null);
   }
-  // Delete Button
-  const deleteDisabled = Boolean(selectedRows.length === 0);
+  // Delete Button, Purchasing order cannot be deleted
+  const deleteDisabled = Boolean(true);
 
 
   // Menu Helpers

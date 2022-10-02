@@ -24,14 +24,12 @@ export class ProductionLinesService {
   async create(createProductionLineDto: CreateProductionLineDto): Promise<ProductionLine> {
     const {name, description, bomId, productionCostPerLot, gracePeriod, organisationId, outputPerHour, startTime, endTime, machineIds} = createProductionLineDto
     let machinesToBeAdded = []
-    console.log(machineIds)
     for (const id of machineIds) {
       const machine = await this.factoryMachinesService.findOne(id)
       machinesToBeAdded.push(machine)
     }
     const organisation = await this.organisationService.findOne(organisationId)
     const billOfMaterial = await this.bomService.findOne(bomId)
-    console.log(billOfMaterial)
     const newProductionLine = this.productionLineRepository.create({
       name,
       description,
@@ -54,7 +52,9 @@ export class ProductionLinesService {
   async findAll(): Promise<ProductionLine[]> {
     return this.productionLineRepository.find({
       relations: {
-        bom: true,
+        bom: {
+			finalGood:true
+		},
         schedules: true,
         organisation: true,
         machines: true
@@ -231,10 +231,10 @@ export class ProductionLinesService {
   }
 
   async retrieveSchedulesForProductionOrder(quantity: number, finalGoodId: number, daily: Boolean, days: number, organisationId: number) {
-    const schedules = []
+	const schedules = []
     let requiredQuantity = quantity
     let mapping =  await this.getNextEarliestMapping(finalGoodId, organisationId)
-    if (Object.keys(mapping).length === 0) {
+    if (Object.keys(mapping).length === 0 || quantity === 0) {
       return schedules
     }
     let nextAvailablePlandTime = await this.getNextAvailableNearestDateTime(mapping, daily)
@@ -269,6 +269,7 @@ export class ProductionLinesService {
           const outputWithinFrame = Math.round((endOfDayOfNextAvailableTime - nextAvailableNearestDateTime) / 3600000 * productionLine.outputPerHour)
           requiredQuantity -= outputWithinFrame
   
+		  
           //save this schedule
           schedules.push({
             productionLineId: productionLineId,

@@ -15,6 +15,7 @@ export const PurchaseRequisitionNew = (props) => {
     prodLineItems,
     handleAlertOpen,
     handleAlertClose,
+	closeViewDialog,
     ...rest
   } = props;
 
@@ -40,6 +41,7 @@ export const PurchaseRequisitionNew = (props) => {
     createPurchaseRequisitions(purchaseRequisitionDtos)
       .then(res => {
         onClose();
+		closeViewDialog();
         handleAlertOpen(`Successfully Created ${string}(s)!`, 'success');
       })
       .catch(err => handleAlertOpen(`Failed to Create ${string}`, 'error'))
