@@ -22,7 +22,6 @@ import { ConfirmDialog } from '../assetManagement/confirm-dialog';
 export const ProductionOrderViewDialog = (props) => {
   const {
     productionOrder,
-    getProductionsOrders,
     openViewDialog,
     closeViewDialog,
     handleAlertOpen,
@@ -41,10 +40,6 @@ export const ProductionOrderViewDialog = (props) => {
   const handleCreateDialogClose = () => {
     setCreateDialogOpen(false);
   };
-
-  useEffect(() => {
-    getProductionsOrders();
-  }, [createDialogOpen, closeViewDialog]);
 
   // State for confirm dialog
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
@@ -219,6 +214,63 @@ export const ProductionOrderViewDialog = (props) => {
     },
   ];
 
+  const readyToReleaseProductionOrderColumns = [
+    {
+      field: 'rawMaterial',
+      headerName: 'Raw Material',
+      flex: 2,
+      valueGetter: (params) => {
+        return params.row
+          ? `${params.row.rawMaterial.name} [${params.row.rawMaterial.skuCode}] `
+          : '';
+      },
+    },
+    {
+      field: 'quantity',
+      headerName: 'Quantity Required',
+      flex: 1,
+      valueGetter: (params) => {
+        return params.row ? params.row.quantity : '';
+      },
+    },
+    {
+      field: 'unit',
+      headerName: 'Unit',
+      flex: 1,
+      valueGetter: (params) => {
+        return params.row ? params.row.rawMaterial.unit : '';
+      },
+    },
+    {
+      field: 'batchId',
+      headerName: 'Batch Line Item ID',
+      flex: 1,
+      valueGetter: (params) => {
+        return params.row ? params.row.batchLineItem.id : '';
+      },
+    },
+    {
+      field: 'binId',
+      headerName: 'Bin ID',
+      flex: 1,
+      valueGetter: (params) => {
+        return params.row ? params.row.batchLineItem.bin.id : '';
+      },
+    },
+    {
+      field: 'sufficient',
+      headerName: 'Sufficient Status',
+      flex: 1,
+      renderCell: (params) => {
+        return params.row.sufficient ? (
+          <CheckCircleIcon color="success" />
+        ) : (
+          <CancelIcon color="error" />
+        );
+      },
+    },
+  ];
+
   const schedules = [];
 
   return (
@@ -285,7 +337,12 @@ export const ProductionOrderViewDialog = (props) => {
                 <DataGrid
                   autoHeight
                   rows={formik.values.prodLineItems}
-                  columns={productionOrderColumns}
+                  columns={
+                    productionOrder?.status == 'created' ||
+                    productionOrder?.status == 'awaitingprocurement'
+                      ? productionOrderColumns
+                      : readyToReleaseProductionOrderColumns
+                  }
                   pageSize={5}
                   rowsPerPageOptions={[5]}
                   disableSelectionOnClick

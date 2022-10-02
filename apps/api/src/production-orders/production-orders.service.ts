@@ -439,9 +439,12 @@ export class ProductionOrdersService {
         completedGoods: true,
         schedules: true,
         prodLineItems: {
-          batchLineItem: true,
+          batchLineItem: { 
+			bin: true,
+		  },
           rawMaterial: true,
           purchaseRequisition: true,
+		  
         },
         purchaseOrder: true,
         organisation: true,
@@ -464,21 +467,24 @@ export class ProductionOrdersService {
       }
     }
     return this.productionOrdersRepository.find({
-      relations: {
-        bom: {
-          finalGood: true,
-          bomLineItems: true,
-        },
-        completedGoods: true,
-        schedules: true,
-        prodLineItems: {
-          batchLineItem: true,
-          rawMaterial: true,
-          purchaseRequisition: true,
-        },
-        purchaseOrder: true,
-        organisation: true,
-      },
+		relations: {
+			bom: {
+			  finalGood: true,
+			  bomLineItems: true,
+			},
+			completedGoods: true,
+			schedules: true,
+			prodLineItems: {
+			  batchLineItem: { 
+				bin: true,
+			  },
+			  rawMaterial: true,
+			  purchaseRequisition: true,
+			  
+			},
+			purchaseOrder: true,
+			organisation: true,
+		  },
     });
   }
 
@@ -495,9 +501,12 @@ export class ProductionOrdersService {
         completedGoods: true,
         schedules: true,
         prodLineItems: {
-          batchLineItem: true,
+          batchLineItem: { 
+			bin: true,
+		  },
           rawMaterial: true,
           purchaseRequisition: true,
+		  
         },
         purchaseOrder: true,
         organisation: true,
@@ -530,9 +539,12 @@ export class ProductionOrdersService {
         completedGoods: true,
         schedules: true,
         prodLineItems: {
-          batchLineItem: true,
+          batchLineItem: { 
+			bin: true,
+		  },
           rawMaterial: true,
           purchaseRequisition: true,
+		  
         },
         purchaseOrder: true,
         organisation: true,
@@ -547,22 +559,23 @@ export class ProductionOrdersService {
           id,
         },
         relations: {
-          bom: {
-            finalGood: true,
-            bomLineItems: {
-              rawMaterial: true,
-            },
-          },
-          completedGoods: true,
-          schedules: true,
-          prodLineItems: {
-            batchLineItem: true,
-            rawMaterial: true,
-            purchaseRequisition: true,
-          },
-          purchaseOrder: true,
-          organisation: true,
-        },
+			bom: {
+			  finalGood: true,
+			  bomLineItems: true,
+			},
+			completedGoods: true,
+			schedules: true,
+			prodLineItems: {
+			  batchLineItem: { 
+				bin: true,
+			  },
+			  rawMaterial: true,
+			  purchaseRequisition: true,
+			  
+			},
+			purchaseOrder: true,
+			organisation: true,
+		  },
       });
       if (prodO.status == ProductionOrderStatus.AWAITINGPROCUREMENT) {
         let flag = true;
@@ -582,22 +595,23 @@ export class ProductionOrdersService {
           id,
         },
         relations: {
-          bom: {
-            finalGood: true,
-            bomLineItems: {
-              rawMaterial: true,
-            },
-          },
-          completedGoods: true,
-          schedules: true,
-          prodLineItems: {
-            batchLineItem: true,
-            rawMaterial: true,
-            purchaseRequisition: true,
-          },
-          purchaseOrder: true,
-          organisation: true,
-        },
+			bom: {
+			  finalGood: true,
+			  bomLineItems: true,
+			},
+			completedGoods: true,
+			schedules: true,
+			prodLineItems: {
+			  batchLineItem: { 
+				bin: true,
+			  },
+			  rawMaterial: true,
+			  purchaseRequisition: true,
+			  
+			},
+			purchaseOrder: true,
+			organisation: true,
+		  },
       });
     } catch (error) {
       throw new NotFoundException('Production Order not found');

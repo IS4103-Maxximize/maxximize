@@ -47,7 +47,6 @@ export const ProductionOrder = (props) => {
 
   useEffect(() => {
     // Get Prod Orders
-    setLoading(true);
     getProductionOrders();
   }, []);
 
@@ -142,16 +141,6 @@ export const ProductionOrder = (props) => {
     setCreateDialogOpen(false);
   };
 
-  useEffect(() => {
-    if (!createDialogOpen) {
-      setLoading(true);
-      getProductionOrders();
-    }
-    if (createDialogOpen) {
-      // console.log(selectedRow);
-    }
-  }, [createDialogOpen]);
-
   //View Dialog Helper
   const [openViewDialog, setOpenViewDialog] = useState(false);
 
@@ -159,6 +148,7 @@ export const ProductionOrder = (props) => {
     if (selectedRow?.status == 'readytorelease') {
       retrievePossibleSchedules();
     }
+    getProductionOrders();
   }, [openViewDialog]);
 
   //Use this to store the new row with a schedule, just for display
@@ -177,7 +167,6 @@ export const ProductionOrder = (props) => {
       const result = await response.json();
       selectedRow.schedules = result;
 
-      console.log(selectedRow);
       setTempSelectedRow(selectedRow);
     } else {
       const result = await response.json();
@@ -235,11 +224,6 @@ export const ProductionOrder = (props) => {
   };
 
   const rows = productionOrders;
-  useEffect(() => {
-    // Show page after fetching data
-    // console.log(rows);
-    setLoading(false);
-  }, [rows]);
 
   // DataGrid Columns
   const columns = [
@@ -327,19 +311,21 @@ export const ProductionOrder = (props) => {
             handleMenuClose={handleMenuClose}
             handleClickViewEdit={handleOpenViewDialog}
           />
-          <ProductionOrderViewDialog
-            productionOrder={
-              selectedRow?.status == 'readytorelease'
-                ? tempSelectedRow
-                : selectedRow
-            }
-            getProductionsOrders={getProductionOrders}
-            updateProductionOrders={updateProductionOrders}
-            openViewDialog={openViewDialog}
-            closeViewDialog={handleCloseViewDialog}
-            handleAlertOpen={handleAlertOpen}
-            handleAlertClose={handleAlertClose}
-          />
+          {openViewDialog ? (
+            <ProductionOrderViewDialog
+              productionOrder={
+                selectedRow?.status == 'readytorelease'
+                  ? tempSelectedRow
+                  : selectedRow
+              }
+              openViewDialog={openViewDialog}
+              closeViewDialog={handleCloseViewDialog}
+              handleAlertOpen={handleAlertOpen}
+              handleAlertClose={handleAlertClose}
+            />
+          ) : (
+            <></>
+          )}
           <ConfirmDialog
             open={confirmDialogOpen}
             handleClose={handleConfirmDialogClose}
