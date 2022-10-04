@@ -15,7 +15,6 @@ export const MachineMenu = (props) => {
       anchorEl={anchorEl}
       open={menuOpen}
       onClose={handleMenuClose}
-      handleClickViewEdit={handleClickViewEdit}
     >
       <MenuList>
         <MenuItem onClick={() => {

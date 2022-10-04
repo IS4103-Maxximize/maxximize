@@ -7,12 +7,12 @@ import {
   MenuList,
 } from '@mui/material';
 
-export const GoodReceiptMenu = (props) => {
+export const GoodsReceiptMenu = (props) => {
   const {
-    goodReceipt,
+    goodsReceipt,
     anchorEl,
     menuOpen,
-    setGoodReceiptLineItems,
+    setGoodsReceiptLineItems,
     handleMenuClose,
     handleClickView,
   } = props;
@@ -21,7 +21,7 @@ export const GoodReceiptMenu = (props) => {
       <MenuList>
         <MenuItem
           onClick={() => {
-            setGoodReceiptLineItems(goodReceipt.goodsReceiptLineItems);
+            setGoodsReceiptLineItems(goodsReceipt.goodsReceiptLineItems);
             handleMenuClose();
             handleClickView();
           }}

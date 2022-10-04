@@ -152,7 +152,7 @@ export const UpdateDialogChecklist = ({
         aria-labelledby="responsive-dialog-title"
       >
         <DialogTitle id="responsive-dialog-title">
-            Add a new checklist
+            View/Update checklist
         </DialogTitle>
         <DialogContent>
           <form onSubmit={formik.handleSubmit} style={{display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%'}}>

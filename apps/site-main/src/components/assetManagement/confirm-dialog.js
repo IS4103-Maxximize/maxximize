@@ -1,49 +1,43 @@
 import {
-    Button, Dialog, DialogActions, DialogContent,
-    DialogContentText, DialogTitle
-  } from "@mui/material";
-   
-  export const ConfirmDialog = (props) => {
-    const {
-      open, 
-      handleClose, 
-      dialogTitle, 
-      dialogContent,
-      dialogAction,
-      ...rest
-    } = props;
-  
-    return (
-      <form>
-        <Dialog
-          open={open}
-          onClose={handleClose}
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+} from '@mui/material';
+
+export const ConfirmDialog = (props) => {
+  const {
+    open,
+    handleClose,
+    dialogTitle,
+    dialogContent,
+    dialogAction,
+    ...rest
+  } = props;
+
+  return (
+    <Dialog open={open} onClose={handleClose}>
+      <DialogTitle>{dialogTitle}</DialogTitle>
+      <DialogContent>
+        <DialogContentText>{dialogContent}</DialogContentText>
+      </DialogContent>
+      <DialogActions>
+        <Button
+          color="error"
+          variant="contained"
+          onClick={async () => {
+            dialogAction();
+            handleClose();
+          }}
         >
-          <DialogTitle>{dialogTitle}</DialogTitle>
-          <DialogContent>
-            <DialogContentText>
-              {dialogContent}
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <Button 
-              color="error"
-              variant="contained"
-              onClick={async () => {
-                dialogAction();
-                handleClose();
-              }}
-            >
-              Confirm
-            </Button>
-            <Button 
-              color="primary" 
-              onClick={handleClose}
-            >
-              Cancel
-            </Button>
-          </DialogActions>
-        </Dialog>
-      </form>
-    )
-  }
+          Confirm
+        </Button>
+        <Button color="primary" onClick={handleClose}>
+          Cancel
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+};

@@ -170,8 +170,6 @@ const Warehouse = () => {
   //Row for datagrid, set the list returned from API
   const rows = warehouses;
 
-  useEffect(() => console.log(rows), [rows]);
-
   //Navigate to the bin page
   const navigate = useNavigate();
   const handleRowClick = (rowData) => {

@@ -220,7 +220,7 @@ export const UpdateBin = ({ bin, updateBin, handleAlertOpen }) => {
               sx={{ width: '15%' }}
               InputProps={{
                 endAdornment: (
-                  <InputAdornment>
+                  <InputAdornment position="end">
                     <KitchenIcon sx={{ color: perc2color(bin) }} />
                   </InputAdornment>
                 ),

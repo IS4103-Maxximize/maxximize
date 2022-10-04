@@ -27,14 +27,14 @@ import * as Yup from 'yup';
 import CloseIcon from '@mui/icons-material/Close';
 import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
 import SwapVertIcon from '@mui/icons-material/SwapVert';
-import { CreateGoodReceiptDataGrid } from './good-receipt-data-grid';
-import { GoodReceiptConfirmDialog } from './good-receipt-confirm-dialog';
+import { CreateGoodsReceiptDataGrid } from './goods-receipt-data-grid';
+import { GoodsReceiptConfirmDialog } from './goods-receipt-confirm-dialog';
 import useMediaQuery from '@mui/material/useMediaQuery';
 
-export const CreateGoodReceiptDialog = ({
+export const CreateGoodsReceiptDialog = ({
   open,
   setOpen,
-  addGoodReceipt,
+  addGoodsReceipt,
   handleAlertOpen,
 }) => {
   //User organisation Id
@@ -68,7 +68,7 @@ export const CreateGoodReceiptDialog = ({
     setOpenDialog(false);
   };
 
-  //Create good receipt, handle Formik submission
+  //Create goods receipt, handle Formik submission
   const handleOnSubmit = async () => {
     const processedAcceptedProducts = acceptedProducts.map(
       (acceptedProduct) => ({
@@ -104,8 +104,8 @@ export const CreateGoodReceiptDialog = ({
     if (response.status === 200 || response.status === 201) {
       const result = await response.json();
       //Rerender parent data grid compoennt
-      addGoodReceipt(result);
-      handleAlertOpen(`Created Good Receipt ${result.id} successfully`);
+      addGoodsReceipt(result);
+      handleAlertOpen(`Created Goods Receipt ${result.id} successfully`);
       setError('');
       handleCreateDialogClose();
     } else {
@@ -247,7 +247,7 @@ export const CreateGoodReceiptDialog = ({
     },
   ];
 
-  //Updating a good receipt line item entry, calling update API
+  //Updating a goods receipt line item entry, calling update API
   //Also alerts user of ourcome
   const handleRowUpdate = (newRow, type) => {
     const updatedRow = { ...newRow };
@@ -451,11 +451,11 @@ export const CreateGoodReceiptDialog = ({
 
   return (
     <>
-      <GoodReceiptConfirmDialog
+      <GoodsReceiptConfirmDialog
         open={openDialog}
         handleClose={handleConfirmClose}
         dialogTitle="Confirm Create"
-        dialogContent="Are you sure you want to create this good receipt?"
+        dialogContent="Are you sure you want to create this goods receipt?"
         dialogAction={handleOnSubmit}
       />
       <form onSubmit={formik.handleOnSubmit}>
@@ -476,7 +476,7 @@ export const CreateGoodReceiptDialog = ({
                 <CloseIcon />
               </IconButton>
               <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
-                Create Good Receipt
+                Create Goods Receipt
               </Typography>
               <Button
                 autoFocus
@@ -550,7 +550,7 @@ export const CreateGoodReceiptDialog = ({
               <Box display="flex" justifyContent="space-evenly">
                 <Box mt={2} ml={'2.5%'} mr={'2.5%'} sx={{ minWidth: '45%' }}>
                   <Box sx={{ minWidth: 360 }}>
-                    <CreateGoodReceiptDataGrid
+                    <CreateGoodsReceiptDataGrid
                       header="Accepted"
                       products={acceptedProducts}
                       columns={columnsForAccepted}
@@ -581,7 +581,7 @@ export const CreateGoodReceiptDialog = ({
                     </IconButton>
                   </Box>
                   <Box sx={{ minWidth: 360 }}>
-                    <CreateGoodReceiptDataGrid
+                    <CreateGoodsReceiptDataGrid
                       header="Follow Up"
                       products={followUpProducts}
                       columns={columnsForFollowUp}
@@ -663,7 +663,7 @@ export const CreateGoodReceiptDialog = ({
               <>
                 <Box mt={2}>
                   <Box sx={{ minWidth: 360 }}>
-                    <CreateGoodReceiptDataGrid
+                    <CreateGoodsReceiptDataGrid
                       header="Accepted"
                       products={acceptedProducts}
                       columns={columnsForAccepted}
@@ -694,7 +694,7 @@ export const CreateGoodReceiptDialog = ({
                     </IconButton>
                   </Box>
                   <Box sx={{ minWidth: 360 }}>
-                    <CreateGoodReceiptDataGrid
+                    <CreateGoodsReceiptDataGrid
                       header="Follow Up"
                       products={followUpProducts}
                       columns={columnsForFollowUp}

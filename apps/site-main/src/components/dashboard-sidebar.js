@@ -148,9 +148,9 @@ const items = [
         access: ['manager', 'factoryworker', 'superadmin'],
       },
       {
-        href: '/procurement/good-receipt',
+        href: '/procurement/goods-receipt',
         icon: <ReceiptIcon fontSize="small" />,
-        title: 'Good Receipt',
+        title: 'Goods Receipt',
         access: ['manager', 'factoryworker', 'superadmin'],
       },
     ],
@@ -246,7 +246,6 @@ export const DashboardSidebar = (props) => {
           sx={{ mr: 3, ml: -1.4 }}
         >
           <Button
-            component="a"
             startIcon={module.icon}
             disableRipple
             sx={{
@@ -344,7 +343,6 @@ export const DashboardSidebar = (props) => {
                       underline="none"
                     >
                       <Button
-                        component="a"
                         startIcon={module.icon}
                         disableRipple
                         sx={{

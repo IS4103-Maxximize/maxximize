@@ -33,7 +33,6 @@ export const UpdateWorkerDialog = ({
 
   //Handle Formik submission
   const handleOnSubmit = async () => {
-    console.log(formik.values.address);
     const response = await fetch(
       `http://localhost:3000/api/users/updateUser/${selectedRow.id}`,
       {
@@ -56,7 +55,6 @@ export const UpdateWorkerDialog = ({
 
     if (response.status === 200 || response.status === 201) {
       const result = await response.json();
-      console.log(result);
       updateWorker(result);
       handleAlertOpen(`Updated Worker ${result.id} successfully`);
       setError('');

@@ -1,4 +1,8 @@
-import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { randomUUID } from 'crypto';
 import { DataSource, Repository } from 'typeorm';
@@ -37,7 +41,8 @@ export class GoodsReceiptsService {
       goodsReceipt.createdDateTime = createGoodsReceiptDto.createdDateTime;
       goodsReceipt.description = createGoodsReceiptDto.description;
       const createGrLineDtos = createGoodsReceiptDto.goodsReceiptLineItemsDtos;
-      const createFollowUpLineItemsDtos = createGoodsReceiptDto.followUpLineItemsDtos;
+      const createFollowUpLineItemsDtos =
+        createGoodsReceiptDto.followUpLineItemsDtos;
       const goodsReceiptLineItems = [];
       const followUpLineItems = [];
 
@@ -45,11 +50,17 @@ export class GoodsReceiptsService {
       createBatchDto.batchLineItems = [];
       createBatchDto.organisationId = createGoodsReceiptDto.organisationId;
 
-      const purchaseOrder = await this.purchaseOrderSerivce.findOne(createGoodsReceiptDto.purchaseOrderId);
+      const purchaseOrder = await this.purchaseOrderSerivce.findOne(
+        createGoodsReceiptDto.purchaseOrderId
+      );
       goodsReceipt.purchaseOrder = purchaseOrder;
-      
+
       for (const dto of createGrLineDtos) {
-        const createdGrLineItem = await this.grLineItemService.createWithExistingTransaction(dto, queryRunner);
+        const createdGrLineItem =
+          await this.grLineItemService.createWithExistingTransaction(
+            dto,
+            queryRunner
+          );
         goodsReceiptLineItems.push(createdGrLineItem);
       }
 
@@ -57,25 +68,45 @@ export class GoodsReceiptsService {
 
       for (const dto of createFollowUpLineItemsDtos) {
         dto.purchaseOrderId = createGoodsReceiptDto.purchaseOrderId;
-        const followUpLineItem = await this.followUpLineItemService.createWithExistingTransaction(dto, queryRunner);
+        const followUpLineItem =
+          await this.followUpLineItemService.createWithExistingTransaction(
+            dto,
+            queryRunner
+          );
         followUpLineItems.push(followUpLineItem);
       }
 
-      purchaseOrder.followUpLineItems = followUpLineItems
-      if (createFollowUpLineItemsDtos === undefined || createFollowUpLineItemsDtos.length === 0) {
+      purchaseOrder.followUpLineItems = followUpLineItems;
+      if (
+        createFollowUpLineItemsDtos === undefined ||
+        createFollowUpLineItemsDtos.length === 0
+      ) {
         purchaseOrder.status = PurchaseOrderStatus.FULFILLED;
       } else {
         purchaseOrder.status = PurchaseOrderStatus.PARTIALLYFULFILLED;
       }
       queryRunner.manager.save(purchaseOrder);
 
-      const recipient = await this.userService.findOne(createGoodsReceiptDto.recipientId);
-      goodsReceipt.recipientName = recipient.firstName + ' ' + recipient.lastName;
+      const recipient = await this.userService.findOne(
+        createGoodsReceiptDto.recipientId
+      );
+      goodsReceipt.recipientName =
+        recipient.firstName + ' ' + recipient.lastName;
 
-      createBatchDto.batchNumber = "B-" + randomUUID().substring(0, 5) + "-" + 
-        new Date().toLocaleDateString().replace(/\//g, "-") + "-" + new Date().toLocaleTimeString();
-      const batch = await this.batchService.createWithExistingTransaction(createBatchDto, goodsReceiptLineItems, 
-        purchaseOrder.quotation.salesInquiryId, createGoodsReceiptDto.organisationId, queryRunner);
+      createBatchDto.batchNumber =
+        'B-' +
+        randomUUID().substring(0, 5) +
+        '-' +
+        new Date().toLocaleDateString().replace(/\//g, '-') +
+        '-' +
+        new Date().toLocaleTimeString();
+      const batch = await this.batchService.createWithExistingTransaction(
+        createBatchDto,
+        goodsReceiptLineItems,
+        purchaseOrder.quotation.salesInquiryId,
+        createGoodsReceiptDto.organisationId,
+        queryRunner
+      );
       goodsReceipt.batch = batch;
 
       const createdGr = await queryRunner.manager.save(goodsReceipt);
@@ -98,8 +129,8 @@ export class GoodsReceiptsService {
           product: true,
         },
         purchaseOrder: true,
-        batch: true
-      }
+        batch: true,
+      },
     });
     return goodsReceipts;
   }
@@ -114,28 +145,28 @@ export class GoodsReceiptsService {
           product: true,
         },
         purchaseOrder: true,
-        batch: true
-      }
+        batch: true,
+      },
     });
     if (goodsReceipt) {
       return goodsReceipt;
     } else {
-      throw new NotFoundException(`Good receipt with ${id} is not found`);
+      throw new NotFoundException(`Goods receipt with ${id} is not found`);
     }
   }
 
   async findAllByOrganisationId(organisationId: number) {
     const goodsReceipts = await this.goodsReceiptRepository.find({
       where: {
-        organisationId: organisationId
+        organisationId: organisationId,
       },
       relations: {
         goodsReceiptLineItems: {
           product: true,
         },
         purchaseOrder: true,
-        batch: true
-      }
+        batch: true,
+      },
     });
     return goodsReceipts;
   }

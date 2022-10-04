@@ -59,13 +59,6 @@ export const ProductionOrderCreateDialog = (props) => {
   const [maximumFinalGoodOutput, setMaximumFinalGoodOutput] = useState(0);
 
   const handleOnSubmit = async (values) => {
-    // submit
-    // call create api
-
-    console.log(formik.values.multiplier);
-    console.log(selectedBom.id);
-    console.log(formik.values.daily);
-    console.log(formik.values.noOfDays);
     const response = await fetch(
       'http://localhost:3000/api/production-orders',
       {
@@ -216,7 +209,6 @@ export const ProductionOrderCreateDialog = (props) => {
       const response = await fetch(
         `http://localhost:3000/api/production-lines/earliestSchedules?quantity=${formik.values.quantity}&finalGoodId=${selectedBom.finalGood.id}&daily=${formik.values.daily}&days=${formik.values.noOfDays}&organisationId=${organisationId}`
       );
-      console.log(response);
       if (response.status === 200 || response.status === 201) {
         const result = await response.json();
 
@@ -238,17 +230,14 @@ export const ProductionOrderCreateDialog = (props) => {
   // Rerender Earliest Schedules for final product
   const rerenderPossibleSchedules = async () => {
     setError('');
-    console.log(maximumFinalGoodOutput);
     if (maximumFinalGoodOutput) {
       try {
         const maximumAllowed =
           selectedBom.finalGood.lotQuantity * maximumFinalGoodOutput;
-        console.log(maximumAllowed);
         const response = await fetch(
           `http://localhost:3000/api/production-lines/earliestSchedules?quantity=${maximumAllowed}&finalGoodId=${selectedBom.finalGood.id}&daily=${formik.values.daily}&days=${formik.values.noOfDays}&organisationId=${organisationId}`
         );
 
-        // console.log(response);
         if (response.status === 200 || response.status === 201) {
           const result = await response.json();
 
@@ -269,7 +258,6 @@ export const ProductionOrderCreateDialog = (props) => {
 
   // Retrieve Production Line Items (Sufficient/Insufficient)
   const retrieveProductionLineItems = async () => {
-    console.log(firstSchedules);
     try {
       const response = await fetch(
         `http://localhost:3000/api/batch-line-items/getLineItem/${
@@ -608,10 +596,6 @@ export const ProductionOrderCreateDialog = (props) => {
                   >
                     <FormControlLabel
                       sx={{ width: '50%' }}
-                      error={Boolean(
-                        formik.touched.daily && formik.errors.daily
-                      )}
-                      helperText={formik.touched.daily && formik.errors.daily}
                       checked={formik.values.daily}
                       value={formik.values.daily}
                       control={<Checkbox />}
@@ -728,7 +712,7 @@ export const ProductionOrderCreateDialog = (props) => {
                 <Skeleton
                   sx={{ marginTop: 2, marginBottom: 2 }}
                   variant="rounded"
-                  fullWidth
+                  width={'100%'}
                   height={'40%'}
                 ></Skeleton>
               ) : (
@@ -738,7 +722,7 @@ export const ProductionOrderCreateDialog = (props) => {
                     rows={formik.values.schedules}
                     columns={scheduleColumns}
                     pageSize={10}
-                    rowsPerPageOptions={[5]}
+                    rowsPerPageOptions={[10]}
                     disableSelectionOnClick
                     // experimentalFeatures={{ newEditingApi: true }}
                     // processRowUpdate={handleRowUpdate}

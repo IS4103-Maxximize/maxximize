@@ -73,17 +73,19 @@ function GenericToolbar(props) {
                   return (
                     <Tooltip title={tool.toolTipTitle} key={tool.toolTipTitle}>
                       {tool.badge ? (
-                        <IconButton
-                          disabled={disabled}
-                          onClick={handleClickMethods[tool.handleClickMethod]}
-                        >
-                          <Badge
-                            badgeContent={selectedRows.length}
-                            color={tool.badge.color}
+                        <span>
+                          <IconButton
+                            disabled={disabled}
+                            onClick={handleClickMethods[tool.handleClickMethod]}
                           >
-                            {tool.button()}
-                          </Badge>
-                        </IconButton>
+                            <Badge
+                              badgeContent={selectedRows.length}
+                              color={tool.badge.color}
+                            >
+                              {tool.button()}
+                            </Badge>
+                          </IconButton>
+                        </span>
                       ) : (
                         <IconButton
                           onClick={

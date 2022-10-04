@@ -143,7 +143,6 @@ export const UpdateDialog = ({
         name="category"
         />}
         onChange={(e, value) => {
-            console.log(value)
             formik.setFieldValue('category', value)
         }}
         // onOpen={formik.handleBlur}

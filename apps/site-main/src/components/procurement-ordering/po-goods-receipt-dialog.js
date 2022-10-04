@@ -33,11 +33,6 @@ export const PoGoodsReceiptDialog = (props) => {
     // handleSubmit: () => {}
   });
 
-
-  useEffect(() => {
-    console.log(formik.values.goodsReceipts)
-  }, [formik.values.goodsReceipts])
-
   // // Opening and Closing Dialog helpers
   // useEffect(() => {
   //   // fetch when opening create dialog
@@ -124,7 +119,7 @@ export const PoGoodsReceiptDialog = (props) => {
                     key={index}
                     sx={{ my: 2 }}
                   >
-                    <Typography>{`Good Receipt ${goodsreceipt.id}`}</Typography>
+                    <Typography>{`Goods Receipt ${goodsreceipt.id}`}</Typography>
                     <Stack direction="row" spacing={2}>
                     <TextField
                       sx={{ width: 300 }}

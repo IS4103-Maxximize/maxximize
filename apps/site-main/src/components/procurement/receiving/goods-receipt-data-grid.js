@@ -1,7 +1,7 @@
 import { Typography } from '@mui/material';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 
-export const CreateGoodReceiptDataGrid = ({
+export const CreateGoodsReceiptDataGrid = ({
   header,
   products,
   columns,

@@ -240,7 +240,7 @@ export const PODialog = (props) => {
               sx={{ width: 150 }}
               label="Purchase Order ID"
               value={purchaseOrder.id}
-              disabled={purchaseOrder}
+              disabled={Boolean(purchaseOrder)}
             />}
             <TextField
               error={Boolean(
@@ -261,7 +261,7 @@ export const PODialog = (props) => {
               sx={{ width: 150 }}
               label="Status"
               value={purchaseOrder.status}
-              disabled={purchaseOrder}
+              disabled={Boolean(purchaseOrder)}
             />}
             {(purchaseOrder && purchaseOrder.goodsReceipts.length > 0) && 
               <Button
@@ -292,11 +292,11 @@ export const PODialog = (props) => {
                 sx={{ width: 150 }}
                 label="Quotation ID"
                 value={purchaseOrder.quotation.id}
-                disabled={purchaseOrder}
+                disabled={Boolean(purchaseOrder)}
               />
             )}
             <DatePicker
-              disabled={!formik.values.quotation || purchaseOrder}
+              disabled={!formik.values.quotation || Boolean(purchaseOrder)}
               renderInput={(props) => <TextField {...props} />}
               label="Delivery Date"
               value={formik.values.deliveryDate}
@@ -324,7 +324,7 @@ export const PODialog = (props) => {
                 sx={{ width: 500 }}
                 label="Deliver To"
                 value={purchaseOrder.deliveryAddress}
-                disabled={purchaseOrder}
+                disabled={Boolean(purchaseOrder)}
               />
             )}
           </Stack>

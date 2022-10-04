@@ -89,12 +89,10 @@ export const ProductionOrder = (props) => {
 
   // Update production order status to released
   const updateProductionOrders = (productionOrder) => {
-    console.log(productionOrder);
     const indexOfEditProductionOrder = productionOrders.findIndex(
       (currentProductionOrder) =>
         currentProductionOrder.id === productionOrder.id
     );
-    console.log(indexOfEditProductionOrder);
     const newProductionOrders = [...productionOrders];
     newProductionOrders[indexOfEditProductionOrder] = productionOrder;
     setProductionOrders(newProductionOrders);

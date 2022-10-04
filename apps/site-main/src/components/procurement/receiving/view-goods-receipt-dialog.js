@@ -12,11 +12,11 @@ import { useEffect, useState } from 'react';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import DayJS from 'dayjs';
 
-export const ViewGoodReceiptDialog = ({
-  goodReceiptLineItems,
+export const ViewGoodsReceiptDialog = ({
+  goodsReceiptLineItems,
   openViewDialog,
   setOpenViewDialog,
-  goodReceipt,
+  goodsReceipt,
 }) => {
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
@@ -66,25 +66,25 @@ export const ViewGoodReceiptDialog = ({
       <DialogContent>
         <Box>
           <Typography sx={{ marginBottom: 1 }}>
-            <b>Purchase Order ID:</b> {goodReceipt?.purchaseOrder.id}
+            <b>Purchase Order ID:</b> {goodsReceipt?.purchaseOrder.id}
           </Typography>
           <Typography sx={{ marginBottom: 1 }}>
-            <b>Recipient:</b> {goodReceipt?.recipientName}
+            <b>Recipient:</b> {goodsReceipt?.recipientName}
           </Typography>
           <Typography sx={{ marginBottom: 1 }}>
             <b>Date Received: </b>
-            {DayJS(goodReceipt?.createdDateTime).format('DD MMM YYYY hh:mm a')}
+            {DayJS(goodsReceipt?.createdDateTime).format('DD MMM YYYY hh:mm a')}
           </Typography>
           <Typography sx={{ marginBottom: 2 }}>
             <b>Description:</b>{' '}
-            {goodReceipt?.description ? goodReceipt.description : '-NIL-'}
+            {goodsReceipt?.description ? goodsReceipt.description : '-NIL-'}
           </Typography>
         </Box>
         <Box sx={{ minWidth: 500 }}>
           <DataGrid
             autoHeight
             minHeight="500"
-            rows={goodReceipt?.goodsReceiptLineItems}
+            rows={goodsReceipt?.goodsReceiptLineItems}
             columns={columns}
             pageSize={5}
             rowsPerPageOptions={[5]}

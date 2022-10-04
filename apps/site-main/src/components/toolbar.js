@@ -67,7 +67,7 @@ export const Toolbar = (props) => {
   ];
 
   return (
-    <Box {...props}>
+    <Box>
       <Box
         sx={{
           alignItems: 'center',
@@ -129,16 +129,19 @@ export const Toolbar = (props) => {
                     <AddBoxIcon />
                   </IconButton>
                 </Tooltip>
+
                 <Tooltip title={`Delete ${name}(s)`}>
-                  <IconButton
-                    color="error"
-                    disabled={deleteDisabled}
-                    onClick={handleConfirmDialogOpen}
-                  >
-                    <Badge badgeContent={numRows} color="error">
-                      <DeleteIcon />
-                    </Badge>
-                  </IconButton>
+                  <span>
+                    <IconButton
+                      color="error"
+                      disabled={deleteDisabled}
+                      onClick={handleConfirmDialogOpen}
+                    >
+                      <Badge badgeContent={numRows} color="error">
+                        <DeleteIcon />
+                      </Badge>
+                    </IconButton>
+                  </span>
                 </Tooltip>
               </Box>
             </Box>

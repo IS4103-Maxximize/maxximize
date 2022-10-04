@@ -89,7 +89,6 @@ export const WorkerListResults = () => {
   };
 
   const updateWorker = (worker) => {
-    console.log(worker);
     const indexOfEditWorker = workers.findIndex(
       (currentWorker) => currentWorker.id === worker.id
     );
@@ -356,26 +355,27 @@ export const WorkerListResults = () => {
                       </InputAdornment>
                     ),
                   }}
-                  placeholder="Search worker (username)"
+                  placeholder="Search worker (by username)"
                   variant="outlined"
                   type="search"
                   onChange={handleSearch}
                 />
               </Stack>
-              <Box></Box>
 
               {/* Buttons functionalities */}
               <Box sx={{ m: 1 }} display="flex" flexDirection="row-reverse">
                 <Tooltip title={'Delete Worker Entry (Single/Multiple)'}>
-                  <IconButton
-                    disabled={selectionModel.length === 0}
-                    onClick={handleConfirmDialogOpen}
-                    color="error"
-                  >
-                    <Badge badgeContent={selectionModel.length} color="error">
-                      <DeleteIcon />
-                    </Badge>
-                  </IconButton>
+                  <span>
+                    <IconButton
+                      disabled={selectionModel.length === 0}
+                      onClick={handleConfirmDialogOpen}
+                      color="error"
+                    >
+                      <Badge badgeContent={selectionModel.length} color="error">
+                        <DeleteIcon />
+                      </Badge>
+                    </IconButton>
+                  </span>
                 </Tooltip>
 
                 <WorkerConfirmDialog

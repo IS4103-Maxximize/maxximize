@@ -1,19 +1,19 @@
 import { Box, Card, Container, IconButton, Typography } from '@mui/material';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
-import { GoodReceiptListToolbar } from '../../components/procurement/receiving/good-receipt-list-toolbar';
+import { GoodsReceiptListToolbar } from '../../components/procurement/receiving/goods-receipt-list-toolbar';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import { useEffect, useState } from 'react';
 import MoreVert from '@mui/icons-material/MoreVert';
-import { GoodReceiptConfirmDialog } from '../../components/procurement/receiving/good-receipt-confirm-dialog';
-import { CreateGoodReceiptDialog } from '../../components/procurement/receiving/create-good-receipt-dialog';
+import { GoodsReceiptConfirmDialog } from '../../components/procurement/receiving/goods-receipt-confirm-dialog';
+import { CreateGoodsReceiptDialog } from '../../components/procurement/receiving/create-goods-receipt-dialog';
 import { NotificationAlert } from '../../components/notification-alert';
-import { GoodReceiptMenu } from '../../components/procurement/receiving/good-receipt-menu';
-import { ViewGoodReceiptDialog } from '../../components/procurement/receiving/view-good-receipt-dialog';
+import { GoodsReceiptMenu } from '../../components/procurement/receiving/goods-receipt-menu';
+import { ViewGoodsReceiptDialog } from '../../components/procurement/receiving/view-goods-receipt-dialog';
 import DayJS from 'dayjs';
 import { Toolbar } from '../../components/toolbar';
 
-const ProcurementGoodReceipt = () => {
-  const [goodReceipts, setGoodReceipts] = useState([]);
+const ProcurementGoodsReceipt = () => {
+  const [goodsReceipts, setGoodsReceipts] = useState([]);
   const [selectedRow, setSelectedRow] = useState();
   const [selectedRows, setSelectedRows] = useState([]);
   const [disabled, setDisabled] = useState();
@@ -21,9 +21,9 @@ const ProcurementGoodReceipt = () => {
   const user = JSON.parse(localStorage.getItem('user'));
   const organisationId = user.organisation.id;
 
-  //Load in list of goodReceipts, initial
+  //Load in list of Goods Receipts, initial
   useEffect(() => {
-    retrieveAllGoodReceipts();
+    retrieveAllGoodsReceipts();
   }, []);
 
   //Keep track of selectedRows for deletion
@@ -31,8 +31,8 @@ const ProcurementGoodReceipt = () => {
     setDisabled(selectedRows.length === 0);
   }, [selectedRows]);
 
-  //Retrieve all goodReceipts
-  const retrieveAllGoodReceipts = async () => {
+  //Retrieve all Goods Receipts
+  const retrieveAllGoodsReceipts = async () => {
     const response = await fetch(
       `http://localhost:3000/api/goods-receipts/findAllByOrg/${organisationId}`
     );
@@ -43,7 +43,7 @@ const ProcurementGoodReceipt = () => {
       result = await response.json();
     }
 
-    setGoodReceipts(result);
+    setGoodsReceipts(result);
   };
 
   //Search Function
@@ -98,27 +98,27 @@ const ProcurementGoodReceipt = () => {
     setOpen(true);
   };
 
-  //View Good Receipt dialog
+  //View Goods Receipt dialog
   const [openViewDialog, setOpenViewDialog] = useState(false);
 
   const handleOpenViewDialog = () => {
     setOpenViewDialog(true);
   };
 
-  //Good Receipt line items from the bin
-  const [goodReceiptLineItems, setGoodReceiptLineItems] = useState([]);
+  //Goods Receipt line items from the bin
+  const [goodsReceiptLineItems, setGoodsReceiptLineItems] = useState([]);
 
   //Load in list of line items
   useEffect(() => {
-    setGoodReceiptLineItems(selectedRow?.goodsReceiptLineItems);
+    setGoodsReceiptLineItems(selectedRow?.goodsReceiptLineItems);
   }, [openViewDialog]);
 
-  //Add a new good receipt entry to the list
-  const addGoodReceipt = (goodReceipt) => {
+  //Add a new goods receipt entry to the list
+  const addGoodsReceipt = (goodsReceipt) => {
     try {
-      const updatedGoodReceipts = [...goodReceipts, goodReceipt];
+      const updatedGoodsReceipts = [...goodsReceipts, goodsReceipt];
 
-      setGoodReceipts(updatedGoodReceipts);
+      setGoodsReceipts(updatedGoodsReceipts);
     } catch {
       console.log('An error occured please try again later');
     }
@@ -134,7 +134,7 @@ const ProcurementGoodReceipt = () => {
   };
 
   //Handle Delete
-  //Deleting a goodReceipt entry, calling update API
+  //Deleting a Goods Receipt entry, calling update API
   //Also alerts user of ourcome
   const handleDelete = async (selectedIds) => {
     const requestOptions = {
@@ -147,15 +147,18 @@ const ProcurementGoodReceipt = () => {
         requestOptions
       )
         .then(() => {
-          handleAlertOpen(`Successfully deleted good receipt(s)`, 'success');
+          handleAlertOpen(`Successfully deleted goods receipt(s)`, 'success');
         })
         .catch((error) => {
-          handleAlertOpen(`Failed to delete good receipt(s):${error}`, 'error');
+          handleAlertOpen(
+            `Failed to delete goods receipt(s):${error}`,
+            'error'
+          );
         });
     });
 
-    setGoodReceipts((result) =>
-      result.filter((goodReceipt) => !selectedIds.includes(goodReceipt.id))
+    setGoodsReceipts((result) =>
+      result.filter((goodsReceipt) => !selectedIds.includes(goodsReceipt.id))
     );
   };
 
@@ -204,13 +207,13 @@ const ProcurementGoodReceipt = () => {
   ];
 
   //Row for datagrid, set the list returned from API
-  const rows = goodReceipts;
+  const rows = goodsReceipts;
 
   return (
     <>
       <HelmetProvider>
         <Helmet>
-          <title>{`Good Receipt | ${user?.organisation?.name}`}</title>
+          <title>{`Goods Receipt | ${user?.organisation?.name}`}</title>
         </Helmet>
       </HelmetProvider>
       <NotificationAlert
@@ -219,32 +222,32 @@ const ProcurementGoodReceipt = () => {
         text={alertText}
         handleClose={handleAlertClose}
       />
-      <CreateGoodReceiptDialog
+      <CreateGoodsReceiptDialog
         open={open}
         setOpen={setOpen}
-        addGoodReceipt={addGoodReceipt}
+        addGoodsReceipt={addGoodsReceipt}
         handleAlertOpen={handleAlertOpen}
       />
-      <GoodReceiptConfirmDialog
+      <GoodsReceiptConfirmDialog
         open={confirmDialogOpen}
         handleClose={handleConfirmDialogClose}
-        dialogTitle={`Delete Good Receipt(s)`}
-        dialogContent={`Confirm deletion of Good Receipt(s)?`}
+        dialogTitle={`Delete Goods Receipt(s)`}
+        dialogContent={`Confirm deletion of Goods Receipt(s)?`}
         dialogAction={() => {
           handleDelete(selectedRows);
         }}
       />
-      <ViewGoodReceiptDialog
-        goodReceipt={selectedRow}
+      <ViewGoodsReceiptDialog
+        goodsReceipt={selectedRow}
         openViewDialog={openViewDialog}
         setOpenViewDialog={setOpenViewDialog}
-        goodReceiptLineItems={goodReceiptLineItems}
+        goodsReceiptLineItems={goodsReceiptLineItems}
       />
-      <GoodReceiptMenu
-        goodReceipt={selectedRow}
+      <GoodsReceiptMenu
+        goodsReceipt={selectedRow}
         anchorEl={anchorEl}
         menuOpen={menuOpen}
-        setGoodReceiptLineItems={setGoodReceiptLineItems}
+        setGoodsReceiptLineItems={setGoodsReceiptLineItems}
         handleMenuClose={handleMenuClose}
         handleClickView={handleOpenViewDialog}
       />
@@ -258,7 +261,7 @@ const ProcurementGoodReceipt = () => {
       >
         <Container maxWidth={false}>
           <Toolbar
-            name="Good Receipt"
+            name="Goods Receipt"
             numRows={selectedRows.length}
             deleteDisabled={disabled}
             handleSearch={handleSearch}
@@ -302,4 +305,4 @@ const ProcurementGoodReceipt = () => {
   );
 };
 
-export default ProcurementGoodReceipt;
+export default ProcurementGoodsReceipt;

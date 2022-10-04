@@ -17,7 +17,7 @@ import Warehouse from './pages/inventory/warehouse';
 import Login from './pages/login';
 import OrganisationSelection from './pages/organisationSelection';
 import ProcurementForecast from './pages/procurement/forecast';
-import ProcurementGoodReceipt from './pages/procurement/good-receipt';
+import ProcurementGoodsReceipt from './pages/procurement/goods-receipt';
 import PurchaseOrder from './pages/procurement/purchase-order';
 import PurchaseRequisition from './pages/procurement/purchase-requisition';
 import Quotation from './pages/procurement/quotation';
@@ -164,8 +164,8 @@ const routes = (
               element={<PurchaseOrder />}
             ></Route>
             <Route
-              path="procurement/good-receipt"
-              element={<ProcurementGoodReceipt />}
+              path="procurement/goods-receipt"
+              element={<ProcurementGoodsReceipt />}
             ></Route>
 
             {/* Asset Management */}

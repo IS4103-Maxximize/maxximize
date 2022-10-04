@@ -125,7 +125,7 @@ export const PurchaseOrder = (props) => {
     }
   }, [formDialogOpen]);
 
-  // PoGoodReceiptDialog Helpers
+  // PoGoodsReceiptDialog Helpers
   const [poGrDialogOpen, setPoGrDialogOpen] = useState(false);
   const handlePoGrDialogOpen = () => {
     setPoGrDialogOpen(true);

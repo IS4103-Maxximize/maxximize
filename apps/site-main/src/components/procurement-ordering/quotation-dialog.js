@@ -367,14 +367,14 @@ export const QuotationDialog = (props) => {
               <TextField
                 label="Sales Inquiry ID"
                 value={quotation.salesInquiry.id}
-                disabled={quotation}
+                disabled={Boolean(quotation)}
               />
             )}
             {quotation && (
               <TextField
                 label="Supplier ID"
                 value={quotation.shellOrganisation.id}
-                disabled={quotation}
+                disabled={Boolean(quotation)}
               />
             )}
           </Stack>

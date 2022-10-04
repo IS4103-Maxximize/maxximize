@@ -285,7 +285,6 @@ export const SuppliersList = ({ orgId }) => {
                 alignItems: 'center',
                 display: 'flex',
                 justifyContent: 'space-between',
-                flexWrap: 'wrap',
                 m: -1,
               }}
             >
@@ -313,7 +312,7 @@ export const SuppliersList = ({ orgId }) => {
                 sx={{ m: 1 }}
                 display="flex"
                 justifyContent="end"
-                alignItems="baseline"
+                alignItems="center"
               >
                 <Tooltip title={'Add new supplier'}>
                   <IconButton color="primary" onClick={handleOpenDialog}>
@@ -334,21 +333,21 @@ export const SuppliersList = ({ orgId }) => {
                     'Update a supplier by clicking on the menu button at the end of the row'
                   }
                 >
-                  <span>
-                    <HelpIcon />
-                  </span>
+                  <HelpIcon />
                 </Tooltip>
 
                 <Tooltip title={'Delete Supplier (Single/Multiple)'}>
-                  <IconButton
-                    disabled={disabled}
-                    onClick={handleOpenConfirmationDialog}
-                    color="error"
-                  >
-                    <Badge badgeContent={selectionModel.length} color="error">
-                      <DeleteIcon />
-                    </Badge>
-                  </IconButton>
+                  <span>
+                    <IconButton
+                      disabled={disabled}
+                      onClick={handleOpenConfirmationDialog}
+                      color="error"
+                    >
+                      <Badge badgeContent={selectionModel.length} color="error">
+                        <DeleteIcon />
+                      </Badge>
+                    </IconButton>
+                  </span>
                 </Tooltip>
               </Box>
             </Box>

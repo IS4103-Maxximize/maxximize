@@ -23,9 +23,6 @@ import { fetchMachine, fetchProductionLines } from '../../helpers/assetManagemen
 import { DateTimePicker } from '@mui/x-date-pickers';
 import { useEffect, useState } from 'react';
 
-const user = JSON.parse(localStorage.getItem('user'));
-const organisationId = user.organisation.id;
-
 export const MachineDialog = (props) => {
   const {
     action,
@@ -37,6 +34,9 @@ export const MachineDialog = (props) => {
     machine,
     ...rest
   } = props;
+
+  const user = JSON.parse(localStorage.getItem('user'));
+  const organisationId = user.organisation.id;
 
   const [error, setError] = useState('');
 

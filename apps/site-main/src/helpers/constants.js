@@ -1,6 +1,5 @@
-import { Link } from "@mui/material";
-import { Link as RouterLink } from "react-router-dom";
-
+import { Link } from '@mui/material';
+import { Link as RouterLink } from 'react-router-dom';
 
 const apiPort = 3000;
 const apiHost = `http://localhost:${apiPort}/api`;
@@ -15,8 +14,8 @@ const requestOptionsHelper = (method, body) => {
     method: method,
     headers: headers,
     body: body,
-  }
-}
+  };
+};
 
 const procurementBreadcrumbs = (subdomain) => [
   <Link
@@ -58,12 +57,12 @@ const procurementBreadcrumbs = (subdomain) => [
   <Link
     component={RouterLink}
     underline="hover"
-    key="good-receipt"
-    color={subdomain === 'good-receipt' ? 'primary' : 'inherit'}
-    to="/procurement/good-receipt"
+    key="goods-receipt"
+    color={subdomain === 'goods-receipt' ? 'primary' : 'inherit'}
+    to="/procurement/goods-receipt"
   >
-    Good Receipt
+    Goods Receipt
   </Link>,
 ];
 
-export { apiHost, headers, requestOptionsHelper, procurementBreadcrumbs}
+export { apiHost, headers, requestOptionsHelper, procurementBreadcrumbs };

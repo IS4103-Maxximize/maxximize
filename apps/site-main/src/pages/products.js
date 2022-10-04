@@ -5,7 +5,7 @@ import {
   CardContent,
   Container,
   IconButton,
-  Typography
+  Typography,
 } from '@mui/material';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import { useEffect, useState } from 'react';
@@ -16,10 +16,7 @@ import { ConfirmDialog } from '../components/product/confirm-dialog';
 import { ProductDialog } from '../components/product/product-dialog';
 import { ProductListToolbar } from '../components/product/product-list-toolbar';
 import { ProductMenu } from '../components/product/product-menu';
-import {
-  deleteProducts,
-  fetchProducts
-} from '../helpers/products';
+import { deleteProducts, fetchProducts } from '../helpers/products';
 
 const Products = (props) => {
   const user = JSON.parse(localStorage.getItem('user'));
@@ -116,7 +113,6 @@ const Products = (props) => {
     const currentIndex = rows.findIndex((row) => row.id === updatedProduct.id);
     const newRows = [...rows];
     newRows[currentIndex] = updatedProduct;
-    console.log(newRows);
     setRows(newRows);
   };
 
@@ -147,15 +143,6 @@ const Products = (props) => {
       })
       .then(() => getProducts());
   };
-
-  // Logging
-  // useEffect(() => {
-  //   console.log(selectedRow);
-  // }, [selectedRow])
-
-  // useEffect(() => {
-  //   console.log(selectedRows)
-  // }, [selectedRows]);
 
   const columns = [
     {

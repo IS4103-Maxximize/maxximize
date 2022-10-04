@@ -1,13 +1,16 @@
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import {
   Box,
-  Breadcrumbs, Button, Card,
-  CardContent, InputAdornment,
+  Breadcrumbs,
+  Button,
+  Card,
+  CardContent,
+  InputAdornment,
   Stack,
   SvgIcon,
   TextField,
   Tooltip,
-  Typography
+  Typography,
 } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
@@ -39,7 +42,7 @@ export const PurchaseRequisitionToolbar = (props) => {
   }, [location]);
 
   return (
-    <Box {...props}>
+    <Box>
       <Box
         sx={{
           alignItems: 'center',
@@ -89,18 +92,20 @@ export const PurchaseRequisitionToolbar = (props) => {
 
               <Box sx={{ m: 1 }}>
                 <Tooltip title={`Add Sales Inquiry from PRs`}>
-                  <Button 
-                    disabled={numRows < 1}
-                    startIcon={<AddBoxIcon />}
-                    color="primary"
-                    variant="contained"
-                    onClick={() => {
-                      handleAdd && handleAdd();
-                      handleFormDialogOpen();
-                    }}
-                  >
-                    {`Create Sales Inquiry from PRs [${numRows}]`}
-                  </Button>
+                  <span>
+                    <Button
+                      disabled={numRows < 1}
+                      startIcon={<AddBoxIcon />}
+                      color="primary"
+                      variant="contained"
+                      onClick={() => {
+                        handleAdd && handleAdd();
+                        handleFormDialogOpen();
+                      }}
+                    >
+                      {`Create Sales Inquiry from PRs [${numRows}]`}
+                    </Button>
+                  </span>
                 </Tooltip>
                 {/* <Tooltip title={`Delete ${name}(s)`}>
                   <IconButton
