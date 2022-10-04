@@ -65,4 +65,49 @@ const procurementBreadcrumbs = (subdomain) => [
   </Link>,
 ];
 
-export { apiHost, headers, requestOptionsHelper, procurementBreadcrumbs };
+const productionBreadcrumbs = (subdomain) => [
+  <Link
+    component={RouterLink}
+    underline="hover"
+    key="bill-of-material"
+    color={subdomain === 'bill-of-material' ? 'primary' : 'inherit'}
+    to="/production/bill-of-material"
+  >
+    Bill Of Material
+  </Link>,
+  <Link
+    component={RouterLink}
+    underline="hover"
+    key="machine"
+    color={subdomain === 'machine' ? 'primary' : 'inherit'}
+    to="/production/machine"
+  >
+    Machines
+  </Link>,
+  <Link
+    component={RouterLink}
+    underline="hover"
+    key="production-line"
+    color={subdomain === 'production-line' ? 'primary' : 'inherit'}
+    to="/production/production-line"
+  >
+    Production Line
+  </Link>,
+  <Link
+    component={RouterLink}
+    underline="hover"
+    key="production-order"
+    color={subdomain === 'production-order' ? 'primary' : 'inherit'}
+    to="/production/production-order"
+  >
+    Production Order
+  </Link>,
+];
+
+export { 
+  apiHost, 
+  headers, 
+  requestOptionsHelper, 
+  procurementBreadcrumbs, 
+  productionBreadcrumbs 
+};
