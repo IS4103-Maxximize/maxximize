@@ -22,6 +22,11 @@ export class ShellOrganisationsController {
     return this.shellOrganisationsService.findOne(+id);
   }
 
+  @Get('orgId/:id')
+  findByOrg(@Param('id') id: string) {
+    return this.shellOrganisationsService.findAllByOrg(+id)
+  }
+
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateShellOrganisationDto: UpdateShellOrganisationDto) {
     return this.shellOrganisationsService.update(+id, updateShellOrganisationDto);

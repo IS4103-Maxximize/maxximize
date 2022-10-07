@@ -97,7 +97,7 @@ import { PurchaseRequisitionsModule } from '../purchase-requisitions/purchase-re
     FollowUpLineItemsModule,
     ProductionLineItemsModule,
     ProductionOrdersModule,
-    ScheduleModule,
+    ScheduleModule.forRoot(),
     PurchaseRequisitionsModule
   ],
   controllers: [AppController],

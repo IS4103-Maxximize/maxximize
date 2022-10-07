@@ -4,8 +4,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateContactDto } from '../contacts/dto/create-contact.dto';
 import { Contact } from '../contacts/entities/contact.entity';
+import { ShellOrganisation } from '../shell-organisations/entities/shell-organisation.entity';
+import { ShellOrganisationsService } from '../shell-organisations/shell-organisations.service';
 import { User } from '../users/entities/user.entity';
 import { CreateOrganisationDto } from './dto/create-organisation.dto';
+import { GetOrgByShellDto } from './dto/get-org-by-shell.dto';
 import { UpdateOrganisationDto } from './dto/update-organisation.dto';
 import { Organisation } from './entities/organisation.entity';
 import { OrganisationType } from './enums/organisationType.enum';
@@ -16,7 +19,8 @@ export class OrganisationsService {
     @InjectRepository(Organisation)
     private readonly organisationsRepository: Repository<Organisation>,
     @InjectRepository(Contact)
-    private readonly contactsRepository: Repository<Contact>
+    private readonly contactsRepository: Repository<Contact>,
+    private shellOrganisationSerive: ShellOrganisationsService
   ) {}
 
   async create(createOrganisationDto: CreateOrganisationDto): Promise<Organisation> {
@@ -42,7 +46,7 @@ export class OrganisationsService {
       relations: {
         shellOrganisations: true,
         contact: true,
-        users: true
+        users: true,
       }
     });
   }
@@ -57,6 +61,25 @@ export class OrganisationsService {
     } catch (err) {
       throw new NotFoundException(`findOne failed as Organization with id: ${id} cannot be found`)
     }
+  }
+
+  async findOrganisationsThatMatchesShellOrgUEN(dto: GetOrgByShellDto) {
+    const { shellOrganisations } = dto
+    const organisations = []
+    console.log(shellOrganisations)
+    for (const shellOrg of shellOrganisations) {
+      const UEN = shellOrg.uen
+      const checkOrg = await this.organisationsRepository.findOne({
+        where: {
+          uen: UEN
+        },
+        relations: {
+          contact: true
+        }
+      })
+      if (checkOrg) organisations.push(checkOrg)
+    }
+    return organisations
   }
 
   async update(id: number, updateOrganisationDto: UpdateOrganisationDto): Promise<Organisation> {

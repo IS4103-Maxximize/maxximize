@@ -2,6 +2,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { FinalGood } from '../final-goods/entities/final-good.entity';
+import { FinalGoodsService } from '../final-goods/final-goods.service';
 import { RawMaterial } from '../raw-materials/entities/raw-material.entity';
 import { SalesInquiry } from '../sales-inquiry/entities/sales-inquiry.entity';
 import { CreateSalesInquiryLineItemDto } from './dto/create-sales-inquiry-line-item.dto';
@@ -16,24 +18,28 @@ export class SalesInquiryLineItemsService {
     @InjectRepository(SalesInquiry)
     private readonly salesInquiriesRepository: Repository<SalesInquiry>,
     @InjectRepository(RawMaterial)
-    private readonly rawMaterialsRepository: Repository<RawMaterial>
+    private readonly rawMaterialsRepository: Repository<RawMaterial>,
+    private finalGoodService: FinalGoodsService
   ) {}
 
   async create(
     createSalesInquiryLineItemDto: CreateSalesInquiryLineItemDto
   ): Promise<SalesInquiryLineItem> {
     try {
-      const { quantity, indicativePrice, rawMaterialId } =
+      const { quantity, indicativePrice, rawMaterialId, finalGoodId } =
         createSalesInquiryLineItemDto;
       let rawMaterialToBeAdded: RawMaterial;
+      let finalGoodToBeAdded: FinalGood
       rawMaterialToBeAdded = await this.rawMaterialsRepository.findOneByOrFail({
         id: rawMaterialId,
       });
+      finalGoodToBeAdded = await this.finalGoodService.findOne(finalGoodId)
       const newSalesInquiryLineItem =
         this.salesInquiryLineItemsRepository.create({
           quantity,
           indicativePrice,
           rawMaterial: rawMaterialToBeAdded,
+          finalGood: finalGoodToBeAdded
         });
       return this.salesInquiryLineItemsRepository.save(newSalesInquiryLineItem);
     } catch (error) {
@@ -46,6 +52,7 @@ export class SalesInquiryLineItemsService {
       relations: {
         rawMaterial: true,
         salesInquiry: true,
+        finalGood: true
       },
     });
   }
@@ -58,6 +65,7 @@ export class SalesInquiryLineItemsService {
       relations: {
         rawMaterial: true,
         salesInquiry: true,
+        finalGood: true
       },
     });
   }

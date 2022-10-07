@@ -361,6 +361,7 @@ export class AppService implements OnApplicationBootstrap {
         salesInquiryId: 1,
         shellOrganisationId: 1,
         leadTime: 5,
+        currentOrganisationId: 2
       });
 
       //create Quotation Line Item

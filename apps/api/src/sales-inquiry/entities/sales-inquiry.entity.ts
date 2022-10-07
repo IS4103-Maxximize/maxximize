@@ -24,10 +24,19 @@ export class SalesInquiry {
     created: Date
 
     @Column({nullable: true})
+    expiryDuration: number
+
+    @Column({nullable: true})
     currentOrganisationId: number
     @ManyToOne(() => Organisation, currentOrganisation => currentOrganisation.salesInquiries, {onDelete: 'SET NULL'})
     @JoinColumn({name: 'currentOrganisationId'})
     currentOrganisation: Organisation
+
+    @Column({nullable: true})
+    receivingOrganisationId: number
+    @ManyToOne(() => Organisation, organisation => organisation.receivedSalesInquiries)
+    @JoinColumn({name: 'receivingOrganisationId'})
+    receivingOrganisation: Organisation
 
     @ManyToMany(() => ShellOrganisation, supplier => supplier.salesInquiries)
     suppliers: ShellOrganisation[]
