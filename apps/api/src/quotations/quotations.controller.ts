@@ -22,9 +22,14 @@ export class QuotationsController {
     return this.quotationsService.findOne(+id);
   }
 
-  @Get('all/:id')
-  findAllByOrg(@Param('id') id: string) {
-    return this.quotationsService.findAllByOrg(+id);
+  @Get('received/:id')
+  findReceivedQuotationsByOrg(@Param('id') id: string) {
+    return this.quotationsService.findReceivedQuotationsByOrg(+id);
+  }
+
+  @Get('sent/:id')
+  findSentQuotationsByOrd(@Param('id') id: string) {
+    return this.quotationsService.findSentQuotationsByOrg(+id)
   }
 
   @Patch(':id')

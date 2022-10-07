@@ -1,9 +1,12 @@
 /* eslint-disable prefer-const */
 import { forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { SchedulerRegistry, Timeout } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { FinalGoodsService } from '../final-goods/final-goods.service';
 import { MailService } from '../mail/mail.service';
 import { Organisation } from '../organisations/entities/organisation.entity';
+import { OrganisationsService } from '../organisations/organisations.service';
 import { PurchaseRequisition } from '../purchase-requisitions/entities/purchase-requisition.entity';
 import { PurchaseRequisitionsService } from '../purchase-requisitions/purchase-requisitions.service';
 import { Quotation } from '../quotations/entities/quotation.entity';
@@ -15,6 +18,8 @@ import { SendEmailDto } from './dto/send-email.dto';
 import { UpdateSalesInquiryDto } from './dto/update-sales-inquiry.dto';
 import { SalesInquiry } from './entities/sales-inquiry.entity';
 import { SalesInquiryStatus } from './enums/salesInquiryStatus.enum';
+import { Cron } from '@nestjs/schedule';
+import { CronJob } from 'cron';
 
 @Injectable()
 export class SalesInquiryService {
@@ -35,20 +40,23 @@ export class SalesInquiryService {
     private readonly purchaseRequisitionRepository: Repository<PurchaseRequisition>,
     private mailerService: MailService,
     @Inject(forwardRef(() => PurchaseRequisitionsService))
-    private purchaseRequisitionSevice: PurchaseRequisitionsService
+    private purchaseRequisitionSevice: PurchaseRequisitionsService,
+    private organisationService: OrganisationsService,
+    private finalGoodService: FinalGoodsService,
+    private schedulerRegistry: SchedulerRegistry
   ) {}
 
   async create(
     createSalesInquiryDto: CreateSalesInquiryDto
   ): Promise<SalesInquiry> {
     try {
-      const { currentOrganisationId, totalPrice, salesInquiryLineItemsDtos, purchaseRequisitionIds } = createSalesInquiryDto;
+      const { currentOrganisationId, totalPrice, salesInquiryLineItemsDtos, purchaseRequisitionIds, receivingOrganisationId, expiryDuration} = createSalesInquiryDto;
       let organisationToBeAdded: Organisation;
       organisationToBeAdded =
         await this.organisationsRepository.findOneByOrFail({
           id: currentOrganisationId,
         });
-      const salesInquiryLineItems = [];
+      const salesInquiryLineItems: SalesInquiryLineItem[] = [];
 
       for (const dto of salesInquiryLineItemsDtos) {
         const salesInquiryLineItem = new SalesInquiryLineItem();
@@ -60,6 +68,15 @@ export class SalesInquiryService {
             },
           });
         salesInquiryLineItem.indicativePrice = dto.indicativePrice;
+        //check if finalGood is a valid FinalGood
+        if (dto.finalGoodId) {
+          const finalGood = await this.finalGoodService.findOne(dto.finalGoodId)
+          if (finalGood) {
+            salesInquiryLineItem.finalGood = finalGood
+          } else {
+            throw new NotFoundException(`final good with id: ${dto.finalGoodId} cannot be found!`)
+          }
+        }
         salesInquiryLineItems.push(salesInquiryLineItem);
       }
 
@@ -70,17 +87,35 @@ export class SalesInquiryService {
           purchaseRequisitions.push(purchaseRequisition);
         }
       }
+      let receivingOrganisation: Organisation
+      if (receivingOrganisationId) {
+        receivingOrganisation = await this.organisationService.findOne(receivingOrganisationId)
+      }
 
       const newSalesInquiry = this.salesInquiriesRepository.create({
-        status: SalesInquiryStatus.DRAFT,
+        status: receivingOrganisation ? SalesInquiryStatus.SENT : SalesInquiryStatus.DRAFT,
         totalPrice: totalPrice,
         created: new Date(),
+        expiryDuration: expiryDuration,
         currentOrganisation: organisationToBeAdded,
         salesInquiryLineItems: salesInquiryLineItems,
+        receivingOrganisation: receivingOrganisation
       });
 
       const newSI = await this.salesInquiriesRepository.save(newSalesInquiry);
 
+
+     
+      //add chrom Job for this new SI
+      const dataToUpdate = new Date(new Date().getTime() + expiryDuration)
+
+      const job = new CronJob(dataToUpdate, async() => {
+        //update SI status to expired
+        await this.update(newSI.id, {status: SalesInquiryStatus.EXPIRED})
+      });
+    
+      this.schedulerRegistry.addCronJob(`${newSI}-updateSiToExpired`, job);
+      job.start();
 
       // link PRs with sales inquiry
       if (purchaseRequisitionIds) {
@@ -95,15 +130,21 @@ export class SalesInquiryService {
     } catch (error) {
       console.log(error);
       throw new NotFoundException(
-        'either product code or Shell org id cannot be found'
+        error
       );
     }
   }
+
+  // @Cron(new Date(new Date().setHours(18, 10, 0)))
+  // handleCron() {
+  //   console.log('TEST');
+  // }
 
   findAll(): Promise<SalesInquiry[]> {
     return this.salesInquiriesRepository.find({
       relations: {
         currentOrganisation: true,
+        receivingOrganisation: true,
         suppliers: true,
         quotations: {
           shellOrganisation: true
@@ -123,6 +164,7 @@ export class SalesInquiryService {
       },
       relations: {
         currentOrganisation: true,
+        receivingOrganisation: true,
         suppliers: true,
         quotations: {
           shellOrganisation: true
@@ -133,6 +175,39 @@ export class SalesInquiryService {
         purchaseRequisitions: true
       },
     });
+  }
+
+  async findSentSalesInquiriesByOrg(organisationId: number): Promise<SalesInquiry[]> {
+    const salesInquiries = await this.salesInquiriesRepository.find({
+      where: {
+        currentOrganisationId: organisationId,
+      }, relations: {
+        suppliers: true,
+        receivingOrganisation: true,
+        salesInquiryLineItems: {
+          rawMaterial: true,
+          finalGood: true
+        },
+        quotations: true
+      }
+    })
+    return salesInquiries
+  }
+
+  async findReceviedSalesInquiriesByOrg(organisationId: number): Promise<SalesInquiry[]> {
+    const salesInquiries = await this.salesInquiriesRepository.find({
+      where: {
+        receivingOrganisationId: organisationId,
+      }, relations: {
+        currentOrganisation: true,
+        salesInquiryLineItems: {
+          rawMaterial: true,
+          finalGood: true
+        },
+        quotations: true
+      }
+    })
+    return salesInquiries
   }
 
   findOne(id: number): Promise<SalesInquiry> {
@@ -149,10 +224,12 @@ export class SalesInquiryService {
       // ],
       relations: {
         currentOrganisation: true,
+        receivingOrganisation: true,
         suppliers: true,
         quotations: true,
         salesInquiryLineItems: {
-          rawMaterial: true
+          rawMaterial: true,
+          finalGood: true
         },
         purchaseRequisitions:{
           productionLineItem: {
@@ -170,13 +247,12 @@ export class SalesInquiryService {
     id: number,
     updateSalesInquiryDto: UpdateSalesInquiryDto
   ): Promise<SalesInquiry> {
-    console.log(updateSalesInquiryDto);
     const salesInquiryToUpdate = await this.findOne(id);
-    updateSalesInquiryDto.status ? salesInquiryToUpdate.status = updateSalesInquiryDto.status : //;
-    updateSalesInquiryDto.totalPrice ? salesInquiryToUpdate.totalPrice = updateSalesInquiryDto.totalPrice : //;
-    updateSalesInquiryDto.quotations ? salesInquiryToUpdate.quotations = updateSalesInquiryDto.quotations : //;
-    updateSalesInquiryDto.suppliers ? salesInquiryToUpdate.suppliers = updateSalesInquiryDto.suppliers : //;
-    updateSalesInquiryDto.chosenQuotation ? salesInquiryToUpdate.chosenQuotation = updateSalesInquiryDto.chosenQuotation : //;
+    salesInquiryToUpdate.status = updateSalesInquiryDto.status ?? salesInquiryToUpdate.status
+    salesInquiryToUpdate.totalPrice = updateSalesInquiryDto.totalPrice ?? salesInquiryToUpdate.totalPrice
+    salesInquiryToUpdate.quotations = updateSalesInquiryDto.quotations ?? salesInquiryToUpdate.quotations
+    salesInquiryToUpdate.suppliers = updateSalesInquiryDto.suppliers ?? salesInquiryToUpdate.suppliers
+    salesInquiryToUpdate.chosenQuotation = updateSalesInquiryDto.chosenQuotation ?? salesInquiryToUpdate.chosenQuotation
 
     salesInquiryToUpdate.salesInquiryLineItems.forEach((lineItems) => {
       this.salesInquiryLineItemsRepository.delete(lineItems.id);

@@ -3,6 +3,8 @@ import { ShellOrganisation } from "../../shell-organisations/entities/shell-orga
 
 export class CreateQuotationDto {
     salesInquiryId: number;
-    shellOrganisationId: number;
+    shellOrganisationId?: number;
     leadTime: number;
+    currentOrganisationId: number
+    receivingOrganisationId?: number
 }
