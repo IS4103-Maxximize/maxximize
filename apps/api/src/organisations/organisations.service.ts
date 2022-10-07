@@ -66,7 +66,6 @@ export class OrganisationsService {
   async findOrganisationsThatMatchesShellOrgUEN(dto: GetOrgByShellDto) {
     const { shellOrganisations } = dto
     const organisations = []
-    console.log(shellOrganisations)
     for (const shellOrg of shellOrganisations) {
       const UEN = shellOrg.uen
       const checkOrg = await this.organisationsRepository.findOne({
@@ -74,7 +73,9 @@ export class OrganisationsService {
           uen: UEN
         },
         relations: {
-          contact: true
+          contact: true,
+          finalGoods: true,
+          rawMaterials: true
         }
       })
       if (checkOrg) organisations.push(checkOrg)
