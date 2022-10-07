@@ -107,15 +107,22 @@ export class SalesInquiryService {
 
      
       //add chrom Job for this new SI
-      const dataToUpdate = new Date(new Date().getTime() + expiryDuration)
+      if (expiryDuration) {
+       
+        const dataToUpdate = new Date(new Date().getTime() + expiryDuration)
 
-      const job = new CronJob(dataToUpdate, async() => {
-        //update SI status to expired
-        await this.update(newSI.id, {status: SalesInquiryStatus.EXPIRED})
-      });
-    
-      this.schedulerRegistry.addCronJob(`${newSI}-updateSiToExpired`, job);
-      job.start();
+        const job = new CronJob(dataToUpdate, async() => {
+          //update SI status to expired
+          const si = await this.findOne(newSI.id)
+          if (si.status === SalesInquiryStatus.SENT) {
+            await this.update(newSI.id, {status: SalesInquiryStatus.EXPIRED})
+          }
+        });
+      
+        this.schedulerRegistry.addCronJob(`${newSI.id}-updateSiToExpired`, job);
+        job.start();
+      }
+      
 
       // link PRs with sales inquiry
       if (purchaseRequisitionIds) {
@@ -254,9 +261,9 @@ export class SalesInquiryService {
     salesInquiryToUpdate.suppliers = updateSalesInquiryDto.suppliers ?? salesInquiryToUpdate.suppliers
     salesInquiryToUpdate.chosenQuotation = updateSalesInquiryDto.chosenQuotation ?? salesInquiryToUpdate.chosenQuotation
 
-    salesInquiryToUpdate.salesInquiryLineItems.forEach((lineItems) => {
-      this.salesInquiryLineItemsRepository.delete(lineItems.id);
-    });
+    // salesInquiryToUpdate.salesInquiryLineItems.forEach((lineItems) => {
+    //   this.salesInquiryLineItemsRepository.delete(lineItems.id);
+    // });
     const salesInquiryLineItems = [];
     if (updateSalesInquiryDto.salesInquiryLineItemsDtos) {
         for (const dto of updateSalesInquiryDto.salesInquiryLineItemsDtos) {
@@ -272,8 +279,7 @@ export class SalesInquiryService {
         salesInquiryLineItems.push(salesInquiryLineItem);
       }
     }
-    salesInquiryToUpdate.salesInquiryLineItems = salesInquiryLineItems;
-
+    salesInquiryToUpdate.salesInquiryLineItems = updateSalesInquiryDto.salesInquiryLineItemsDtos ? salesInquiryLineItems : salesInquiryToUpdate.salesInquiryLineItems;
     return this.salesInquiriesRepository.save(salesInquiryToUpdate);
   }
 
