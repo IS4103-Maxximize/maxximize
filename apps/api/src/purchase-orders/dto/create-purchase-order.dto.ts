@@ -5,6 +5,7 @@ export class CreatePurchaseOrderDto {
     totalPrice: number;
     deliveryDate: Date;
     currentOrganisationId: number;
+    supplierId?: number;
     quotationId: number;
     userContactId: number;
     poLineItemDtos: CreatePurchaseOrderLineItemDto[];

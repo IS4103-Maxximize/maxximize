@@ -64,6 +64,11 @@ export class Organisation {
   @OneToMany(() => PurchaseOrder, (order) => order.currentOrganisation)
   purchaseOrders: PurchaseOrder[];
 
+  @OneToMany(() => PurchaseOrder, (order) => order.supplier, {
+    nullable: true
+  })
+  receivedPurchaseOrders: PurchaseOrder[]
+
   //sent sales salesInquiry
   @OneToMany(
     () => SalesInquiry,
