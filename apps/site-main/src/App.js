@@ -10,6 +10,9 @@ import ProductionLineManagement from './pages/assetManagement/productionLineMana
 import BusinessRelations from './pages/businessRelations';
 import Dashboard from './pages/dashboard';
 import ForgotPassword from './pages/forgotPassword';
+import ReceivedPurchaseOrder from './pages/fulfilment/received-purchase-order';
+import ReceivedSalesInquiry from './pages/fulfilment/received-sales-inquiry';
+import SentQuotation from './pages/fulfilment/sent-quotation';
 // import Inventory from './pages/inventory';
 import Bin from './pages/inventory/bin';
 import BinDetails from './pages/inventory/bin-details';
@@ -198,6 +201,21 @@ const routes = (
             <Route
               path="warehouse/bin/details"
               element={<BinDetails />}
+            ></Route>
+
+            {/* Fulfilment */}
+            {/* Fulfilment Modules */}
+            <Route
+              path="fulfilment/received-sales-inquiry"
+              element={<ReceivedSalesInquiry />}
+            ></Route>
+            <Route
+              path="fulfilment/sent-quotation"
+              element={<SentQuotation />}
+            ></Route>
+            <Route
+              path="fulfilment/received-purchase-order"
+              element={<ReceivedPurchaseOrder />}
             ></Route>
           </Route>
         </Route>
