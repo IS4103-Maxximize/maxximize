@@ -1,10 +1,13 @@
 /* eslint-disable prefer-const */
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { IsNull, Repository } from 'typeorm';
+import { Organisation } from '../organisations/entities/organisation.entity';
+import { OrganisationsService } from '../organisations/organisations.service';
 import { PurchaseOrder } from '../purchase-orders/entities/purchase-order.entity';
 import { QuotationLineItem } from '../quotation-line-items/entities/quotation-line-item.entity';
 import { SalesInquiry } from '../sales-inquiry/entities/sales-inquiry.entity';
+import { SalesInquiryStatus } from '../sales-inquiry/enums/salesInquiryStatus.enum';
 import { SalesInquiryService } from '../sales-inquiry/sales-inquiry.service';
 import { ShellOrganisation } from '../shell-organisations/entities/shell-organisation.entity';
 import { CreateQuotationDto } from './dto/create-quotation.dto';
@@ -24,34 +27,45 @@ export class QuotationsService {
     private readonly quotationsRepository: Repository<Quotation>,
     @InjectRepository(QuotationLineItem)
     private readonly quotationLineItemsRepository: Repository<QuotationLineItem>,
-    private salesInquiryService: SalesInquiryService
+    private salesInquiryService: SalesInquiryService,
+    private organisationService: OrganisationsService
   ) {}
 
   async create(createQuotationDto: CreateQuotationDto): Promise<Quotation> {
     try {
-      const { salesInquiryId, shellOrganisationId, leadTime } = createQuotationDto;
+      const { salesInquiryId, shellOrganisationId, leadTime, currentOrganisationId, receivingOrganisationId } = createQuotationDto;
       let shellOrganisationToBeAdded: ShellOrganisation;
+      let receivingOrganisationToBeAdded: Organisation
       let salesInquiryToBeAdded: SalesInquiry;
-      shellOrganisationToBeAdded =
+      const currentOrganisation = await this.organisationService.findOne(currentOrganisationId)
+      shellOrganisationToBeAdded = shellOrganisationId ?
         await this.shellOrganisationsRepository.findOneByOrFail({
           id: shellOrganisationId,
-        });
+        }) : null
+      receivingOrganisationToBeAdded = receivingOrganisationId ? 
+      await this.organisationService.findOne(receivingOrganisationId) : null
       salesInquiryToBeAdded =
         await this.salesInquiriesRepository.findOneByOrFail({
           id: salesInquiryId,
         });
+      
       const newQuotation = this.quotationsRepository.create({
         created: new Date(),
         totalPrice: 0,
         salesInquiry: salesInquiryToBeAdded,
         shellOrganisation: shellOrganisationToBeAdded,
+        receivingOrganisation: receivingOrganisationToBeAdded,
+        currentOrganisation: currentOrganisation,
         leadTime,
         quotationLineItems: [],
       });
-      return this.quotationsRepository.save(newQuotation);
+      
+      const quotation = await this.quotationsRepository.save(newQuotation);
+      if (receivingOrganisationToBeAdded) await this.salesInquiryService.update(salesInquiryId, {status: SalesInquiryStatus.REPLIED})
+      return quotation
     } catch (error) {
       throw new NotFoundException(
-        'either product code or Shell org id cannot be found'
+        error
       );
     }
   }
@@ -59,11 +73,14 @@ export class QuotationsService {
   findAll(): Promise<Quotation[]> {
     return this.quotationsRepository.find({
       relations: {
+        currentOrganisation: true,
+        receivingOrganisation: true,
         shellOrganisation: {
           contact: true
         },
         quotationLineItems: {
-          rawMaterial: true
+          rawMaterial: true,
+          finalGood: true
         },
         salesInquiry: {
           currentOrganisation: true
@@ -73,34 +90,55 @@ export class QuotationsService {
     })
   }
 
-  async findAllBySalesInquiry(salesInquiryId: number): Promise<Quotation[]> {
-    return this.quotationsRepository.find({
+  async findSentQuotationsByOrg(organisationId: number): Promise<Quotation[]> {
+    const quotations = await this.quotationsRepository.find({
       where: {
-        salesInquiryId: salesInquiryId
-      },
-      relations: {
-        shellOrganisation: {
-          contact: true
-        },
+        currentOrganisationId: organisationId,
+        shellOrganisation: IsNull()
+      }, relations: {
+        salesInquiry: true,
+        receivingOrganisation: true,
         quotationLineItems: {
-          rawMaterial: true
+          rawMaterial: true,
+          finalGood: true
         },
-        salesInquiry: {
-          currentOrganisation: true
-        }
       }
     })
+    return quotations
   }
 
-  async findAllByOrg(organisationId: number): Promise<Quotation[]> {
-    let salesInquiries: SalesInquiry[] = await this.salesInquiryService.findAllByOrg(organisationId)
-    let salesInquiryIds: number[] = salesInquiries.map(salesInquiry => salesInquiry.id)
-    let quotations: Quotation[] = []
-    for (let i=0;i<salesInquiryIds.length;i++){
-      let qts: Quotation[] = await this.findAllBySalesInquiry(salesInquiryIds[i])
-      quotations = quotations.concat(qts)
-    }
-    return quotations
+  async findReceivedQuotationsByOrg(organisationId: number): Promise<Quotation[]> {
+    const shellOrgQuotations = await this.quotationsRepository.find({
+      where: {
+        currentOrganisationId: organisationId,
+        receivingOrganisationId: IsNull()
+      }, relations: {
+        shellOrganisation: true,
+        salesInquiry: true,
+        quotationLineItems: {
+          rawMaterial: true,
+          finalGood: true
+        },
+      }
+    })
+
+    const receivedQuotations = await this.quotationsRepository.find({
+      where: {
+        receivingOrganisationId: organisationId
+      }, relations: {
+        currentOrganisation: true,
+        salesInquiry: true,
+        quotationLineItems: {
+          rawMaterial: true,
+          finalGood: true
+        },
+      }
+    })
+
+    console.log(receivedQuotations)
+
+  
+    return [...shellOrgQuotations, ...receivedQuotations]
   }
 
   findOne(id: number): Promise<Quotation> {
@@ -111,6 +149,13 @@ export class QuotationsService {
       relations: {
         shellOrganisation: {
           contact: true,
+        },
+        currentOrganisation: true,
+        receivingOrganisation: true,
+        salesInquiry: true,
+        quotationLineItems: {
+          rawMaterial: true,
+          finalGood: true
         },
       },
     });

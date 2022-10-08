@@ -165,8 +165,8 @@ export class ProductionLinesService {
     return new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]))
   }
 
-  async getNextAvailableNearestDateTime(mapping: Object, daily: Boolean) {
-    const today = new Date()
+  async getNextAvailableNearestDateTime(mapping: Object, startDate: Date) {
+    const today = startDate ?? new Date()
     const tomorrow = new Date(today)
     tomorrow.setDate(tomorrow.getDate() + 1)
     const dateKey = this.convertDateToStringFormat(tomorrow)
@@ -179,49 +179,31 @@ export class ProductionLinesService {
       const schedulesObject: Object = prodSchedulesPairs[i][1]
       const schedulesMap = new Map(Object.entries(schedulesObject))
 
-      // 2 cases Daily or not
-      //CASE 1 (Daily)
-      if (daily) {
-        let currentDateKey = dateKey
-        let currentDate = new Date(tomorrow)
-        while (schedulesMap.has(currentDateKey)) {
-          currentDate.setDate(currentDate.getDate() + 1)
-          currentDateKey = this.convertDateToStringFormat(currentDate)
+      let earliestDateTime: number
+      if (!schedulesMap.has(dateKey)) {
+        if (nextAvailableNearestDateTime !== tomorrow.getTime()) {
+          nextAvailableNearestDateTime = tomorrow.setHours(productionLine.startTime, 0, 0)
+          nextAvailableProdLineId = +productionId
         }
-        //at this point, the date does not have any schedule
-        const earliestDateTime =  this.convertStringToDateFormat(currentDateKey).setHours(productionLine.startTime, 0, 0)
+      } else {
+        //schedulesMap contain the dateKey
+        earliestDateTime =  schedulesMap.get(dateKey)
+        let endOfDay = new Date(earliestDateTime).setHours(productionLine.endTime, 0, 0)
+        let key = dateKey
+        while (endOfDay - earliestDateTime === 0) {
+          const currentDate = this.convertStringToDateFormat(key)
+          const nextDay = new Date(currentDate)
+          nextDay.setDate(nextDay.getDate() + 1)
+          key = this.convertDateToStringFormat(nextDay)
+          earliestDateTime = schedulesMap.get(key) ?? nextDay.setHours(productionLine.startTime, 0, 0)
+          endOfDay = new Date(earliestDateTime).setHours(productionLine.endTime, 0, 0)
+        }
         if (earliestDateTime < nextAvailableNearestDateTime) {
           nextAvailableNearestDateTime = earliestDateTime
           nextAvailableProdLineId = +productionId
         }
-      } else {
-        //CASE 2 (NOT DAILY)
-        let earliestDateTime: number
-        if (!schedulesMap.has(dateKey)) {
-          if (nextAvailableNearestDateTime !== tomorrow.getTime()) {
-            nextAvailableNearestDateTime = tomorrow.setHours(productionLine.startTime, 0, 0)
-            nextAvailableProdLineId = +productionId
-          }
-        } else {
-          //schedulesMap contain the dateKey
-          earliestDateTime =  schedulesMap.get(dateKey)
-          let endOfDay = new Date(earliestDateTime).setHours(productionLine.endTime, 0, 0)
-          const hourDuration = 1 * 60 * 60 * 1000
-          let key = dateKey
-          while (endOfDay - earliestDateTime < hourDuration) {
-            const currentDate = this.convertStringToDateFormat(key)
-            const nextDay = new Date(currentDate)
-            nextDay.setDate(currentDate.getDate() + 1)
-            key = this.convertDateToStringFormat(nextDay)
-            earliestDateTime = schedulesMap.get(key) ?? nextDay.setHours(productionLine.startTime, 0, 0)
-            endOfDay = new Date(earliestDateTime).setHours(productionLine.endTime, 0, 0)
-          }
-          if (earliestDateTime < nextAvailableNearestDateTime) {
-            nextAvailableNearestDateTime = earliestDateTime
-            nextAvailableProdLineId = +productionId
-          }
-        }
       }
+      
     }
     return {
       productionLineId: nextAvailableProdLineId,
@@ -230,75 +212,81 @@ export class ProductionLinesService {
 
   }
 
-  async retrieveSchedulesForProductionOrder(quantity: number, finalGoodId: number, daily: Boolean, days: number, organisationId: number) {
+  async retrieveSchedulesForProductionOrder(quantity: number, finalGoodId: number, daily: boolean, days: number, organisationId: number) {
 	const schedules = []
-    let requiredQuantity = quantity
     let mapping =  await this.getNextEarliestMapping(finalGoodId, organisationId)
     if (Object.keys(mapping).length === 0 || quantity === 0) {
       return schedules
     }
-    let nextAvailablePlandTime = await this.getNextAvailableNearestDateTime(mapping, daily)
-    let {productionLineId, nextAvailableNearestDateTime} = nextAvailablePlandTime
-    let productionLine = await this.findOne(productionLineId)
-    let timeRequiredInMilliseconds = (requiredQuantity / productionLine.outputPerHour) * 60 * 60 * 1000
-    let endOfDayOfNextAvailableTime = new Date(nextAvailableNearestDateTime).setHours(productionLine.endTime, 0, 0)
     if (daily) {
-      if (timeRequiredInMilliseconds > endOfDayOfNextAvailableTime - nextAvailableNearestDateTime) {
-        throw new NotFoundException('Quantity Exceeds the daily limit!')
-      }
-      let start = new Date(nextAvailableNearestDateTime)
+      let startingDate = new Date()
       for (let i = 0; i < days; i++) {
-        schedules.push({
-          productionLineId: productionLineId,
-          start: new Date(start),
-          end: new Date(start.getTime() + timeRequiredInMilliseconds),
-          quantity: quantity
-        })
-        start = new Date(start.setDate(start.getDate() + 1))
+        const {newSchedules, newMapping} = await this.retrieveSchedulesForAnOrder(mapping, quantity, new Date(startingDate), daily)
+        schedules.push(...newSchedules) 
+        mapping = newMapping
+        startingDate.setDate(startingDate.getDate() + 1)
       }
     } else {
-      while (requiredQuantity > 0) {
-        //get the next earliest time slot and calculate quantity that is able to fit into this timeslot
-        nextAvailablePlandTime = await this.getNextAvailableNearestDateTime(mapping, daily)
-        const {productionLineId, nextAvailableNearestDateTime} = nextAvailablePlandTime
-        productionLine = await this.findOne(productionLineId)
-        timeRequiredInMilliseconds = (requiredQuantity / productionLine.outputPerHour) * 60 * 60 * 1000
-        endOfDayOfNextAvailableTime = new Date(nextAvailableNearestDateTime).setHours(productionLine.endTime, 0, 0)
-        if (timeRequiredInMilliseconds > endOfDayOfNextAvailableTime - nextAvailableNearestDateTime) {
-          //it exceeds the end of day, so have to reduce the requiredQty
-          const outputWithinFrame = Math.round((endOfDayOfNextAvailableTime - nextAvailableNearestDateTime) / 3600000 * productionLine.outputPerHour)
-          requiredQuantity -= outputWithinFrame
-  
-		  
-          //save this schedule
-          schedules.push({
-            productionLineId: productionLineId,
-            start: new Date(nextAvailableNearestDateTime),
-            end: new Date(endOfDayOfNextAvailableTime),
-            quantity: outputWithinFrame
-          })
-  
-          //need to update the mapping
-          const keyDateToUpdate = this.convertDateToStringFormat(new Date(nextAvailableNearestDateTime))
-          mapping[productionLineId][keyDateToUpdate] = endOfDayOfNextAvailableTime
-        } else {
-          //if its within the end of day, required Quantity becomes 0
-          //save this schedule
-          schedules.push({
-            productionLineId: productionLineId,
-            start: new Date(nextAvailableNearestDateTime),
-            end: new Date(nextAvailableNearestDateTime + timeRequiredInMilliseconds),
-            quantity: requiredQuantity
-          })
-          requiredQuantity = 0
-          //don't need to update the mapping
-        }
-      }
+      const { newSchedules } = await this.retrieveSchedulesForAnOrder(mapping, quantity, new Date(), daily)
+      schedules.push(...newSchedules) 
     }
     schedules.map((value, index) => {
       return value.id = index + 1
     })
     return schedules
+  }
+
+  async retrieveSchedulesForAnOrder(mapping: Object, quantity: number, startingDate: Date, daily: boolean) {
+    const schedules: Object[] = []
+    let requiredQuantity = quantity
+    while (requiredQuantity > 0) {
+      const nextAvailablePlandTime = await this.getNextAvailableNearestDateTime(mapping, startingDate)
+      const {productionLineId, nextAvailableNearestDateTime} = nextAvailablePlandTime
+      const productionLine = await this.findOne(productionLineId)
+      const endOfDayOfNextAvailableTime = new Date(nextAvailableNearestDateTime).setHours(productionLine.endTime, 0, 0)
+      const timeRequiredInMilliseconds = (requiredQuantity / productionLine.outputPerHour) * 60 * 60 * 1000
+      if (daily) {
+        const startOfDayInMilliseconds = new Date(endOfDayOfNextAvailableTime).setHours(productionLine.startTime, 0, 0)
+        if (timeRequiredInMilliseconds > endOfDayOfNextAvailableTime - startOfDayInMilliseconds) {
+          throw new NotFoundException('Quantity Exceeds the daily limit!')
+        }
+      }
+      if (timeRequiredInMilliseconds > endOfDayOfNextAvailableTime - nextAvailableNearestDateTime) {
+        //it exceeds the end of day, so have to reduce the requiredQty
+        const outputWithinFrame = Math.round((endOfDayOfNextAvailableTime - nextAvailableNearestDateTime) / 3600000 * productionLine.outputPerHour)
+        requiredQuantity -= outputWithinFrame
+
+    
+        //save this schedule
+        schedules.push({
+          productionLineId: productionLineId,
+          start: new Date(nextAvailableNearestDateTime),
+          end: new Date(endOfDayOfNextAvailableTime),
+          quantity: outputWithinFrame
+        })
+
+        //need to update the mapping
+        const keyDateToUpdate = this.convertDateToStringFormat(new Date(nextAvailableNearestDateTime))
+        mapping[productionLineId][keyDateToUpdate] = endOfDayOfNextAvailableTime
+      } else {
+        //if its within the end of day, required Quantity becomes 0
+        //save this schedule
+        schedules.push({
+          productionLineId: productionLineId,
+          start: new Date(nextAvailableNearestDateTime),
+          end: new Date(nextAvailableNearestDateTime + timeRequiredInMilliseconds),
+          quantity: requiredQuantity
+        })
+        requiredQuantity = 0
+        //need to update the mapping
+        const keyDateToUpdate = this.convertDateToStringFormat(new Date(nextAvailableNearestDateTime))
+        mapping[productionLineId][keyDateToUpdate] = nextAvailableNearestDateTime + timeRequiredInMilliseconds
+      }
+    }
+    return {
+      newSchedules: schedules,
+      newMapping: mapping
+    }
   }
 
   // async machineTriggerChange(machineIsOperating: Boolean, machineId: number, productionLineId: number, entityManager: EntityManager) {
