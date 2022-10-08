@@ -132,7 +132,8 @@ export class PurchaseOrdersService {
         followUpLineItems: true,
         orgContact: true,
         userContact: true,
-        supplierContact: true
+        supplierContact: true,
+        supplier: true
       }
     })
   }
@@ -144,6 +145,7 @@ export class PurchaseOrdersService {
       }, relations: [
         'quotation',
         'currentOrganisation',
+        'supplier',
         'orgContact',
         'userContact',
         'supplierContact',
@@ -160,6 +162,7 @@ export class PurchaseOrdersService {
     }, relations: [
       'quotation',
       'currentOrganisation',
+      'supplier',
       'orgContact',
       'userContact',
       'supplierContact',
