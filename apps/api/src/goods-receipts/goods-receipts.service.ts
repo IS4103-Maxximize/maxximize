@@ -77,6 +77,7 @@ export class GoodsReceiptsService {
       }
 
       purchaseOrder.followUpLineItems = followUpLineItems;
+      
       if (
         createFollowUpLineItemsDtos === undefined ||
         createFollowUpLineItemsDtos.length === 0
