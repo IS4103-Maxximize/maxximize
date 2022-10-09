@@ -7,16 +7,12 @@ import { NotificationAlert } from '../../components/notification-alert';
 import { useNavigate } from 'react-router-dom';
 import { SentQuotationToolbar } from '../../components/fulfilment/sent-quotations/sent-quotation-toolbar';
 import { SentQuotationConfirmDialog } from '../../components/fulfilment/sent-quotations/sent-quotation-confirm-dialog';
+import DayJS from 'dayjs';
+import { SentQuotationMenu } from '../../components/fulfilment/sent-quotations/sent-quotation-menu';
+import { SentQuotationDialog } from '../../components/fulfilment/sent-quotations/sent-quotation-dialog';
 
 const SentQuotation = () => {
-  const [sentQuotations, setSentQuotations] = useState([
-    {
-      id: 1,
-      dateSent: '06/10/2022 12:20PM',
-      recipient: 'Testing Manufacturer',
-      quotationTotalPrice: '$2000',
-    },
-  ]);
+  const [sentQuotations, setSentQuotations] = useState([]);
   const [selectedRow, setSelectedRow] = useState();
   const [selectedRows, setSelectedRows] = useState([]);
   const [disabled, setDisabled] = useState();
@@ -24,7 +20,7 @@ const SentQuotation = () => {
   const user = JSON.parse(localStorage.getItem('user'));
   const organisationId = user.organisation.id;
 
-  //Load in list of warehouses, initial
+  //Load in list of sent quotations, initial
   useEffect(() => {
     retrieveAllSentQuotations();
   }, []);
@@ -36,14 +32,14 @@ const SentQuotation = () => {
 
   //Retrieve all sent quotations
   const retrieveAllSentQuotations = async () => {
-    // const response = await fetch(
-    //   `http://localhost:3000/api/warehouses/all/${organisationId}`
-    // );
-    // let result = [];
-    // if (response.status == 200 || response.status == 201) {
-    //   result = await response.json();
-    // }
-    // setWarehouses(result);
+    const response = await fetch(
+      `http://localhost:3000/api/quotations/sent/${organisationId}`
+    );
+    let result = [];
+    if (response.status == 200 || response.status == 201) {
+      result = await response.json();
+    }
+    setSentQuotations(result);
   };
 
   //Search Function
@@ -53,23 +49,24 @@ const SentQuotation = () => {
     setSearch(event.target.value.toLowerCase().trim());
   };
 
-  //Action Menu
-  const [anchorElUpdate, setAnchorElUpdate] = useState(null);
-  const actionMenuOpen = Boolean(anchorElUpdate);
-  const handleActionMenuClick = (event) => {
-    setAnchorElUpdate(event.currentTarget);
+  // Menu Helpers
+  const [anchorEl, setAnchorEl] = useState(null);
+  const menuOpen = Boolean(anchorEl);
+
+  const handleMenuClick = (event) => {
+    setAnchorEl(event.currentTarget);
   };
-  const handleActionMenuClose = () => {
-    setAnchorElUpdate(null);
+  const handleMenuClose = () => {
+    setAnchorEl(null);
   };
 
   const menuButton = (params) => {
     return (
       <IconButton
-        // disabled={params.row.bins?.length == 0}
         onClick={(event) => {
+          console.log(params.row);
           setSelectedRow(params.row);
-          handleActionMenuClick(event);
+          handleMenuClick(event);
         }}
       >
         <MoreVert />
@@ -94,9 +91,13 @@ const SentQuotation = () => {
   };
 
   // Dialog helpers
-  const [open, setOpen] = useState(false);
-  const handleClickOpen = () => {
-    setOpen(true);
+  const [formDialogOpen, setFormDialogOpen] = useState(false);
+
+  const handleFormDialogOpen = () => {
+    setFormDialogOpen(true);
+  };
+  const handleFormDialogClose = () => {
+    setFormDialogOpen(false);
   };
 
   //Delete Confirm dialog
@@ -137,23 +138,40 @@ const SentQuotation = () => {
       width: 70,
       flex: 1,
     },
+
     {
-      field: 'dateSent',
+      field: 'receivingOrganisationId',
+      headerName: 'Recipient ID',
+      width: 200,
+      flex: 2,
+    },
+    {
+      field: 'recipientName',
+      headerName: 'Recipient Name',
+      flex: 3,
+      valueGetter: (params) => {
+        return params.row.receivingOrganisation?.name;
+      },
+    },
+    {
+      field: 'created',
       headerName: 'Date Sent',
       width: 200,
       flex: 3,
+      valueFormatter: (params) =>
+        DayJS(params?.value).format('DD MMM YYYY hh:mm a'),
     },
     {
-      field: 'recipient',
-      headerName: 'Recipient',
-      width: 200,
-      flex: 4,
+      field: 'leadTime',
+      headerName: 'Lead Time',
+      width: 150,
+      flex: 1,
     },
     {
-      field: 'quotationTotalPrice',
+      field: 'totalPrice',
       headerName: 'Quotation Total Price',
       width: 150,
-      flex: 4,
+      flex: 2,
     },
     {
       field: 'action',
@@ -179,6 +197,17 @@ const SentQuotation = () => {
         severity={alertSeverity}
         text={alertText}
         handleClose={handleAlertClose}
+      />
+      <SentQuotationMenu
+        anchorEl={anchorEl}
+        menuOpen={menuOpen}
+        handleMenuClose={handleMenuClose}
+        handleFormDialogOpen={handleFormDialogOpen}
+      />
+      <SentQuotationDialog
+        open={formDialogOpen}
+        handleClose={handleFormDialogClose}
+        quotation={selectedRow}
       />
       <SentQuotationConfirmDialog
         open={confirmDialogOpen}
@@ -214,8 +243,12 @@ const SentQuotation = () => {
                       return row;
                     } else {
                       return (
-                        row.id.toString().includes(search) ||
-                        row.recipient.toLowerCase().includes(search)
+                        row.receivingOrganisation?.id
+                          .toString()
+                          .includes(search) ||
+                        row.receivingOrganisation?.name
+                          .toLowerCase()
+                          .includes(search)
                       );
                     }
                   })}

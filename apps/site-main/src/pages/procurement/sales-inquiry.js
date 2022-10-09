@@ -7,7 +7,7 @@ import {
   CardContent,
   Container,
   IconButton,
-  Typography
+  Typography,
 } from '@mui/material';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import { useEffect, useState } from 'react';
@@ -21,9 +21,9 @@ import { ConfirmDialog } from '../../components/product/confirm-dialog';
 import { Toolbar } from '../../components/toolbar';
 import {
   deleteSalesInquiries,
-  fetchSalesInquiries
+  fetchSalesInquiries,
+  fetchSentSalesInquiries,
 } from '../../helpers/procurement-ordering';
-
 
 export const SalesInquiry = (props) => {
   const user = JSON.parse(localStorage.getItem('user'));
@@ -83,6 +83,40 @@ export const SalesInquiry = (props) => {
     setFormDialogOpen(false);
   };
 
+  //   Form Dialog, list of registered suppliers
+  const [orgOptions, setOrgOptions] = useState([]);
+
+  useEffect(() => {
+    const fetchOrg = async () => {
+      const shellOrganisations = await fetch(
+        `http://localhost:3000/api/shell-organisations/orgId/${user.organisation.id}`
+      );
+      const shellOrganisationsResult = await shellOrganisations.json();
+
+      const response = await fetch(
+        'http://localhost:3000/api/organisations/getOrgByShellUen',
+        {
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            shellOrganisations: shellOrganisationsResult,
+          }),
+        }
+      );
+
+      if (response.status === 200 || response.status === 201) {
+        const result = await response.json();
+        console.log(result);
+        setOrgOptions(result);
+      }
+    };
+
+    fetchOrg();
+  }, []);
+
   // Supplier Dialog Helpers
   const [supplierDialogOpen, setSupplierDialogOpen] = useState(false);
   const handleSupplierDialogOpen = () => {
@@ -133,11 +167,16 @@ export const SalesInquiry = (props) => {
   const [rows, setRows] = useState([]);
 
   const getSalesInquiries = async () => {
-    fetchSalesInquiries(user.organisation.id)
-      .then((result) => setRows(result))
-      .catch((err) =>
-        handleAlertOpen(`Failed to fetch Sales Inquiries`, 'error')
-      );
+    const response = await fetch(
+      `http://localhost:3000/api/sales-inquiry/sent/${user.organisation.id}`
+    );
+
+    if (response.status === 200 || response.status === 201) {
+      const result = await response.json();
+      setRows(result);
+    } else {
+      handleAlertOpen(`Failed to fetch Sales Inquiries`, 'error');
+    }
   };
 
   const addSalesInquiry = (inquiry) => {
@@ -209,7 +248,7 @@ export const SalesInquiry = (props) => {
         ) : (
           <CheckCircleIcon color="success" />
         );
-      }
+      },
     },
     {
       field: 'actions',
@@ -271,6 +310,7 @@ export const SalesInquiry = (props) => {
             updateInquiry={handleRowUpdate}
             handleClose={handleFormDialogClose}
             handleAlertOpen={handleAlertOpen}
+            orgOptions={orgOptions}
           />
           <SupplierDialog
             open={supplierDialogOpen}
@@ -309,8 +349,8 @@ export const SalesInquiry = (props) => {
                 pageSize={10}
                 rowsPerPageOptions={[10]}
                 checkboxSelection
-                isRowSelectable={(params) => 
-                  params.row.status === 'draft' && 
+                isRowSelectable={(params) =>
+                  params.row.status === 'draft' &&
                   params.row.purchaseRequisitions.length === 0
                 }
                 components={{
