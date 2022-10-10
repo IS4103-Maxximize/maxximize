@@ -10,21 +10,21 @@ import {
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import { useEffect, useState } from 'react';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
-import { ConfirmDialog } from '../../components/assetManagement/confirm-dialog';
-import { MachineViewDialog } from '../../components/assetManagement/machine-view-dialog';
-import { ProductionLineDialogNew } from '../../components/assetManagement/production-line-dialog-new';
-import { ProductionLineDialogUpdate } from '../../components/assetManagement/production-line-dialog-update';
-import { ProductionLineManagementMenu } from '../../components/assetManagement/production-line-management-menu';
-import { ScheduleViewDialog } from '../../components/assetManagement/schedule-view-dialog';
-import { Toolbar } from '../../components/assetManagement/toolbar';
+import { ConfirmDialog } from '../../components/deliveryFleet/confirm-dialog';
+import { DeliveryRequestViewDialog } from '../../components/deliveryFleet/delivery-request-view-dialog';
+// import { SensorViewDialog } from '../../components/deliveryFleet/sensor-view-dialog';
+import { VehicleUpdateDialog } from '../../components/deliveryFleet/vehicle-update-dialog';
+import { VehicleCreateDialog } from '../../components/deliveryFleet/vehicle-create-dialog';
+import { VehicleManagementMenu } from '../../components/deliveryFleet/vehicle-management-menu';
+import { Toolbar } from '../../components/deliveryFleet/toolbar';
 import { DashboardLayout } from '../../components/dashboard-layout';
 import { NotificationAlert } from '../../components/notification-alert';
 import {
-  deleteProductionLine, fetchProductionLines
-} from '../../helpers/assetManagement';
+  deleteVehicle, fetchVehicles
+} from '../../helpers/deliveryFleet';
 import DayJS from 'dayjs';
 
-export const ProductionLineManagement = (props) => {
+export const VehicleManagement = (props) => {
   const user = JSON.parse(localStorage.getItem('user'));
 
   const [alertOpen, setAlertOpen] = useState(false);
@@ -82,25 +82,24 @@ export const ProductionLineManagement = (props) => {
     setUpdateFormDialogOpen(false);
   }
 
-
-  // Machine Dialog Helpers
-  const [machineDialogOpen, setMachineDialogOpen] = useState(false);
-  const handleMachineDialogOpen = () => {
+  const [deliveryRequestDialogOpen, setDeliveryRequestDialogOpen] = useState(false);
+  const handleDeliveryRequestDialogOpen = () => {
     console.log(selectedRow);
-    setMachineDialogOpen(true);
+    setDeliveryRequestDialogOpen(true);
   };
-  const handleMachineDialogClose = () => {
-    setMachineDialogOpen(false);
+  const handleDeliveryRequestDialogClose = () => {
+    setDeliveryRequestDialogOpen(false);
   };
 
-  const [scheduleDialogOpen, setScheduleDialogOpen] = useState(false);
-  const handleScheduleDialogOpen = () => {
-    console.log(selectedRow);
-    setScheduleDialogOpen(true);
-  };
-  const handleScheduleDialogClose = () => {
-    setScheduleDialogOpen(false);
-  };
+  // // Sensor Dialog Helpers
+  // const [sensorDialogOpen, setSensorDialogOpen] = useState(false);
+  // const handleSensorDialogOpen = () => {
+  //   console.log(selectedRow);
+  //   setSensorDialogOpen(true);
+  // };
+  // const handleSensorDialogClose = () => {
+  //   setSensorDialogOpen(false);
+  // };
 
   const [anchorEl, setAnchorEl] = useState(null);
   const menuOpen = Boolean(anchorEl);
@@ -114,13 +113,6 @@ export const ProductionLineManagement = (props) => {
   const handleClickViewEdit = () => {
     setAction('PATCH');
   };
-  // const handleClickViewMachine = () => {
-  //   setAction('GET');
-  // };
-
-  // const handleClickViewSchedule = () => {
-  //   setAction('GET');
-  // };
 
   const menuButton = (params) => {
     return (
@@ -138,8 +130,8 @@ export const ProductionLineManagement = (props) => {
 
   const [rows, setRows] = useState([]);
 
-  const getProductionLines = async () => {
-    const response = await fetchProductionLines(user.organisation.id)
+  const getVehicles= async () => {
+    const response = await fetchVehicles(user.organisation.id)
 
 	if (response.status === 200 || response.status === 201) {
 		const result = await response.json();
@@ -150,41 +142,36 @@ export const ProductionLineManagement = (props) => {
 	}         
   };
 
-  const addProductionLine = (productionLine) => {
-    const updatedProductionLine = [...rows, productionLine];
-    console.log(updatedProductionLine);
-    setRows(updatedProductionLine);
-    console.log(productionLine);
+  const addVehicle = (vehicle) => {
+    const updatedVehicle = [...rows, vehicle];
+    console.log(updatedVehicle);
+    setRows(updatedVehicle);
+    console.log(vehicle);
     handleAlertOpen(
-      `Added Production Line ${productionLine.id} successfully!`,
+      `Added Vehicle ${vehicle.id} successfully!`,
       'success'
     );
   };
 
   const handleRowUpdate = async (newRow) => {
-    // const updatedRow = { ...newRow };
 
-    // const inquiry = await newRow.json();
-    // console.log(inquiry);
-
-    await getProductionLines();
+    await getVehicles();
     handleAlertOpen(
-      `Updated Production Line ${newRow.id} successfully!`,
+      `Updated Vehicle ${newRow.id} successfully!`,
       'success'
     );
-    // return updatedRow;
   };
 
   const handleDelete = (id) => {
-    deleteProductionLine(id)
+    deleteVehicle(id)
       .then(() => {
-        handleAlertOpen(`Successfully deleted Production Line`, 'success');
+        handleAlertOpen(`Successfully deleted Vehicle`, 'success');
       })
-      .then(() => getProductionLines());
+      .then(() => getVehicles());
   };
 
   useEffect(() => {
-    getProductionLines();
+    getVehicles();
   }, []);
 
   useEffect(() => {
@@ -198,56 +185,56 @@ export const ProductionLineManagement = (props) => {
       flex: 1,
     },
     {
-      field: 'name',
-      headerName: 'Name',
-      flex: 1,
-    },
-    {
       field: 'description',
       headerName: 'Description',
       flex: 2,
     },
     {
-      field: 'isAvailable',
-      headerName: 'Available',
+      field: 'make',
+      headerName: 'Make',
       flex: 1,
     },
     {
-      field: 'finalGood',
-      headerName: 'Final Good',
+      field: 'model',
+      headerName: 'Model',
+      flex: 1,
+    },
+    {
+      field: 'year',
+      headerName: 'Year',
+      flex: 1,
+    },
+    {
+      field: 'lastServiced',
+      headerName: 'Last Serviced',
       flex: 2,
-      valueGetter: (params) => {
-        if (params.row) {
-          return params.row.bom.finalGood.name;
-        } else {
-          return '';
-        }
-      },
+      valueFormatter: (params) =>
+        DayJS(params?.value).format('DD MMM YYYY hh:mm a'),
     },
-    // {
-    //   field: 'lastStopped',
-    //   headerName: 'Last Stopped',
-    //   flex: 2,
-    // },
-	{
-		field: 'startTime',
-		headerName: 'Start Time',
-		flex: 1,
-		valueFormatter: (params) =>
-        DayJS(new Date().setHours(params?.value,0,0)).format('hh:mm a'),
-	},
-	{
-		field: 'endTime',
-		headerName: 'End Time',
-		flex: 1,
-		valueFormatter: (params) =>
-		DayJS(new Date().setHours(params?.value,0,0)).format('hh:mm a'),
-	},
     {
-      field: 'productionCostPerLot',
-      headerName: 'Cost /Lot',
+      field: 'status',
+      headerName: 'Status',
       flex: 1,
     },
+    {
+      field: 'licensePlate',
+      headerName: 'License Plate',
+      flex: 1,
+    },
+    {
+   
+    // {
+    //   field: 'sensor',
+    //   headerName: 'Sensor',
+    //   flex: 2,
+    //   valueGetter: (params) => {
+    //     if (params.row) {
+    //       return params.row.sensor.id;
+    //     } else {
+    //       return '-';
+    //     }
+    //   },
+    // },
     {
       field: 'actions',
       headerName: 'Actions',
@@ -262,7 +249,7 @@ export const ProductionLineManagement = (props) => {
       <HelmetProvider>
         <Helmet>
           <title>
-            Production Line Management Module
+            Vehicle Management Module
             {user && ` | ${user?.organisation?.name}`}
           </title>
         </Helmet>
@@ -282,48 +269,50 @@ export const ProductionLineManagement = (props) => {
             text={alertText}
             handleClose={handleAlertClose}
           />
-          <ProductionLineManagementMenu
+          <VehicleManagementMenu
             anchorEl={anchorEl}
             menuOpen={menuOpen}
             handleClickOpen={handleUpdateFormDialogOpen}
             handleMenuClose={handleMenuClose}
             handleClickViewEdit={handleClickViewEdit}
-            handleClickViewMachine={handleMachineDialogOpen}
-            handleClickViewSchedule={handleScheduleDialogOpen}
+            handleClickViewDeliveryRequest={deliveryRequestDialogOpen}
+
+            // handleClickViewSensor={handleSensorDialogOpen}
           />
-          <MachineViewDialog
-            open={machineDialogOpen}
-            selectedProductionLine={selectedRow}
-            handleClose={handleMachineDialogClose}
-          />
-          <ScheduleViewDialog
-            open={scheduleDialogOpen}
-            selectedProductionLine={selectedRow}
-            handleClose={handleScheduleDialogClose}
-          />
+          {/* <SensorViewDialog
+            open={sensorDialogOpen}
+            selectedVehicle={selectedRow}
+            handleClose={handleSensorDialogClose}
+          /> */}
           <ConfirmDialog
             open={confirmDialogOpen}
             handleClose={handleConfirmDialogClose}
-            dialogTitle={`Delete Production Line`}
-            dialogContent={`Confirm deletion of Production Line?`}
+            dialogTitle={`Delete Vehicle`}
+            dialogContent={`Confirm deletion of Vehicle?`}
             dialogAction={() => {
               handleDelete(selectedRowId);
             }}
           />
 
-          <ProductionLineDialogNew
+          <DeliveryRequestViewDialog
+            open={handleDeliveryRequestDialogOpen}
+            selectedVehicle={selectedRow}
+            handleClose={handleDeliveryRequestDialogClose}
+          />
+
+          <VehicleCreateDialog
             open={formDialogOpen}
-            string={'Production Line'}
+            string={'Vehicle'}
             handleClose={handleFormDialogClose}
             handleAlertOpen={handleAlertOpen}
             handleAlertClose={handleAlertClose}
-            addProductionLine={addProductionLine}
+            addVehicle={addVehicle}
           />
           
-          <ProductionLineDialogUpdate
+          <VehicleUpdateDialog
             open={updateFormDialogOpen}
-            string={'Production Line'}
-            productionLine={selectedRow}
+            string={'Vehicle'}
+            vehicle={selectedRow}
 			      handleRowUpdate={handleRowUpdate}
             handleClose={handleUpdateFormDialogClose}
             handleAlertOpen={handleAlertOpen}
@@ -331,7 +320,7 @@ export const ProductionLineManagement = (props) => {
           />
 
           <Toolbar
-            name="Production Line"
+            name="Vehicle"
             deleteDisabled={deleteDisabled}
             handleSearch={handleSearch}
             handleAdd={handleAdd}
@@ -359,7 +348,6 @@ export const ProductionLineManagement = (props) => {
                 columns={columns}
                 pageSize={10}
                 rowsPerPageOptions={[10]}
-                // checkboxSelection
                 components={{
                   Toolbar: GridToolbar,
                 }}
@@ -375,7 +363,7 @@ export const ProductionLineManagement = (props) => {
                 }}
               >
                 <CardContent>
-                  <Typography>{`No Production Line Found`}</Typography>
+                  <Typography>{`No Vehicles Found`}</Typography>
                 </CardContent>
               </Card>
             )}
