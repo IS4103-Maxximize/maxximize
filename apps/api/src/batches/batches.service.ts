@@ -174,18 +174,18 @@ export class BatchesService {
         }, 0);
         if (grLineItem.quantity >= totalQtyReq) {
           for (const purchaseReq of arr) {
-			const pr = await this.purchaseRequisitionService.updateFulfilledQtyQueryRunner(purchaseReq, 0, queryRunner);
+            const pr = await this.purchaseRequisitionService.updateFulfilledQtyQueryRunner(purchaseReq, 0, queryRunner);
             const batchLineItems = rawMaterialsStock.get(purchaseReq.rawMaterial.id);
             for (const batchLine of batchLineItems) {
               if (batchLine.quantity - batchLine.reservedQuantity == 0) {
                 continue;
               }
               const productionOrder = await queryRunner.manager.findOne(ProductionOrder, {
-				where: {
-					id: purchaseReq.productionLineItem.productionOrder.id
-				},
-				relations: ["prodLineItems"]
-			  });
+                where: {
+                  id: purchaseReq.productionLineItem.productionOrder.id
+                },
+                relations: ["prodLineItems"]
+              });
               const productionLineItem = new ProductionLineItem();
               productionLineItem.purchaseRequisition = pr;
               productionLineItem.rawMaterial = purchaseReq.rawMaterial;
@@ -214,33 +214,33 @@ export class BatchesService {
               if (batchLine.quantity - batchLine.reservedQuantity == 0) {
                 continue;
               }
-			  if (purchaseReq.productionLineItem) {
-				const productionOrder = await queryRunner.manager.findOne(ProductionOrder, {
-					where: {
-						id: purchaseReq.productionLineItem.productionOrder.id
-					},
-					relations: ["prodLineItems"]
-				});
-				const productionLineItem = new ProductionLineItem();
-				productionLineItem.rawMaterial = purchaseReq.rawMaterial;
-				productionLineItem.sufficient = true;
-				if (batchLine.quantity - batchLine.reservedQuantity > purchaseReq.quantityToFulfill) {
-					productionLineItem.quantity = purchaseReq.quantityToFulfill;
-					batchLine.reservedQuantity += purchaseReq.quantityToFulfill;
-					await this.purchaseRequisitionService.updateFulfilledQtyQueryRunner(purchaseReq, 0, queryRunner);
-					purchaseReq.quantityToFulfill = 0;
-				} else {
-					await this.purchaseRequisitionService.updateFulfilledQtyQueryRunner(purchaseReq, purchaseReq.quantityToFulfill - (batchLine.quantity - batchLine.reservedQuantity), queryRunner);
-					productionLineItem.quantity = batchLine.quantity - batchLine.reservedQuantity;
-					batchLine.reservedQuantity += (batchLine.quantity - batchLine.reservedQuantity);
-					purchaseReq.quantityToFulfill -= batchLine.quantity - batchLine.reservedQuantity;
-				}
-				productionLineItem.batchLineItem = batchLine;
-				queryRunner.manager.save(batchLine);
-				const prodLine = await queryRunner.manager.save(productionLineItem);
-				productionOrder.prodLineItems.push(prodLine);
-				queryRunner.manager.save(productionOrder);
-			  }
+              if (purchaseReq.productionLineItem) {
+                const productionOrder = await queryRunner.manager.findOne(ProductionOrder, {
+                  where: {
+                    id: purchaseReq.productionLineItem.productionOrder.id
+                  },
+                  relations: ["prodLineItems"]
+                });
+                const productionLineItem = new ProductionLineItem();
+                productionLineItem.rawMaterial = purchaseReq.rawMaterial;
+                productionLineItem.sufficient = true;
+                if (batchLine.quantity - batchLine.reservedQuantity > purchaseReq.quantityToFulfill) {
+                  productionLineItem.quantity = purchaseReq.quantityToFulfill;
+                  batchLine.reservedQuantity += purchaseReq.quantityToFulfill;
+                  await this.purchaseRequisitionService.updateFulfilledQtyQueryRunner(purchaseReq, 0, queryRunner);
+                  purchaseReq.quantityToFulfill = 0;
+                } else {
+                  await this.purchaseRequisitionService.updateFulfilledQtyQueryRunner(purchaseReq, purchaseReq.quantityToFulfill - (batchLine.quantity - batchLine.reservedQuantity), queryRunner);
+                  productionLineItem.quantity = batchLine.quantity - batchLine.reservedQuantity;
+                  batchLine.reservedQuantity += (batchLine.quantity - batchLine.reservedQuantity);
+                  purchaseReq.quantityToFulfill -= batchLine.quantity - batchLine.reservedQuantity;
+                }
+                productionLineItem.batchLineItem = batchLine;
+                queryRunner.manager.save(batchLine);
+                const prodLine = await queryRunner.manager.save(productionLineItem);
+                productionOrder.prodLineItems.push(prodLine);
+                queryRunner.manager.save(productionOrder);
+              }
             }
           }
         }

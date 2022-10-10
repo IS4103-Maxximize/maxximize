@@ -14,7 +14,7 @@ import { DashboardLayout } from '../../components/dashboard-layout';
 import { NotificationAlert } from '../../components/notification-alert';
 import { ConfirmDialog } from '../../components/assetManagement/confirm-dialog';
 import { MachineDialog } from '../../components/assetManagement/machine-dialog';
-import { Toolbar } from '../../components/assetManagement/toolbar';
+import { Toolbar } from '../../components/toolbar';
 import { MachineMenu } from '../../components/assetManagement/machine-menu';
 import { deleteMachine, fetchMachines } from '../../helpers/assetManagement';
 import DayJS from 'dayjs';

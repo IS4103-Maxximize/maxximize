@@ -16,7 +16,7 @@ import { ProductionLineDialogNew } from '../../components/assetManagement/produc
 import { ProductionLineDialogUpdate } from '../../components/assetManagement/production-line-dialog-update';
 import { ProductionLineManagementMenu } from '../../components/assetManagement/production-line-management-menu';
 import { ScheduleViewDialog } from '../../components/assetManagement/schedule-view-dialog';
-import { Toolbar } from '../../components/assetManagement/toolbar';
+import { Toolbar } from '../../components/toolbar';
 import { DashboardLayout } from '../../components/dashboard-layout';
 import { NotificationAlert } from '../../components/notification-alert';
 import {
