@@ -20,6 +20,7 @@ import {
     const onClose = () => {
       handleClose();
     };
+    
     // DataGrid Helpers
     const [rows, setRows] = useState([]);
     const [selectedRows, setSelectedRows] = useState([]);
