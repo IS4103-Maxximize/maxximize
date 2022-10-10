@@ -64,6 +64,7 @@ const standalone = [
 const items = [
   {
     subsystem: 'Quality Assurance',
+    basepath: 'quality-assurance',
     access: ['manager', 'factoryworker', 'superadmin'],
     icon: (
       <FactCheckIcon
@@ -75,21 +76,22 @@ const items = [
     handleClick: 'handleQualityAssuranceClick',
     modules: [
       {
-        href: '/qualityAssurance/checklists',
-        icon: <AssignmentTurnedInIcon fontSize="small" />,
-        title: 'Checklist',
+        href: '/quality-assurance/rules',
+        icon: <RuleIcon fontSize="small" />,
+        title: 'Rules',
         access: ['manager', 'factoryworker', 'superadmin'],
       },
       {
-        href: '/qualityAssurance/rules',
-        icon: <RuleIcon fontSize="small" />,
-        title: 'Rules',
+        href: '/quality-assurance/checklists',
+        icon: <AssignmentTurnedInIcon fontSize="small" />,
+        title: 'Checklist',
         access: ['manager', 'factoryworker', 'superadmin'],
       },
     ],
   },
   {
     subsystem: 'Product',
+    basepath: 'products',
     access: ['manager', 'superadmin'],
     icon: (
       <EggIcon sx={{ marginTop: 0.2, color: '#9CA3AF' }} fontSize="small" />
@@ -113,6 +115,7 @@ const items = [
   },
   {
     subsystem: 'Procurement',
+    basepath: 'procurement',
     access: ['manager', 'factoryworker', 'superadmin'],
     icon: (
       <InventoryIcon
@@ -157,6 +160,7 @@ const items = [
   },
   {
     subsystem: 'Production',
+    basepath: 'production',
     access: ['manager', 'factoryworker', 'superadmin'],
     icon: (
       <CalendarMonthIcon
@@ -174,13 +178,13 @@ const items = [
         access: ['manager', 'superadmin'],
       },
       {
-        href: '/asset-management/machine',
+        href: '/production/machine',
         icon: <PrecisionManufacturingIcon fontSize="small" />,
         title: 'Machine Management',
         access: ['manager', 'factoryworker', 'superadmin'],
       },
       {
-        href: '/asset-management/production-line',
+        href: '/production/production-line',
         icon: <AddRoadIcon fontSize="small" />,
         title: 'Production Line',
         access: ['manager', 'factoryworker', 'superadmin'],
@@ -281,7 +285,7 @@ export const DashboardSidebar = (props) => {
       return (
         <Box key={index} sx={{ mr: 1 }}>
           <Accordion
-            // defaultExpanded={basepath === item.subsystem.toLowerCase()}
+            defaultExpanded={basepath === item.basepath}
             disableGutters
             sx={{
               backgroundColor: 'rgba(17,24,39)',
