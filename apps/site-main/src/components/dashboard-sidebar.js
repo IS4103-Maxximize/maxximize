@@ -22,6 +22,7 @@ import ReplyAllIcon from '@mui/icons-material/ReplyAll';
 import EventAvailableIcon from '@mui/icons-material/EventAvailable';
 import MarkEmailReadIcon from '@mui/icons-material/MarkEmailRead';
 import DocumentScannerIcon from '@mui/icons-material/DocumentScanner';
+import Inventory2Icon from '@mui/icons-material/Inventory2';
 import {
   Accordion,
   AccordionDetails,
@@ -56,13 +57,6 @@ const standalone = [
     subsystemName: '',
     access: ['admin', 'superadmin'],
   },
-  {
-    href: '/warehouse',
-    icon: <WarehouseIcon fontSize="small" />,
-    title: 'Warehouse',
-    subsystemName: '',
-    access: ['superadmin', 'manager', 'factoryworker'],
-  },
 ];
 
 const items = [
@@ -90,6 +84,33 @@ const items = [
         icon: <AssignmentTurnedInIcon fontSize="small" />,
         title: 'Checklist',
         access: ['manager', 'factoryworker', 'superadmin'],
+      },
+    ],
+  },
+  {
+    subsystem: 'Inventory',
+    basepath: 'inventory',
+    access: ['manager', 'factoryworker', 'superadmin'],
+    icon: (
+      <Inventory2Icon
+        sx={{ marginTop: 0.2, color: '#9CA3AF' }}
+        fontSize="small"
+      />
+    ),
+    open: 'openInventory',
+    handleClick: 'handleInventoryClick',
+    modules: [
+      {
+        href: '/inventory/warehouse',
+        icon: <WarehouseIcon fontSize="small" />,
+        title: 'Warehouse',
+        access: ['superadmin', 'manager', 'factoryworker'],
+      },
+      {
+        href: '/inventory/masterlist',
+        icon: <DoneAllIcon fontSize="small" />,
+        title: 'Masterlist',
+        access: ['superadmin', 'manager', 'factoryworker'],
       },
     ],
   },
@@ -250,6 +271,13 @@ export const DashboardSidebar = (props) => {
 
   const handleQualityAssuranceClick = () => {
     setOpenQualityAssurance(!openQualityAssurance);
+  };
+
+  //Handle inventory nested menu
+  const [openInventory, setOpenInventory] = useState(true);
+
+  const handleInventoryClick = () => {
+    setOpenInventory(!openInventory);
   };
 
   //Handle product nested menu
