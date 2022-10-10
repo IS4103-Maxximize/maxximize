@@ -18,17 +18,18 @@ export default function OrganisationSelection() {
     }),
     onSubmit: async ({ organisation }) => {
       //retrieve data based on the provided organisation code
-      try {
+      
         const response = await fetch(
           `http://localhost:3000/api/organisations/${organisation}`
         );
-        //if organisation is found
-        const result = await response.json();
-        //navigate to the login page with id of the organisation
-        navigate(`/login/${result.id}`);
-      } catch (error) {
-        formik.values.authenticationError = 'Organisation Code is invalid';
-      }
+        if (response.status === 200 || response.status === 201) {
+           //if organisation is found
+          const result = await response.json();
+          //navigate to the login page with id of the organisation
+          navigate(`/login/${result.id}`);
+        } else {
+          formik.values.authenticationError = 'Organisation Code is invalid';
+        }
     },
   });
   return (
