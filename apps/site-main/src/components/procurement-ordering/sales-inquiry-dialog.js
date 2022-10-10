@@ -32,6 +32,7 @@ export const SalesInquiryDialog = (props) => {
   const user = JSON.parse(localStorage.getItem('user'));
 
   const {
+    orgOptions,
     action, // POST || PATCH
     open,
     handleClose,
@@ -40,7 +41,6 @@ export const SalesInquiryDialog = (props) => {
     addSalesInquiry,
     updateInquiry,
     handleAlertOpen,
-    orgOptions,
     ...rest
   } = props;
 
@@ -106,7 +106,7 @@ export const SalesInquiryDialog = (props) => {
           quantity: newLineItem.quantity,
           indicativePrice: newLineItem.rawMaterial.unitPrice,
           rawMaterialId: newLineItem.rawMaterial.id,
-          finalGoodId: newLineItem.finalGood.id,
+          finalGoodId: newLineItem.finalGood?.id,
         };
         totalPrice += lineItem.quantity * lineItem.indicativePrice;
 
@@ -311,7 +311,7 @@ export const SalesInquiryDialog = (props) => {
   // Value getter for final good
   const finalGoodValueGetter = (params) => {
     return params.row.finalGood
-      ? '[' + params.row.finalGood.id + '] ' + params.row.finalGood.name
+      ? params.row.finalGood.name + ' [' + params.row.finalGood.skuCode + ']'
       : '';
   };
 
@@ -500,7 +500,7 @@ export const SalesInquiryDialog = (props) => {
           />
           {/* Adding and Removing of SI Line Items
           Only available if draft SI and not linked to PRs */}
-          {formik.values.status !== 'sent' && noPRs && (
+          {formik.values.status === 'draft' && noPRs && (
             <Box my={2} display="flex" justifyContent="space-between">
               <Stack direction="row" spacing={1}>
                 <Autocomplete
@@ -548,7 +548,7 @@ export const SalesInquiryDialog = (props) => {
                     !inputValue ||
                     formik.values.numProd <= 0 ||
                     formik.values.numProd === null ||
-                    (formik.values.receivingOrg && !selectedFinalGood)
+                    (Boolean(formik.values.receivingOrg) && !selectedFinalGood)
                   }
                   color="primary"
                   onClick={() => {

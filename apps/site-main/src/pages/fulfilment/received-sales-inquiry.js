@@ -7,7 +7,7 @@ import { NotificationAlert } from '../../components/notification-alert';
 import { ReceivedSalesInquiryToolbar } from '../../components/fulfilment/received-sales-inquiry/received-si-toolbar';
 import { ReceivedSalesInquiryConfirmDialog } from '../../components/fulfilment/received-sales-inquiry/received-si-confirm-dialog';
 import { ReplyQuotationDialog } from '../../components/fulfilment/received-sales-inquiry/reply-quotation-dialog';
-import ThumbDownIcon from '@mui/icons-material/ThumbDown';
+import CancelIcon from '@mui/icons-material/Cancel';
 import DayJS from 'dayjs';
 import { updateSalesInquiry } from '../../helpers/procurement-ordering';
 
@@ -57,10 +57,11 @@ const ReceivedSalesInquiry = () => {
           <>
             <IconButton
               onClick={(event) => {
+                setSelectedRow(params.row);
                 handleConfirmDialogOpen();
               }}
             >
-              <ThumbDownIcon color="error" />
+              <CancelIcon color="error" />
             </IconButton>
             <IconButton
               onClick={(event) => {
@@ -151,19 +152,6 @@ const ReceivedSalesInquiry = () => {
         'error'
       );
     }
-    // selectedIds.forEach((currentId) => {
-    //   fetch(`http://localhost:3000/api/warehouses/${currentId}`, requestOptions)
-    //     .then(() => {
-    //       handleAlertOpen(`Successfully deleted warehouse(s)`, 'success');
-    //     })
-    //     .catch((error) => {
-    //       handleAlertOpen(`Failed to delete warehouse(s):${error}`, 'error');
-    //     });
-    // });
-
-    // setWarehouses(
-    //   warehouses.filter((warehouse) => !selectedIds.includes(warehouse.id))
-    // );
   };
 
   //Columns for datagrid, column headers & specs

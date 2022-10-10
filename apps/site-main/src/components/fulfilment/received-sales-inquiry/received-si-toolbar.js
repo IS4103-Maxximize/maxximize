@@ -67,7 +67,7 @@ export const ReceivedSalesInquiryToolbar = ({
                 />
               </Stack>
 
-              <Box sx={{ m: 1 }}>
+              {/* <Box sx={{ m: 1 }}>
                 <Tooltip title={'Reject Sales Inquiry (Single/Multiple)'}>
                   <IconButton
                     disabled={disabled}
@@ -79,7 +79,7 @@ export const ReceivedSalesInquiryToolbar = ({
                     </Badge>
                   </IconButton>
                 </Tooltip>
-              </Box>
+              </Box> */}
             </Box>
           </CardContent>
         </Card>

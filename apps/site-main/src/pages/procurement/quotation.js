@@ -292,7 +292,10 @@ const Quotation = (props) => {
                   setSelectedRows(ids);
                 }}
                 isRowSelectable={(params) => {
-                  return !params.row.purchaseOrder;
+                  console.log(params.row);
+                  return (
+                    !params.row.purchaseOrder && params.row.shellOrganisation
+                  );
                 }}
                 // experimentalFeatures={{ newEditingApi: true }}
                 // processRowUpdate={handleRowUpdate}

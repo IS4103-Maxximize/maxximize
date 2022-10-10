@@ -74,13 +74,7 @@ export const ReplyQuotationDialog = (props) => {
     if (response.status === 200 || response.status === 201) {
       const quotationResult = await response.json();
 
-      const updatedQuotation = await updateQuotation(
-        quotationResult.id,
-        values.totalPrice
-      );
-
-      console.log(formik.values.salesInquiryLineItems);
-      console.log(values.salesInquiryLineItems);
+      console.log(values.totalPrice);
 
       const lineItemsPromise = formik.values.salesInquiryLineItems.map(
         async (item) => {
@@ -107,6 +101,10 @@ export const ReplyQuotationDialog = (props) => {
             lineItemResponse.status === 200 ||
             lineItemResponse.status === 201
           ) {
+            const updatedQuotation = await updateQuotation(
+              quotationResult.id,
+              values.totalPrice
+            );
             handleAlertOpen(
               `Sent Quotation ${quotationResult.id} successfully`
             );

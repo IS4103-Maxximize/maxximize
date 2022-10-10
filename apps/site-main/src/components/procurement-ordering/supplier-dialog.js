@@ -12,13 +12,8 @@ import { apiHost, headers } from '../../helpers/constants';
 import { fetchSuppliers } from '../../helpers/procurement-ordering';
 
 export const SupplierDialog = (props) => {
-  const { 
-    open, 
-    handleClose, 
-    inquiry, 
-    handleAlertOpen,
-    ...rest
-  } = props;
+  const { orgOptions, open, handleClose, inquiry, handleAlertOpen, ...rest } =
+    props;
 
   // Formik Helpers
   let initialValues = {
@@ -64,7 +59,13 @@ export const SupplierDialog = (props) => {
 
   const getSuppliers = async () => {
     fetchSuppliers()
-      .then((result) => setRows(result))
+      .then((result) =>
+        setRows(
+          result.filter((el) => {
+            return orgOptions.map((org) => org.uen).indexOf(el.uen) < 0;
+          })
+        )
+      )
       .catch((err) => console.log(err));
   };
 

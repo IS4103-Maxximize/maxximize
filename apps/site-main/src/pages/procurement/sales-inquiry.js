@@ -83,40 +83,6 @@ export const SalesInquiry = (props) => {
     setFormDialogOpen(false);
   };
 
-  //   Form Dialog, list of registered suppliers
-  const [orgOptions, setOrgOptions] = useState([]);
-
-  useEffect(() => {
-    const fetchOrg = async () => {
-      const shellOrganisations = await fetch(
-        `http://localhost:3000/api/shell-organisations/orgId/${user.organisation.id}`
-      );
-      const shellOrganisationsResult = await shellOrganisations.json();
-
-      const response = await fetch(
-        'http://localhost:3000/api/organisations/getOrgByShellUen',
-        {
-          method: 'POST',
-          headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            shellOrganisations: shellOrganisationsResult,
-          }),
-        }
-      );
-
-      if (response.status === 200 || response.status === 201) {
-        const result = await response.json();
-        console.log(result);
-        setOrgOptions(result);
-      }
-    };
-
-    fetchOrg();
-  }, []);
-
   // Supplier Dialog Helpers
   const [supplierDialogOpen, setSupplierDialogOpen] = useState(false);
   const handleSupplierDialogOpen = () => {
@@ -153,7 +119,6 @@ export const SalesInquiry = (props) => {
     return (
       <IconButton
         onClick={(event) => {
-          console.log(params.row);
           setSelectedRow(params.row);
           handleMenuClick(event);
         }}
@@ -162,6 +127,39 @@ export const SalesInquiry = (props) => {
       </IconButton>
     );
   };
+
+  //   Form Dialog, list of registered suppliers
+  const [orgOptions, setOrgOptions] = useState([]);
+
+  useEffect(() => {
+    const fetchOrg = async () => {
+      const shellOrganisations = await fetch(
+        `http://localhost:3000/api/shell-organisations/orgId/${user.organisation.id}`
+      );
+      const shellOrganisationsResult = await shellOrganisations.json();
+
+      const response = await fetch(
+        'http://localhost:3000/api/organisations/getOrgByShellUen',
+        {
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            shellOrganisations: shellOrganisationsResult,
+          }),
+        }
+      );
+
+      if (response.status === 200 || response.status === 201) {
+        const result = await response.json();
+        setOrgOptions(result);
+      }
+    };
+
+    fetchOrg();
+  }, [formDialogOpen]);
 
   // DataGrid Rows & Columns
   const [rows, setRows] = useState([]);
@@ -285,6 +283,7 @@ export const SalesInquiry = (props) => {
             handleClose={handleAlertClose}
           />
           <SalesInquiryMenu
+            canSend={selectedRow?.status === 'draft'}
             anchorEl={anchorEl}
             menuOpen={menuOpen}
             handleClickOpen={handleFormDialogOpen}
@@ -302,6 +301,7 @@ export const SalesInquiry = (props) => {
             }}
           />
           <SalesInquiryDialog
+            orgOptions={orgOptions}
             action={action}
             open={formDialogOpen}
             string={'Sales Inquiry'}
@@ -310,9 +310,9 @@ export const SalesInquiry = (props) => {
             updateInquiry={handleRowUpdate}
             handleClose={handleFormDialogClose}
             handleAlertOpen={handleAlertOpen}
-            orgOptions={orgOptions}
           />
           <SupplierDialog
+            orgOptions={orgOptions}
             open={supplierDialogOpen}
             inquiry={selectedRow}
             handleClose={handleSupplierDialogClose}

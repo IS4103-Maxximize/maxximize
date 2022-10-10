@@ -60,12 +60,6 @@ export const SentQuotationDialog = (props) => {
     onSubmit: handleOnSubmit,
   });
 
-  // Autocomplete Helpers
-  const [supplierOptions, setSupplierOptions] = useState([]);
-
-  const [salesInquiries, setSalesInquiries] = useState([]);
-  const [salesInquiryOptions, setSalesInquiryOptions] = useState([]);
-
   // DataGrid Helpers
   const [selectedRows, setSelectedRows] = useState([]);
 
