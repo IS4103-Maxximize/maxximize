@@ -36,6 +36,11 @@ export class PurchaseOrder {
     @JoinColumn({name: 'organisationId'})
     currentOrganisation: Organisation
 
+    @ManyToOne(() => Organisation, supplier => supplier.purchaseOrders, {
+        nullable: true
+    })
+    supplier: Organisation
+
     @ManyToOne(() => Contact)
     orgContact: Contact
 

@@ -3,6 +3,7 @@ import { ShellOrganisation } from "../../shell-organisations/entities/shell-orga
 import { QuotationLineItem } from "../../quotation-line-items/entities/quotation-line-item.entity";
 import { PurchaseOrder } from "../../purchase-orders/entities/purchase-order.entity";
 import { SalesInquiry } from "../../sales-inquiry/entities/sales-inquiry.entity";
+import { Organisation } from "../../organisations/entities/organisation.entity";
 
 @Entity()
 export class Quotation {
@@ -20,6 +21,18 @@ export class Quotation {
 
     @OneToOne(() => PurchaseOrder, purchaseOrder => purchaseOrder.quotation, { cascade:true, nullable: true })
     purchaseOrder?: PurchaseOrder
+
+    @Column()
+    currentOrganisationId: number
+    @ManyToOne(() => Organisation, organisation => organisation.sentQuotations)
+    @JoinColumn({name: 'currentOrganisationId'})
+    currentOrganisation: Organisation
+
+    @Column({nullable: true})
+    receivingOrganisationId: number
+    @ManyToOne(() => Organisation, organisation => organisation.receivedQuotations)
+    @JoinColumn({name: 'receivingOrganisationId'})
+    receivingOrganisation: Organisation
 
     @Column()
     salesInquiryId: number
