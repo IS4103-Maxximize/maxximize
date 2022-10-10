@@ -142,6 +142,16 @@ export const ProductionOrderViewDialog = (props) => {
         return params.row ? params.row.productionLineId : '';
       },
     },
+    {
+      field: 'actions',
+      headerName: '',
+      flex: 1,
+      renderCell: (params) => { return (
+        <Button variant="contained" onClick={handleAllocationDialogOpen}>
+          {`Allocate for Schedule ${params.row.id}`}
+        </Button>
+      )}
+    }
   ];
 
   const readyToReleaseScheduleColumns = [
@@ -405,7 +415,7 @@ export const ProductionOrderViewDialog = (props) => {
                   <></>
                 )}
 
-                {(productionOrder?.status === 'ongoing' || productionOrder?.status === 'completed') ? (
+                {(productionOrder?.status === 'released' || productionOrder?.status === 'completed') ? (
                   <>
                     <Button variant="contained" onClick={handleAllocationDialogOpen}>
                       Allocate Completed Final Goods
