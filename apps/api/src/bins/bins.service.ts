@@ -86,6 +86,9 @@ export class BinsService {
         },
         batchLineItems: {
           product: true,
+          bin: {
+            rack: true
+          }
         },
       },
     });
