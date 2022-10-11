@@ -179,6 +179,11 @@ export const fetchQuotations = async () => {
   return await fetch(apiUrl).then((response) => response.json());
 };
 
+export const fetchReceivedQuotations = async (orgId) => {
+  const apiUrl = `${apiHost}/quotations/received/${orgId}`;
+  return await fetch(apiUrl).then((response) => response.json());
+};
+
 const fetchQuotation = async (id) => {
   const apiUrl = `${apiHost}/quotations/${id}`;
   return await fetch(apiUrl).then((response) => response.json());
@@ -245,7 +250,7 @@ export const createQuotation = async (
     lineItems
   );
   console.log(totalPrice);
-  const updatedQuotation = await updateQuotation(quotation.id, totalPrice)
+  const updatedQuotation = await updateQuotation(quotation.id, totalPrice);
   console.log(updatedQuotation);
   return updatedQuotation;
 };

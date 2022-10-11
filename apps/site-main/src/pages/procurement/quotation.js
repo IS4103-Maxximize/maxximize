@@ -138,15 +138,9 @@ const Quotation = (props) => {
   const [rows, setRows] = useState([]);
 
   const getQuotations = async () => {
-    fetchQuotations()
+    fetchQuotations(user.organisation.id)
       .then((result) => {
-        // filter quotations which the user's organisation created
-        const filtered = result.filter((el) => {
-          return (
-            el.salesInquiry.currentOrganisation.id === user.organisation.id
-          );
-        });
-        setRows(filtered);
+        setRows(result);
       })
       .then(() => setSelectedRows([]))
       .catch((err) => handleAlertOpen(`Failed to fetch Quotations`, 'error'));
@@ -181,7 +175,9 @@ const Quotation = (props) => {
       headerName: 'Supplier ID',
       flex: 1,
       valueGetter: (params) => {
-        return params.row.shellOrganisation.id;
+        return params.row.shellOrganisation
+          ? params.row.shellOrganisation.id
+          : params.row.currentOrganisationId;
       },
     },
     {
@@ -189,7 +185,9 @@ const Quotation = (props) => {
       headerName: 'Supplier Name',
       flex: 3,
       valueGetter: (params) => {
-        return params.row.shellOrganisation.name;
+        return params.row.shellOrganisation
+          ? params.row.shellOrganisation.name
+          : params.row.currentOrganisation.name;
       },
     },
     {
@@ -294,7 +292,10 @@ const Quotation = (props) => {
                   setSelectedRows(ids);
                 }}
                 isRowSelectable={(params) => {
-                  return !params.row.purchaseOrder;
+                  console.log(params.row);
+                  return (
+                    !params.row.purchaseOrder && params.row.shellOrganisation
+                  );
                 }}
                 // experimentalFeatures={{ newEditingApi: true }}
                 // processRowUpdate={handleRowUpdate}

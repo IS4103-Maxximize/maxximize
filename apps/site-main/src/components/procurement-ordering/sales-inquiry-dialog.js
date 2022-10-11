@@ -12,17 +12,19 @@ import {
   IconButton,
   TextField,
   Toolbar,
-  Typography
+  Typography,
 } from '@mui/material';
 import { Stack } from '@mui/system';
 import { DataGrid } from '@mui/x-data-grid';
+import { DatePicker } from '@mui/x-date-pickers';
+import { isSameDateError } from '@mui/x-date-pickers/internals/hooks/validation/useDateValidation';
 import { useFormik } from 'formik';
 import { useEffect, useState } from 'react';
 import { v4 as uuid } from 'uuid';
 import * as Yup from 'yup';
 import {
   updateSalesInquiry,
-  fetchSalesInquiry
+  fetchSalesInquiry,
 } from '../../helpers/procurement-ordering';
 import { fetchProducts } from '../../helpers/products';
 
@@ -30,6 +32,7 @@ export const SalesInquiryDialog = (props) => {
   const user = JSON.parse(localStorage.getItem('user'));
 
   const {
+    orgOptions,
     action, // POST || PATCH
     open,
     handleClose,
@@ -64,7 +67,9 @@ export const SalesInquiryDialog = (props) => {
   // Formik Helpers and Variables
   let initialValues = {
     id: inquiry ? inquiry.id : null,
+    receivingOrg: inquiry ? inquiry.receivingOrganisationId : '',
     status: inquiry ? inquiry.status : 'draft',
+    expiryDate: inquiry ? inquiry.expiryDate : null,
     lineItems: inquiry ? inquiry.salesInquiryLineItems : [],
     totalPrice: inquiry ? inquiry.totalPrice : 0,
     numProd: 1,
@@ -86,6 +91,7 @@ export const SalesInquiryDialog = (props) => {
     status: Yup.string().required('Inquiry status is required'),
     // lineItems: Yup.array(lineItem),
     numProd: Yup.number().integer().positive(),
+    expiryDate: Yup.string().required('Expiry Date is require'),
   };
 
   const handleOnSubmit = async (values) => {
@@ -100,6 +106,7 @@ export const SalesInquiryDialog = (props) => {
           quantity: newLineItem.quantity,
           indicativePrice: newLineItem.rawMaterial.unitPrice,
           rawMaterialId: newLineItem.rawMaterial.id,
+          finalGoodId: newLineItem.finalGood?.id,
         };
         totalPrice += lineItem.quantity * lineItem.indicativePrice;
 
@@ -107,8 +114,11 @@ export const SalesInquiryDialog = (props) => {
       }
       const user = JSON.parse(localStorage.getItem('user'));
       const currentOrganisationId = user.organisation.id;
+      const expiryDuration = new Date(values.expiryDate) - new Date();
 
       const salesInquiry = {
+        receivingOrganisationId: values.receivingOrg,
+        expiryDuration: expiryDuration,
         totalPrice: totalPrice,
         currentOrganisationId: currentOrganisationId,
         salesInquiryLineItemsDtos: lineItems,
@@ -133,7 +143,7 @@ export const SalesInquiryDialog = (props) => {
 
       // newly created SI doesn't return relations
       // fetch SI with relations
-      const result = await response; 
+      const result = await response;
       const inquiry = await fetchSalesInquiry(result.id);
 
       addSalesInquiry(inquiry);
@@ -165,7 +175,6 @@ export const SalesInquiryDialog = (props) => {
   useEffect(() => {
     const fetchData = async () => {
       const result = await fetchProducts('raw-materials', user.organisation.id);
-      // console.log(formik.values.lineItems)
       const data = result.filter((el) =>
         formik.values.lineItems
           .map((item) => item.rawMaterial.skuCode)
@@ -184,17 +193,60 @@ export const SalesInquiryDialog = (props) => {
     // );
   }, [open, formik.values.lineItems]);
 
+  // Autocomplete for registered suppliers final goods
+  const [finalGoods, setFinalGoods] = useState([]);
+  const [selectedFinalGood, setSelectedFinalGood] = useState('');
+
+  useEffect(() => {
+    if (formik.values.receivingOrg) {
+      const fetchFinalGoods = async () => {
+        const response = await fetch(
+          `http://localhost:3000/api/products/all/${formik.values.receivingOrg}`
+        );
+
+        if (response.status === 200 || response.status === 201) {
+          const result = await response.json();
+
+          const data = result.filter((product) => product.type === 'FinalGood');
+          console.log(data);
+          setFinalGoods(data);
+        }
+      };
+
+      fetchFinalGoods();
+    }
+    formik.setFieldValue('lineItems', []);
+    setSelectedFinalGood('');
+  }, [formik.values.receivingOrg]);
+
   // DataGrid Helpers
   const [selectedRows, setSelectedRows] = useState([]);
 
   const addLineItem = (quantity, inputValue) => {
     const rawMaterial = options.find((option) => option.skuCode === inputValue);
-    const newItem = {
-      id: uuid(),
-      quantity: quantity,
-      rawMaterial: rawMaterial,
-      indicativePrice: rawMaterial.unitPrice,
-    };
+    let finalGood;
+    let newItem;
+
+    if (selectedFinalGood) {
+      finalGood = finalGoods.find(
+        (finalGood) => finalGood.skuCode === selectedFinalGood
+      );
+      newItem = {
+        id: uuid(),
+        quantity: quantity,
+        rawMaterial: rawMaterial,
+        indicativePrice: rawMaterial.unitPrice,
+        finalGood: finalGood,
+      };
+    } else {
+      newItem = {
+        id: uuid(),
+        quantity: quantity,
+        rawMaterial: rawMaterial,
+        indicativePrice: rawMaterial.unitPrice,
+      };
+    }
+
     const updatedLineItems = [...formik.values.lineItems, newItem];
     formik.setFieldValue('lineItems', updatedLineItems);
     setUpdateTotalPrice(
@@ -210,36 +262,58 @@ export const SalesInquiryDialog = (props) => {
     const updatedLineItems = formik.values.lineItems.filter(
       (el) => !ids.includes(el.id)
     );
-    console.log(updatedLineItems)
+    console.log(updatedLineItems);
     formik.setFieldValue('lineItems', updatedLineItems);
     const updatedTotalPrice = updatedLineItems.reduce((a, b) => {
       return a + b.quantity * b.indicativePrice;
     }, 0);
     setUpdateTotalPrice(updatedTotalPrice);
     setInputValue('');
-    inquiry ? 
-      inquiry.total = updatedTotalPrice :
-      formik.setFieldValue('totalPrice', updatedTotalPrice);
+    inquiry
+      ? (inquiry.total = updatedTotalPrice)
+      : formik.setFieldValue('totalPrice', updatedTotalPrice);
   };
 
-  const updateLineItems = (newRow) => {
+  const updateLineItems = (newRow, oldRow) => {
     const updatedRow = { ...newRow };
+
+    if (
+      newRow.quantity === oldRow.quantity &&
+      newRow.matchingFinalGood === oldRow.matchingFinalGood
+    ) {
+      return oldRow;
+    }
+
+    // Open error alert if orice is < 1
+    if (newRow.quantity < 1) {
+      const message = 'Quantity must be positive!';
+      handleAlertOpen(message, 'error');
+      throw new Error(message);
+    }
+
     let totalPrice = 0;
     for (const lineItem of formik.values.lineItems) {
       if (lineItem.id == updatedRow.id) {
         lineItem.quantity = updatedRow.quantity;
+        lineItem.matchingFinalGood = updatedRow.matchingFinalGood;
       }
 
-      console.log(lineItem);
       totalPrice += lineItem.indicativePrice * lineItem.quantity;
     }
-    console.log(totalPrice);
     setUpdateTotalPrice(totalPrice);
+
     return updatedRow;
   };
 
   // Check if SI has no PRs ==> Normal SI
-  const noPRs = inquiry ? inquiry.purchaseRequisitions.length === 0 : true;
+  const noPRs = inquiry ? inquiry.purchaseRequisitions?.length === 0 : true;
+
+  // Value getter for final good
+  const finalGoodValueGetter = (params) => {
+    return params.row.finalGood
+      ? params.row.finalGood.name + ' [' + params.row.finalGood.skuCode + ']'
+      : '';
+  };
 
   const columns = [
     {
@@ -255,7 +329,7 @@ export const SalesInquiryDialog = (props) => {
       field: 'quantity',
       headerName: 'Quantity *',
       flex: 1,
-      editable: formik.values.status === 'draft' && noPRs
+      editable: formik.values.status === 'draft' && noPRs,
     },
     {
       field: 'name',
@@ -291,6 +365,12 @@ export const SalesInquiryDialog = (props) => {
         return params.row.rawMaterial.unitPrice;
       },
     },
+    {
+      field: 'finalGood',
+      headerName: 'Matching Final Good',
+      flex: 1.5,
+      valueGetter: finalGoodValueGetter,
+    },
   ];
 
   return (
@@ -316,8 +396,8 @@ export const SalesInquiryDialog = (props) => {
               <Button
                 variant="contained"
                 disabled={
-                  !formik.isValid || 
-                  formik.isSubmitting || 
+                  !formik.isValid ||
+                  formik.isSubmitting ||
                   formik.values.lineItems.length === 0
                 }
                 onClick={formik.handleSubmit}
@@ -329,18 +409,51 @@ export const SalesInquiryDialog = (props) => {
         </AppBar>
         <DialogContent>
           {inquiry && (
-            <TextField
+            <>
+              <TextField
+                fullWidth
+                error={Boolean(formik.touched.id && formik.errors.id)}
+                helperText={formik.touched.id && formik.errors.id}
+                label="Sales Inquiry ID"
+                margin="normal"
+                name="id"
+                onBlur={formik.handleBlur}
+                onChange={formik.handleChange}
+                value={formik.values.id}
+                variant="outlined"
+                disabled
+              />
+              <TextField
+                fullWidth
+                error={Boolean(formik.touched.id && formik.errors.id)}
+                helperText={formik.touched.id && formik.errors.id}
+                label="Receiving Organisation [Blank for non registered organisation]"
+                margin="normal"
+                name="id"
+                onBlur={formik.handleBlur}
+                onChange={formik.handleChange}
+                value={formik.values.receivingOrg}
+                variant="outlined"
+                disabled
+              />
+            </>
+          )}
+          {!inquiry && (
+            <Autocomplete
+              disabled={Boolean(inquiry)}
+              filterSelectedOptions
               fullWidth
-              error={Boolean(formik.touched.id && formik.errors.id)}
-              helperText={formik.touched.id && formik.errors.id}
-              label="Sales Inquiry ID"
-              margin="normal"
-              name="id"
-              onBlur={formik.handleBlur}
-              onChange={formik.handleChange}
-              value={formik.values.id}
-              variant="outlined"
-              disabled
+              options={orgOptions.map((option) => option.id.toString())}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Receiving Organisation [Blank for non registered organisation]"
+                />
+              )}
+              // inputValue={formik.values.receivingOrg}
+              onInputChange={(event, newInputValue) => {
+                formik.setFieldValue('receivingOrg', newInputValue);
+              }}
             />
           )}
           <TextField
@@ -355,6 +468,19 @@ export const SalesInquiryDialog = (props) => {
             value={formik.values.status}
             variant="outlined"
             disabled
+          />
+          <DatePicker
+            disabled={Boolean(inquiry)}
+            renderInput={(props) => (
+              <TextField sx={{ marginTop: 2 }} {...props} />
+            )}
+            label="Expiry Date"
+            value={formik.values.expiryDate}
+            minDate={new Date()}
+            onChange={(newValue) => {
+              formik.setFieldValue('expiryDate', newValue);
+            }}
+            inputFormat="dd/MM/yyyy"
           />
           <TextField
             fullWidth
@@ -374,7 +500,7 @@ export const SalesInquiryDialog = (props) => {
           />
           {/* Adding and Removing of SI Line Items
           Only available if draft SI and not linked to PRs */}
-          {(formik.values.status !== 'sent' && noPRs) && (
+          {formik.values.status === 'draft' && noPRs && (
             <Box my={2} display="flex" justifyContent="space-between">
               <Stack direction="row" spacing={1}>
                 <Autocomplete
@@ -388,6 +514,21 @@ export const SalesInquiryDialog = (props) => {
                     setInputValue(newInputValue);
                   }}
                 />
+                {formik.values.receivingOrg ? (
+                  <Autocomplete
+                    sx={{ width: 300 }}
+                    options={finalGoods.map((option) => option.skuCode)}
+                    renderInput={(params) => (
+                      <TextField {...params} label="Supplier Final Good" />
+                    )}
+                    inputValue={selectedFinalGood}
+                    onInputChange={(event, newInputValue) => {
+                      setSelectedFinalGood(newInputValue);
+                    }}
+                  />
+                ) : (
+                  <></>
+                )}
                 <TextField
                   error={Boolean(
                     formik.touched.numProd && formik.errors.numProd
@@ -406,7 +547,8 @@ export const SalesInquiryDialog = (props) => {
                   disabled={
                     !inputValue ||
                     formik.values.numProd <= 0 ||
-                    formik.values.numProd === null
+                    formik.values.numProd === null ||
+                    (Boolean(formik.values.receivingOrg) && !selectedFinalGood)
                   }
                   color="primary"
                   onClick={() => {
