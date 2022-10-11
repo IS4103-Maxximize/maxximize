@@ -6,6 +6,7 @@ import { Repository } from 'typeorm';
 import { Product } from './entities/product.entity';
 import { BinsService } from '../bins/bins.service';
 import { ProductMasterList } from './dto/product-masterlist.dto';
+import { BatchLineItem } from '../batch-line-items/entities/batch-line-item.entity';
 
 @Injectable()
 export class ProductsService {
@@ -114,12 +115,17 @@ export class ProductsService {
           const list = productsQuantityMap.get(batchLineItem.product.id);
           list.totalQuantity += batchLineItem.quantity;
           list.reservedQuantity += batchLineItem.reservedQuantity;
+          list.batchLineItems.push(batchLineItem);
           productsQuantityMap.set(batchLineItem.product.id, list);
         } else {
           const productMasterList = new ProductMasterList();
           productMasterList.product = batchLineItem.product;
           productMasterList.totalQuantity = batchLineItem.quantity;
           productMasterList.reservedQuantity = batchLineItem.reservedQuantity;
+
+          const batchLineItems: BatchLineItem[] = [];
+          batchLineItems.push(batchLineItem);
+          productMasterList.batchLineItems = batchLineItems;
           productsQuantityMap.set(batchLineItem.product.id, productMasterList);
         }
       }
