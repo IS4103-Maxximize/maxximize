@@ -1,6 +1,7 @@
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany, ManyToOne } from 'typeorm';
 import { Bin } from '../../bins/entities/bin.entity';
 import { Organisation } from '../../organisations/entities/organisation.entity';
+import { Rack } from '../../racks/entities/rack.entity';
 
 @Entity()
 export class Warehouse {
@@ -21,6 +22,6 @@ export class Warehouse {
     })
     organisation: Organisation;
 
-    @OneToMany(() => Bin, bin => bin.warehouse)
-    bins: Bin[]
+    @OneToMany(() => Rack, rack => rack.warehouse)
+    racks: Rack[];
 }

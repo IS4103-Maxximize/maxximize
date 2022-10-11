@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
+import { RacksService } from '../racks/racks.service';
 import { WarehousesService } from '../warehouses/warehouses.service';
 import { CreateBinDto } from './dto/create-bin.dto';
 import { UpdateBinDto } from './dto/update-bin.dto';
@@ -12,7 +13,8 @@ export class BinsService {
     @InjectRepository(Bin)
     private readonly binRepository: Repository<Bin>,
     private dataSource: DataSource,
-    private warehouseService: WarehousesService
+    private warehouseService: WarehousesService,
+    private rackService: RacksService
   ) {}
 
   async create(createBinDto: CreateBinDto) {
@@ -27,10 +29,10 @@ export class BinsService {
       bin.currentCapacity = 0;
       bin.batchLineItems = [];
 
-      const warehouse = await this.warehouseService.findOne(
-        createBinDto.warehouseId
+      const rack = await this.rackService.findOne(
+        createBinDto.rackId
       );
-      bin.warehouse = warehouse;
+      bin.rack = rack;
 
       const createdBin = await queryRunner.manager.save(bin);
       await queryRunner.commitTransaction();
@@ -44,7 +46,7 @@ export class BinsService {
 
   async findAll() {
     const bins = await this.binRepository.find({
-      relations: ['warehouse', 'batchLineItems.product'],
+      relations: ['rack', 'batchLineItems.product'],
     });
     if (bins.length === 0 || bins === undefined) {
       throw new NotFoundException('No bin(s) found!');
@@ -58,7 +60,7 @@ export class BinsService {
       where: {
         id: id,
       },
-      relations: ['warehouse', 'batchLineItems.product'],
+      relations: ['rack', 'batchLineItems.product'],
     });
     if (bin) {
       return bin;
@@ -70,16 +72,23 @@ export class BinsService {
   async findAllByOrganisationId(id: number) {
     return await this.binRepository.find({
       where: {
-        warehouse: {
-          organisation: {
-            id: id,
+        rack: {
+          warehouse: {
+            organisation: {
+              id: id,
+            }
           },
         },
       },
       relations: {
-        warehouse: true,
+        rack: {
+          warehouse: true
+        },
         batchLineItems: {
           product: true,
+          bin: {
+            rack: true
+          }
         },
       },
     });

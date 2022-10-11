@@ -1,7 +1,7 @@
 import {
   Injectable,
   InternalServerErrorException,
-  NotFoundException,
+  NotFoundException
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { randomUUID } from 'crypto';
@@ -12,7 +12,6 @@ import { FollowUpLineItemsService } from '../follow-up-line-items/follow-up-line
 import { GrLineItemsService } from '../gr-line-items/gr-line-items.service';
 import { PurchaseOrderStatus } from '../purchase-orders/enums/purchaseOrderStatus.enum';
 import { PurchaseOrdersService } from '../purchase-orders/purchase-orders.service';
-import { SalesInquiryService } from '../sales-inquiry/sales-inquiry.service';
 import { UsersService } from '../users/users.service';
 import { CreateGoodsReceiptDto } from './dto/create-goods-receipt.dto';
 import { GoodsReceipt } from './entities/goods-receipt.entity';
@@ -91,8 +90,7 @@ export class GoodsReceiptsService {
       const recipient = await this.userService.findOne(
         createGoodsReceiptDto.recipientId
       );
-      goodsReceipt.recipientName =
-        recipient.firstName + ' ' + recipient.lastName;
+      goodsReceipt.recipientName = recipient.firstName + ' ' + recipient.lastName;
 
       createBatchDto.batchNumber =
         'B-' +
