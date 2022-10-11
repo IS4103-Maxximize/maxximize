@@ -24,6 +24,4 @@ export class Batch {
     })
     goodsReceipt: GoodsReceipt;
 
-    @OneToOne(() => ProductionOrder, productionOrder => productionOrder.completedGoods, {nullable: true})
-    productionOrder?: ProductionOrder
 }

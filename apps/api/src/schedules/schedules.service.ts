@@ -1,11 +1,13 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
+import { BatchesService } from '../batches/batches.service';
 import { ProductionLine } from '../production-lines/entities/production-line.entity';
 import { ProductionLinesService } from '../production-lines/production-lines.service';
 import { CreateScheduleDto } from './dto/create-schedule.dto';
 import { UpdateScheduleDto } from './dto/update-schedule.dto';
 import { Schedule } from './entities/schedule.entity';
+import { ScheduleType } from './enums/scheduleType.enum';
 
 @Injectable()
 export class SchedulesService {
@@ -13,7 +15,8 @@ export class SchedulesService {
     @InjectRepository(Schedule)
     private readonly scheduleRepository: Repository<Schedule>,
     private productionLineService: ProductionLinesService,
-    private datasource: DataSource
+    private datasource: DataSource,
+    private batchesService: BatchesService
   ) {}
   async create(createScheduleDto: CreateScheduleDto): Promise<Schedule> {
       const {start, end, status, productionLineId} = createScheduleDto
@@ -78,5 +81,15 @@ export class SchedulesService {
     //dont anyhow remove schedules
     const scheduleToRemove = await this.findOne(id)
     return this.scheduleRepository.remove(scheduleToRemove)
+  }
+
+  async allocate(id: number, quantity: number) {
+    let schedule: Schedule = await this.findOne(id)
+    await this.datasource.manager.transaction(async (transactionalEntityManager) => {
+      //await this.batchesService.createWithExistingTransaction()
+      await transactionalEntityManager.update(Schedule, id, { status: ScheduleType.ALLOCATED})
+      return null
+    })
+    return this.findOne(id)
   }
 }

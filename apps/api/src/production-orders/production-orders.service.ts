@@ -436,7 +436,6 @@ export class ProductionOrdersService {
           finalGood: true,
           bomLineItems: true,
         },
-        completedGoods: true,
         schedules: true,
         prodLineItems: {
           batchLineItem: { 
@@ -472,7 +471,6 @@ export class ProductionOrdersService {
 			  finalGood: true,
 			  bomLineItems: true,
 			},
-			completedGoods: true,
 			schedules: true,
 			prodLineItems: {
 			  batchLineItem: { 
@@ -498,7 +496,6 @@ export class ProductionOrdersService {
           finalGood: true,
           bomLineItems: true,
         },
-        completedGoods: true,
         schedules: true,
         prodLineItems: {
           batchLineItem: { 
@@ -536,7 +533,6 @@ export class ProductionOrdersService {
           finalGood: true,
           bomLineItems: true,
         },
-        completedGoods: true,
         schedules: true,
         prodLineItems: {
           batchLineItem: { 
@@ -563,7 +559,6 @@ export class ProductionOrdersService {
 			  finalGood: true,
 			  bomLineItems: true,
 			},
-			completedGoods: true,
 			schedules: true,
 			prodLineItems: {
 			  batchLineItem: { 
@@ -599,7 +594,6 @@ export class ProductionOrdersService {
 			  finalGood: true,
 			  bomLineItems: true,
 			},
-			completedGoods: true,
 			schedules: true,
 			prodLineItems: {
 			  batchLineItem: { 

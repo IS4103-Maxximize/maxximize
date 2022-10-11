@@ -1,4 +1,5 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { BatchLineItem } from "../../batch-line-items/entities/batch-line-item.entity";
 import { ProductionLine } from "../../production-lines/entities/production-line.entity";
 import { ProductionOrder } from "../../production-orders/entities/production-order.entity";
 import { ScheduleType } from "../enums/scheduleType.enum";
@@ -29,4 +30,8 @@ export class Schedule {
     @ManyToOne(() => ProductionOrder, productionOrder => productionOrder.schedules, {onDelete: "CASCADE", cascade: true})
     @JoinColumn()
     productionOrder: ProductionOrder
+
+    @OneToOne(() => BatchLineItem, completedGood => completedGood.schedule)
+    @JoinColumn()
+    completedGoods: BatchLineItem
 }
