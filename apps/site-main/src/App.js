@@ -17,6 +17,7 @@ import SentQuotation from './pages/fulfilment/sent-quotation';
 import Bin from './pages/inventory/bin';
 import BinDetails from './pages/inventory/bin-details';
 import Masterlist from './pages/inventory/masterlist';
+import MasterlistLineItems from './pages/inventory/masterlist-line-items';
 import Warehouse from './pages/inventory/warehouse';
 import Login from './pages/login';
 import OrganisationSelection from './pages/organisationSelection';
@@ -199,6 +200,10 @@ const routes = (
               element={<BinDetails />}
             ></Route>
             <Route path="inventory/masterlist" element={<Masterlist />}></Route>
+            <Route
+              path="inventory/masterlist/lineItems"
+              element={<MasterlistLineItems />}
+            ></Route>
 
             {/* Fulfilment */}
             {/* Fulfilment Modules */}

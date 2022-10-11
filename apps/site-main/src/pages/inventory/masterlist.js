@@ -128,11 +128,11 @@ const Masterlist = () => {
   //Row for datagrid, set the list returned from API
   const rows = products;
 
-  //Navigate to the bin page
-  //   const navigate = useNavigate();
-  //   const handleRowClick = (rowData) => {
-  //     navigate('bin', { state: { warehouseId: rowData.id } });
-  //   };
+  //Navigate to the line items page
+  const navigate = useNavigate();
+  const handleRowClick = (rowData) => {
+    navigate('lineItems', { state: { productId: rowData.product.id } });
+  };
 
   return (
     <>
@@ -175,11 +175,10 @@ const Masterlist = () => {
                     Toolbar: GridToolbar,
                   }}
                   disableSelectionOnClick
-                  checkboxSelection
-                  onSelectionModelChange={(ids) => {
-                    setSelectedRows(ids);
-                  }}
-                  //   onRowClick={(rowData) => handleRowClick(rowData)}
+                  //   onSelectionModelChange={(ids) => {
+                  //     setSelectedRows(ids);
+                  //   }}
+                  onRowClick={(rowData) => handleRowClick(rowData)}
                 />
               </Box>
             </Card>

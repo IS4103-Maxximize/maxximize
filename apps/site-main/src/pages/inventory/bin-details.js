@@ -105,7 +105,7 @@ const BinDetails = () => {
   const navigate = useNavigate();
 
   return state == null ? (
-    <Navigate to="/warehouse" />
+    <Navigate to="/inventory/warehouse" />
   ) : (
     <>
       <HelmetProvider>

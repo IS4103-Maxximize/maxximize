@@ -11,11 +11,9 @@ import { UpdateWarehouse } from '../../components/inventory/warehouse/update-war
 import KitchenIcon from '@mui/icons-material/Kitchen';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 
-const Bin = () => {
+const MasterlistLineItems = () => {
   const [bins, setBins] = useState([]);
-  const [selectedRow, setSelectedRow] = useState();
   const [selectedRows, setSelectedRows] = useState([]);
-  const [disabled, setDisabled] = useState();
 
   const user = JSON.parse(localStorage.getItem('user'));
   const organisationId = user.organisation.id;
@@ -23,13 +21,7 @@ const Bin = () => {
   //Load in list of bins, initial
   useEffect(() => {
     retrieveAllBins();
-    retrieveWarehouse();
   }, []);
-
-  //Keep track of selectedRows for deletion
-  useEffect(() => {
-    setDisabled(selectedRows.length === 0);
-  }, [selectedRows]);
 
   //Get the warehouse ID that was clicked
   const { state } = useLocation();
@@ -53,67 +45,11 @@ const Bin = () => {
 
   const [warehouse, setWarehouse] = useState('');
 
-  //Retrieve warehouse
-  const retrieveWarehouse = async () => {
-    if (state != null) {
-      const response = await fetch(
-        `http://localhost:3000/api/warehouses/${state.warehouseId}`
-      );
-
-      let result = [];
-      if (response.status == 200 || response.status == 201) {
-        result = await response.json();
-      }
-      setWarehouse(result);
-    }
-  };
-
   //Search Function
   const [search, setSearch] = useState('');
 
   const handleSearch = (event) => {
     setSearch(event.target.value.toLowerCase().trim());
-  };
-
-  // License: MIT - https://opensource.org/licenses/MIT
-  // Author: Michele Locati <michele@locati.it>
-  // Source: https://gist.github.com/mlocati/7210513
-  //Edited for darker shade, better constrast
-  const perc2color = (bin) => {
-    let perc = ((bin.capacity - bin.currentCapacity) / bin.capacity) * 100;
-    let r,
-      g,
-      b = 0;
-    if (perc < 50) {
-      r = 255;
-      g = Math.round(5.1 * perc);
-    } else {
-      g = 255;
-      r = Math.round(510 - 5.1 * perc);
-    }
-    let h = r * 0x10000 + g * 0x100 + b * 0x1;
-    h = h.toString(16);
-
-    let newString = '';
-
-    for (let i = 0; i < h.length; i++) {
-      if (i % 2 != 0) {
-        newString += '0';
-      } else {
-        newString += h.charAt(i);
-      }
-    }
-
-    return '#' + ('000000' + newString).slice(-6);
-  };
-
-  //Icon for capacity status
-  const capacityStatus = (params) => {
-    return (
-      <Tooltip title={`${params.row.currentCapacity} / ${params.row.capacity}`}>
-        <KitchenIcon sx={{ color: perc2color(params.row) }} />
-      </Tooltip>
-    );
   };
 
   //Alert Notification
@@ -231,13 +167,6 @@ const Bin = () => {
       flex: 2,
       valueGetter: (params) => params.row.capacity - params.row.currentCapacity,
     },
-    {
-      field: 'actions',
-      headerName: 'Status',
-      flex: 1,
-      sortable: false,
-      renderCell: capacityStatus,
-    },
   ];
 
   //Row for datagrid, set the list returned from API
@@ -250,7 +179,7 @@ const Bin = () => {
   };
 
   return state == null ? (
-    <Navigate to="/inventory/warehouse" />
+    <Navigate to="/inventory/masterlist" />
   ) : (
     <>
       <HelmetProvider>
@@ -304,7 +233,6 @@ const Bin = () => {
             handleAlertOpen={handleAlertOpen}
           />
           <BinToolbar
-            disabled={disabled}
             numBin={selectedRows.length}
             handleClickOpen={handleClickOpen}
             handleConfirmDialogOpen={handleConfirmDialogOpen}
@@ -345,4 +273,4 @@ const Bin = () => {
   );
 };
 
-export default Bin;
+export default MasterlistLineItems;
