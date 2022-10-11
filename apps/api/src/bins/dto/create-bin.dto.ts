@@ -8,5 +8,5 @@ export class CreateBinDto {
     capacity: number;
 
     @IsNotEmpty()
-    warehouseId: number;
+    rackId: number;
 }
