@@ -18,6 +18,10 @@ import RuleIcon from '@mui/icons-material/Rule';
 import TaskIcon from '@mui/icons-material/Task';
 import WarehouseIcon from '@mui/icons-material/Warehouse';
 import RequestPageIcon from '@mui/icons-material/RequestPage';
+import ReplyAllIcon from '@mui/icons-material/ReplyAll';
+import EventAvailableIcon from '@mui/icons-material/EventAvailable';
+import MarkEmailReadIcon from '@mui/icons-material/MarkEmailRead';
+import DocumentScannerIcon from '@mui/icons-material/DocumentScanner';
 import {
   Accordion,
   AccordionDetails,
@@ -64,6 +68,7 @@ const standalone = [
 const items = [
   {
     subsystem: 'Quality Assurance',
+    basepath: 'quality-assurance',
     access: ['manager', 'factoryworker', 'superadmin'],
     icon: (
       <FactCheckIcon
@@ -75,21 +80,22 @@ const items = [
     handleClick: 'handleQualityAssuranceClick',
     modules: [
       {
-        href: '/qualityAssurance/checklists',
-        icon: <AssignmentTurnedInIcon fontSize="small" />,
-        title: 'Checklist',
+        href: '/quality-assurance/rules',
+        icon: <RuleIcon fontSize="small" />,
+        title: 'Rules',
         access: ['manager', 'factoryworker', 'superadmin'],
       },
       {
-        href: '/qualityAssurance/rules',
-        icon: <RuleIcon fontSize="small" />,
-        title: 'Rules',
+        href: '/quality-assurance/checklists',
+        icon: <AssignmentTurnedInIcon fontSize="small" />,
+        title: 'Checklist',
         access: ['manager', 'factoryworker', 'superadmin'],
       },
     ],
   },
   {
     subsystem: 'Product',
+    basepath: 'products',
     access: ['manager', 'superadmin'],
     icon: (
       <EggIcon sx={{ marginTop: 0.2, color: '#9CA3AF' }} fontSize="small" />
@@ -113,6 +119,7 @@ const items = [
   },
   {
     subsystem: 'Procurement',
+    basepath: 'procurement',
     access: ['manager', 'factoryworker', 'superadmin'],
     icon: (
       <InventoryIcon
@@ -157,6 +164,7 @@ const items = [
   },
   {
     subsystem: 'Production',
+    basepath: 'production',
     access: ['manager', 'factoryworker', 'superadmin'],
     icon: (
       <CalendarMonthIcon
@@ -174,13 +182,13 @@ const items = [
         access: ['manager', 'superadmin'],
       },
       {
-        href: '/asset-management/machine',
+        href: '/production/machine',
         icon: <PrecisionManufacturingIcon fontSize="small" />,
         title: 'Machine Management',
         access: ['manager', 'factoryworker', 'superadmin'],
       },
       {
-        href: '/asset-management/production-line',
+        href: '/production/production-line',
         icon: <AddRoadIcon fontSize="small" />,
         title: 'Production Line',
         access: ['manager', 'factoryworker', 'superadmin'],
@@ -189,6 +197,38 @@ const items = [
         href: '/production/production-order',
         icon: <TaskIcon fontSize="small" />,
         title: 'Production Order',
+        access: ['manager', 'factoryworker', 'superadmin'],
+      },
+    ],
+  },
+  {
+    subsystem: 'Fulfilment',
+    access: ['manager', 'factoryworker', 'superadmin'],
+    icon: (
+      <EventAvailableIcon
+        sx={{ marginTop: 0.2, color: '#9CA3AF' }}
+        fontSize="small"
+      />
+    ),
+    open: 'openFulfilment',
+    handleClick: 'handleFulfilmentClick',
+    modules: [
+      {
+        href: '/fulfilment/received-sales-inquiry',
+        icon: <ReplyAllIcon fontSize="small" />,
+        title: 'Received Sales Inquiry',
+        access: ['manager', 'factoryworker', 'superadmin'],
+      },
+      {
+        href: '/fulfilment/sent-quotation',
+        icon: <MarkEmailReadIcon fontSize="small" />,
+        title: 'Sent Quotation',
+        access: ['manager', 'factoryworker', 'superadmin'],
+      },
+      {
+        href: '/fulfilment/received-purchase-order',
+        icon: <DocumentScannerIcon fontSize="small" />,
+        title: 'Received Purchase Order',
         access: ['manager', 'factoryworker', 'superadmin'],
       },
     ],
@@ -231,6 +271,13 @@ export const DashboardSidebar = (props) => {
 
   const handleProductionClick = () => {
     setOpenProduction(!openProduction);
+  };
+
+  //Handle fulfilment nested menu
+  const [openFulfilment, setOpenFulfilment] = useState(true);
+
+  const handleFulfilmentClick = () => {
+    setOpenFulfilment(!openFulfilment);
   };
 
   const standaloneModules = standalone
@@ -281,7 +328,7 @@ export const DashboardSidebar = (props) => {
       return (
         <Box key={index} sx={{ mr: 1 }}>
           <Accordion
-            // defaultExpanded={basepath === item.subsystem.toLowerCase()}
+            defaultExpanded={basepath === item.basepath}
             disableGutters
             sx={{
               backgroundColor: 'rgba(17,24,39)',

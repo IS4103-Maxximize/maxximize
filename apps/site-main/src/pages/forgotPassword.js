@@ -26,7 +26,7 @@ const ForgotPassword = () => {
     setAlertSeverity('success');
   };
 
-  const handleForgotPassword = () => {
+  const handleForgotPassword = async() => {
     const myHeaders = new Headers();
     myHeaders.append('Content-Type', 'application/json');
 
@@ -41,13 +41,13 @@ const ForgotPassword = () => {
       body: raw,
     };
 
-    fetch(`http://localhost:3000/api/users/forgotPassword`, requestOptions)
-      .then((response) => response.text())
-      .then(() => handleAlertOpen('Email sent successfully!', 'success'))
-      .catch((error) =>
-        handleAlertOpen(`An error was encountered: ${error}`, 'error')
-      );
-
+    const response = await fetch(`http://localhost:3000/api/users/forgotPassword`, requestOptions)
+    if (response.status === 200 || response.status === 201) {
+      handleAlertOpen('email sent successfully!')
+    } else {
+      const result = await response.json()
+      handleAlertOpen(`An error was encountered: ${result.message}`, 'error')
+    }
     formik.resetForm();
   };
 

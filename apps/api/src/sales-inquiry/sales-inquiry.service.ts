@@ -195,7 +195,8 @@ export class SalesInquiryService {
           rawMaterial: true,
           finalGood: true
         },
-        quotations: true
+        quotations: true,
+		purchaseRequisitions: true
       }
     })
     return salesInquiries
@@ -211,7 +212,8 @@ export class SalesInquiryService {
           rawMaterial: true,
           finalGood: true
         },
-        quotations: true
+        quotations: true,
+		purchaseRequisitions: true
       }
     })
     return salesInquiries

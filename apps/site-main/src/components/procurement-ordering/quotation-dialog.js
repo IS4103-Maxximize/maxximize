@@ -21,6 +21,7 @@ import {
   updateQuotation,
   updateQuotationLineItem,
 } from '../../helpers/procurement-ordering';
+import DayJS from 'dayjs';
 
 export const QuotationDialog = (props) => {
   const user = JSON.parse(localStorage.getItem('user'));
@@ -40,10 +41,13 @@ export const QuotationDialog = (props) => {
   // Formik Helpers
   const initialValues = {
     id: quotation ? quotation.id : null,
-    created: quotation ? quotation.created : null,
+    created: quotation
+      ? DayJS(quotation.created).format('DD MMM YYYY hh:mm a')
+      : null,
     totalPrice: quotation ? quotation.totalPrice : 0,
     leadTime: quotation ? quotation.leadTime : 7,
-    supplierId: quotation ? quotation.shellOrganisation.id : null,
+    supplierId: quotation ? quotation.shellOrganisation?.id : null,
+    currentOrgId: quotation ? quotation.currentOrganisation?.id : null,
     salesInquiryId: quotation ? quotation.salesInquiry.id : null,
     quotationLineItems: quotation ? quotation.quotationLineItems : [],
   };
@@ -63,7 +67,7 @@ export const QuotationDialog = (props) => {
         values.supplierId,
         values.quotationLineItems,
         values.leadTime,
-        values.totalPrice,
+        values.totalPrice
       ).catch((err) => handleAlertOpen(`Error creating ${string}`, 'error'));
       addQuotation(result);
     }
@@ -100,7 +104,9 @@ export const QuotationDialog = (props) => {
       // Should only be allowed to select sales inquiries which
       // have status 'sent'
       setSalesInquiryOptions(
-        salesInquiries.filter((el) => el.status === 'sent').map((el) => el.id)
+        salesInquiries
+          .filter((el) => el.status === 'sent' && !el.receivingOrganisationId)
+          .map((el) => el.id)
       );
     };
 
@@ -125,14 +131,16 @@ export const QuotationDialog = (props) => {
       // console.log(si ? si.salesInquiryLineItems : []);
       formik.setFieldValue(
         'quotationLineItems',
-        si ? si.salesInquiryLineItems.map((item) => {
-          return {
-            id: item.id,
-            price: item.indicativePrice,
-            quantity: item.quantity,
-            rawMaterial: item.rawMaterial
-          }
-        }) : []
+        si
+          ? si.salesInquiryLineItems.map((item) => {
+              return {
+                id: item.id,
+                price: item.indicativePrice,
+                quantity: item.quantity,
+                rawMaterial: item.rawMaterial,
+              };
+            })
+          : []
       );
     }
   }, [formik.values.salesInquiryId]);
@@ -158,7 +166,7 @@ export const QuotationDialog = (props) => {
       // console.log(updatedRow);
       if (newRow.price === oldRow.price) {
         return oldRow; // Dont call update api if price didn't change
-      } 
+      }
       const updatedId = updatedRow.id;
       updatedRow = updateQuotationLineItem(updatedRow.id, updatedRow.price)
         .then(
@@ -244,10 +252,7 @@ export const QuotationDialog = (props) => {
             {action === 'POST' && (
               <Button
                 variant="contained"
-                disabled={
-                  !formik.isValid || 
-                  formik.isSubmitting
-                }
+                disabled={!formik.isValid || formik.isSubmitting}
                 onClick={formik.handleSubmit}
               >
                 Submit
@@ -304,9 +309,7 @@ export const QuotationDialog = (props) => {
           />
           <TextField
             fullWidth
-            error={Boolean(
-              formik.touched.leadTime && formik.errors.leadTime
-            )}
+            error={Boolean(formik.touched.leadTime && formik.errors.leadTime)}
             helperText={formik.touched.leadTime && formik.errors.leadTime}
             label="Lead Time"
             margin="normal"
@@ -316,6 +319,7 @@ export const QuotationDialog = (props) => {
             onChange={formik.handleChange}
             value={formik.values.leadTime}
             variant="outlined"
+            disabled={Boolean(quotation?.receivingOrganisationId)}
           />
           <Stack direction="row" spacing={1}>
             {!quotation && (
@@ -373,7 +377,11 @@ export const QuotationDialog = (props) => {
             {quotation && (
               <TextField
                 label="Supplier ID"
-                value={quotation.shellOrganisation.id}
+                value={
+                  quotation.shellOrganisation
+                    ? quotation.shellOrganisation.id
+                    : quotation.currentOrganisation.id
+                }
                 disabled={Boolean(quotation)}
               />
             )}

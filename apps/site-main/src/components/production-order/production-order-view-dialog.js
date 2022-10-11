@@ -9,6 +9,7 @@ import {
   Dialog,
   DialogContent,
   IconButton,
+  TextField,
   Toolbar,
   Typography,
 } from '@mui/material';
@@ -18,6 +19,7 @@ import { useFormik } from 'formik';
 import { useEffect, useState } from 'react';
 import { PurchaseRequisitionNew } from '../../pages/procurement/purchase-requisition-new';
 import { ConfirmDialog } from '../assetManagement/confirm-dialog';
+import { FinalGoodsAllocationDialog } from './final-goods-allocation-dialog';
 
 export const ProductionOrderViewDialog = (props) => {
   const {
@@ -88,6 +90,15 @@ export const ProductionOrderViewDialog = (props) => {
     }
   };
 
+  // Collection and allocation of Final Good
+  const [allocationDialogOpen, setAllocationDialogOpen] = useState(false);
+  const handleAllocationDialogOpen = () => {
+    setAllocationDialogOpen(true);
+  }
+  const handleAllocationDialogClose = () => {
+    setAllocationDialogOpen(false);
+  }
+
   const formik = useFormik({
     initialValues: {
       id: productionOrder ? productionOrder.id : null,
@@ -131,6 +142,16 @@ export const ProductionOrderViewDialog = (props) => {
         return params.row ? params.row.productionLineId : '';
       },
     },
+    {
+      field: 'actions',
+      headerName: '',
+      flex: 1,
+      renderCell: (params) => { return (
+        <Button variant="contained" onClick={handleAllocationDialogOpen}>
+          {`Allocate for Schedule ${params.row.id}`}
+        </Button>
+      )}
+    }
   ];
 
   const readyToReleaseScheduleColumns = [
@@ -271,8 +292,6 @@ export const ProductionOrderViewDialog = (props) => {
     },
   ];
 
-  const schedules = [];
-
   return (
     <form onSubmit={formik.handleSubmit}>
       <ConfirmDialog
@@ -312,42 +331,63 @@ export const ProductionOrderViewDialog = (props) => {
         <DialogContent sx={{ backgroundColor: '#F9FAFC' }}>
           <Box display="flex">
             <Box width="100%">
+              <Typography Typography variant="h6">Final Good Info</Typography>
+              <Card sx={{ my: 2 }}>
+                <TextField
+                  sx={{ ml: 2, width: 150 }}
+                  margin="normal"
+                  label="Final Good Name"
+                  value={productionOrder ? productionOrder.bom.finalGood.name : ''}
+                  disabled
+                />
+                <TextField
+                  sx={{ ml: 1, width: 150 }}
+                  margin="normal"
+                  label="SKU"
+                  value={productionOrder ? productionOrder.bom.finalGood.skuCode : ''}
+                  disabled
+                />
+                <TextField
+                  sx={{ ml: 1, width: 300 }}
+                  margin="normal"
+                  label="Planned Production Quantity"
+                  value={productionOrder ? 
+                    productionOrder.plannedQuantity * productionOrder.bom.finalGood.lotQuantity : ''}
+                  disabled
+                />
+              </Card>
               <Typography variant="h6">Schedule(s)</Typography>
-              <Card sx={{ marginTop: 2 }}>
+              <Card sx={{ my: 2 }}>
                 <DataGrid
                   autoHeight
                   rows={formik.values.schedules}
                   columns={
-                    productionOrder?.status == 'readytorelease'
+                    productionOrder?.status === 'readytorelease'
                       ? readyToReleaseScheduleColumns
                       : scheduleColumns
                   }
-                  pageSize={10}
+                  pageSize={5}
                   rowsPerPageOptions={[5]}
                   disableSelectionOnClick
-                  // experimentalFeatures={{ newEditingApi: true }}
-                  // processRowUpdate={handleRowUpdate}
                   sx={{ marginLeft: 1, marginRight: 1, marginBottom: 1 }}
                 />
               </Card>
               <Typography sx={{ marginTop: 2 }} variant="h6">
                 Production Line Items
               </Typography>
-              <Card sx={{ marginTop: 2, marginBottom: 2 }}>
+              <Card sx={{ my: 2 }}>
                 <DataGrid
                   autoHeight
                   rows={formik.values.prodLineItems}
                   columns={
-                    productionOrder?.status == 'created' ||
-                    productionOrder?.status == 'awaitingprocurement'
+                    productionOrder?.status === 'created' ||
+                    productionOrder?.status === 'awaitingprocurement'
                       ? productionOrderColumns
                       : readyToReleaseProductionOrderColumns
                   }
                   pageSize={5}
                   rowsPerPageOptions={[5]}
                   disableSelectionOnClick
-                  // experimentalFeatures={{ newEditingApi: true }}
-                  // processRowUpdate={handleRowUpdate}
                   sx={{ marginLeft: 1, marginRight: 1, marginBottom: 1 }}
                 />
               </Card>
@@ -356,7 +396,7 @@ export const ProductionOrderViewDialog = (props) => {
               </Typography>
 
               <Box display="flex" justifyContent="flex-end">
-                {productionOrder?.status == 'created' ? (
+                {productionOrder?.status === 'created' ? (
                   <Button
                     variant="contained"
                     onClick={handleSendProductRequisition}
@@ -367,10 +407,27 @@ export const ProductionOrderViewDialog = (props) => {
                   <></>
                 )}
 
-                {productionOrder?.status == 'readytorelease' ? (
+                {productionOrder?.status === 'readytorelease' ? (
                   <Button variant="contained" onClick={handleRelease}>
                     Release
                   </Button>
+                ) : (
+                  <></>
+                )}
+
+                {(productionOrder?.status === 'released' || productionOrder?.status === 'completed') ? (
+                  <>
+                    <Button variant="contained" onClick={handleAllocationDialogOpen}>
+                      Allocate Completed Final Goods
+                    </Button>
+                    <FinalGoodsAllocationDialog
+                      open={allocationDialogOpen}
+                      handleClose={handleAllocationDialogClose}
+                      productionOrder={productionOrder}
+                      handleAlertOpen={handleAlertOpen}
+                      handleAlertClose={handleAlertClose}
+                    />
+                  </>
                 ) : (
                   <></>
                 )}

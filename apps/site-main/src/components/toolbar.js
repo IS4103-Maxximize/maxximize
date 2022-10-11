@@ -12,14 +12,13 @@ import {
   SvgIcon,
   TextField,
   Tooltip,
-  Typography,
-  Link,
+  Typography
 } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import { procurementBreadcrumbs, productionBreadcrumbs } from '../helpers/constants';
 import { Search as SearchIcon } from '../icons/search';
-import { Link as RouterLink } from 'react-router-dom';
-import { procurementBreadcrumbs } from '../helpers/constants';
+
 
 export const Toolbar = (props) => {
   const {
@@ -45,27 +44,6 @@ export const Toolbar = (props) => {
     setSubDomain(subdomain);
   }, [location]);
 
-  const productionBreadcrumbs = [
-    <Link
-      component={RouterLink}
-      underline="hover"
-      key="bill-of-material"
-      color={subdomain === 'bill-of-material' ? 'primary' : 'inherit'}
-      to="/production/bill-of-material"
-    >
-      Bill Of Material
-    </Link>,
-    <Link
-      component={RouterLink}
-      underline="hover"
-      key="production-order"
-      color={subdomain === 'production-order' ? 'primary' : 'inherit'}
-      to="/production/production-order"
-    >
-      Production Order
-    </Link>,
-  ];
-
   return (
     <Box>
       <Box
@@ -82,7 +60,7 @@ export const Toolbar = (props) => {
         </Typography>
         <Breadcrumbs separator="-">
           {domain === 'procurement' && procurementBreadcrumbs(subdomain)}
-          {domain === 'production' && productionBreadcrumbs}
+          {domain === 'production' && productionBreadcrumbs(subdomain)}
         </Breadcrumbs>
       </Box>
       <Box sx={{ mt: 3 }}>

@@ -77,6 +77,7 @@ function GenericToolbar(props) {
                           <IconButton
                             disabled={disabled}
                             onClick={handleClickMethods[tool.handleClickMethod]}
+                            color={tool.badge.color}
                           >
                             <Badge
                               badgeContent={selectedRows.length}

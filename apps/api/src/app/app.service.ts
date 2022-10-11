@@ -131,6 +131,13 @@ export class AppService implements OnApplicationBootstrap {
             address: 'maxximiseAddress',
             postalCode: '839849',
           },
+          {
+            id: 9,
+            phoneNumber: '82949238',
+            email: 'maxximizeAdmin@gmail.com',
+            address: 'maxximiseAddress',
+            postalCode: '839849',
+          },
         ])
         .execute();
 
@@ -194,6 +201,20 @@ export class AppService implements OnApplicationBootstrap {
             role: Role.MANAGER,
             organisation: await this.organisationsService.findOne(2),
             contact: await this.contactsService.findOne(8),
+          },
+          {
+            id: 6,
+            firstName: 'admin',
+            lastName: 'lim',
+            username: 'admin',
+            password:
+              '$2b$10$f6h95DOKlOa4967NYpF4y.ef5vkNYh9zJkl7LajmU7mFP86FU0k5K',
+            isActive: 'true',
+            salt: '$2b$10$f6h95DOKlOa4967NYpF4y.',
+            passwordChanged: true,
+            role: Role.ADMIN,
+            organisation: await this.organisationsService.findOne(1),
+            contact: await this.contactsService.findOne(9),
           },
         ])
         .execute();
