@@ -6,7 +6,6 @@ import { BatchLineItem } from '../batch-line-items/entities/batch-line-item.enti
 import { BinsService } from '../bins/bins.service';
 import { UpdateBinDto } from '../bins/dto/update-bin.dto';
 import { GrLineItem } from '../gr-line-items/entities/gr-line-item.entity';
-import { LineItem } from '../line-Items/LineItem';
 import { ProductionLineItem } from '../production-line-items/entities/production-line-item.entity';
 import { ProductionOrder } from '../production-orders/entities/production-order.entity';
 import { ProductionOrdersService } from '../production-orders/production-orders.service';
@@ -290,7 +289,7 @@ export class BatchesService {
     return this.batchRepository.delete(id);
   }
 
-  async allocate(orgId: number, lineItems: LineItem[]) {
+  async allocate(orgId: number, lineItem) {
     const batch = new Batch();
     batch.batchNumber = 'B-' + randomUUID().substring(0, 5) + '-' + new Date().toLocaleDateString().replace(/\//g, '-') +
       '-' + new Date().toLocaleTimeString();
@@ -299,61 +298,49 @@ export class BatchesService {
     const bins = await this.binService.findAllByOrganisationId(orgId);
     const batchLineItems: BatchLineItem[] = [];
     
-    // Duplicate lineItems
-    const unassigned = lineItems.slice();
-
-    // Try to allocate those line items fully
-    for (const lineItem of lineItems) {
-      for (const bin of bins) {
-        const lineItemCapacity = lineItem.quantity;
-        if (lineItemCapacity <= bin.capacity - bin.currentCapacity) {
-          const batchLineItem = new BatchLineItem();
-          batchLineItem.bin = bin;
-          batchLineItem.product = lineItem.product;
-          batchLineItem.quantity = lineItem.quantity;
-          batchLineItem.subTotal = lineItem.product.unitPrice * lineItem.quantity;
-          const date = new Date();
-          date.setDate(date.getDate() + lineItem.product.expiry);
-          batchLineItem.expiryDate = date;
-          batchLineItems.push(batchLineItem);
-          bin.currentCapacity = bin.currentCapacity + lineItemCapacity;
-          const index = unassigned.indexOf(lineItem);
-          unassigned.splice(index, 1);
-          break;
-        }
+    for (const bin of bins) {
+      const lineItemCapacity = lineItem.quantity;
+      if (lineItemCapacity <= bin.capacity - bin.currentCapacity) {
+        const batchLineItem = new BatchLineItem();
+        batchLineItem.bin = bin;
+        batchLineItem.product = lineItem.product;
+        batchLineItem.quantity = lineItem.quantity;
+        batchLineItem.subTotal = lineItem.product.unitPrice * lineItem.quantity;
+        const date = new Date();
+        date.setDate(date.getDate() + lineItem.product.expiry);
+        batchLineItem.expiryDate = date;
+        batchLineItems.push(batchLineItem);
+        bin.currentCapacity = bin.currentCapacity + lineItemCapacity;
+        break;
       }
     }
 
-    // For those that cannot be allocated fully, find bins with space
-    // and allocate partially till all of the product is allocated
-    for (const unallocated of unassigned) {
-      let qty = unallocated.quantity;
-      for (const bin of bins) {
-        const availableSpace = bin.capacity - bin.currentCapacity;
-        if (availableSpace > 0) {
-          const batchLineItem = new BatchLineItem();
-          if (qty > availableSpace) {
-            batchLineItem.quantity =  availableSpace;
-            bin.currentCapacity = bin.capacity;
-          } else {
-            batchLineItem.quantity =  qty;
-            bin.currentCapacity = bin.currentCapacity + qty;
-          }
-          batchLineItem.bin = bin;
-          batchLineItem.product = unallocated.product;
-          batchLineItem.subTotal = unallocated.product.unitPrice * batchLineItem.quantity;
-          
-          batchLineItems.push(batchLineItem);
+    let qty = lineItem.quantity;
+    for (const bin of bins) {
+      const availableSpace = bin.capacity - bin.currentCapacity;
+      if (availableSpace > 0) {
+        const batchLineItem = new BatchLineItem();
+        if (qty > availableSpace) {
+          batchLineItem.quantity =  availableSpace;
+          bin.currentCapacity = bin.capacity;
+        } else {
+          batchLineItem.quantity =  qty;
+          bin.currentCapacity = bin.currentCapacity + qty;
+        }
+        batchLineItem.bin = bin;
+        batchLineItem.product = lineItem.product;
+        batchLineItem.subTotal = lineItem.product.unitPrice * batchLineItem.quantity;
+        
+        batchLineItems.push(batchLineItem);
 
-          qty -= availableSpace;
-        }
-        if (qty < 0) {
-          break;
-        }
+        qty -= availableSpace;
       }
-      if (qty > 0) {
-        throw new InternalServerErrorException("Could not allocate to bins");
+      if (qty < 0) {
+        break;
       }
+    }
+    if (qty > 0) {
+      throw new InternalServerErrorException("Could not allocate to bins");
     }
 
     for (const bin of bins) {
