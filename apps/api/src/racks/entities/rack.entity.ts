@@ -8,6 +8,9 @@ export class Rack {
     id: number;
 
     @Column()
+    name: string;
+
+    @Column()
     description: string;
 
     @ManyToOne(() => Warehouse, warehouse => warehouse.racks)
