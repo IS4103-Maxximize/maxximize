@@ -22,6 +22,7 @@ export class RacksService {
 
     try {
       const rack = new Rack();
+      rack.name = createRackDto.name;
       rack.description = createRackDto.description;
       
       const warehouse = await this.warehouseService.findOne(createRackDto.warehouseId);
@@ -29,7 +30,6 @@ export class RacksService {
       
       const newRack = await queryRunner.manager.save(rack);
       await queryRunner.commitTransaction();
-      console.log(newRack);
       return newRack;
     } catch (err) {
       console.log(err);

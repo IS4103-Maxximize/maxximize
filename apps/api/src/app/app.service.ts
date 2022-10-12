@@ -1,5 +1,6 @@
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { DataSource } from 'typeorm';
+import { BatchesService } from '../batches/batches.service';
 import { BinsService } from '../bins/bins.service';
 import { ContactsService } from '../contacts/contacts.service';
 import { Contact } from '../contacts/entities/contact.entity';
@@ -37,6 +38,7 @@ export class AppService implements OnApplicationBootstrap {
     private purchaseOrderService: PurchaseOrdersService,
     private goodsReceiptService: GoodsReceiptsService,
     private rackService: RacksService,
+    private batchService: BatchesService,
     private dataSource: DataSource
   ) {}
   getData(): { message: string } {
@@ -234,16 +236,19 @@ export class AppService implements OnApplicationBootstrap {
       });
 
       await this.rackService.create({
+        name: "Rack 1",
         description: "Rack 1 Warehouse 1",
         warehouseId: 1
       });
 
       await this.rackService.create({
+        name: "Rack 2",
         description: "Rack 2 Warehouse 1",
         warehouseId: 1
       });
 
       await this.rackService.create({
+        name: "Rack 3",
         description: "Rack 1 Warehouse 2",
         warehouseId: 1
       });
@@ -475,5 +480,5 @@ export class AppService implements OnApplicationBootstrap {
         followUpLineItemsDtos: [],
       });
     }
-  }
+  }  
 }
