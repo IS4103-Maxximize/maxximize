@@ -16,6 +16,7 @@ export const UpdateRack = ({ rack, updateRack, handleAlertOpen }) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
+        name: formik.values.name,
         description: formik.values.description,
       }),
     });
@@ -35,17 +36,14 @@ export const UpdateRack = ({ rack, updateRack, handleAlertOpen }) => {
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
+      name: rack?.name,
       description: rack?.description,
     },
     validationSchema: Yup.object({
-      //   name: Yup.string()
-      //     .min(1, 'Name must be at least be 1 character long')
-      //     .max(50, 'Name can at most be 50 characters long')
-      //     .required('Name is required'),
-      //   address: Yup.string()
-      //     .min(3, 'Address must be at least be 3 characters long')
-      //     .max(95, 'Address can at most be 95 characters long')
-      //     .required('Address is required'),
+      name: Yup.string()
+        .min(1, 'Name must be at least be 1 character long')
+        .max(50, 'Name can at most be 50 characters long')
+        .required('Name is required'),
       description: Yup.string()
         .min(1, 'Description must be at least be 1 character long')
         .max(200, 'Description can at most be 200 characters long')
@@ -56,7 +54,7 @@ export const UpdateRack = ({ rack, updateRack, handleAlertOpen }) => {
 
   //User organisation Id
   const user = JSON.parse(localStorage.getItem('user'));
-  const organisationId = user.o;
+  const organisationId = user.organisation.id;
 
   return (
     <>
@@ -72,7 +70,7 @@ export const UpdateRack = ({ rack, updateRack, handleAlertOpen }) => {
             }}
           >
             <Typography sx={{ m: 1 }} variant="h4">
-              {rack.description}
+              {rack.name}
             </Typography>
           </Box>
 
@@ -98,7 +96,22 @@ export const UpdateRack = ({ rack, updateRack, handleAlertOpen }) => {
         </Box>
         <Card sx={{ marginTop: 1, marginBottom: 2 }}>
           <Box p={2}>
-            <Box display="flex" justifyContent="flex-end">
+            <Box>
+              <TextField
+                fullWidth
+                error={Boolean(formik.touched.name && formik.errors.name)}
+                helperText={formik.touched.name && formik.errors.name}
+                label="Name"
+                margin="normal"
+                name="name"
+                onBlur={formik.handleBlur}
+                onChange={formik.handleChange}
+                value={formik.values.name || ''}
+                variant="outlined"
+                size="small"
+              />
+            </Box>
+            <Box>
               <TextField
                 fullWidth
                 error={Boolean(

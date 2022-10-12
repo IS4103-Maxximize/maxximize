@@ -141,6 +141,12 @@ const Rack = () => {
       flex: 1,
     },
     {
+      field: 'name',
+      headerName: 'Name',
+      width: 200,
+      flex: 2,
+    },
+    {
       field: 'description',
       headerName: 'Description',
       width: 200,

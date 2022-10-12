@@ -112,7 +112,6 @@ export const UpdateWarehouse = ({
             <Box display="flex" justifyContent="space-between">
               <TextField
                 error={Boolean(formik.touched.name && formik.errors.name)}
-                //   fullWidth
                 helperText={formik.touched.name && formik.errors.name}
                 label="Name"
                 margin="normal"

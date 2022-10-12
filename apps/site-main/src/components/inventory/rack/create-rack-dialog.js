@@ -46,6 +46,7 @@ export const CreateRackDialog = ({
       },
       body: JSON.stringify({
         warehouseId: warehouse.id,
+        name: formik.values.name,
         description: formik.values.description,
       }),
     });
@@ -65,9 +66,14 @@ export const CreateRackDialog = ({
 
   const formik = useFormik({
     initialValues: {
+      name: '',
       description: '',
     },
     validationSchema: Yup.object({
+      name: Yup.string()
+        .min(1, 'Name must be at least be 1 character long')
+        .max(50, 'Name can at most be 50 characters long')
+        .required('Name is required'),
       description: Yup.string()
         .min(1, 'Description must be at least be 1 character long')
         .max(255, 'Description can at most be 255 characters long')
@@ -86,6 +92,19 @@ export const CreateRackDialog = ({
       <DialogTitle id="responsive-dialog-title">{'Create Rack'}</DialogTitle>
       <DialogContent>
         <form onSubmit={formik.handleSubmit}>
+          <TextField
+            error={Boolean(formik.touched.name && formik.errors.name)}
+            fullWidth
+            helperText={formik.touched.name && formik.errors.name}
+            label="Name"
+            margin="normal"
+            name="name"
+            onBlur={formik.handleBlur}
+            onChange={formik.handleChange}
+            value={formik.values.name}
+            variant="outlined"
+            size="small"
+          />
           <TextField
             error={Boolean(
               formik.touched.description && formik.errors.description

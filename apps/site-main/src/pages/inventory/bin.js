@@ -256,7 +256,7 @@ const Bin = () => {
     <>
       <HelmetProvider>
         <Helmet>
-          <title>{`${rack.description} Bin | ${user?.organisation?.name}`}</title>
+          <title>{`${rack.name} Bin | ${user?.organisation?.name}`}</title>
         </Helmet>
       </HelmetProvider>
       <NotificationAlert
