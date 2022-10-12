@@ -18,18 +18,18 @@ export default function OrganisationSelection() {
     }),
     onSubmit: async ({ organisation }) => {
       //retrieve data based on the provided organisation code
-      
-        const response = await fetch(
-          `http://localhost:3000/api/organisations/${organisation}`
-        );
-        if (response.status === 200 || response.status === 201) {
-           //if organisation is found
-          const result = await response.json();
-          //navigate to the login page with id of the organisation
-          navigate(`/login/${result.id}`);
-        } else {
-          formik.values.authenticationError = 'Organisation Code is invalid';
-        }
+
+      const response = await fetch(
+        `http://localhost:3000/api/organisations/${organisation}`
+      );
+      if (response.status === 200 || response.status === 201) {
+        //if organisation is found
+        const result = await response.json();
+        //navigate to the login page with id of the organisation
+        navigate(`/login/${result.id}`);
+      } else {
+        formik.values.authenticationError = 'Organisation Code is invalid';
+      }
     },
   });
   return (
@@ -76,7 +76,7 @@ export default function OrganisationSelection() {
               {formik.values.authenticationError}
             </Typography>
             <Typography color="textPrimary" variant="subtitle2">
-              Forgot the organisation Code? Call us at 67467891 or Email us at
+              Forgot the organisation code? Call us at 67467891 or email us at
               maxximize@gmail.com
             </Typography>
             <Box sx={{ py: 2 }}>

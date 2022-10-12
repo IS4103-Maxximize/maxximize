@@ -35,6 +35,7 @@ import ProtectedPublicRoute from './pages/protectedPublicRoute';
 import ProtectedRoute from './pages/protectedRoute';
 import QAChecklists from './pages/qaChecklists';
 import QARules from './pages/qaRules';
+import { RegisterOrganisation } from './pages/registerOrganisation';
 import ResetPassword from './pages/resetpassword';
 import Unauthorized from './pages/unauthorized';
 import WorkerManagement from './pages/workermanagement';
@@ -54,6 +55,12 @@ const routes = (
         <Route
           path="/organisationselection"
           element={<OrganisationSelection />}
+        ></Route>
+      </Route>
+      <Route path="/register-organisation" element={<ProtectedPublicRoute />}>
+        <Route
+          path="/register-organisation"
+          element={<RegisterOrganisation />}
         ></Route>
       </Route>
       <Route path="/login/:orgId" element={<ProtectedPublicRoute />}>
