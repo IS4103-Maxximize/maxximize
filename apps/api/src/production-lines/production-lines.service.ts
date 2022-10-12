@@ -7,6 +7,7 @@ import { BillOfMaterialsService } from '../bill-of-materials/bill-of-materials.s
 import { FactoryMachinesService } from '../factory-machines/factory-machines.service';
 import { OrganisationsService } from '../organisations/organisations.service';
 import { Schedule } from '../schedules/entities/schedule.entity';
+import { SchedulesService } from '../schedules/schedules.service';
 import { CreateProductionLineDto } from './dto/create-production-line.dto';
 import { UpdateProductionLineDto } from './dto/update-production-line.dto';
 import { ProductionLine } from './entities/production-line.entity';
@@ -19,24 +20,32 @@ export class ProductionLinesService {
     private bomService: BillOfMaterialsService,
     private organisationService: OrganisationsService,
     @Inject(forwardRef(() => FactoryMachinesService))
-    private factoryMachinesService: FactoryMachinesService
+    private factoryMachinesService: FactoryMachinesService,
+    @Inject(forwardRef(() => SchedulesService))
+    private scheduleService: SchedulesService
   ) {}
   async create(createProductionLineDto: CreateProductionLineDto): Promise<ProductionLine> {
-    const {name, description, bomId, productionCostPerLot, gracePeriod, organisationId, outputPerHour, startTime, endTime, machineIds} = createProductionLineDto
+    const {name, description, bomIds, productionCostPerLot, gracePeriod, organisationId, outputPerHour, startTime, endTime, machineIds} = createProductionLineDto
     let machinesToBeAdded = []
+    const bomsToBeAdded = []
     for (const id of machineIds) {
       const machine = await this.factoryMachinesService.findOne(id)
       machinesToBeAdded.push(machine)
     }
     const organisation = await this.organisationService.findOne(organisationId)
-    const billOfMaterial = await this.bomService.findOne(bomId)
+    for (const id of bomIds) {
+      const bom = await this.bomService.findOne(id)
+      if (bom) {
+        bomsToBeAdded.push(bom)
+      }
+    }
     const newProductionLine = this.productionLineRepository.create({
       name,
       description,
       productionCostPerLot,
       gracePeriod: gracePeriod,
       created: new Date(),
-      bomId: billOfMaterial.id,
+      boms: bomsToBeAdded,
       isAvailable: true,
       lastStopped: null,
       outputPerHour,
@@ -52,7 +61,7 @@ export class ProductionLinesService {
   async findAll(): Promise<ProductionLine[]> {
     return this.productionLineRepository.find({
       relations: {
-        bom: {
+        boms: {
 			finalGood:true
 		},
         schedules: true,
@@ -67,7 +76,7 @@ export class ProductionLinesService {
       return await this.productionLineRepository.findOneOrFail({where: {
         id
       }, relations: {
-        bom: {
+        boms: {
           finalGood: true
         },
         schedules: true,
@@ -84,7 +93,7 @@ export class ProductionLinesService {
       where: {
         organisationId: id
       }, relations: {
-        bom: {
+        boms: {
           finalGood: true
         },
         schedules: true,
@@ -109,6 +118,12 @@ export class ProductionLinesService {
             newMachines.push(await this.factoryMachinesService.findOne(id))
           }
           productionLineToUpdate['machines'] = newMachines
+        } else if (key === 'bomIds') {
+          const newBoms = []
+          for (const id of value) {
+            newBoms.push(await this.bomService.findOne(id))
+          }
+          productionLineToUpdate.boms = newBoms
         } else {
           productionLineToUpdate[key] = value
         }
@@ -126,12 +141,18 @@ export class ProductionLinesService {
     } else {
       throw new NotFoundException('error deleting production line as there is an ongoing schedule')
     }
-    
+
   }
 
   async getNextEarliestMapping(finalGoodId: number, organisationId: number) {
     const allProductionLines = await this.findAllByOrg(organisationId)
-    const productionLines = allProductionLines.filter(productionLine => productionLine.bom.finalGood.id === finalGoodId)
+    //get productionLines that is able to produce this finalGood
+    const productionLines = allProductionLines.filter(productionLine => {
+      const boms = productionLine.boms
+      if (boms.some(bom => bom.finalGood.id === finalGoodId)) {
+        return productionLine
+      }
+    })
     let mapping = {}
     for (let i = 0; i < productionLines.length; i++) {
       const map = new Map()
@@ -141,10 +162,10 @@ export class ProductionLinesService {
         const dateKey = this.convertDateToStringFormat(dateTime)
         if (map.has(dateKey)) {
           if (dateTime.getTime() > map.get(dateKey)) {
-            map.set(dateKey, dateTime.getTime() + productionLines[i].gracePeriod)
+            map.set(dateKey, dateTime.getTime())
           }
         } else {
-          map.set(dateKey, dateTime.getTime() + productionLines[i].gracePeriod)
+          map.set(dateKey, dateTime.getTime())
         }
       })
       const parsedMap = Object.fromEntries(map)
@@ -165,7 +186,7 @@ export class ProductionLinesService {
     return new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]))
   }
 
-  async getNextAvailableNearestDateTime(mapping: Object, startDate: Date) {
+  async getNextAvailableNearestDateTime(mapping: Object, startDate: Date, finalGoodId: number) {
     const today = startDate ?? new Date()
     const tomorrow = new Date(today)
     tomorrow.setDate(tomorrow.getDate() + 1)
@@ -188,14 +209,21 @@ export class ProductionLinesService {
       } else {
         //schedulesMap contain the dateKey
         earliestDateTime =  schedulesMap.get(dateKey)
+        //need to include Change over time if the finalGoodId doesnt match the previous schedule within that day
+        const previousSchedule = this.getLatestScheduleOfProductionLine(productionLine, tomorrow)
+        earliestDateTime = await this.checkForCot(previousSchedule, earliestDateTime, finalGoodId, productionLine)
+        
         let endOfDay = new Date(earliestDateTime).setHours(productionLine.endTime, 0, 0)
         let key = dateKey
-        while (endOfDay - earliestDateTime === 0) {
+        while (earliestDateTime >= endOfDay) {
+          //since the next earliest date time cant fit into the end of day, check subsequent days until it finds a slot
           const currentDate = this.convertStringToDateFormat(key)
           const nextDay = new Date(currentDate)
           nextDay.setDate(nextDay.getDate() + 1)
           key = this.convertDateToStringFormat(nextDay)
           earliestDateTime = schedulesMap.get(key) ?? nextDay.setHours(productionLine.startTime, 0, 0)
+          const previousSchedule = this.getLatestScheduleOfProductionLine(productionLine, nextDay)
+          earliestDateTime = await this.checkForCot(previousSchedule, earliestDateTime, finalGoodId, productionLine)
           endOfDay = new Date(earliestDateTime).setHours(productionLine.endTime, 0, 0)
         }
         if (earliestDateTime < nextAvailableNearestDateTime) {
@@ -212,6 +240,40 @@ export class ProductionLinesService {
 
   }
 
+  getLatestScheduleOfProductionLine(productionLine: ProductionLine, dateCheck: Date): Schedule {
+    const schedules = productionLine.schedules
+    //filter schedules that matches the same date
+    const schedulesWithinDay = schedules.filter(schedule => {
+      if (new Date(schedule.end).setHours(0,0,0,0) === new Date(dateCheck).setHours(0,0,0,0)) {
+        return schedule
+      }
+    })
+    let latestSchedule: Schedule
+    if (schedulesWithinDay.length > 0) {
+      latestSchedule = schedulesWithinDay.sort(function(a,b) {
+        return a.end.getTime() - b.end.getTime()
+      })[schedulesWithinDay.length - 1]
+    }
+    
+    return latestSchedule
+  }
+
+  async checkForCot(schedule: Schedule, earliestDateTime: number, finalGoodId: number, productionLine: ProductionLine) {
+    if (!schedule) {
+      return earliestDateTime
+    }
+    const previousSchedule = await this.scheduleService.findOne(schedule.id)
+    const finalGoodProducedBySchedule = previousSchedule.productionOrder.bom.finalGood.id
+    //REMOVE THIS (Required for testing)
+    //const finalGoodProducedBySchedule = previousSchedule.finalGoodId
+    if (finalGoodId === finalGoodProducedBySchedule) {
+      return earliestDateTime
+    } else {
+      //need to add COT to the earliestDateTime
+      return earliestDateTime + productionLine.gracePeriod
+    }
+  }
+
   async retrieveSchedulesForProductionOrder(quantity: number, finalGoodId: number, daily: boolean, days: number, organisationId: number) {
 	const schedules = []
     let mapping =  await this.getNextEarliestMapping(finalGoodId, organisationId)
@@ -221,13 +283,13 @@ export class ProductionLinesService {
     if (daily) {
       let startingDate = new Date()
       for (let i = 0; i < days; i++) {
-        const {newSchedules, newMapping} = await this.retrieveSchedulesForAnOrder(mapping, quantity, new Date(startingDate), daily)
+        const {newSchedules, newMapping} = await this.retrieveSchedulesForAnOrder(mapping, quantity, new Date(startingDate), daily, finalGoodId)
         schedules.push(...newSchedules) 
         mapping = newMapping
         startingDate.setDate(startingDate.getDate() + 1)
       }
     } else {
-      const { newSchedules } = await this.retrieveSchedulesForAnOrder(mapping, quantity, new Date(), daily)
+      const { newSchedules } = await this.retrieveSchedulesForAnOrder(mapping, quantity, new Date(), daily, finalGoodId)
       schedules.push(...newSchedules) 
     }
     schedules.map((value, index) => {
@@ -236,11 +298,11 @@ export class ProductionLinesService {
     return schedules
   }
 
-  async retrieveSchedulesForAnOrder(mapping: Object, quantity: number, startingDate: Date, daily: boolean) {
+  async retrieveSchedulesForAnOrder(mapping: Object, quantity: number, startingDate: Date, daily: boolean, finalGoodId: number) {
     const schedules: Object[] = []
     let requiredQuantity = quantity
     while (requiredQuantity > 0) {
-      const nextAvailablePlandTime = await this.getNextAvailableNearestDateTime(mapping, startingDate)
+      const nextAvailablePlandTime = await this.getNextAvailableNearestDateTime(mapping, startingDate, finalGoodId)
       const {productionLineId, nextAvailableNearestDateTime} = nextAvailablePlandTime
       const productionLine = await this.findOne(productionLineId)
       const endOfDayOfNextAvailableTime = new Date(nextAvailableNearestDateTime).setHours(productionLine.endTime, 0, 0)
@@ -288,6 +350,30 @@ export class ProductionLinesService {
       newMapping: mapping
     }
   }
+  
+  async getUtilizationRatesOfProductionLine(productionLineId: number) {
+    const productionLine = await this.findOne(productionLineId)
+    const maxHours = productionLine.endTime - productionLine.startTime
+    const schedules = productionLine.schedules
+    const dateUtlilizationMap = new Map()
+    for (const schedule of schedules) {
+      const endDateTime = schedule.end
+      const scheduleDate = new Date(new Date(endDateTime).setHours(0,0,0,0)).toLocaleDateString()
+      if (!dateUtlilizationMap.has(scheduleDate)) {
+        dateUtlilizationMap.set(scheduleDate, 0)
+      }
+      const durationOfScheduleInHours = ((schedule.end.getTime() - schedule.start.getTime()) / 1000 / 60 / 60)
+      const currentRate = dateUtlilizationMap.get(scheduleDate)
+      let currentDuration = currentRate / 100 * maxHours
+      currentDuration += durationOfScheduleInHours
+      const newRate = (currentDuration / maxHours) * 100
+      dateUtlilizationMap.set(scheduleDate, newRate)
+    }
+    const parsedMap = Object.fromEntries(dateUtlilizationMap)
+    return parsedMap
+    
+  }
+
 
   // async machineTriggerChange(machineIsOperating: Boolean, machineId: number, productionLineId: number, entityManager: EntityManager) {
   //   //if its true, check if the status of productionLine is not available 

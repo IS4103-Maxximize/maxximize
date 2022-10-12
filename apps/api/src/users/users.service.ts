@@ -1,13 +1,15 @@
 import {
   BadRequestException,
+  forwardRef,
   HttpException,
   HttpStatus,
+  Inject,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { EntityManager, Repository } from 'typeorm';
 import { ContactsService } from '../contacts/contacts.service';
 import { OrganisationsService } from '../organisations/organisations.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -27,6 +29,7 @@ export class UsersService {
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
     private contactsService: ContactsService,
+    @Inject(forwardRef(() => OrganisationsService))
     private organisationsService: OrganisationsService,
     private mailService: MailService
   ) {}
@@ -73,7 +76,7 @@ export class UsersService {
     //check contact email whether its unique in user's organisation
 
     const allEmailsInOrganisation = await this.getAllEmailsInOrganisation(
-      organisation
+      organisation, null
     );
     if (allEmailsInOrganisation.includes(createUserDto.contact.email)) {
       throw new NotFoundException(
@@ -125,14 +128,27 @@ export class UsersService {
     return this.usersRepository.findOneBy({ username: username });
   }
 
-  async getAllEmailsInOrganisation(organisation: Organisation) {
-    const users = organisation.users;
+  async getAllEmailsInOrganisation(organisation: Organisation, entityManager: EntityManager) {
+    let currentOrg: Organisation
+    if (entityManager) {
+      currentOrg = await entityManager.findOne(Organisation, {
+        where: {
+          id: organisation.id
+        }, relations: {
+          users: true,
+          contact: true
+        }
+      })
+    } else {
+      currentOrg = await this.organisationsService.findOne(organisation.id)
+    }
+    const users = currentOrg.users;
     const usersWithContactPromises = users.map(async (user) => {
       return await this.findOne(user.id);
     });
     const usersWithContact = await Promise.all(usersWithContactPromises);
     const usersEmail = usersWithContact.map((user) => user.contact.email);
-    return [...usersEmail, organisation.contact.email];
+    return [...usersEmail, currentOrg.contact.email];
   }
 
   async update(id: number, updateUserDto: UpdateUserDto) {

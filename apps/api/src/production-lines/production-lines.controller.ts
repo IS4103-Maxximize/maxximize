@@ -24,6 +24,11 @@ export class ProductionLinesController {
     return this.productionLinesService.retrieveSchedulesForProductionOrder(dto.quantity, dto.finalGoodId, dto.daily, dto.days, dto.organisationId)
   }
 
+  @Get('/utilizationRates/:id')
+  getUtilizationRates(@Param('id') id: string) {
+    return this.productionLinesService.getUtilizationRatesOfProductionLine(+id)
+  }
+
 
   @Get('orgId/:id')
   findAllByOrg(@Param('id') id: string) {

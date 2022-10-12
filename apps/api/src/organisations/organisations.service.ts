@@ -1,17 +1,22 @@
 /* eslint-disable prefer-const */
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { CreateContactDto } from '../contacts/dto/create-contact.dto';
 import { Contact } from '../contacts/entities/contact.entity';
 import { ShellOrganisation } from '../shell-organisations/entities/shell-organisation.entity';
 import { ShellOrganisationsService } from '../shell-organisations/shell-organisations.service';
+import { CreateUserDto } from '../users/dto/create-user.dto';
 import { User } from '../users/entities/user.entity';
+import * as bcrypt from 'bcrypt';
+import { UsernameAlreadyExistsException } from '../users/exceptions/UsernameAlreadyExistsException';
+import { UsersService } from '../users/users.service';
 import { CreateOrganisationDto } from './dto/create-organisation.dto';
 import { GetOrgByShellDto } from './dto/get-org-by-shell.dto';
 import { UpdateOrganisationDto } from './dto/update-organisation.dto';
 import { Organisation } from './entities/organisation.entity';
 import { OrganisationType } from './enums/organisationType.enum';
+import { MailService } from '../mail/mail.service';
 
 @Injectable()
 export class OrganisationsService {
@@ -20,7 +25,11 @@ export class OrganisationsService {
     private readonly organisationsRepository: Repository<Organisation>,
     @InjectRepository(Contact)
     private readonly contactsRepository: Repository<Contact>,
-    private shellOrganisationSerive: ShellOrganisationsService
+    private shellOrganisationSerive: ShellOrganisationsService,
+    @Inject(forwardRef(() => UsersService))
+    private usersService: UsersService,
+    private dataSource: DataSource,
+    private mailService: MailService
   ) {}
 
   async create(createOrganisationDto: CreateOrganisationDto): Promise<Organisation> {
@@ -39,6 +48,90 @@ export class OrganisationsService {
       contact: contact ?? null,
     })
     return this.organisationsRepository.save(newOrganisation);
+  }
+
+  async registerOrganisationAndUser(createOrganisationDto: CreateOrganisationDto, createUserDto: CreateUserDto): Promise<Organisation> {
+    let organisation: Organisation
+    await this.dataSource.manager.transaction(async (transactionalEntityManager) => {
+      //create the organisation
+      const {name, type, contact, uen} = createOrganisationDto
+      const allUensOfRegisteredOrgs = await this.findAllUensOfRegisterdOrgs()
+      if (allUensOfRegisteredOrgs.includes(uen)) {
+        throw new NotFoundException('UEN is used by an exisiting registed organisation!')
+      }
+      let orgContact: Contact
+      if (contact) {
+        orgContact = transactionalEntityManager.create(Contact, {
+          ...contact
+        })
+        await transactionalEntityManager.save(orgContact)
+      }
+      organisation = transactionalEntityManager.create(Organisation, {
+        name,
+        type,
+        uen,
+        contact: orgContact ?? null
+      })
+      await transactionalEntityManager.save(organisation)
+      //create the user
+
+      //check if username is unique
+      const user = await this.usersService.findByUsername(createUserDto.username);
+      if (user != null) {
+        throw new UsernameAlreadyExistsException(
+          'Username: ' + createUserDto.username + ' already exists!'
+        );
+      }
+      //check contact email whether its unique in user's organisation
+      const allEmailsInOrganisation = await this.usersService.getAllEmailsInOrganisation(organisation, transactionalEntityManager);
+      if (allEmailsInOrganisation.includes(createUserDto.contact.email)) {
+        throw new NotFoundException(
+          'Email is already being used by another user or the organisation you are in!'
+        );
+      }
+      
+
+      const {firstName, lastName, username, role, contact: newContact} = createUserDto
+      let userContact: Contact
+      if (newContact) {
+        userContact = transactionalEntityManager.create(Contact, {
+          ...newContact
+        })
+        await transactionalEntityManager.save(userContact)
+      }
+
+      const newUser = transactionalEntityManager.create(User, {
+        firstName,
+        lastName,
+        username,
+        role,
+        contact: userContact
+      })
+      const salt = await bcrypt.genSalt();
+      newUser.salt = salt;
+      const password = Math.random().toString(36).slice(-8);
+      console.log(password);
+      newUser.password = await bcrypt.hash(password, salt);
+
+      newUser.organisation = organisation
+      await transactionalEntityManager.save(newUser)
+
+      try {
+        await this.mailService.sendPasswordEmail(
+          createUserDto.contact.email,
+          organisation.name,
+          newUser,
+          password,
+          organisation.id
+        );
+      } catch (err) {
+        throw new InternalServerErrorException(
+          'Unable to send email successfully'
+        );
+      }
+      return organisation
+    })
+    return this.findOne(organisation.id)
   }
 
   findAll(): Promise<Organisation[]> {
