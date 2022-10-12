@@ -1,3 +1,4 @@
+import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import AddRoadIcon from '@mui/icons-material/AddRoad';
 import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
@@ -14,10 +15,10 @@ import LiveHelpIcon from '@mui/icons-material/LiveHelp';
 import PrecisionManufacturingIcon from '@mui/icons-material/PrecisionManufacturing';
 import RawOnIcon from '@mui/icons-material/RawOn';
 import ReceiptIcon from '@mui/icons-material/Receipt';
+import RequestPageIcon from '@mui/icons-material/RequestPage';
 import RuleIcon from '@mui/icons-material/Rule';
 import TaskIcon from '@mui/icons-material/Task';
 import WarehouseIcon from '@mui/icons-material/Warehouse';
-import RequestPageIcon from '@mui/icons-material/RequestPage';
 import {
   Accordion,
   AccordionDetails,
@@ -29,7 +30,7 @@ import {
   Drawer,
   Link,
   Typography,
-  useMediaQuery,
+  useMediaQuery
 } from '@mui/material';
 import PropTypes from 'prop-types';
 import { useState } from 'react';
@@ -85,6 +86,12 @@ const items = [
         href: '/quality-assurance/checklists',
         icon: <AssignmentTurnedInIcon fontSize="small" />,
         title: 'Checklist',
+        access: ['manager', 'factoryworker', 'superadmin'],
+      },
+      {
+        href: '/quality-assurance/tracking',
+        icon: <AccountTreeIcon fontSize="small" />,
+        title: 'Tracking',
         access: ['manager', 'factoryworker', 'superadmin'],
       },
     ],
