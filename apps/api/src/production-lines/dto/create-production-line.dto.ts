@@ -3,7 +3,7 @@ import { Machine } from "../../vehicles/entities/vehicle.entity"
 export class CreateProductionLineDto {
     name: string
     description: string
-    bomId: number
+    bomIds: number[]
     productionCostPerLot: number
     gracePeriod: number
     organisationId: number

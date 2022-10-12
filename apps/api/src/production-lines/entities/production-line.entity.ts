@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { BillOfMaterial } from "../../bill-of-materials/entities/bill-of-material.entity";
 import { FactoryMachine } from "../../factory-machines/entities/factory-machine.entity";
 import { Organisation } from "../../organisations/entities/organisation.entity";
@@ -39,11 +39,9 @@ export class ProductionLine {
     @Column()
     created: Date
 
-    @Column()
-    bomId: number
-    @ManyToOne(() => BillOfMaterial, bom => bom.productionLines)
-    @JoinColumn({name: 'bomId'})
-    bom: BillOfMaterial
+    @ManyToMany(() => BillOfMaterial, bom => bom.productionLines)
+    @JoinTable()
+    boms: BillOfMaterial[]
 
     //schedules
     @OneToMany(() => Schedule, schedule => schedule.productionLine)

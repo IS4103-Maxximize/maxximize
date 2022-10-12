@@ -5,4 +5,6 @@ export class CreateScheduleDto {
     end: Date
     productionLineId: number
     status: ScheduleType
+    //REMOVE THIS (Required for testing)
+    //finalGoodId: number
 }
