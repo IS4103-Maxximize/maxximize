@@ -8,7 +8,7 @@ import NotFound from './pages/404';
 import RequireAuth from './components/RequireAuth';
 import Onboarding from './pages/onboarding';
 import ForgotPassword from './pages/forgotPassword';
-import ResetPassword from './pages/resetpassword';
+import ResetPassword from './pages/resetPassword';
 import ProtectedRoute from './pages/protectedRoute';
 import ProtectedPublicRoute from './pages/protectedPublicRoute';
 
@@ -44,10 +44,10 @@ const App = () => {
             <Route path="/" element={<Dashboard />}></Route>
 
             {/* Protected Routes for Admin Specifically */}
-            <Route element={<RequireAuth requiredRoles={[ROLES.Admin]} />}>
-              {/* Add routes here */}
+            {/* <Route element={<RequireAuth requiredRoles={[ROLES.Admin]} />}>
+              {/* Add routes here
               <Route path="onboarding" element={<Onboarding />}></Route>
-            </Route>
+            </Route> */}
 
             {/* Protected Routes for Manager Specifically*/}
             <Route element={<RequireAuth requiredRoles={[ROLES.Manager]} />}>

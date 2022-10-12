@@ -1,7 +1,7 @@
 import { Box, Button, Container, TextField, Typography } from '@mui/material';
 import * as Yup from 'yup';
 import { useFormik } from 'formik';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 
 export default function OrganisationSelection() {
@@ -45,7 +45,7 @@ export default function OrganisationSelection() {
           alignItems: 'center',
           display: 'flex',
           flexGrow: 1,
-          minHeight: '85vh',
+          minHeight: '100vh',
         }}
       >
         <Container maxWidth="sm">
@@ -90,6 +90,11 @@ export default function OrganisationSelection() {
               >
                 Enter Portal
               </Button>
+              <Box display="flex" justifyContent="center" m={5}>
+                <Link to="/register-organisation" underline="none">
+                  Don't have an account? Register here
+                </Link>
+              </Box>
             </Box>
           </form>
         </Container>
