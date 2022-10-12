@@ -245,7 +245,7 @@ export class AppService implements OnApplicationBootstrap {
 
       await this.rackService.create({
         description: "Rack 1 Warehouse 2",
-        warehouseId: 1
+        warehouseId: 2
       });
 
 

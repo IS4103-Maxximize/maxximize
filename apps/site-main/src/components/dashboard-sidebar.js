@@ -8,7 +8,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import FactCheckIcon from '@mui/icons-material/FactCheck';
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import FormatQuoteIcon from '@mui/icons-material/FormatQuote';
-import InventoryIcon from '@mui/icons-material/Inventory';
+import ArchiveIcon from '@mui/icons-material/Archive';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import LiveHelpIcon from '@mui/icons-material/LiveHelp';
 import PrecisionManufacturingIcon from '@mui/icons-material/PrecisionManufacturing';
@@ -23,6 +23,7 @@ import EventAvailableIcon from '@mui/icons-material/EventAvailable';
 import MarkEmailReadIcon from '@mui/icons-material/MarkEmailRead';
 import DocumentScannerIcon from '@mui/icons-material/DocumentScanner';
 import Inventory2Icon from '@mui/icons-material/Inventory2';
+import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered';
 import {
   Accordion,
   AccordionDetails,
@@ -108,7 +109,7 @@ const items = [
       },
       {
         href: '/inventory/masterlist',
-        icon: <DoneAllIcon fontSize="small" />,
+        icon: <FormatListNumberedIcon fontSize="small" />,
         title: 'Masterlist',
         access: ['superadmin', 'manager', 'factoryworker'],
       },
@@ -143,10 +144,7 @@ const items = [
     basepath: 'procurement',
     access: ['manager', 'factoryworker', 'superadmin'],
     icon: (
-      <InventoryIcon
-        sx={{ marginTop: 0.2, color: '#9CA3AF' }}
-        fontSize="small"
-      />
+      <ArchiveIcon sx={{ marginTop: 0.2, color: '#9CA3AF' }} fontSize="small" />
     ),
     open: 'openProcurement',
     handleClick: 'handleProcurementClick',

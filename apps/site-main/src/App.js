@@ -18,6 +18,7 @@ import Bin from './pages/inventory/bin';
 import BinDetails from './pages/inventory/bin-details';
 import Masterlist from './pages/inventory/masterlist';
 import MasterlistLineItems from './pages/inventory/masterlist-line-items';
+import Rack from './pages/inventory/rack';
 import Warehouse from './pages/inventory/warehouse';
 import Login from './pages/login';
 import OrganisationSelection from './pages/organisationSelection';
@@ -194,9 +195,13 @@ const routes = (
             {/* Inventory */}
             {/* Inventory Modules */}
             <Route path="inventory/warehouse" element={<Warehouse />}></Route>
-            <Route path="inventory/warehouse/bin" element={<Bin />}></Route>
+            <Route path="inventory/warehouse/rack" element={<Rack />}></Route>
             <Route
-              path="inventory/warehouse/bin/details"
+              path="inventory/warehouse/rack/bin"
+              element={<Bin />}
+            ></Route>
+            <Route
+              path="inventory/warehouse/rack/bin/details"
               element={<BinDetails />}
             ></Route>
             <Route path="inventory/masterlist" element={<Masterlist />}></Route>

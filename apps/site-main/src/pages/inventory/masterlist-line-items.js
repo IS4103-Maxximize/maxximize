@@ -2,14 +2,10 @@ import { Box, Button, Card, Container, Tooltip } from '@mui/material';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import { useEffect, useState } from 'react';
-import { NotificationAlert } from '../../components/notification-alert';
-import { BinToolbar } from '../../components/inventory/bin/bin-toolbar';
-import { CreateBinDialog } from '../../components/inventory/bin/create-bin-dialog';
-import { BinConfirmDialog } from '../../components/inventory/bin/bin-confirm-dialog';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
-import { UpdateWarehouse } from '../../components/inventory/warehouse/update-warehouse';
-import KitchenIcon from '@mui/icons-material/Kitchen';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
+import { MasterlistLineItemToolbar } from '../../components/inventory/masterlist/masterlist-line-item-toolbar';
+import DayJS from 'dayjs';
 
 const MasterlistLineItems = () => {
   const [bins, setBins] = useState([]);
@@ -18,120 +14,38 @@ const MasterlistLineItems = () => {
   const user = JSON.parse(localStorage.getItem('user'));
   const organisationId = user.organisation.id;
 
-  //Load in list of bins, initial
-  useEffect(() => {
-    retrieveAllBins();
-  }, []);
-
   //Get the warehouse ID that was clicked
   const { state } = useLocation();
+  const navigate = useNavigate();
+
+  //Load in list of bins, initial
+  useEffect(() => {
+    console.log(state);
+    // retrieveAllBins();
+  }, []);
 
   //Retrieve all bins
-  const retrieveAllBins = async () => {
-    const response = await fetch(
-      `http://localhost:3000/api/bins/findAllByOrgId/${organisationId}`
-    );
+  //   const retrieveAllBins = async () => {
+  //     const response = await fetch(
+  //       `http://localhost:3000/api/bins/findAllByOrgId/${organisationId}`
+  //     );
 
-    let result = [];
+  //     let result = [];
 
-    if (response.status == 200 || response.status == 201) {
-      result = await response.json();
-    }
-    if (state != null) {
-      result = result.filter((bin) => bin.warehouse.id == state.warehouseId);
-    }
-    setBins(result);
-  };
-
-  const [warehouse, setWarehouse] = useState('');
+  //     if (response.status == 200 || response.status == 201) {
+  //       result = await response.json();
+  //     }
+  //     if (state != null) {
+  //       result = result.filter((bin) => bin.warehouse.id == state.warehouseId);
+  //     }
+  //     setBins(result);
+  //   };
 
   //Search Function
   const [search, setSearch] = useState('');
 
   const handleSearch = (event) => {
     setSearch(event.target.value.toLowerCase().trim());
-  };
-
-  //Alert Notification
-  // NotificationAlert helpers
-  const [alertOpen, setAlertOpen] = useState(false);
-  const [alertText, setAlertText] = useState();
-  const [alertSeverity, setAlertSeverity] = useState('success');
-  const handleAlertOpen = (text, severity) => {
-    setAlertText(text);
-    setAlertSeverity(severity);
-    setAlertOpen(true);
-  };
-  const handleAlertClose = () => {
-    setAlertOpen(false);
-    setAlertText(null);
-    setAlertSeverity('success');
-  };
-
-  // Dialog helpers
-  const [open, setOpen] = useState(false);
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-
-  //Update Dialog helpers
-  const [openUpdateDialog, setOpenUpdateDialog] = useState(false);
-  const [selectedBin, setSelectedBin] = useState('');
-  const handleUpdateDialog = () => {
-    setOpenUpdateDialog(true);
-  };
-
-  //Add a new bin entry to the list
-  const addBin = (bin) => {
-    try {
-      const updatedBins = [...bins, bin];
-      setBins(updatedBins);
-    } catch {
-      console.log('An error occured please try again later');
-    }
-  };
-
-  //Delete Confirm dialog
-  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
-  const handleConfirmDialogOpen = () => {
-    setConfirmDialogOpen(true);
-  };
-  const handleConfirmDialogClose = () => {
-    setConfirmDialogOpen(false);
-  };
-
-  //Handle Delete
-  //Deleting a bin entry
-  //Also alerts user of ourcome
-  const handleDelete = async (selectedIds) => {
-    const requestOptions = {
-      method: 'DELETE',
-    };
-
-    selectedIds.forEach((currentId) => {
-      fetch(`http://localhost:3000/api/bins/${currentId}`, requestOptions)
-        .then(() => {
-          handleAlertOpen(`Successfully deleted bin(s)`, 'success');
-        })
-        .catch((error) => {
-          handleAlertOpen(`Failed to delete bin(s):${error}`, 'error');
-        });
-    });
-
-    setBins(bins.filter((bin) => !selectedIds.includes(bin.id)));
-  };
-
-  //Batch line items from the bin
-  const [batchLineItems, setBatchLineItems] = useState([]);
-
-  //Load in list of line items
-  useEffect(() => {
-    setBatchLineItems(selectedBin?.batchLineItems);
-  }, [openUpdateDialog]);
-
-  //Update warehouse
-  const updateWarehouse = (warehouse) => {
-    setWarehouse(warehouse);
   };
 
   //Columns for datagrid, column headers & specs
@@ -141,42 +55,61 @@ const MasterlistLineItems = () => {
       headerName: 'ID',
       width: 70,
       flex: 1,
+      valueGetter: (params) => {
+        return params.row ? params.row.id : '';
+      },
     },
     {
-      field: 'name',
-      headerName: 'Name',
+      field: 'expiryDate',
+      headerName: 'Expiry Date',
       width: 200,
-      flex: 6,
+      flex: 3,
+      valueGetter: (params) => {
+        return params.row ? params.row.expiryDate : '';
+      },
+      valueFormatter: (params) =>
+        DayJS(params?.value).format('DD MMM YYYY hh:mm a'),
     },
     {
-      field: 'capacity',
-      headerName: 'Total Capacity',
+      field: 'reservedQuantity',
+      headerName: 'Reserved Quantity',
       width: 100,
       flex: 2,
+      valueGetter: (params) => {
+        return params.row ? params.row.reservedQuantity : '';
+      },
     },
     {
-      field: 'currentCapacity',
-      headerName: 'Occupied',
+      field: 'quantity',
+      headerName: 'Quantity',
       width: 100,
       flex: 2,
+      valueGetter: (params) => {
+        return params.row ? params.row.quantity : '';
+      },
     },
     {
-      field: 'remainingCapacity',
-      headerName: 'Remaining Capacity',
+      field: 'rack',
+      headerName: 'Rack ID',
       width: 100,
-      flex: 2,
-      valueGetter: (params) => params.row.capacity - params.row.currentCapacity,
+      flex: 1,
+      valueGetter: (params) => {
+        return params.row ? params.row.bin.rack.id : '';
+      },
+    },
+    {
+      field: 'bin',
+      headerName: 'Bin Name',
+      width: 100,
+      flex: 3,
+      valueGetter: (params) => {
+        return params.row ? params.row.bin.name : '';
+      },
     },
   ];
 
   //Row for datagrid, set the list returned from API
-  const rows = bins;
-
-  //Navigate to the bin page
-  const navigate = useNavigate();
-  const handleRowClick = (rowData) => {
-    navigate('details', { state: { bin: rowData.row } });
-  };
+  const rows = state.batchLineItems;
 
   return state == null ? (
     <Navigate to="/inventory/masterlist" />
@@ -184,31 +117,9 @@ const MasterlistLineItems = () => {
     <>
       <HelmetProvider>
         <Helmet>
-          <title>{`${warehouse.name} Bin | ${user?.organisation?.name}`}</title>
+          <title>{`${state.productName} | ${user?.organisation?.name}`}</title>
         </Helmet>
       </HelmetProvider>
-      <NotificationAlert
-        open={alertOpen}
-        severity={alertSeverity}
-        text={alertText}
-        handleClose={handleAlertClose}
-      />
-      <CreateBinDialog
-        warehouse={warehouse}
-        open={open}
-        setOpen={setOpen}
-        addBin={addBin}
-        handleAlertOpen={handleAlertOpen}
-      />
-      <BinConfirmDialog
-        open={confirmDialogOpen}
-        handleClose={handleConfirmDialogClose}
-        dialogTitle={`Delete Bin(s)`}
-        dialogContent={`Confirm deletion of Bin(s)?`}
-        dialogAction={() => {
-          handleDelete(selectedRows);
-        }}
-      />
 
       <Box
         component="main"
@@ -227,16 +138,11 @@ const MasterlistLineItems = () => {
           Back
         </Button>
         <Container maxWidth={false}>
-          <UpdateWarehouse
-            warehouse={warehouse}
-            updateWarehouse={updateWarehouse}
-            handleAlertOpen={handleAlertOpen}
-          />
-          <BinToolbar
-            numBin={selectedRows.length}
-            handleClickOpen={handleClickOpen}
-            handleConfirmDialogOpen={handleConfirmDialogOpen}
+          <MasterlistLineItemToolbar
             handleSearch={handleSearch}
+            productName={state.productName}
+            overallReservedQuantity={state.overallReservedQuantity}
+            overallTotalQuantity={state.overallTotalQuantity}
           />
           <Box sx={{ mt: 3 }}>
             <Card>
@@ -247,7 +153,7 @@ const MasterlistLineItems = () => {
                     if (search === '') {
                       return row;
                     } else {
-                      return row.name.toLowerCase().includes(search);
+                      return row.id.toString().includes(search);
                     }
                   })}
                   columns={columns}
@@ -262,7 +168,6 @@ const MasterlistLineItems = () => {
                   onSelectionModelChange={(ids) => {
                     setSelectedRows(ids);
                   }}
-                  onRowClick={(rowData) => handleRowClick(rowData)}
                 />
               </Box>
             </Card>

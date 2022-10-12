@@ -131,7 +131,15 @@ const Masterlist = () => {
   //Navigate to the line items page
   const navigate = useNavigate();
   const handleRowClick = (rowData) => {
-    navigate('lineItems', { state: { productId: rowData.product.id } });
+    console.log(rowData.row.product.name);
+    navigate('lineItems', {
+      state: {
+        productName: rowData.row.product.name,
+        overallReservedQuantity: rowData.row.reservedQuantity,
+        overallTotalQuantity: rowData.row.totalQuantity,
+        batchLineItems: rowData.row.batchLineItems,
+      },
+    });
   };
 
   return (

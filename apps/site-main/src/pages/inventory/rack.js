@@ -1,16 +1,17 @@
-import { Box, Card, Container, IconButton } from '@mui/material';
+import { Box, Button, Card, Container, Tooltip } from '@mui/material';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import { useEffect, useState } from 'react';
-import MoreVert from '@mui/icons-material/MoreVert';
 import { NotificationAlert } from '../../components/notification-alert';
-import { WarehouseToolbar } from '../../components/inventory/warehouse/warehouse-toolbar';
-import { CreateWarehouseDialog } from '../../components/inventory/warehouse/create-warehouse-dialog';
-import { WarehouseConfirmDialog } from '../../components/inventory/warehouse/warehouse-confirm-dialog';
-import { useNavigate } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { UpdateWarehouse } from '../../components/inventory/warehouse/update-warehouse';
+import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
+import { CreateRackDialog } from '../../components/inventory/rack/create-rack-dialog';
+import { RackConfirmDialog } from '../../components/inventory/rack/rack-confirm-dialog';
+import { RackToolbar } from '../../components/inventory/rack/rack-toolbar';
 
-const Warehouse = () => {
-  const [warehouses, setWarehouses] = useState([]);
+const Rack = () => {
+  const [racks, setRacks] = useState([]);
   const [selectedRow, setSelectedRow] = useState();
   const [selectedRows, setSelectedRows] = useState([]);
   const [disabled, setDisabled] = useState();
@@ -18,29 +19,36 @@ const Warehouse = () => {
   const user = JSON.parse(localStorage.getItem('user'));
   const organisationId = user.organisation.id;
 
-  //Load in list of warehouses, initial
-  useEffect(() => {
-    retrieveAllWarehouses();
-  }, []);
-
   //Keep track of selectedRows for deletion
   useEffect(() => {
     setDisabled(selectedRows.length === 0);
   }, [selectedRows]);
 
-  //Retrieve all warehouses
-  const retrieveAllWarehouses = async () => {
-    const response = await fetch(
-      `http://localhost:3000/api/warehouses/all/${organisationId}`
-    );
+  //Get the warehouse ID that was clicked
+  const { state } = useLocation();
 
-    let result = [];
+  //Load in list of racks, initial
+  useEffect(() => {
+    // setRacks(state.racks);
+    retrieveWarehouse();
+  }, []);
 
-    if (response.status == 200 || response.status == 201) {
-      result = await response.json();
+  const [warehouse, setWarehouse] = useState('');
+
+  //Retrieve warehouse
+  const retrieveWarehouse = async () => {
+    if (state != null) {
+      const response = await fetch(
+        `http://localhost:3000/api/warehouses/${state.warehouseId}`
+      );
+
+      let result = [];
+      if (response.status == 200 || response.status == 201) {
+        result = await response.json();
+      }
+      setWarehouse(result);
+      setRacks(result.racks);
     }
-
-    setWarehouses(result);
   };
 
   //Search Function
@@ -48,30 +56,6 @@ const Warehouse = () => {
 
   const handleSearch = (event) => {
     setSearch(event.target.value.toLowerCase().trim());
-  };
-
-  //Action Menu
-  const [anchorElUpdate, setAnchorElUpdate] = useState(null);
-  const actionMenuOpen = Boolean(anchorElUpdate);
-  const handleActionMenuClick = (event) => {
-    setAnchorElUpdate(event.currentTarget);
-  };
-  const handleActionMenuClose = () => {
-    setAnchorElUpdate(null);
-  };
-
-  const menuButton = (params) => {
-    return (
-      <IconButton
-        // disabled={params.row.bins?.length == 0}
-        onClick={(event) => {
-          setSelectedRow(params.row);
-          handleActionMenuClick(event);
-        }}
-      >
-        <MoreVert />
-      </IconButton>
-    );
   };
 
   //Alert Notification
@@ -96,12 +80,18 @@ const Warehouse = () => {
     setOpen(true);
   };
 
-  //Add a new warehouse entry to the list
-  const addWarehouse = (warehouse) => {
-    try {
-      const updatedWarehouses = [...warehouses, warehouse];
+  //Update Dialog helpers
+  const [openUpdateDialog, setOpenUpdateDialog] = useState(false);
+  const [selectedRack, setSelectedRack] = useState('');
+  const handleUpdateDialog = () => {
+    setOpenUpdateDialog(true);
+  };
 
-      setWarehouses(updatedWarehouses);
+  //Add a new rack entry to the list
+  const addRack = (rack) => {
+    try {
+      const updatedRacks = [...racks, rack];
+      setRacks(updatedRacks);
     } catch {
       console.log('An error occured please try again later');
     }
@@ -117,7 +107,7 @@ const Warehouse = () => {
   };
 
   //Handle Delete
-  //Deleting a warehouse entry
+  //Deleting a rack entry
   //Also alerts user of ourcome
   const handleDelete = async (selectedIds) => {
     const requestOptions = {
@@ -125,18 +115,21 @@ const Warehouse = () => {
     };
 
     selectedIds.forEach((currentId) => {
-      fetch(`http://localhost:3000/api/warehouses/${currentId}`, requestOptions)
+      fetch(`http://localhost:3000/api/racks/${currentId}`, requestOptions)
         .then(() => {
-          handleAlertOpen(`Successfully deleted warehouse(s)`, 'success');
+          handleAlertOpen(`Successfully deleted rack(s)`, 'success');
         })
         .catch((error) => {
-          handleAlertOpen(`Failed to delete warehouse(s):${error}`, 'error');
+          handleAlertOpen(`Failed to delete rack(s):${error}`, 'error');
         });
     });
 
-    setWarehouses(
-      warehouses.filter((warehouse) => !selectedIds.includes(warehouse.id))
-    );
+    setRacks(racks.filter((rack) => !selectedIds.includes(rack.id)));
+  };
+
+  //Update warehouse
+  const updateWarehouse = (warehouse) => {
+    setWarehouse(warehouse);
   };
 
   //Columns for datagrid, column headers & specs
@@ -148,41 +141,29 @@ const Warehouse = () => {
       flex: 1,
     },
     {
-      field: 'name',
-      headerName: 'Name',
-      width: 200,
-      flex: 3,
-    },
-    {
-      field: 'address',
-      headerName: 'Address',
-      width: 200,
-      flex: 4,
-    },
-    {
       field: 'description',
       headerName: 'Description',
-      width: 150,
+      width: 200,
       flex: 6,
     },
   ];
 
   //Row for datagrid, set the list returned from API
-  const rows = warehouses;
+  const rows = racks;
 
   //Navigate to the bin page
   const navigate = useNavigate();
   const handleRowClick = (rowData) => {
-    navigate('rack', {
-      state: { warehouseId: rowData.id, racks: rowData.row.racks },
-    });
+    navigate('bin', { state: { rack: rowData.row } });
   };
 
-  return (
+  return state == null ? (
+    <Navigate to="/inventory/warehouse" />
+  ) : (
     <>
       <HelmetProvider>
         <Helmet>
-          <title>{`Warehouse | ${user?.organisation?.name}`}</title>
+          <title>{`${warehouse.name} Rack | ${user?.organisation?.name}`}</title>
         </Helmet>
       </HelmetProvider>
       <NotificationAlert
@@ -191,21 +172,23 @@ const Warehouse = () => {
         text={alertText}
         handleClose={handleAlertClose}
       />
-      <CreateWarehouseDialog
+      <CreateRackDialog
+        warehouse={warehouse}
         open={open}
         setOpen={setOpen}
-        addWarehouse={addWarehouse}
+        addRack={addRack}
         handleAlertOpen={handleAlertOpen}
       />
-      <WarehouseConfirmDialog
+      <RackConfirmDialog
         open={confirmDialogOpen}
         handleClose={handleConfirmDialogClose}
-        dialogTitle={`Delete Warehouse(s)`}
-        dialogContent={`Confirm deletion of Warehouse(s)?`}
+        dialogTitle={`Delete Rack(s)`}
+        dialogContent={`Confirm deletion of Rack(s)?`}
         dialogAction={() => {
           handleDelete(selectedRows);
         }}
       />
+
       <Box
         component="main"
         sx={{
@@ -214,10 +197,23 @@ const Warehouse = () => {
           pb: 4,
         }}
       >
+        <Button
+          onClick={() => navigate(-1)}
+          size="small"
+          startIcon={<ArrowBackIosNewIcon />}
+          sx={{ marginLeft: 2 }}
+        >
+          Back
+        </Button>
         <Container maxWidth={false}>
-          <WarehouseToolbar
+          <UpdateWarehouse
+            warehouse={warehouse}
+            updateWarehouse={updateWarehouse}
+            handleAlertOpen={handleAlertOpen}
+          />
+          <RackToolbar
             disabled={disabled}
-            numWarehouse={selectedRows.length}
+            numRack={selectedRows.length}
             handleClickOpen={handleClickOpen}
             handleConfirmDialogOpen={handleConfirmDialogOpen}
             handleSearch={handleSearch}
@@ -231,10 +227,7 @@ const Warehouse = () => {
                     if (search === '') {
                       return row;
                     } else {
-                      return (
-                        row.name.toLowerCase().includes(search) ||
-                        row.address.toLowerCase().includes(search)
-                      );
+                      return row.description.toLowerCase().includes(search);
                     }
                   })}
                   columns={columns}
@@ -260,4 +253,4 @@ const Warehouse = () => {
   );
 };
 
-export default Warehouse;
+export default Rack;

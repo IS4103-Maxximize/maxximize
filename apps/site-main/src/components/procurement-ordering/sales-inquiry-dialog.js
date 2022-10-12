@@ -325,12 +325,7 @@ export const SalesInquiryDialog = (props) => {
         return params.row.rawMaterial.skuCode;
       },
     },
-    {
-      field: 'quantity',
-      headerName: 'Quantity *',
-      flex: 1,
-      editable: formik.values.status === 'draft' && noPRs,
-    },
+
     {
       field: 'name',
       headerName: 'Product Name',
@@ -358,11 +353,26 @@ export const SalesInquiryDialog = (props) => {
       },
     },
     {
+      field: 'quantity',
+      headerName: 'Quantity *',
+      flex: 1,
+      editable: formik.values.status === 'draft' && noPRs,
+    },
+    {
       field: 'unitPrice',
       headerName: 'Unit Price',
       flex: 1,
       valueGetter: (params) => {
         return params.row.rawMaterial.unitPrice;
+      },
+    },
+    {
+      field: 'subtotal',
+      headerName: 'Subtotal',
+      flex: 1,
+      valueGetter: (params) => {
+        console.log(params);
+        return params.row.rawMaterial.unitPrice * params.row.quantity;
       },
     },
     {
