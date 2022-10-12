@@ -5,6 +5,7 @@ import { DataSource, QueryRunner, Repository } from 'typeorm';
 import { BatchLineItem } from '../batch-line-items/entities/batch-line-item.entity';
 import { BinsService } from '../bins/bins.service';
 import { UpdateBinDto } from '../bins/dto/update-bin.dto';
+import { FinalGoodsService } from '../final-goods/final-goods.service';
 import { GrLineItem } from '../gr-line-items/entities/gr-line-item.entity';
 import { ProductionLineItem } from '../production-line-items/entities/production-line-item.entity';
 import { ProductionOrder } from '../production-orders/entities/production-order.entity';
@@ -27,6 +28,7 @@ export class BatchesService {
   private salesInquiryService: SalesInquiryService,
   private purchaseRequisitionService: PurchaseRequisitionsService,
   private productionOrderService: ProductionOrdersService,
+  private finalGoodService: FinalGoodsService,
   private dataSource: DataSource) {}
 
   async create(createBatchDto: CreateBatchDto) {
@@ -289,7 +291,8 @@ export class BatchesService {
     return this.batchRepository.delete(id);
   }
 
-  async allocate(orgId: number, lineItem) {
+  async allocate(orgId: number, finalGoodId: number, quantity: number) {
+    const finalGood = await this.finalGoodService.findOne(finalGoodId);
     const batch = new Batch();
     batch.batchNumber = 'B-' + randomUUID().substring(0, 5) + '-' + new Date().toLocaleDateString().replace(/\//g, '-') +
       '-' + new Date().toLocaleTimeString();
@@ -299,15 +302,15 @@ export class BatchesService {
     const batchLineItems: BatchLineItem[] = [];
     
     for (const bin of bins) {
-      const lineItemCapacity = lineItem.quantity;
+      const lineItemCapacity = quantity;
       if (lineItemCapacity <= bin.capacity - bin.currentCapacity) {
         const batchLineItem = new BatchLineItem();
         batchLineItem.bin = bin;
-        batchLineItem.product = lineItem.product;
-        batchLineItem.quantity = lineItem.quantity;
-        batchLineItem.subTotal = lineItem.product.unitPrice * lineItem.quantity;
+        batchLineItem.product = finalGood;
+        batchLineItem.quantity = quantity
+        batchLineItem.subTotal = finalGood.unitPrice * quantity;
         const date = new Date();
-        date.setDate(date.getDate() + lineItem.product.expiry);
+        date.setDate(date.getDate() + finalGood.expiry);
         batchLineItem.expiryDate = date;
         batchLineItems.push(batchLineItem);
         bin.currentCapacity = bin.currentCapacity + lineItemCapacity;
@@ -315,7 +318,7 @@ export class BatchesService {
       }
     }
 
-    let qty = lineItem.quantity;
+    let qty = quantity;
     for (const bin of bins) {
       const availableSpace = bin.capacity - bin.currentCapacity;
       if (availableSpace > 0) {
@@ -328,8 +331,8 @@ export class BatchesService {
           bin.currentCapacity = bin.currentCapacity + qty;
         }
         batchLineItem.bin = bin;
-        batchLineItem.product = lineItem.product;
-        batchLineItem.subTotal = lineItem.product.unitPrice * batchLineItem.quantity;
+        batchLineItem.product = finalGood
+        batchLineItem.subTotal = finalGood.unitPrice * batchLineItem.quantity;
         
         batchLineItems.push(batchLineItem);
 
