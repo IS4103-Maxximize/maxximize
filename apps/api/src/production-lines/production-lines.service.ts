@@ -350,6 +350,30 @@ export class ProductionLinesService {
       newMapping: mapping
     }
   }
+  
+  async getUtilizationRatesOfProductionLine(productionLineId: number) {
+    const productionLine = await this.findOne(productionLineId)
+    const maxHours = productionLine.endTime - productionLine.startTime
+    const schedules = productionLine.schedules
+    const dateUtlilizationMap = new Map()
+    for (const schedule of schedules) {
+      const endDateTime = schedule.end
+      const scheduleDate = new Date(new Date(endDateTime).setHours(0,0,0,0)).toLocaleDateString()
+      if (!dateUtlilizationMap.has(scheduleDate)) {
+        dateUtlilizationMap.set(scheduleDate, 0)
+      }
+      const durationOfScheduleInHours = ((schedule.end.getTime() - schedule.start.getTime()) / 1000 / 60 / 60)
+      const currentRate = dateUtlilizationMap.get(scheduleDate)
+      let currentDuration = currentRate / 100 * maxHours
+      currentDuration += durationOfScheduleInHours
+      const newRate = (currentDuration / maxHours) * 100
+      dateUtlilizationMap.set(scheduleDate, newRate)
+    }
+    const parsedMap = Object.fromEntries(dateUtlilizationMap)
+    return parsedMap
+    
+  }
+
 
   // async machineTriggerChange(machineIsOperating: Boolean, machineId: number, productionLineId: number, entityManager: EntityManager) {
   //   //if its true, check if the status of productionLine is not available 
