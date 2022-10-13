@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { SchedulesService } from './schedules.service';
 import { CreateScheduleDto } from './dto/create-schedule.dto';
 import { UpdateScheduleDto } from './dto/update-schedule.dto';
+import { AllocateScheduleDto } from './dto/allocate-schedule.dto';
 
 @Controller('schedules')
 export class SchedulesController {
@@ -25,6 +26,11 @@ export class SchedulesController {
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateScheduleDto: UpdateScheduleDto) {
     return this.schedulesService.update(+id, updateScheduleDto);
+  }
+
+  @Patch('allocate')
+  allocate(@Body() allocateScheduleDto: AllocateScheduleDto) {
+    return this.schedulesService.allocate(allocateScheduleDto)
   }
 
   @Delete(':id')

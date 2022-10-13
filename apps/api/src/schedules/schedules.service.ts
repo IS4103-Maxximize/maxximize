@@ -1,13 +1,16 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { BatchesService } from '../batches/batches.service';
+import { LineItem } from '../line-Items/LineItem';
 import { ProductionLine } from '../production-lines/entities/production-line.entity';
 import { ProductionLinesService } from '../production-lines/production-lines.service';
 import { CreateScheduleDto } from './dto/create-schedule.dto';
 import { UpdateScheduleDto } from './dto/update-schedule.dto';
 import { Schedule } from './entities/schedule.entity';
 import { ScheduleType } from './enums/scheduleType.enum';
+import {Batch} from '../batches/entities/batch.entity';
+import { AllocateScheduleDto } from './dto/allocate-schedule.dto';
 
 @Injectable()
 export class SchedulesService {
@@ -16,6 +19,7 @@ export class SchedulesService {
     private readonly scheduleRepository: Repository<Schedule>,
     private productionLineService: ProductionLinesService,
     private datasource: DataSource,
+    @Inject(forwardRef(() => BatchesService))
     private batchesService: BatchesService
   ) {}
   async create(createScheduleDto: CreateScheduleDto): Promise<Schedule> {
@@ -55,7 +59,11 @@ export class SchedulesService {
         id
       }, relations: {
         productionLine: true,
-        productionOrder: true
+        productionOrder: {
+          bom: {
+            finalGood:true
+          }
+        }
       }})
       return schedule
     } catch (error) {
@@ -83,13 +91,25 @@ export class SchedulesService {
     return this.scheduleRepository.remove(scheduleToRemove)
   }
 
-  async allocate(id: number, quantity: number) {
-    let schedule: Schedule = await this.findOne(id)
+  async allocate(allocateScheduleDto: AllocateScheduleDto) {
+    const {orgId, scheduleId, quantity } = allocateScheduleDto
+    let schedule: Schedule = await this.findOne(scheduleId)
     await this.datasource.manager.transaction(async (transactionalEntityManager) => {
-      //await this.batchesService.createWithExistingTransaction()
-      await transactionalEntityManager.update(Schedule, id, { status: ScheduleType.ALLOCATED})
+      let newBatch: Batch;
+      //newBatch = await this.batchesService.allocate(orgId, schedule.productionOrder.bom.finalGood.id, quantity)
+      const batch = await transactionalEntityManager.create(Batch, {
+        batchNumber: newBatch.batchNumber,
+        organisationId: orgId,
+        batchLineItems: newBatch.batchLineItems
+      })
+
+      await transactionalEntityManager.save(newBatch)
+      for (const lineItem of batch.batchLineItems) {
+        await transactionalEntityManager.save(lineItem)
+      }
+      await transactionalEntityManager.update(Schedule, scheduleId, { status: ScheduleType.ALLOCATED})
       return null
     })
-    return this.findOne(id)
+    return this.findOne(scheduleId)
   }
 }

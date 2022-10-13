@@ -1,5 +1,7 @@
-import { Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { BatchLineItem } from "../../batch-line-items/entities/batch-line-item.entity";
+import { Batch } from "../../batches/entities/batch.entity";
+import { ProductionLineItem } from "../../production-line-items/entities/production-line-item.entity";
 import { ProductionLine } from "../../production-lines/entities/production-line.entity";
 import { ProductionOrder } from "../../production-orders/entities/production-order.entity";
 import { ScheduleType } from "../enums/scheduleType.enum";
@@ -31,7 +33,11 @@ export class Schedule {
     @JoinColumn()
     productionOrder: ProductionOrder
 
-    @OneToOne(() => BatchLineItem, completedGood => completedGood.schedule)
+    @OneToOne(() => Batch, completedGood => completedGood.schedule)
     @JoinColumn()
-    completedGoods: BatchLineItem
+    completedGoods: Batch
+
+    @ManyToMany(() => ProductionLineItem, prodLineItem => prodLineItem.schedules)
+    @JoinTable()
+    prodLineItems: ProductionLineItem[]
 }

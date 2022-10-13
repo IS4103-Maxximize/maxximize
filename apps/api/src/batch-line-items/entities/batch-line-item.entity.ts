@@ -20,7 +20,4 @@ export class BatchLineItem extends LineItem {
 
     @ManyToOne(() => Bin, bin => bin.batchLineItems)
     bin: Bin
-
-    @OneToOne(() => Schedule, schedule => schedule.completedGoods)
-    schedule: Schedule
 }
