@@ -37,13 +37,14 @@ export class PurchaseOrdersService {
   ) {}
   async create(createPurchaseOrderDto: CreatePurchaseOrderDto): Promise<PurchaseOrder> {
     try {
-      const { deliveryAddress, totalPrice, deliveryDate, currentOrganisationId, quotationId, userContactId, poLineItemDtos} = createPurchaseOrderDto
+      const { deliveryAddress, totalPrice, deliveryDate, currentOrganisationId, quotationId, userContactId, poLineItemDtos, supplierId} = createPurchaseOrderDto
       let quotationToBeAdded: Quotation
       let orgContact: Contact
       let userContact: Contact
       let supplierContact: Contact
       let newPurchaseOrder: PurchaseOrder
       let poLineItems: PurchaseOrderLineItem[] = []
+      let supplierOnboarded: Organisation
       await this.datasource.manager.transaction(async (transactionalEntityManager) => {
         if (quotationId) {
           quotationToBeAdded = await transactionalEntityManager.findOneByOrFail(Quotation, {
@@ -55,8 +56,15 @@ export class PurchaseOrdersService {
             id: userContactId
           })
         }
+        if (supplierId) {
+          supplierOnboarded = await this.organisationsService.findOne(supplierId);
+        }
         orgContact = (await this.organisationsService.findOne(currentOrganisationId)).contact
-        supplierContact = (await this.quotationsService.findOne(quotationId)).shellOrganisation.contact
+        if (supplierId) {
+          supplierContact = supplierOnboarded.contact;
+        } else {
+          supplierContact = (await this.quotationsService.findOne(quotationId)).shellOrganisation.contact
+        }
         for (const dto of poLineItemDtos) {
           const { quantity, price, rawMaterialId, finalGoodId} = dto
           let rawMaterialToBeAdded: RawMaterial
@@ -90,6 +98,7 @@ export class PurchaseOrdersService {
           deliveryDate: deliveryDate,
           organisationId: currentOrganisationId,
           quotation: quotationToBeAdded,
+          supplier: supplierOnboarded,
           orgContact,
           userContact,
           supplierContact,
@@ -99,9 +108,14 @@ export class PurchaseOrdersService {
         return transactionalEntityManager.save(newPurchaseOrder)
         
       })
-      const organisation = await this.organisationsService.findOne(currentOrganisationId)
-      const supplier = (await this.quotationsService.findOne(quotationId)).shellOrganisation
-      this.mailService.sendPurchaseOrderEmail(supplierContact.email, organisation.name, supplier.name, poLineItems, newPurchaseOrder, newPurchaseOrder.deliveryDate)
+
+      if (supplierId) {
+        return this.findOne(newPurchaseOrder.id);
+      } else {
+        const organisation = await this.organisationsService.findOne(currentOrganisationId)
+        const supplier = (await this.quotationsService.findOne(quotationId)).shellOrganisation
+        this.mailService.sendPurchaseOrderEmail(supplierContact.email, organisation.name, supplier.name, poLineItems, newPurchaseOrder, newPurchaseOrder.deliveryDate)
+      }
       
       return this.findOne(newPurchaseOrder.id);
     } catch (error) {
@@ -118,7 +132,8 @@ export class PurchaseOrdersService {
         followUpLineItems: true,
         orgContact: true,
         userContact: true,
-        supplierContact: true
+        supplierContact: true,
+        supplier: true
       }
     })
   }
@@ -130,6 +145,7 @@ export class PurchaseOrdersService {
       }, relations: [
         'quotation',
         'currentOrganisation',
+        'supplier',
         'orgContact',
         'userContact',
         'supplierContact',
@@ -146,6 +162,7 @@ export class PurchaseOrdersService {
     }, relations: [
       'quotation',
       'currentOrganisation',
+      'supplier',
       'orgContact',
       'userContact',
       'supplierContact',

@@ -4,12 +4,16 @@ import { UpdateProductDto } from './dto/update-product.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Product } from './entities/product.entity';
+import { BinsService } from '../bins/bins.service';
+import { ProductMasterList } from './dto/product-masterlist.dto';
+import { BatchLineItem } from '../batch-line-items/entities/batch-line-item.entity';
 
 @Injectable()
 export class ProductsService {
   constructor(
     @InjectRepository(Product)
-    private readonly productRepository: Repository<Product>
+    private readonly productRepository: Repository<Product>,
+    private binsService: BinsService
   ) {}
 
   async create(createProductDto: CreateProductDto): Promise<Product> {
@@ -101,4 +105,32 @@ export class ProductsService {
       throw new NotFoundException(`Remove failed as Product with id: ${id} cannot be found`)
     }
   }
+
+  async findAllProductsByOrganisationId(id: number) {
+    const bins = await this.binsService.findAllByOrganisationId(id);
+    const productsQuantityMap = new Map<number, ProductMasterList>();
+    for (const bin of bins) {
+      for (const batchLineItem of bin.batchLineItems) {
+        if (productsQuantityMap.has(batchLineItem.product.id)) {
+          const list = productsQuantityMap.get(batchLineItem.product.id);
+          list.totalQuantity += batchLineItem.quantity;
+          list.reservedQuantity += batchLineItem.reservedQuantity;
+          list.batchLineItems.push(batchLineItem);
+          productsQuantityMap.set(batchLineItem.product.id, list);
+        } else {
+          const productMasterList = new ProductMasterList();
+          productMasterList.product = batchLineItem.product;
+          productMasterList.totalQuantity = batchLineItem.quantity;
+          productMasterList.reservedQuantity = batchLineItem.reservedQuantity;
+
+          const batchLineItems: BatchLineItem[] = [];
+          batchLineItems.push(batchLineItem);
+          productMasterList.batchLineItems = batchLineItems;
+          productsQuantityMap.set(batchLineItem.product.id, productMasterList);
+        }
+      }
+    }
+    return Object.fromEntries(productsQuantityMap)
+  }
+
 }

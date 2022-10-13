@@ -16,7 +16,7 @@ export class CreateUserDto {
   role: Role;
 
   @IsNotEmpty()
-  organisationId: number;
+  organisationId?: number;
 
   @IsNotEmpty()
   contact: CreateContactDto;

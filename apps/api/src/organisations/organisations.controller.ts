@@ -1,7 +1,9 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Put, Req } from '@nestjs/common';
 import { OrganisationsService } from './organisations.service';
 import { CreateOrganisationDto } from './dto/create-organisation.dto';
 import { UpdateOrganisationDto } from './dto/update-organisation.dto';
+import { GetOrgByShellDto } from './dto/get-org-by-shell.dto';
+import { RegisterDto } from './dto/register.dto';
 
 @Controller('organisations')
 export class OrganisationsController {
@@ -20,6 +22,16 @@ export class OrganisationsController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.organisationsService.findOne(+id);
+  }
+
+  @Post('getOrgByShellUen') 
+  getOrgByShellUen(@Body() getOrgByShellDto: GetOrgByShellDto) {
+    return this.organisationsService.findOrganisationsThatMatchesShellOrgUEN(getOrgByShellDto)
+  }
+
+  @Post('registerOrgAndUser')
+  registerOrgAndUser(@Body() registerDto: RegisterDto) {
+    return this.organisationsService.registerOrganisationAndUser(registerDto.createOrganisationDto, registerDto.createUserDto)
   }
 
   @Patch(':id')

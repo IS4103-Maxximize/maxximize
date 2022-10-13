@@ -5,4 +5,6 @@ export class CreateSalesInquiryDto {
     totalPrice: number;
     salesInquiryLineItemsDtos: CreateSalesInquiryLineItemDto[];
     purchaseRequisitionIds?: number[];
+    receivingOrganisationId?: number
+    expiryDuration?: number
 }

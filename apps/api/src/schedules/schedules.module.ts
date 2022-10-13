@@ -9,7 +9,7 @@ import { Batch } from '../batches/entities/batch.entity';
 import { BatchesModule } from '../batches/batches.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Schedule]), ProductionLinesModule, forwardRef(() => BatchesModule)],
+  imports: [TypeOrmModule.forFeature([Schedule]), forwardRef(() => ProductionLinesModule), forwardRef(() => BatchesModule)],
   controllers: [SchedulesController],
   providers: [SchedulesService],
   exports: [SchedulesService]

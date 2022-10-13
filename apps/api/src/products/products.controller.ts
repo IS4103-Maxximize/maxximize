@@ -36,4 +36,9 @@ export class ProductsController {
   remove(@Param('id') id: string) {
     return this.productsService.remove(+id);
   }
+
+  @Get('getMasterList/:id')
+  getMasterListByOrganisationId(@Param('id') id: number) {
+    return this.productsService.findAllProductsByOrganisationId(id);
+  }
 }

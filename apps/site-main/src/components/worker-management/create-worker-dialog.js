@@ -245,7 +245,7 @@ export const CreateWorkerDialog = ({
             size="small"
           />
 
-          <Typography variant="caption" color="red">
+          <Typography variant="body1" color="red">
             {error}
           </Typography>
 

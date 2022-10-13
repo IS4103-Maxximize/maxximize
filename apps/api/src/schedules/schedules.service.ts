@@ -17,6 +17,7 @@ export class SchedulesService {
   constructor(
     @InjectRepository(Schedule)
     private readonly scheduleRepository: Repository<Schedule>,
+    @Inject(forwardRef(() => ProductionLinesService))
     private productionLineService: ProductionLinesService,
     private datasource: DataSource,
     @Inject(forwardRef(() => BatchesService))
@@ -37,7 +38,9 @@ export class SchedulesService {
           start,
           end,
           status,
-          productionLineId: productionLineToBeAdded.id ?? null
+          productionLineId: productionLineToBeAdded.id ?? null,
+          //REMOVE THIS (Required for testing)
+          // finalGoodId: finalGoodId
         })
         return transactionalEntityManager.save(newSchedule)
       })
@@ -47,6 +50,8 @@ export class SchedulesService {
   findAll() {
     return this.scheduleRepository.find({
       relations: {
+        //REMOVE THIS (Required for testing)
+        // finalGood: true,
         productionLine: true,
         productionOrder: true
       }
@@ -58,6 +63,8 @@ export class SchedulesService {
       const schedule = await this.scheduleRepository.findOne({where: {
         id
       }, relations: {
+        //REMOVE THIS (Required for testing)
+        // finalGood: true,
         productionLine: true,
         productionOrder: {
           bom: {

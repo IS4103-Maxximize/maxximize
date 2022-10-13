@@ -11,12 +11,15 @@ import { MailModule } from '../mail/mail.module';
 import { RawMaterial } from '../raw-materials/entities/raw-material.entity';
 import { PurchaseRequisition } from '../purchase-requisitions/entities/purchase-requisition.entity';
 import { PurchaseRequisitionsModule } from '../purchase-requisitions/purchase-requisitions.module';
+import { OrganisationsModule } from '../organisations/organisations.module';
+import { FinalGoodsModule } from '../final-goods/final-goods.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([SalesInquiry, SalesInquiryLineItem, ShellOrganisation, Quotation, Organisation, RawMaterial, PurchaseRequisition]), 
-    MailModule, 
-    forwardRef(() => PurchaseRequisitionsModule)
+    MailModule, FinalGoodsModule,
+    forwardRef(() => PurchaseRequisitionsModule),
+    OrganisationsModule
   ],
   controllers: [SalesInquiryController],
   providers: [SalesInquiryService],

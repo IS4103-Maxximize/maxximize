@@ -72,6 +72,16 @@ export class ShellOrganisationsService {
     }
   }
 
+  async findAllByOrg(id: number) {
+    return this.shellOrganisationRepository.find({
+      where: {
+        parentOrganisationId: id
+      }, relations: {
+        contact: true
+      }
+    })
+  }
+
   async retrieveUensInParentOrg(parentOrgId: number): Promise<string[]> {
     const  parentOrg = await this.organisationsRepository.findOne({where: {id: parentOrgId}, relations: {
       shellOrganisations: true

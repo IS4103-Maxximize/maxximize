@@ -10,6 +10,9 @@ import ProductionLineManagement from './pages/assetManagement/productionLineMana
 import BusinessRelations from './pages/businessRelations';
 import Dashboard from './pages/dashboard';
 import ForgotPassword from './pages/forgotPassword';
+import ReceivedPurchaseOrder from './pages/fulfilment/received-purchase-order';
+import ReceivedSalesInquiry from './pages/fulfilment/received-sales-inquiry';
+import SentQuotation from './pages/fulfilment/sent-quotation';
 // import Inventory from './pages/inventory';
 import Bin from './pages/inventory/bin';
 import BinDetails from './pages/inventory/bin-details';
@@ -125,13 +128,9 @@ const routes = (
               element={<ProcurementForecast />}
             ></Route>
             {/* Quality Assurance */}
-            {/* <Route
-              path="qualityAssurance"
-              element={<QualityAssurance />}
-            ></Route> */}
-            <Route path="qualityAssurance/rules" element={<QARules />}></Route>
+            <Route path="quality-assurance/rules" element={<QARules />}></Route>
             <Route
-              path="qualityAssurance/checklists"
+              path="quality-assurance/checklists"
               element={<QAChecklists />}
             ></Route>
           </Route>
@@ -169,21 +168,21 @@ const routes = (
             ></Route>
 
             {/* Asset Management */}
-            <Route
-              path="asset-management/machine"
-              element={<MachineManagement />}
-            ></Route>
-            <Route
-              path="asset-management/production-line"
-              element={<ProductionLineManagement />}
-            ></Route>
+            {/* TBD */}
 
             {/* Production */}
-            {/* <Route path="production" element={<Production />}></Route> */}
             {/* Production Modules */}
             <Route
               path="production/bill-of-material"
               element={<BillOfMaterial />}
+            ></Route>
+            <Route
+              path="production/machine"
+              element={<MachineManagement />}
+            ></Route>
+            <Route
+              path="production/production-line"
+              element={<ProductionLineManagement />}
             ></Route>
             <Route
               path="production/production-order"
@@ -191,13 +190,27 @@ const routes = (
             ></Route>
 
             {/* Inventory */}
-            {/* <Route path="inventory" element={<Inventory />}></Route> */}
             {/* Inventory Modules */}
             <Route path="warehouse" element={<Warehouse />}></Route>
             <Route path="warehouse/bin" element={<Bin />}></Route>
             <Route
               path="warehouse/bin/details"
               element={<BinDetails />}
+            ></Route>
+
+            {/* Fulfilment */}
+            {/* Fulfilment Modules */}
+            <Route
+              path="fulfilment/received-sales-inquiry"
+              element={<ReceivedSalesInquiry />}
+            ></Route>
+            <Route
+              path="fulfilment/sent-quotation"
+              element={<SentQuotation />}
+            ></Route>
+            <Route
+              path="fulfilment/received-purchase-order"
+              element={<ReceivedPurchaseOrder />}
             ></Route>
           </Route>
         </Route>

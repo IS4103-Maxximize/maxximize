@@ -1,4 +1,5 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { FinalGood } from '../../final-goods/entities/final-good.entity';
 import { RawMaterial } from '../../raw-materials/entities/raw-material.entity';
 import { SalesInquiry } from '../../sales-inquiry/entities/sales-inquiry.entity';
 
@@ -22,4 +23,10 @@ export class SalesInquiryLineItem {
     { onDelete: 'CASCADE' }
   )
   salesInquiry: SalesInquiry;
+
+  @Column({nullable: true})
+  finalGoodId: number
+  @ManyToOne(() => FinalGood)
+  @JoinColumn({name: 'finalGoodId'})
+  finalGood: FinalGood
 }

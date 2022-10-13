@@ -1,6 +1,8 @@
 import {
   Column,
   Entity,
+  JoinTable,
+  ManyToMany,
   OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
@@ -22,6 +24,7 @@ import { QaRule } from '../../qa-rules/entities/qa-rule.entity';
 import { QaChecklist } from '../../qa-checklists/entities/qa-checklist.entity';
 import { ProductionOrder } from '../../production-orders/entities/production-order.entity';
 import { PurchaseRequisition } from '../../purchase-requisitions/entities/purchase-requisition.entity';
+import { Quotation } from '../../quotations/entities/quotation.entity';
 
 @Entity()
 export class Organisation {
@@ -61,11 +64,21 @@ export class Organisation {
   @OneToMany(() => PurchaseOrder, (order) => order.currentOrganisation)
   purchaseOrders: PurchaseOrder[];
 
+  @OneToMany(() => PurchaseOrder, (order) => order.supplier, {
+    nullable: true
+  })
+  receivedPurchaseOrders: PurchaseOrder[]
+
+  //sent sales salesInquiry
   @OneToMany(
     () => SalesInquiry,
     (salesInquiry) => salesInquiry.currentOrganisation
   )
   salesInquiries: SalesInquiry[];
+
+  //received sales inquiry
+  @OneToMany(() => SalesInquiry, salesInquiry => salesInquiry.receivingOrganisation)
+  receivedSalesInquiries: SalesInquiry[]
 
   @OneToMany(() => Warehouse, (warehouse) => warehouse.organisation)
   warehouses: Warehouse[];
@@ -102,4 +115,10 @@ export class Organisation {
 
   @OneToMany(() => PurchaseRequisition, purchaseRequisition => purchaseRequisition.organisation)
   purchaseRequisitions: PurchaseRequisition[]
+
+  @OneToMany(() => Quotation, quotation => quotation.receivingOrganisation)
+  receivedQuotations: Quotation[]
+
+  @OneToMany(() => Quotation, quotation => quotation.currentOrganisation)
+  sentQuotations: Quotation[]
 }

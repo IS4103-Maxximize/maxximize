@@ -43,6 +43,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ScheduleModule } from '@nestjs/schedule';
 import { PurchaseRequisitionsModule } from '../purchase-requisitions/purchase-requisitions.module';
+import { RacksModule } from '../racks/racks.module';
 
 @Module({
   imports: [
@@ -97,8 +98,9 @@ import { PurchaseRequisitionsModule } from '../purchase-requisitions/purchase-re
     FollowUpLineItemsModule,
     ProductionLineItemsModule,
     ProductionOrdersModule,
-    ScheduleModule,
-    PurchaseRequisitionsModule
+    ScheduleModule.forRoot(),
+    PurchaseRequisitionsModule,
+    RacksModule
   ],
   controllers: [AppController],
   providers: [AppService],
