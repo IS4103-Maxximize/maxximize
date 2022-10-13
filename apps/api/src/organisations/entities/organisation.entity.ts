@@ -25,6 +25,7 @@ import { QaChecklist } from '../../qa-checklists/entities/qa-checklist.entity';
 import { ProductionOrder } from '../../production-orders/entities/production-order.entity';
 import { PurchaseRequisition } from '../../purchase-requisitions/entities/purchase-requisition.entity';
 import { Quotation } from '../../quotations/entities/quotation.entity';
+import { File } from '../../files/entities/file.entity';
 
 @Entity()
 export class Organisation {
@@ -121,4 +122,7 @@ export class Organisation {
 
   @OneToMany(() => Quotation, quotation => quotation.currentOrganisation)
   sentQuotations: Quotation[]
+
+  @OneToMany(() => File, file => file.organisation)
+  documents: File[]
 }
