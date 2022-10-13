@@ -215,6 +215,8 @@ export const VehicleManagement = (props) => {
       field: 'status',
       headerName: 'Status',
       flex: 1,
+      //EDIT 
+      editable: (params) => params?.value.status == 'DELIVERY'
     },
     {
       field: 'licensePlate',
