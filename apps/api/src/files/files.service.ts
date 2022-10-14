@@ -11,6 +11,7 @@ import { promisify } from 'util';
 import { Organisation } from '../organisations/entities/organisation.entity';
 import { Application } from '../applications/entities/application.entity';
 import { ApplicationsService } from '../applications/applications.service';
+import { extname } from 'path';
 
 @Injectable()
 export class FilesService {
@@ -83,7 +84,11 @@ export class FilesService {
   async download(id: number) {
     const entityFile = await this.findOne(id)
     const path = `uploads/${entityFile.name}`
-    return path
+    return {
+      path,
+      fileType: extname(entityFile.name),
+      fileName: entityFile.name
+    }
     
   }
 
