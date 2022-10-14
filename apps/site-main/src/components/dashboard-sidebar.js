@@ -210,6 +210,7 @@ const items = [
   },
   {
     subsystem: 'Fulfilment',
+    basepath: 'fulfilment',
     access: ['manager', 'factoryworker', 'superadmin'],
     icon: (
       <EventAvailableIcon
