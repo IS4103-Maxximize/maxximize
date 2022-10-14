@@ -42,8 +42,8 @@ export const QATracking = (props) => {
   // Toolbar Helpers
   // Searchbar
   const [search, setSearch] = useState('');
-  const handleSearch = (event) => {
-    setSearch(event.target.value.trim());
+  const handleSearch = () => {
+    console.log(search)
     // fetch batch based on search
     // setLoading(true)
     // setBatch(batch)
