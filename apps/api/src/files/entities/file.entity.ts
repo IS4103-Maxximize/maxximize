@@ -1,4 +1,5 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Application } from "../../applications/entities/application.entity";
 import { Organisation } from "../../organisations/entities/organisation.entity";
 import { BusinessType } from "../enums/businessType.enum";
 
@@ -17,9 +18,16 @@ export class File {
     })
     businessType: BusinessType
 
-    @Column()
+    @Column({nullable: true})
     organisationId: number
     @ManyToOne(() => Organisation, organisation => organisation.documents)
     @JoinColumn({name: 'organisationId'})
     organisation: Organisation
+
+    @Column({nullable: true})
+    applicationId: number
+    @ManyToOne(() => Application, application => application.documents)
+    application: Application
+
+
 }

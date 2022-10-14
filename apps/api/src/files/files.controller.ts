@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFiles, Res } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFiles, Res, UsePipes, ValidationPipe, Query, StreamableFile  } from '@nestjs/common';
 import { FilesService } from './files.service';
 import { CreateFileDto } from './dto/create-file.dto';
 import { UpdateFileDto } from './dto/update-file.dto';
@@ -6,6 +6,7 @@ import { diskStorage } from 'multer'
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { v4 as uuidv4 } from 'uuid';
 import { extname } from 'path';
+import { UploadFileDto } from './dto/upload-file.dto';
 
 @Controller('files')
 export class FilesController {
@@ -16,25 +17,28 @@ export class FilesController {
     return this.filesService.create(createFileDto);
   }
 
-  @Post('/upload/orgId/:id/type/:type')
-  @UseInterceptors(FilesInterceptor('file', 10, {
+  @Post('/upload')
+  @UsePipes(new ValidationPipe( {transform: true}))
+  @UseInterceptors(FilesInterceptor('files', 10, {
     storage: diskStorage({
       destination: 'uploads',
       filename: (req, file, callback) => {
-        const uuid = uuidv4()
+        const name = file.originalname.substring(0, file.originalname.lastIndexOf('.')) || file.originalname;
         const ext = extname(file.originalname)
-        const fileName = `${uuid}${ext}`
+        const uuid = uuidv4()
+        const fileName = `${name}-${uuid}${ext}`
         callback(null, fileName)
       }
     })
   }))
-  uploadFile(@UploadedFiles() files: Express.Multer.File[], @Param('id') id: string, @Param('type') type: string) {
-    return this.filesService.createFilesWithType(files, +id, type)
+  uploadFile(@UploadedFiles() files: Express.Multer.File[], @Query() dto: UploadFileDto) {
+    return this.filesService.uploadAndCreateFiles(files, dto.type, dto.organisationId, dto.applicationId)
   }
 
   @Get('download/:id')
-  downloadUploadedFile(@Param('id') path: string, @Res() res) {
-    return res.download(`uploads/${path}`)
+  async downloadUploadedFile(@Param('id') id: string, @Res() res) {
+    const path = await this.filesService.download(+id)
+    return res.download(path)
   }
 
   @Get()
@@ -52,8 +56,8 @@ export class FilesController {
     return this.filesService.update(+id, updateFileDto);
   }
 
-  @Delete(':id/path/:path')
-  remove(@Param('id') id: string, @Param('path') path: string) {
-    return this.filesService.remove(+id, `uploads/${path}`);
+  @Delete(':id')
+  remove(@Param('id') id: string) {
+    return this.filesService.remove(+id);
   }
 }
