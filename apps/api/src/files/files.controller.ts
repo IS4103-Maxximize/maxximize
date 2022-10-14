@@ -5,8 +5,9 @@ import { UpdateFileDto } from './dto/update-file.dto';
 import { diskStorage } from 'multer'
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { v4 as uuidv4 } from 'uuid';
-import { extname } from 'path';
+import { extname, join } from 'path';
 import { UploadFileDto } from './dto/upload-file.dto';
+import { createReadStream } from 'fs';
 
 @Controller('files')
 export class FilesController {
@@ -36,10 +37,27 @@ export class FilesController {
   }
 
   @Get('download/:id')
-  async downloadUploadedFile(@Param('id') id: string, @Res() res) {
-    const path = await this.filesService.download(+id)
-    return res.download(path)
-  }
+  	  async downloadUploadedFile(@Param('id') id: string, @Res({passthrough: true}) res) {
+      const { path, fileType, fileName } = await this.filesService.download(+id)
+      const file = createReadStream(join(process.cwd(), path));
+      switch(fileType) {
+        case ".pdf":
+          res.set({
+          'Content-Type': 'application/pdf',
+            'Content-Disposition': `attachment; filename=${fileName}`,
+          });
+          break
+       case ".jpg":
+          res.set({
+            'Content-Type': 'image/jpg',
+            'Content-Disposition': `attachment; filename=${fileName}`,
+          })
+          break
+  	    }
+  	    
+  	    return new StreamableFile(file)
+  	  }
+  
 
   @Get()
   findAll() {
