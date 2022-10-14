@@ -110,3 +110,5 @@ package-lock.json
 
 # Next.js
 .next
+
+uploads
