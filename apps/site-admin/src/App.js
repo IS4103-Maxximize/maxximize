@@ -44,10 +44,10 @@ const App = () => {
             <Route path="/" element={<Dashboard />}></Route>
 
             {/* Protected Routes for Admin Specifically */}
-            {/* <Route element={<RequireAuth requiredRoles={[ROLES.Admin]} />}>
-              {/* Add routes here
+            <Route element={<RequireAuth requiredRoles={[ROLES.Admin]} />}>
+              {/* Add routes here */}
               <Route path="onboarding" element={<Onboarding />}></Route>
-            </Route> */}
+            </Route>
 
             {/* Protected Routes for Manager Specifically*/}
             <Route element={<RequireAuth requiredRoles={[ROLES.Manager]} />}>
