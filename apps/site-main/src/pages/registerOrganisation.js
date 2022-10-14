@@ -12,6 +12,7 @@ import { Card, MenuItem, TextField } from '@mui/material';
 import { ConfirmDialog } from '../components/assetManagement/confirm-dialog';
 import { useNavigate } from 'react-router-dom';
 import LoadingButton from '@mui/lab/LoadingButton';
+import Dropzone, { useDropzone } from 'react-dropzone';
 
 const steps = ['Register Your Organisation', 'Create an admin account'];
 
@@ -86,6 +87,14 @@ export const RegisterOrganisation = () => {
     );
 
     if (response.status === 200 || response.status === 201) {
+      console.log({
+        files: values.files.map((file) => ({
+          fileName: file.name,
+          type: file.type,
+          size: `${file.size} bytes`,
+        })),
+      });
+
       const result = await response.json();
       //   handleAlertOpen(`Created Warehouse ${result.id} successfully`);
       setError('');
@@ -119,7 +128,6 @@ export const RegisterOrganisation = () => {
       .min(9, 'UEN must be at least be 9 characters long')
       .max(10, 'UEN can at most be 10 characters long')
       .required('UEN is required'),
-    orgType: Yup.string().required('Organisation type is required'),
     orgEmail: Yup.string()
       .email('Email must be in a proper format [eg. user@email.com]')
       .min(7, 'Email must be at least be 7 characters long')
@@ -138,6 +146,7 @@ export const RegisterOrganisation = () => {
       .max(16, 'Phone number can at most be 16 digits')
       .matches(new RegExp('[0-9]'), 'Phone number should only contain digits')
       .required('Phone Number is required'),
+    files: Yup.mixed().required(),
   });
 
   const stepTwoValidation = Yup.object({
@@ -172,7 +181,7 @@ export const RegisterOrganisation = () => {
   const formik = useFormik({
     initialValues: {
       orgName: '',
-      orgType: '',
+      orgType: 'manufacturer',
       uen: '',
       orgEmail: '',
       orgAddress: '',
@@ -185,19 +194,126 @@ export const RegisterOrganisation = () => {
       postalCode: '',
       email: '',
       phoneNumber: '',
+      file: '',
     },
     onSubmit: handleOnSubmit,
     validationSchema: activeStep === 0 ? stepOneValidation : stepTwoValidation,
   });
 
-  const orgTypes = [
-    { value: 'supplier', label: 'Supplier' },
-    { value: 'manufacturer', label: 'Manufacturer' },
-    { value: 'retailer', label: 'Retailer' },
-  ];
+  const {
+    acceptedFiles,
+    getRootProps,
+    getInputProps,
+    isFocused,
+    isDragAccept,
+    isDragReject,
+  } = useDropzone({
+    maxFiles: 3,
+    accept: {
+      'application/pdf': ['.pdf'],
+    },
+    onDrop: (acceptedFiles) => {
+      formik.setFieldValue('files', acceptedFiles);
+    },
+  });
+  const baseStyle = {
+    flex: 1,
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    padding: '20px',
+    borderWidth: 2,
+    borderRadius: 2,
+    borderColor: '#eeeeee',
+    borderStyle: 'dashed',
+    backgroundColor: '#fafafa',
+    color: '#bdbdbd',
+    outline: 'none',
+    transition: 'border .24s ease-in-out',
+  };
+
+  const focusedStyle = {
+    borderColor: '#2196f3',
+  };
+
+  const acceptStyle = {
+    borderColor: '#00e676',
+  };
+
+  const rejectStyle = {
+    borderColor: '#ff1744',
+  };
+
+  const style = React.useMemo(
+    () => ({
+      ...baseStyle,
+      ...(isFocused ? focusedStyle : {}),
+      ...(isDragAccept ? acceptStyle : {}),
+      ...(isDragReject ? rejectStyle : {}),
+    }),
+    [isFocused, isDragAccept, isDragReject]
+  );
+
+  const acceptedFileItems = acceptedFiles.map((file) => (
+    <li key={file.path}>
+      {file.path} - {file.size} bytes
+    </li>
+  ));
 
   return (
     <>
+      <Box
+        display="flex"
+        mx="auto"
+        mt={2}
+        width="50%"
+        justifyContent="space-between"
+        alignItem="center"
+        height="100%"
+      >
+        <Button
+          disabled={disabled}
+          color="inherit"
+          onClick={handleBack}
+          sx={{ height: '20%' }}
+        >
+          Back
+        </Button>
+        <Stepper activeStep={activeStep} alternativeLabel sx={{ width: '70%' }}>
+          {steps.map((label, index) => {
+            const stepProps = {};
+            const labelProps = {};
+
+            return (
+              <Step key={label} {...stepProps}>
+                <StepLabel {...labelProps}>{label}</StepLabel>
+              </Step>
+            );
+          })}
+        </Stepper>
+        {loading ? (
+          <LoadingButton
+            disabled={!formik.isValid || formik.isSubmitting || disabled}
+            loading={loading}
+            sx={{ height: '20%' }}
+            variant="outlined"
+          >
+            Loading
+          </LoadingButton>
+        ) : (
+          <Button
+            disabled={!formik.isValid || formik.isSubmitting || disabled}
+            autoFocus
+            color="primary"
+            size="medium"
+            onClick={formik.handleSubmit}
+            variant="contained"
+            sx={{ height: '20%' }}
+          >
+            {isLastStep ? 'Register' : 'Next'}
+          </Button>
+        )}
+      </Box>
       {activeStep === steps.length ? (
         <Box
           mx="auto"
@@ -246,9 +362,9 @@ export const RegisterOrganisation = () => {
                   justifyContent="flex-end"
                   alignItems="center"
                 >
-                  <Card sx={{ padding: 4, height: '90vh' }}>
+                  <Card sx={{ padding: 4, height: '100vh' }}>
                     <Typography variant="h6" component="div">
-                      Client Organisation
+                      Organisation Details
                     </Typography>
                     <TextField
                       error={Boolean(
@@ -280,7 +396,7 @@ export const RegisterOrganisation = () => {
                       variant="outlined"
                       size="small"
                     />
-                    <TextField
+                    {/* <TextField
                       select
                       fullWidth
                       helperText={
@@ -301,7 +417,7 @@ export const RegisterOrganisation = () => {
                           {option.label}
                         </MenuItem>
                       ))}
-                    </TextField>
+                    </TextField> */}
 
                     <TextField
                       error={Boolean(
@@ -376,6 +492,21 @@ export const RegisterOrganisation = () => {
                       variant="outlined"
                       size="small"
                     />
+                    <Box mt={2}>
+                      <div {...getRootProps({ style })}>
+                        <input {...getInputProps()} />
+                        <p>
+                          Drag 'n' drop some files here, or click to select
+                          files
+                        </p>
+                      </div>
+                      <Box ml={3} mt={2}>
+                        <aside>
+                          <h4>Uploaded files</h4>
+                          <ul>{acceptedFileItems}</ul>
+                        </aside>
+                      </Box>
+                    </Box>
                   </Card>
                 </Box>
               ) : (
@@ -388,7 +519,7 @@ export const RegisterOrganisation = () => {
                   justifyContent="flex-end"
                   alignItems="center"
                 >
-                  <Card sx={{ padding: 4, height: '90vh' }}>
+                  <Card sx={{ padding: 4, height: '100vh' }}>
                     <Typography variant="h6" component="div">
                       First Admin Account
                     </Typography>
@@ -500,63 +631,6 @@ export const RegisterOrganisation = () => {
                   </Card>
                 </Box>
               )}
-              <Box
-                display="flex"
-                mx="auto"
-                width="50%"
-                justifyContent="space-between"
-              >
-                <Button
-                  disabled={disabled}
-                  color="inherit"
-                  onClick={handleBack}
-                  sx={{ height: '20%' }}
-                >
-                  Back
-                </Button>
-                <Stepper
-                  activeStep={activeStep}
-                  alternativeLabel
-                  sx={{ width: '70%' }}
-                >
-                  {steps.map((label, index) => {
-                    const stepProps = {};
-                    const labelProps = {};
-
-                    return (
-                      <Step key={label} {...stepProps}>
-                        <StepLabel {...labelProps}>{label}</StepLabel>
-                      </Step>
-                    );
-                  })}
-                </Stepper>
-                {loading ? (
-                  <LoadingButton
-                    disabled={
-                      !formik.isValid || formik.isSubmitting || disabled
-                    }
-                    loading={loading}
-                    sx={{ height: '20%' }}
-                    variant="outlined"
-                  >
-                    Loading
-                  </LoadingButton>
-                ) : (
-                  <Button
-                    disabled={
-                      !formik.isValid || formik.isSubmitting || disabled
-                    }
-                    autoFocus
-                    color="primary"
-                    size="medium"
-                    onClick={formik.handleSubmit}
-                    variant="contained"
-                    sx={{ height: '20%' }}
-                  >
-                    {isLastStep ? 'Register' : 'Next'}
-                  </Button>
-                )}
-              </Box>
             </Box>
           </form>
         </React.Fragment>
