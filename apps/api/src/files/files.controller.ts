@@ -46,6 +46,17 @@ export class FilesController {
     return this.filesService.findAll();
   }
 
+  @Get('orgId/:id')
+  findAllByOrg(@Param('id') id: string) {
+    return this.filesService.findAllByOrg(+id)
+  }
+
+  @Get('appId/:id')
+  findAllByApplication(@Param('id') id: string) {
+    return this.filesService.findAllByApplication(+id)
+  }
+
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.filesService.findOne(+id);
