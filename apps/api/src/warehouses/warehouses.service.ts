@@ -40,7 +40,7 @@ export class WarehousesService {
 
   async findAll() {
     const warehouses = await this.warehouseRepository.find({
-      relations: ["organisation", "bins.batchLineItems.product"]
+      relations: ["organisation", "racks.bins.batchLineItems.product", "racks"]
     });
     if (warehouses.length === 0 || warehouses === undefined) {
       throw new NotFoundException("No warehouse(s) found!");
@@ -56,7 +56,7 @@ export class WarehousesService {
           id: organisationId
         }
       },
-      relations: ["organisation", "bins.batchLineItems.product"]
+      relations: ["organisation", "racks.bins.batchLineItems.product", "racks"]
     });
   }
 
@@ -65,7 +65,7 @@ export class WarehousesService {
       where: {
         id: id
       },
-      relations: ["organisation", "bins.batchLineItems.product"]
+      relations: ["organisation", "racks.bins.batchLineItems.product", "racks"]
     });
     if (warehouse) {
       return warehouse;

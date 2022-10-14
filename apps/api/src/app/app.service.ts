@@ -1,7 +1,6 @@
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { DataSource } from 'typeorm';
-import { BillOfMaterialsService } from '../bill-of-materials/bill-of-materials.service';
-import { CreateBillOfMaterialDto } from '../bill-of-materials/dto/create-bill-of-material.dto';
+import { BatchesService } from '../batches/batches.service';
 import { BinsService } from '../bins/bins.service';
 import { ContactsService } from '../contacts/contacts.service';
 import { Contact } from '../contacts/entities/contact.entity';
@@ -13,9 +12,9 @@ import { MeasurementUnit } from '../products/enums/measurementUnit.enum';
 import { PurchaseOrdersService } from '../purchase-orders/purchase-orders.service';
 import { QuotationLineItemsService } from '../quotation-line-items/quotation-line-items.service';
 import { QuotationsService } from '../quotations/quotations.service';
+import { RacksService } from '../racks/racks.service';
 import { RawMaterialsService } from '../raw-materials/raw-materials.service';
 import { SalesInquiryService } from '../sales-inquiry/sales-inquiry.service';
-import { ShellOrganisation } from '../shell-organisations/entities/shell-organisation.entity';
 import { ShellOrganisationsService } from '../shell-organisations/shell-organisations.service';
 import { User } from '../users/entities/user.entity';
 import { Role } from '../users/enums/role.enum';
@@ -38,6 +37,8 @@ export class AppService implements OnApplicationBootstrap {
     private quotationLineItemService: QuotationLineItemsService,
     private purchaseOrderService: PurchaseOrdersService,
     private goodsReceiptService: GoodsReceiptsService,
+    private rackService: RacksService,
+    private batchService: BatchesService,
     private dataSource: DataSource
   ) {}
   getData(): { message: string } {
@@ -234,22 +235,42 @@ export class AppService implements OnApplicationBootstrap {
         organisationId: 2,
       });
 
+      await this.rackService.create({
+        name: "Rack 1",
+        description: "Rack 1 Warehouse 1",
+        warehouseId: 1
+      });
+
+      await this.rackService.create({
+        name: "Rack 2",
+        description: "Rack 2 Warehouse 1",
+        warehouseId: 1
+      });
+
+      await this.rackService.create({
+        name: "Rack 3",
+        description: "Rack 1 Warehouse 2",
+        warehouseId: 1
+      });
+
+
+
       await this.binsService.create({
         name: 'SLOC-001-Warehouse1',
         capacity: 1000000,
-        warehouseId: 1,
+        rackId: 1,
       });
 
       await this.binsService.create({
         name: 'SLOC-002-Warehouse1',
         capacity: 1000000,
-        warehouseId: 1,
+        rackId: 2,
       });
 
       await this.binsService.create({
         name: 'SLOC-001-Warehouse2',
         capacity: 10000,
-        warehouseId: 2,
+        rackId: 3,
       });
 
       await this.rawMaterialsService.create({
@@ -459,5 +480,5 @@ export class AppService implements OnApplicationBootstrap {
         followUpLineItemsDtos: [],
       });
     }
-  }
+  }  
 }

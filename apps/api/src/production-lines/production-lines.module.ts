@@ -6,9 +6,10 @@ import { ProductionLine } from './entities/production-line.entity';
 import { OrganisationsModule } from '../organisations/organisations.module';
 import { BillOfMaterialsModule } from '../bill-of-materials/bill-of-materials.module';
 import { FactoryMachinesModule } from '../factory-machines/factory-machines.module';
+import { SchedulesModule } from '../schedules/schedules.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([ProductionLine]), BillOfMaterialsModule, OrganisationsModule, forwardRef(() => FactoryMachinesModule)],
+  imports: [TypeOrmModule.forFeature([ProductionLine]), BillOfMaterialsModule, OrganisationsModule, forwardRef(() => FactoryMachinesModule), forwardRef(() => SchedulesModule)],
   controllers: [ProductionLinesController],
   providers: [ProductionLinesService],
   exports: [ProductionLinesService]

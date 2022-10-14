@@ -6,6 +6,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { BatchLineItem } from '../../batch-line-items/entities/batch-line-item.entity';
+import { Rack } from '../../racks/entities/rack.entity';
 import { Warehouse } from '../../warehouses/entities/warehouse.entity';
 
 @Entity()
@@ -22,9 +23,9 @@ export class Bin {
   @Column()
   currentCapacity: number;
 
-  @ManyToOne(() => Warehouse, (warehouse) => warehouse.bins)
-  warehouse: Warehouse;
-
   @OneToMany(() => BatchLineItem, (batchLineItem) => batchLineItem.bin)
   batchLineItems: BatchLineItem[];
+
+  @ManyToOne(() => Rack, (rack) => rack.bins)
+  rack: Rack;
 }

@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { ProductionLine } from '../production-lines/entities/production-line.entity';
@@ -12,6 +12,7 @@ export class SchedulesService {
   constructor(
     @InjectRepository(Schedule)
     private readonly scheduleRepository: Repository<Schedule>,
+    @Inject(forwardRef(() => ProductionLinesService))
     private productionLineService: ProductionLinesService,
     private datasource: DataSource
   ) {}
@@ -30,7 +31,9 @@ export class SchedulesService {
           start,
           end,
           status,
-          productionLineId: productionLineToBeAdded.id ?? null
+          productionLineId: productionLineToBeAdded.id ?? null,
+          //REMOVE THIS (Required for testing)
+          // finalGoodId: finalGoodId
         })
         return transactionalEntityManager.save(newSchedule)
       })
@@ -40,6 +43,8 @@ export class SchedulesService {
   findAll() {
     return this.scheduleRepository.find({
       relations: {
+        //REMOVE THIS (Required for testing)
+        // finalGood: true,
         productionLine: true,
         productionOrder: true
       }
@@ -51,8 +56,14 @@ export class SchedulesService {
       const schedule = await this.scheduleRepository.findOne({where: {
         id
       }, relations: {
+        //REMOVE THIS (Required for testing)
+        // finalGood: true,
         productionLine: true,
-        productionOrder: true
+        productionOrder: {
+          bom: {
+            finalGood: true
+          }
+        }
       }})
       return schedule
     } catch (error) {

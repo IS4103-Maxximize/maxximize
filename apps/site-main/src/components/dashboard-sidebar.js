@@ -19,6 +19,11 @@ import RequestPageIcon from '@mui/icons-material/RequestPage';
 import RuleIcon from '@mui/icons-material/Rule';
 import TaskIcon from '@mui/icons-material/Task';
 import WarehouseIcon from '@mui/icons-material/Warehouse';
+import RequestPageIcon from '@mui/icons-material/RequestPage';
+import ReplyAllIcon from '@mui/icons-material/ReplyAll';
+import EventAvailableIcon from '@mui/icons-material/EventAvailable';
+import MarkEmailReadIcon from '@mui/icons-material/MarkEmailRead';
+import DocumentScannerIcon from '@mui/icons-material/DocumentScanner';
 import {
   Accordion,
   AccordionDetails,
@@ -204,6 +209,38 @@ const items = [
       },
     ],
   },
+  {
+    subsystem: 'Fulfilment',
+    access: ['manager', 'factoryworker', 'superadmin'],
+    icon: (
+      <EventAvailableIcon
+        sx={{ marginTop: 0.2, color: '#9CA3AF' }}
+        fontSize="small"
+      />
+    ),
+    open: 'openFulfilment',
+    handleClick: 'handleFulfilmentClick',
+    modules: [
+      {
+        href: '/fulfilment/received-sales-inquiry',
+        icon: <ReplyAllIcon fontSize="small" />,
+        title: 'Received Sales Inquiry',
+        access: ['manager', 'factoryworker', 'superadmin'],
+      },
+      {
+        href: '/fulfilment/sent-quotation',
+        icon: <MarkEmailReadIcon fontSize="small" />,
+        title: 'Sent Quotation',
+        access: ['manager', 'factoryworker', 'superadmin'],
+      },
+      {
+        href: '/fulfilment/received-purchase-order',
+        icon: <DocumentScannerIcon fontSize="small" />,
+        title: 'Received Purchase Order',
+        access: ['manager', 'factoryworker', 'superadmin'],
+      },
+    ],
+  },
 ];
 
 export const DashboardSidebar = (props) => {
@@ -242,6 +279,13 @@ export const DashboardSidebar = (props) => {
 
   const handleProductionClick = () => {
     setOpenProduction(!openProduction);
+  };
+
+  //Handle fulfilment nested menu
+  const [openFulfilment, setOpenFulfilment] = useState(true);
+
+  const handleFulfilmentClick = () => {
+    setOpenFulfilment(!openFulfilment);
   };
 
   const standaloneModules = standalone

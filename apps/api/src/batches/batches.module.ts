@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BatchLineItem } from '../batch-line-items/entities/batch-line-item.entity';
 import { BinsModule } from '../bins/bins.module';
+import { FinalGoodsModule } from '../final-goods/final-goods.module';
 import { ProductionOrdersModule } from '../production-orders/production-orders.module';
 import { Product } from '../products/entities/product.entity';
 import { PurchaseOrder } from '../purchase-orders/entities/purchase-order.entity';
@@ -15,7 +16,14 @@ import { BatchesService } from './batches.service';
 import { Batch } from './entities/batch.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Batch, Product, Warehouse, BatchLineItem, PurchaseOrder, PurchaseRequisition]), WarehousesModule, BinsModule, PurchaseOrder, SalesInquiryModule, PurchaseRequisitionsModule, ProductionOrdersModule],
+  imports: [TypeOrmModule.forFeature([Batch, Product, Warehouse, BatchLineItem, PurchaseOrder, PurchaseRequisition]), 
+    WarehousesModule, 
+    BinsModule, 
+    PurchaseOrder, 
+    SalesInquiryModule, 
+    PurchaseRequisitionsModule, 
+    ProductionOrdersModule, 
+    FinalGoodsModule],
   controllers: [BatchesController],
   providers: [BatchesService],
   exports: [BatchesService]
