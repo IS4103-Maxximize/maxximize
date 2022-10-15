@@ -189,10 +189,50 @@ export const QuotationDialog = (props) => {
 
   const columns = [
     {
+      field: 'skuCode',
+      headerName: 'SKU',
+      flex: 1,
+      valueGetter: (params) => {
+        return params.row ? params.row.rawMaterial.skuCode : '';
+      },
+    },
+    {
+      field: 'rawName',
+      headerName: 'Raw Material Name',
+      flex: 2,
+      valueGetter: (params) => {
+        return params.row ? params.row.rawMaterial.name : '';
+      },
+    },
+    {
+      field: 'description',
+      headerName: 'Description',
+      flex: 3,
+      valueGetter: (params) => {
+        return params.row ? params.row.rawMaterial.description : '';
+      },
+    },
+    {
+      field: 'unit',
+      headerName: 'Unit',
+      flex: 1,
+      valueGetter: (params) => {
+        return params.row ? params.row.rawMaterial.unit : '';
+      },
+    },
+    {
+      field: 'quantity',
+      headerName: 'Quantity',
+      flex: 1,
+      valueGetter: (params) => {
+        return params.row ? params.row.quantity : '';
+      },
+    },
+    {
       field: 'price',
       headerName: 'Quoted Price *',
       flex: 1,
-      editable: true,
+      editable: !quotation?.receivingOrganisationId,
       valueGetter: (params) => {
         if (action === 'POST') {
           return params.row.price
@@ -206,27 +246,12 @@ export const QuotationDialog = (props) => {
       },
     },
     {
-      field: 'quantity',
-      headerName: 'Quantity',
+      field: 'subtotal',
+      headerName: 'Subtotal',
       flex: 1,
       valueGetter: (params) => {
-        return params.row ? params.row.quantity : '';
-      },
-    },
-    {
-      field: 'rawName',
-      headerName: 'Raw Material Name',
-      flex: 1,
-      valueGetter: (params) => {
-        return params.row ? params.row.rawMaterial.name : '';
-      },
-    },
-    {
-      field: 'skuCode',
-      headerName: 'SKU',
-      flex: 1,
-      valueGetter: (params) => {
-        return params.row ? params.row.rawMaterial.skuCode : '';
+        console.log(params);
+        return params.row.price * params.row.quantity;
       },
     },
   ];
@@ -274,6 +299,7 @@ export const QuotationDialog = (props) => {
               value={formik.values.id}
               variant="outlined"
               disabled
+              size="small"
             />
           )}
           {quotation && (
@@ -289,6 +315,7 @@ export const QuotationDialog = (props) => {
               value={formik.values.created}
               variant="outlined"
               disabled
+              size="small"
             />
           )}
           <TextField
@@ -306,6 +333,7 @@ export const QuotationDialog = (props) => {
             value={formik.values.totalPrice}
             variant="outlined"
             disabled
+            size="small"
           />
           <TextField
             fullWidth
@@ -320,8 +348,9 @@ export const QuotationDialog = (props) => {
             value={formik.values.leadTime}
             variant="outlined"
             disabled={Boolean(quotation?.receivingOrganisationId)}
+            size="small"
           />
-          <Stack direction="row" spacing={1}>
+          <Stack direction="row" spacing={1} sx={{ marginTop: 1 }}>
             {!quotation && (
               <Autocomplete
                 id="sales-inquiry-selector"
@@ -347,7 +376,11 @@ export const QuotationDialog = (props) => {
                 }}
                 getOptionLabel={(option) => option.toString(10)}
                 renderInput={(params) => (
-                  <TextField {...params} label="Sales Inquiry ID" />
+                  <TextField
+                    {...params}
+                    label="Sales Inquiry ID"
+                    size="small"
+                  />
                 )}
               />
             )}
@@ -363,7 +396,7 @@ export const QuotationDialog = (props) => {
                   formik.setFieldValue('supplierId', parseInt(newValue));
                 }}
                 renderInput={(params) => (
-                  <TextField {...params} label="Suppliers ID" />
+                  <TextField {...params} label="Suppliers ID" size="small" />
                 )}
               />
             )}
@@ -372,6 +405,7 @@ export const QuotationDialog = (props) => {
                 label="Sales Inquiry ID"
                 value={quotation.salesInquiry.id}
                 disabled={Boolean(quotation)}
+                size="small"
               />
             )}
             {quotation && (
@@ -383,6 +417,7 @@ export const QuotationDialog = (props) => {
                     : quotation.currentOrganisation.id
                 }
                 disabled={Boolean(quotation)}
+                size="small"
               />
             )}
           </Stack>
@@ -390,6 +425,7 @@ export const QuotationDialog = (props) => {
             autoHeight
             rows={formik.values.quotationLineItems}
             columns={columns}
+            disableSelectionOnClick
             pageSize={5}
             rowsPerPageOptions={[5]}
             onSelectionModelChange={(ids) => setSelectedRows(ids)}

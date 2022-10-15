@@ -13,11 +13,11 @@ import { useFormik } from 'formik';
 import { useEffect, useState } from 'react';
 import * as Yup from 'yup';
 
-export const CreateBinDialog = ({
-  rack,
+export const CreateRackDialog = ({
+  warehouse,
   open,
   setOpen,
-  addBin,
+  addRack,
   handleAlertOpen,
 }) => {
   const theme = useTheme();
@@ -36,28 +36,26 @@ export const CreateBinDialog = ({
     formik.resetForm();
   };
 
-  useEffect(() => console.log(rack.id), [open]);
-
   //Handle Formik submission
   const handleOnSubmit = async () => {
-    const response = await fetch('http://localhost:3000/api/bins', {
+    const response = await fetch('http://localhost:3000/api/racks', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        rackId: rack.id,
+        warehouseId: warehouse.id,
         name: formik.values.name,
-        capacity: formik.values.volumetricSpace,
+        description: formik.values.description,
       }),
     });
 
     if (response.status === 200 || response.status === 201) {
       const result = await response.json();
 
-      addBin(result);
-      handleAlertOpen(`Created Bin ${result.id} successfully`);
+      addRack(result);
+      handleAlertOpen(`Created Rack ${result.id} successfully`);
       setError('');
       handleDialogClose();
     } else {
@@ -69,16 +67,17 @@ export const CreateBinDialog = ({
   const formik = useFormik({
     initialValues: {
       name: '',
-      volumetricSpace: '',
+      description: '',
     },
     validationSchema: Yup.object({
       name: Yup.string()
         .min(1, 'Name must be at least be 1 character long')
         .max(50, 'Name can at most be 50 characters long')
         .required('Name is required'),
-      volumetricSpace: Yup.number()
-        .positive('Volumetric space must be positive')
-        .required('Volumetric space is required'),
+      description: Yup.string()
+        .min(1, 'Description must be at least be 1 character long')
+        .max(255, 'Description can at most be 255 characters long')
+        .required('Description is required'),
     }),
     onSubmit: handleOnSubmit,
   });
@@ -90,7 +89,7 @@ export const CreateBinDialog = ({
       onClose={handleDialogClose}
       aria-labelledby="responsive-dialog-title"
     >
-      <DialogTitle id="responsive-dialog-title">{'Create Bin'}</DialogTitle>
+      <DialogTitle id="responsive-dialog-title">{'Create Rack'}</DialogTitle>
       <DialogContent>
         <form onSubmit={formik.handleSubmit}>
           <TextField
@@ -108,18 +107,16 @@ export const CreateBinDialog = ({
           />
           <TextField
             error={Boolean(
-              formik.touched.volumetricSpace && formik.errors.volumetricSpace
+              formik.touched.description && formik.errors.description
             )}
             fullWidth
-            helperText={
-              formik.touched.volumetricSpace && formik.errors.volumetricSpace
-            }
-            label="Volumetric Space"
+            helperText={formik.touched.description && formik.errors.description}
+            label="Description"
             margin="normal"
-            name="volumetricSpace"
+            name="description"
             onBlur={formik.handleBlur}
             onChange={formik.handleChange}
-            value={formik.values.volumetricSpace}
+            value={formik.values.description}
             variant="outlined"
             size="small"
           />
@@ -146,7 +143,7 @@ export const CreateBinDialog = ({
               type="submit"
               variant="contained"
             >
-              Create Bin
+              Create Rack
             </Button>
           </Box>
         </form>
