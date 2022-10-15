@@ -16,6 +16,9 @@ import SentQuotation from './pages/fulfilment/sent-quotation';
 // import Inventory from './pages/inventory';
 import Bin from './pages/inventory/bin';
 import BinDetails from './pages/inventory/bin-details';
+import Masterlist from './pages/inventory/masterlist';
+import MasterlistLineItems from './pages/inventory/masterlist-line-items';
+import Rack from './pages/inventory/rack';
 import Warehouse from './pages/inventory/warehouse';
 import Login from './pages/login';
 import OrganisationSelection from './pages/organisationSelection';
@@ -32,6 +35,7 @@ import ProtectedPublicRoute from './pages/protectedPublicRoute';
 import ProtectedRoute from './pages/protectedRoute';
 import QAChecklists from './pages/qaChecklists';
 import QARules from './pages/qaRules';
+import { RegisterOrganisation } from './pages/registerOrganisation';
 import ResetPassword from './pages/resetpassword';
 import Unauthorized from './pages/unauthorized';
 import WorkerManagement from './pages/workermanagement';
@@ -51,6 +55,12 @@ const routes = (
         <Route
           path="/organisationselection"
           element={<OrganisationSelection />}
+        ></Route>
+      </Route>
+      <Route path="/register-organisation" element={<ProtectedPublicRoute />}>
+        <Route
+          path="/register-organisation"
+          element={<RegisterOrganisation />}
         ></Route>
       </Route>
       <Route path="/login/:orgId" element={<ProtectedPublicRoute />}>
@@ -191,11 +201,20 @@ const routes = (
 
             {/* Inventory */}
             {/* Inventory Modules */}
-            <Route path="warehouse" element={<Warehouse />}></Route>
-            <Route path="warehouse/bin" element={<Bin />}></Route>
+            <Route path="inventory/warehouse" element={<Warehouse />}></Route>
+            <Route path="inventory/warehouse/rack" element={<Rack />}></Route>
             <Route
-              path="warehouse/bin/details"
+              path="inventory/warehouse/rack/bin"
+              element={<Bin />}
+            ></Route>
+            <Route
+              path="inventory/warehouse/rack/bin/details"
               element={<BinDetails />}
+            ></Route>
+            <Route path="inventory/masterlist" element={<Masterlist />}></Route>
+            <Route
+              path="inventory/masterlist/lineItems"
+              element={<MasterlistLineItems />}
             ></Route>
 
             {/* Fulfilment */}

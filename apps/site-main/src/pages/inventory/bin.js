@@ -7,9 +7,9 @@ import { BinToolbar } from '../../components/inventory/bin/bin-toolbar';
 import { CreateBinDialog } from '../../components/inventory/bin/create-bin-dialog';
 import { BinConfirmDialog } from '../../components/inventory/bin/bin-confirm-dialog';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
-import { UpdateWarehouse } from '../../components/inventory/warehouse/update-warehouse';
 import KitchenIcon from '@mui/icons-material/Kitchen';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
+import { UpdateRack } from '../../components/inventory/rack/update-rack';
 
 const Bin = () => {
   const [bins, setBins] = useState([]);
@@ -23,7 +23,7 @@ const Bin = () => {
   //Load in list of bins, initial
   useEffect(() => {
     retrieveAllBins();
-    retrieveWarehouse();
+    retrieveRack();
   }, []);
 
   //Keep track of selectedRows for deletion
@@ -31,7 +31,7 @@ const Bin = () => {
     setDisabled(selectedRows.length === 0);
   }, [selectedRows]);
 
-  //Get the warehouse ID that was clicked
+  //Get the rack that was clicked
   const { state } = useLocation();
 
   //Retrieve all bins
@@ -46,25 +46,26 @@ const Bin = () => {
       result = await response.json();
     }
     if (state != null) {
-      result = result.filter((bin) => bin.warehouse.id == state.warehouseId);
+      console.log(state);
+      result = result.filter((bin) => bin.rack.id == state.rack.id);
     }
     setBins(result);
   };
 
-  const [warehouse, setWarehouse] = useState('');
+  const [rack, setRack] = useState('');
 
-  //Retrieve warehouse
-  const retrieveWarehouse = async () => {
+  //Retrieve rack
+  const retrieveRack = async () => {
     if (state != null) {
       const response = await fetch(
-        `http://localhost:3000/api/warehouses/${state.warehouseId}`
+        `http://localhost:3000/api/racks/${state.rack.id}`
       );
 
       let result = [];
       if (response.status == 200 || response.status == 201) {
         result = await response.json();
       }
-      setWarehouse(result);
+      setRack(result);
     }
   };
 
@@ -193,9 +194,9 @@ const Bin = () => {
     setBatchLineItems(selectedBin?.batchLineItems);
   }, [openUpdateDialog]);
 
-  //Update warehouse
-  const updateWarehouse = (warehouse) => {
-    setWarehouse(warehouse);
+  //Update rack
+  const updateRack = (rack) => {
+    setRack(rack);
   };
 
   //Columns for datagrid, column headers & specs
@@ -214,9 +215,9 @@ const Bin = () => {
     },
     {
       field: 'capacity',
-      headerName: 'Total Capacity',
+      headerName: 'Total Volumetric Space',
       width: 100,
-      flex: 2,
+      flex: 3,
     },
     {
       field: 'currentCapacity',
@@ -226,9 +227,9 @@ const Bin = () => {
     },
     {
       field: 'remainingCapacity',
-      headerName: 'Remaining Capacity',
+      headerName: 'Remaining Volumetric Space',
       width: 100,
-      flex: 2,
+      flex: 3,
       valueGetter: (params) => params.row.capacity - params.row.currentCapacity,
     },
     {
@@ -250,12 +251,12 @@ const Bin = () => {
   };
 
   return state == null ? (
-    <Navigate to="/warehouse" />
+    <Navigate to="/inventory/warehouse" />
   ) : (
     <>
       <HelmetProvider>
         <Helmet>
-          <title>{`${warehouse.name} Bin | ${user?.organisation?.name}`}</title>
+          <title>{`${rack.name} Bin | ${user?.organisation?.name}`}</title>
         </Helmet>
       </HelmetProvider>
       <NotificationAlert
@@ -265,7 +266,7 @@ const Bin = () => {
         handleClose={handleAlertClose}
       />
       <CreateBinDialog
-        warehouse={warehouse}
+        rack={rack}
         open={open}
         setOpen={setOpen}
         addBin={addBin}
@@ -298,9 +299,9 @@ const Bin = () => {
           Back
         </Button>
         <Container maxWidth={false}>
-          <UpdateWarehouse
-            warehouse={warehouse}
-            updateWarehouse={updateWarehouse}
+          <UpdateRack
+            rack={rack}
+            updateRack={updateRack}
             handleAlertOpen={handleAlertOpen}
           />
           <BinToolbar

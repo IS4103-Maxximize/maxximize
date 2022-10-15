@@ -14,7 +14,7 @@ import { useEffect, useState } from 'react';
 import * as Yup from 'yup';
 
 export const CreateBinDialog = ({
-  warehouse,
+  rack,
   open,
   setOpen,
   addBin,
@@ -36,7 +36,7 @@ export const CreateBinDialog = ({
     formik.resetForm();
   };
 
-  useEffect(() => console.log(warehouse.id), [open]);
+  useEffect(() => console.log(rack.id), [open]);
 
   //Handle Formik submission
   const handleOnSubmit = async () => {
@@ -47,9 +47,9 @@ export const CreateBinDialog = ({
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        warehouseId: warehouse.id,
+        rackId: rack.id,
         name: formik.values.name,
-        capacity: formik.values.capacity,
+        capacity: formik.values.volumetricSpace,
       }),
     });
 
@@ -69,16 +69,16 @@ export const CreateBinDialog = ({
   const formik = useFormik({
     initialValues: {
       name: '',
-      capacity: '',
+      volumetricSpace: '',
     },
     validationSchema: Yup.object({
       name: Yup.string()
         .min(1, 'Name must be at least be 1 character long')
         .max(50, 'Name can at most be 50 characters long')
         .required('Name is required'),
-      capacity: Yup.number()
-        .positive('Capacity must be positive')
-        .required('Capacity is required'),
+      volumetricSpace: Yup.number()
+        .positive('Volumetric space must be positive')
+        .required('Volumetric space is required'),
     }),
     onSubmit: handleOnSubmit,
   });
@@ -107,15 +107,19 @@ export const CreateBinDialog = ({
             size="small"
           />
           <TextField
-            error={Boolean(formik.touched.capacity && formik.errors.capacity)}
+            error={Boolean(
+              formik.touched.volumetricSpace && formik.errors.volumetricSpace
+            )}
             fullWidth
-            helperText={formik.touched.capacity && formik.errors.capacity}
-            label="Capacity"
+            helperText={
+              formik.touched.volumetricSpace && formik.errors.volumetricSpace
+            }
+            label="Volumetric Space"
             margin="normal"
-            name="capacity"
+            name="volumetricSpace"
             onBlur={formik.handleBlur}
             onChange={formik.handleChange}
-            value={formik.values.capacity}
+            value={formik.values.volumetricSpace}
             variant="outlined"
             size="small"
           />

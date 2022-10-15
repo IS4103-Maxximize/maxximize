@@ -173,7 +173,9 @@ const Warehouse = () => {
   //Navigate to the bin page
   const navigate = useNavigate();
   const handleRowClick = (rowData) => {
-    navigate('bin', { state: { warehouseId: rowData.id } });
+    navigate('rack', {
+      state: { warehouseId: rowData.id, racks: rowData.row.racks },
+    });
   };
 
   return (
