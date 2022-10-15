@@ -257,19 +257,19 @@ export class AppService implements OnApplicationBootstrap {
 
       await this.binsService.create({
         name: 'SLOC-001-Warehouse1',
-        capacity: 1000000,
+        volumetricSpace: 300,
         rackId: 1,
       });
 
       await this.binsService.create({
         name: 'SLOC-002-Warehouse1',
-        capacity: 1000000,
+        volumetricSpace: 200,
         rackId: 2,
       });
 
       await this.binsService.create({
         name: 'SLOC-001-Warehouse2',
-        capacity: 10000,
+        volumetricSpace: 140,
         rackId: 3,
       });
 
@@ -467,14 +467,17 @@ export class AppService implements OnApplicationBootstrap {
           {
             quantity: 50,
             rawMaterialId: 1,
+            volumetricSpace: 50
           },
           {
             quantity: 30,
             rawMaterialId: 2,
+            volumetricSpace: 30
           },
           {
             quantity: 60,
             rawMaterialId: 3,
+            volumetricSpace: 60
           },
         ],
         followUpLineItemsDtos: [],

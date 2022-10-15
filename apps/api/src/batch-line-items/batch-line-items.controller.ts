@@ -1,16 +1,10 @@
 import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
+  Body, Controller, Delete, Get, Param, Post, Query
 } from '@nestjs/common';
 import { BatchLineItemsService } from './batch-line-items.service';
+import { AllocationDto } from './dto/allocation.dto';
+import { CheckBinCapacityLineItemsDto } from './dto/checkBinCapacityLineItems.dto';
 import { CreateBatchLineItemDto } from './dto/create-batch-line-item.dto';
-import { GetBatchLineItemProdDto } from './dto/get-batch-line-item-prod.dto';
-import { UpdateBatchLineItemDto } from './dto/update-batch-line-item.dto';
 
 @Controller('batch-line-items')
 export class BatchLineItemsController {
@@ -24,6 +18,11 @@ export class BatchLineItemsController {
   @Get()
   findAll() {
     return this.batchLineItemsService.findAll();
+  }
+
+  @Get('checkBinCapacityAgainstLineItems')
+  checkBinCapacityAgainstLineItems(@Query() checkBinCapacityLineItemsDto: CheckBinCapacityLineItemsDto) {
+    return this.batchLineItemsService.checkBinCapacityAgainstLineItems(checkBinCapacityLineItemsDto);
   }
 
   @Get(':id')
@@ -49,5 +48,10 @@ export class BatchLineItemsController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.batchLineItemsService.remove(+id);
+  }
+
+  @Post('autoAllocate')
+  autoAllocate(@Body() allocationDto: AllocationDto) {
+    return this.batchLineItemsService.autoAllocation(allocationDto);
   }
 }

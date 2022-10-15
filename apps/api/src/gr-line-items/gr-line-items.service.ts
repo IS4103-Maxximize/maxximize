@@ -37,6 +37,7 @@ export class GrLineItemsService {
   async createWithExistingTransaction(createGrLineItemsDto: CreateGrLineItemDto, queryRunner: QueryRunner) {
     const grLineItem = new GrLineItem();
     grLineItem.quantity = createGrLineItemsDto.quantity;
+    grLineItem.unitOfVolumetricSpace = createGrLineItemsDto.volumetricSpace / createGrLineItemsDto.quantity;
 
     const rawMaterial = await this.rawMaterialService.findOne(createGrLineItemsDto.rawMaterialId);
     grLineItem.product = rawMaterial;

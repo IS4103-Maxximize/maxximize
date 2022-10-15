@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { BatchLineItemsModule } from '../batch-line-items/batch-line-items.module';
 import { BatchLineItem } from '../batch-line-items/entities/batch-line-item.entity';
 import { RacksModule } from '../racks/racks.module';
 import { Warehouse } from '../warehouses/entities/warehouse.entity';
