@@ -18,7 +18,7 @@ export class Bin {
   name: string;
 
   @Column()
-  capacity: number;
+  volumetricSpace: number;
 
   @Column()
   currentCapacity: number;

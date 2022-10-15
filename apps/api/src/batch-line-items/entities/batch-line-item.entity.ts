@@ -8,6 +8,9 @@ export class BatchLineItem extends LineItem {
     @Column()
     expiryDate: Date;
 
+    @Column()
+    code: string;
+
     @Column({default: 0})
     reservedQuantity: number;
 
