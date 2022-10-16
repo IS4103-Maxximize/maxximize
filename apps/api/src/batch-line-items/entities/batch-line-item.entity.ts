@@ -1,7 +1,8 @@
-import { Column, DeleteDateColumn, Entity, ManyToOne } from "typeorm";
+import { Column, DeleteDateColumn, Entity, ManyToOne, OneToOne } from "typeorm";
 import { Batch } from "../../batches/entities/batch.entity";
 import { Bin } from "../../bins/entities/bin.entity";
 import { LineItem } from "../../line-Items/LineItem";
+import { Schedule } from "../../schedules/entities/schedule.entity";
 
 @Entity()
 export class BatchLineItem extends LineItem {

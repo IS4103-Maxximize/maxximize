@@ -5,9 +5,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Schedule } from './entities/schedule.entity';
 import { Machine } from '../vehicles/entities/vehicle.entity';
 import { ProductionLinesModule } from '../production-lines/production-lines.module';
+import { Batch } from '../batches/entities/batch.entity';
+import { BatchesModule } from '../batches/batches.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Schedule]), forwardRef(() => ProductionLinesModule)],
+  imports: [TypeOrmModule.forFeature([Schedule]), forwardRef(() => ProductionLinesModule), forwardRef(() => BatchesModule)],
   controllers: [SchedulesController],
   providers: [SchedulesService],
   exports: [SchedulesService]

@@ -15,7 +15,7 @@ import { PurchaseRequisitionsService } from './purchase-requisitions.service';
     ProductionLineItemsModule, 
     OrganisationsModule, 
     RawMaterialsModule,
-	ProductionOrdersModule,
+    forwardRef(() => ProductionOrdersModule),
     forwardRef(() => SalesInquiryModule)
   ],
   controllers: [PurchaseRequisitionsController],

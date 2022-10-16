@@ -2,6 +2,7 @@ import { Column, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typ
 import { BatchLineItem } from "../../batch-line-items/entities/batch-line-item.entity";
 import { GoodsReceipt } from "../../goods-receipts/entities/goods-receipt.entity";
 import { ProductionOrder } from "../../production-orders/entities/production-order.entity";
+import { Schedule } from "../../schedules/entities/schedule.entity";
 
 @Entity()
 export class Batch {
@@ -24,6 +25,8 @@ export class Batch {
     })
     goodsReceipt: GoodsReceipt;
 
-    @OneToOne(() => ProductionOrder, productionOrder => productionOrder.completedGoods, {nullable: true})
-    productionOrder?: ProductionOrder
+    @OneToOne(() => Schedule, schedule => schedule.completedGoods)
+    schedule: Schedule
+
+
 }

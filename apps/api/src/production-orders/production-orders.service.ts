@@ -5,6 +5,7 @@ import { ValidationError } from 'class-validator';
 import { CronJob } from 'cron';
 import { start } from 'repl';
 import { endWith } from 'rxjs';
+import { arrayBuffer } from 'stream/consumers';
 import { DataSource, Not, Repository } from 'typeorm';
 import { BatchLineItemsService } from '../batch-line-items/batch-line-items.service';
 import { BatchLineItem } from '../batch-line-items/entities/batch-line-item.entity';
@@ -135,11 +136,42 @@ export class ProductionOrdersService {
                 end,
                 productionLineId,
                 status: ScheduleType.PLANNED,
+                prodLineItems: []
               }
             );
             schedulesToBeAdded.push(
               await transactionalEntityManager.save(schedule)
             );
+          }
+          for (const bomLineItem of bomToBeAdded.bomLineItems) {
+            let current = 0
+            let target = 0
+            for (const schedule of schedulesToBeAdded){
+              const prodLine = await this.productionLinesService.findOne(schedule.productionLineId)
+              const duration = (schedule.end.getTime() - schedule.start.getTime())/3600000
+              let start = target
+              target += (prodLine.outputPerHour / bomToBeAdded.finalGood.lotQuantity) * duration * bomLineItem.quantity
+              
+              for (const prodLineItem of prodLineItemsToBeAdded) {
+                if (prodLineItem.rawMaterial.id == bomLineItem.rawMaterial.id) {
+                  
+                  if (prodLineItem.quantity < (target - current)) {
+                    current += prodLineItem.quantity
+                  } else {
+                    current = target
+                  }
+                  if (start < current){
+                    schedule.prodLineItems.push(prodLineItem)
+                  }
+                  if (current == target) {
+                    break
+                  }
+                }
+              }
+            }
+          }
+          for (const schedule of schedulesToBeAdded) {
+            await transactionalEntityManager.save(schedule)
           }
           newProductionOrder = transactionalEntityManager.create(
             ProductionOrder,
@@ -193,6 +225,7 @@ export class ProductionOrdersService {
             this.schedulerRegistry.addCronJob(`end ${schedule.id}`, endJob);
             endJob.start();
           }
+          
         } else {
           scheduleDtos =
             await this.productionLinesService.retrieveSchedulesForProductionOrder(
@@ -241,9 +274,7 @@ export class ProductionOrdersService {
                 batchLineItemId,
                 { reservedQuantity: batchLineItem.reservedQuantity + quantity }
               );
-              prodLineItemsToBeAdded.push(
-                await transactionalEntityManager.save(prodLineItem)
-              );
+              prodLineItemsToBeAdded.push(await transactionalEntityManager.save(prodLineItem))
               rawMaterialCount += quantity;
             } else if (!sufficient) {
               let rawMaterialToBeAdded =
@@ -272,12 +303,43 @@ export class ProductionOrdersService {
                   end,
                   productionLineId,
                   status: ScheduleType.PLANNED,
+                  prodLineItems: []
                 }
               );
-              schedulesToBeAdded.push(
-                await transactionalEntityManager.save(schedule)
-              );
+              schedulesToBeAdded.push(await transactionalEntityManager.save(schedule))
             }
+            for (const bomLineItem of bomToBeAdded.bomLineItems) {
+              let current = 0
+              let target = 0
+              for (const schedule of schedulesToBeAdded){
+                const prodLine = await this.productionLinesService.findOne(schedule.productionLineId)
+                const duration = (schedule.end.getTime() - schedule.start.getTime())/3600000
+                let start = target
+                target += (prodLine.outputPerHour / bomToBeAdded.finalGood.lotQuantity) * duration * bomLineItem.quantity
+                
+                for (const prodLineItem of prodLineItemsToBeAdded) {
+                  if (prodLineItem.rawMaterial.id == bomLineItem.rawMaterial.id) {
+                    
+                    if (prodLineItem.quantity < (target - current)) {
+                      current += prodLineItem.quantity
+                    } else {
+                      current = target
+                    }
+                    if (start < current){
+                      schedule.prodLineItems.push(prodLineItem)
+                    }
+                    if (current == target) {
+                      break
+                    }
+                  }
+                }
+                
+              }
+            }
+            for (const schedule of schedulesToBeAdded) {
+              await transactionalEntityManager.save(schedule)
+            }
+            
             newProductionOrder = transactionalEntityManager.create(
               ProductionOrder,
               {
@@ -290,11 +352,13 @@ export class ProductionOrdersService {
                 organisationId,
               }
             );
+            
             newProductionOrder = await transactionalEntityManager.save(
               newProductionOrder
             );
+            let cronTest = 10000
             for (const schedule of schedulesToBeAdded) {
-              const startJob = new CronJob(schedule.start, async () => {
+              const startJob = new CronJob(new Date((new Date()).getTime() + cronTest), async () => {
                 await this.schedulesService.update(schedule.id, {
                   status: ScheduleType.ONGOING,
                 });
@@ -305,7 +369,8 @@ export class ProductionOrdersService {
                   `time (${schedule.start}) for start job ${schedule.id} to run!`
                 );
               });
-              const endJob = new CronJob(schedule.end, async () => {
+              cronTest += 10000
+              const endJob = new CronJob(new Date((new Date()).getTime() + cronTest), async () => {
                 await this.schedulesService.update(schedule.id, {
                   status: ScheduleType.COMPLETED,
                 });
@@ -320,6 +385,7 @@ export class ProductionOrdersService {
                 `start ${schedule.id}`,
                 startJob
               );
+              cronTest += 10000
               startJob.start();
               this.schedulerRegistry.addCronJob(`end ${schedule.id}`, endJob);
               endJob.start();
@@ -344,11 +410,42 @@ export class ProductionOrdersService {
                     end,
                     productionLineId,
                     status: ScheduleType.PLANNED,
+                    prodLineItems: []
                   }
                 );
                 schedulesToBeAdded.push(
                   await transactionalEntityManager.save(schedule)
                 );
+              }
+              for (const bomLineItem of bomToBeAdded.bomLineItems) {
+                let current = 0
+                let target = 0
+                for (const schedule of schedulesToBeAdded){
+                  const prodLine = await this.productionLinesService.findOne(schedule.productionLineId)
+                  const duration = (schedule.end.getTime() - schedule.start.getTime())/3600000
+                  let start = target
+                  target += (prodLine.outputPerHour / bomToBeAdded.finalGood.lotQuantity) * duration * bomLineItem.quantity
+                  
+                  for (const prodLineItem of prodLineItemsToBeAdded) {
+                    if (prodLineItem.rawMaterial.id == bomLineItem.rawMaterial.id) {
+                      
+                      if (prodLineItem.quantity < (target - current)) {
+                        current += prodLineItem.quantity
+                      } else {
+                        current = target
+                      }
+                      if (start < current){
+                        schedule.prodLineItems.push(prodLineItem)
+                      }
+                      if (current == target) {
+                        break
+                      }
+                    }
+                  }
+                }
+              }
+              for (const schedule of schedulesToBeAdded) {
+                await transactionalEntityManager.save(schedule)
               }
               newProductionOrder = transactionalEntityManager.create(
                 ProductionOrder,
@@ -436,7 +533,6 @@ export class ProductionOrdersService {
           finalGood: true,
           bomLineItems: true,
         },
-        completedGoods: true,
         schedules: true,
         prodLineItems: {
           batchLineItem: { 
@@ -472,7 +568,6 @@ export class ProductionOrdersService {
 			  finalGood: true,
 			  bomLineItems: true,
 			},
-			completedGoods: true,
 			schedules: true,
 			prodLineItems: {
 			  batchLineItem: { 
@@ -498,7 +593,6 @@ export class ProductionOrdersService {
           finalGood: true,
           bomLineItems: true,
         },
-        completedGoods: true,
         schedules: true,
         prodLineItems: {
           batchLineItem: { 
@@ -536,7 +630,6 @@ export class ProductionOrdersService {
           finalGood: true,
           bomLineItems: true,
         },
-        completedGoods: true,
         schedules: true,
         prodLineItems: {
           batchLineItem: { 
@@ -563,7 +656,6 @@ export class ProductionOrdersService {
 			  finalGood: true,
 			  bomLineItems: true,
 			},
-			completedGoods: true,
 			schedules: true,
 			prodLineItems: {
 			  batchLineItem: { 
@@ -599,7 +691,6 @@ export class ProductionOrdersService {
 			  finalGood: true,
 			  bomLineItems: true,
 			},
-			completedGoods: true,
 			schedules: true,
 			prodLineItems: {
 			  batchLineItem: { 
@@ -650,11 +741,44 @@ export class ProductionOrdersService {
                     productionLineId,
                     status: ScheduleType.PLANNED,
                     productionOrder: productionOrderToUpdate,
+                    prodLineItems: []
                   }
                 );
                 schedulesToBeAdded.push(
                   await transactionalEntityManager.save(schedule)
                 );
+                const bomToBeAdded = productionOrderToUpdate.bom
+                const prodLineItemsToBeAdded = productionOrderToUpdate.prodLineItems
+                for (const bomLineItem of bomToBeAdded.bomLineItems) {
+                  let current = 0
+                  let target = 0
+                  for (const schedule of schedulesToBeAdded){
+                    const prodLine = await this.productionLinesService.findOne(schedule.productionLineId)
+                    const duration = (schedule.end.getTime() - schedule.start.getTime())/3600000
+                    let start = target
+                    target += (prodLine.outputPerHour / bomToBeAdded.finalGood.lotQuantity) * duration * bomLineItem.quantity
+                    
+                    for (const prodLineItem of prodLineItemsToBeAdded) {
+                      if (prodLineItem.rawMaterial.id == bomLineItem.rawMaterial.id) {
+                        
+                        if (prodLineItem.quantity < (target - current)) {
+                          current += prodLineItem.quantity
+                        } else {
+                          current = target
+                        }
+                        if (start < current){
+                          schedule.prodLineItems.push(prodLineItem)
+                        }
+                        if (current == target) {
+                          break
+                        }
+                      }
+                    }
+                  }
+                }
+                for (const schedule of schedulesToBeAdded) {
+                  await transactionalEntityManager.save(schedule)
+                }
                 const startJob = new CronJob(
                   schedule.start,
                   async () => {
@@ -862,4 +986,5 @@ export class ProductionOrdersService {
     const jobs = this.schedulerRegistry.getCronJobs();
     console.log(jobs);
   }
+
 }

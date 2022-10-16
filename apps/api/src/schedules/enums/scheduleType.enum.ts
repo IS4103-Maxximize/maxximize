@@ -6,5 +6,6 @@ export enum ScheduleType {
     COMPLETED = 'completed',
     PLANNED = 'planned',
     ONGOING = 'ongoing',
-    INDRAFT= 'indraft'
+    INDRAFT= 'indraft',
+    ALLOCATED= 'allocated'
 }
