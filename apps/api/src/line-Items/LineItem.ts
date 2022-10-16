@@ -13,6 +13,9 @@ export abstract class LineItem {
     @Column()
     quantity: number;
 
+    @Column()
+    unitOfVolumetricSpace: number;
+
     @ManyToOne(() => Product)
     product: Product;
 }

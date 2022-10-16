@@ -5,7 +5,7 @@ export class CreateBinDto {
     name: string;
 
     @IsNotEmpty()
-    capacity: number;
+    volumetricSpace: number;
 
     @IsNotEmpty()
     rackId: number;

@@ -44,6 +44,8 @@ import { AppService } from './app.service';
 import { ScheduleModule } from '@nestjs/schedule';
 import { PurchaseRequisitionsModule } from '../purchase-requisitions/purchase-requisitions.module';
 import { RacksModule } from '../racks/racks.module';
+import { MulterModule } from '@nestjs/platform-express';
+import { FilesModule } from '../files/files.module';
 
 @Module({
   imports: [
@@ -100,7 +102,12 @@ import { RacksModule } from '../racks/racks.module';
     ProductionOrdersModule,
     ScheduleModule.forRoot(),
     PurchaseRequisitionsModule,
-    RacksModule
+    RacksModule,
+    FilesModule,
+    MulterModule.register({
+      dest: '/uploads'
+    }),
+    
   ],
   controllers: [AppController],
   providers: [AppService],

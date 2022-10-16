@@ -64,18 +64,21 @@ export class BatchesService {
     // Try to allocate those line items fully
     for (const lineItem of goodsReceiptLineItems) {
       for (const bin of bins) {
-        const lineItemCapacity = lineItem.quantity;
-        if (lineItemCapacity <= bin.capacity - bin.currentCapacity) {
+        const lineItemCapacity = lineItem.quantity * lineItem.unitOfVolumetricSpace;
+        if (lineItemCapacity <= bin.volumetricSpace - bin.currentCapacity) {
           const batchLineItem = new BatchLineItem();
+          batchLineItem.code = "B-" + bin.name + "-R-" + bin.rack.name + "-W-" + bin.rack.warehouse.name;
           batchLineItem.bin = bin;
           batchLineItem.product = lineItem.product;
           batchLineItem.quantity = lineItem.quantity;
+          batchLineItem.unitOfVolumetricSpace = lineItem.unitOfVolumetricSpace;
           batchLineItem.subTotal = lineItem.product.unitPrice * lineItem.quantity;
           const date = new Date();
           date.setDate(date.getDate() + lineItem.product.expiry);
           batchLineItem.expiryDate = date;
           batchLineItems.push(batchLineItem);
           bin.currentCapacity = bin.currentCapacity + lineItemCapacity;
+
           const index = unassigned.indexOf(lineItem);
           unassigned.splice(index, 1);
           break;
@@ -83,34 +86,60 @@ export class BatchesService {
       }
     }
 
-    // For those that cannot be allocated fully, find bins with space
+    const cannotBeAllocated = unassigned.slice();
+
+    // For those that cannot be allocated fully, find bins with space on first fit basis
     // and allocate partially till all of the product is allocated
     for (const unallocated of unassigned) {
       let qty = unallocated.quantity;
-      while (qty > 0) { // can remove, no need this qty > 0 
-        for (const bin of bins) {
-          const availableSpace = bin.capacity - bin.currentCapacity;
-          if (availableSpace > 0) {
-            const batchLineItem = new BatchLineItem();
-            if (qty > availableSpace) {
-              batchLineItem.quantity =  availableSpace;
-              bin.currentCapacity = bin.capacity;
-            } else {
-              batchLineItem.quantity =  qty;
-              bin.currentCapacity = bin.currentCapacity + qty;
-            }
-            batchLineItem.bin = bin;
-            batchLineItem.product = unallocated.product;
-            batchLineItem.subTotal = unallocated.product.unitPrice * batchLineItem.quantity;
-            
-            batchLineItems.push(batchLineItem);
+      for (const bin of bins) {
+        const availableSpace = bin.volumetricSpace - bin.currentCapacity;
+        const spaceRequired = qty * unallocated.unitOfVolumetricSpace;
+        if (availableSpace > 0) {
+          const batchLineItem = new BatchLineItem();
+          if (spaceRequired > availableSpace) {
+            batchLineItem.quantity =  Math.floor(availableSpace / unallocated.unitOfVolumetricSpace);
+            bin.currentCapacity = bin.currentCapacity + (batchLineItem.quantity * unallocated.unitOfVolumetricSpace);
+          } else {
+            batchLineItem.quantity =  unallocated.quantity;
+            bin.currentCapacity = bin.currentCapacity + spaceRequired;
+          }
+          batchLineItem.code = "B-" + bin.name + "-R-" + bin.rack.name + "-W-" + bin.rack.warehouse.name;
+          batchLineItem.bin = bin;
+          batchLineItem.product = unallocated.product;
+          batchLineItem.subTotal = unallocated.product.unitPrice * batchLineItem.quantity;
+          batchLineItem.unitOfVolumetricSpace = unallocated.unitOfVolumetricSpace;
+          const date = new Date();
+          date.setDate(date.getDate() + unallocated.product.expiry);
+          batchLineItem.expiryDate = date;
 
-            qty -= availableSpace;
-          }
-          if (qty < 0) {
-            break;
-          }
+          batchLineItems.push(batchLineItem);
+
+          qty -= batchLineItem.quantity;
         }
+        if (qty <= 0) {
+          const index = cannotBeAllocated.indexOf(unallocated);
+          cannotBeAllocated.splice(index, 1);
+          break;
+        } else {
+          const index = cannotBeAllocated.indexOf(unallocated);
+          cannotBeAllocated[index].quantity = qty;
+        }
+      }
+    }
+    
+    if (cannotBeAllocated.length > 0) {
+      for (const cannotAllocated of cannotBeAllocated) {
+          const batchLineItem = new BatchLineItem();
+          batchLineItem.code = "";
+          batchLineItem.product = cannotAllocated.product;
+          batchLineItem.quantity = cannotAllocated.quantity;
+          batchLineItem.subTotal = cannotAllocated.product.unitPrice * cannotAllocated.quantity;
+          batchLineItem.unitOfVolumetricSpace = cannotAllocated.unitOfVolumetricSpace;
+          const date = new Date();
+          date.setDate(date.getDate() + cannotAllocated.product.expiry);
+          batchLineItem.expiryDate = date;
+          batchLineItems.push(batchLineItem);
       }
     }
 
@@ -242,6 +271,7 @@ export class BatchesService {
         }
       }
     }
+
     return createdBatch;
   }
 
@@ -302,7 +332,7 @@ export class BatchesService {
     
     for (const bin of bins) {
       const lineItemCapacity = quantity;
-      if (lineItemCapacity <= bin.capacity - bin.currentCapacity) {
+      if (lineItemCapacity <= bin.volumetricSpace - bin.currentCapacity) {
         const batchLineItem = new BatchLineItem();
         batchLineItem.bin = bin;
         batchLineItem.product = finalGood;
@@ -320,12 +350,12 @@ export class BatchesService {
 
     let qty = quantity;
     for (const bin of bins) {
-      const availableSpace = bin.capacity - bin.currentCapacity;
+      const availableSpace = bin.volumetricSpace - bin.currentCapacity;
       if (availableSpace > 0) {
         const batchLineItem = new BatchLineItem();
         if (qty > availableSpace) {
           batchLineItem.quantity =  availableSpace;
-          bin.currentCapacity = bin.capacity;
+          bin.currentCapacity = bin.volumetricSpace;
         } else {
           batchLineItem.quantity =  qty;
           bin.currentCapacity = bin.currentCapacity + qty;

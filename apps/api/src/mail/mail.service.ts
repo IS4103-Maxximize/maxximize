@@ -71,4 +71,18 @@ export class MailService {
             },
         });
     }
+
+    async sendRejectedApplicationEmail(email: string, organisationName: string, applicationId: number, name: string) {
+        await this.mailerService.sendMail({
+            to: email,
+            from: process.env.MAIL_FROM,
+            subject: "Rejected Application",
+            template: './rejectedApplicationMail', 
+            context: {
+                organisation: organisationName,
+                name: name,
+                applicationId: applicationId
+            },
+        });
+    }
 }

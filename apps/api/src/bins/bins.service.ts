@@ -2,7 +2,6 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { RacksService } from '../racks/racks.service';
-import { WarehousesService } from '../warehouses/warehouses.service';
 import { CreateBinDto } from './dto/create-bin.dto';
 import { UpdateBinDto } from './dto/update-bin.dto';
 import { Bin } from './entities/bin.entity';
@@ -13,7 +12,6 @@ export class BinsService {
     @InjectRepository(Bin)
     private readonly binRepository: Repository<Bin>,
     private dataSource: DataSource,
-    private warehouseService: WarehousesService,
     private rackService: RacksService
   ) {}
 
@@ -25,7 +23,7 @@ export class BinsService {
     try {
       const bin = new Bin();
       bin.name = createBinDto.name;
-      bin.capacity = createBinDto.capacity;
+      bin.volumetricSpace = createBinDto.volumetricSpace;
       bin.currentCapacity = 0;
       bin.batchLineItems = [];
 

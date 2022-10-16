@@ -74,18 +74,18 @@ export const SentQuotationDialog = (props) => {
     },
     {
       field: 'rawName',
-      headerName: 'Raw Material Name',
-      flex: 1,
+      headerName: 'Final Good Name',
+      flex: 2,
       valueGetter: (params) => {
         return params.row ? params.row.finalGood.name : '';
       },
     },
     {
-      field: 'quantity',
-      headerName: 'Quantity',
-      flex: 1,
+      field: 'finalGoodDescription',
+      headerName: 'Description',
+      flex: 3,
       valueGetter: (params) => {
-        return params.row ? params.row.quantity : '';
+        return params.row ? params.row.finalGood.description : '';
       },
     },
     {
@@ -97,12 +97,29 @@ export const SentQuotationDialog = (props) => {
       },
     },
     {
+      field: 'quantity',
+      headerName: 'Quantity',
+      flex: 1,
+      valueGetter: (params) => {
+        return params.row ? params.row.quantity : '';
+      },
+    },
+    {
       field: 'price',
-      headerName: 'Quoted Price *',
+      headerName: 'Quoted Price',
       flex: 1,
       editable: true,
       valueGetter: (params) => {
         return params.row.price;
+      },
+    },
+    {
+      field: 'subtotal',
+      headerName: 'Subtotal',
+      flex: 1,
+      valueGetter: (params) => {
+        console.log(params);
+        return params.row.quantity * params.row.price;
       },
     },
   ];
@@ -212,6 +229,7 @@ export const SentQuotationDialog = (props) => {
             autoHeight
             rows={formik.values.quotationLineItems}
             columns={columns}
+            disableSelectionOnClick
             pageSize={5}
             rowsPerPageOptions={[5]}
             onSelectionModelChange={(ids) => setSelectedRows(ids)}
