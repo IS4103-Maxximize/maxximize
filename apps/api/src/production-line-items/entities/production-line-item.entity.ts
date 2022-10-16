@@ -31,8 +31,8 @@ export class ProductionLineItem {
     @OneToOne(() => PurchaseRequisition, purchaseRequisition => purchaseRequisition.productionLineItem)
     purchaseRequisition: PurchaseRequisition;
 
-    @ManyToMany(() => Schedule, schedule => schedule.prodLineItems)
-    schedules: Schedule[]
+    // @ManyToMany(() => Schedule, schedule => schedule.prodLineItems)
+    // schedules: Schedule[]
 
     @DeleteDateColumn()
     deletedAt: Date;

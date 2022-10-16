@@ -27,7 +27,6 @@ export class BatchesService {
   private binService: BinsService,
   private salesInquiryService: SalesInquiryService,
   private purchaseRequisitionService: PurchaseRequisitionsService,
-  private productionOrderService: ProductionOrdersService,
   private finalGoodService: FinalGoodsService,
   private dataSource: DataSource) {}
 
@@ -314,7 +313,8 @@ export class BatchesService {
         batchLineItem.expiryDate = date;
         batchLineItems.push(batchLineItem);
         bin.currentCapacity = bin.currentCapacity + lineItemCapacity;
-        break;
+        batch.batchLineItems = batchLineItems
+        return batch;
       }
     }
 
@@ -333,7 +333,9 @@ export class BatchesService {
         batchLineItem.bin = bin;
         batchLineItem.product = finalGood
         batchLineItem.subTotal = finalGood.unitPrice * batchLineItem.quantity;
-        
+        const date = new Date();
+        date.setDate(date.getDate() + finalGood.expiry);
+        batchLineItem.expiryDate = date;
         batchLineItems.push(batchLineItem);
 
         qty -= availableSpace;

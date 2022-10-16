@@ -28,7 +28,7 @@ export class SchedulesController {
     return this.schedulesService.update(+id, updateScheduleDto);
   }
 
-  @Patch('allocate')
+  @Post('allocate')
   allocate(@Body() allocateScheduleDto: AllocateScheduleDto) {
     return this.schedulesService.allocate(allocateScheduleDto)
   }

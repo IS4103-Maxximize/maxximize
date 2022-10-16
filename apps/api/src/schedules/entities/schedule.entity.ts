@@ -38,7 +38,7 @@ export class Schedule {
     @JoinColumn()
     completedGoods: Batch
 
-    @ManyToMany(() => ProductionLineItem, prodLineItem => prodLineItem.schedules)
+    @ManyToMany(() => ProductionLineItem)
     @JoinTable()
     prodLineItems: ProductionLineItem[]
     //REMOVE THIS (Required for testing)

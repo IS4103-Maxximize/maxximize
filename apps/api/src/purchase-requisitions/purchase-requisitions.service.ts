@@ -23,6 +23,7 @@ export class PurchaseRequisitionsService {
     private organisationService: OrganisationsService,
     @Inject(forwardRef(() => SalesInquiryService))
     private salesInquiryService: SalesInquiryService,
+    @Inject(forwardRef(() => ProductionOrdersService))
 	private productionOrdersService: ProductionOrdersService
   ) {}
   async create(createPurchaseRequisitionDto: CreatePurchaseRequisitionDto) {
