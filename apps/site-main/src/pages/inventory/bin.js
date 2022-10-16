@@ -111,7 +111,7 @@ const Bin = () => {
   //Icon for capacity status
   const capacityStatus = (params) => {
     return (
-      <Tooltip title={`${params.row.currentCapacity} / ${params.row.capacity}`}>
+      <Tooltip title={`${params.row.currentCapacity} / ${params.row.volumetricSpace}`}>
         <KitchenIcon sx={{ color: perc2color(params.row) }} />
       </Tooltip>
     );
@@ -214,7 +214,7 @@ const Bin = () => {
       flex: 6,
     },
     {
-      field: 'capacity',
+      field: 'volumetricSpace',
       headerName: 'Total Volumetric Space',
       width: 100,
       flex: 3,
@@ -230,7 +230,7 @@ const Bin = () => {
       headerName: 'Remaining Volumetric Space',
       width: 100,
       flex: 3,
-      valueGetter: (params) => params.row.capacity - params.row.currentCapacity,
+      valueGetter: (params) => params.row.volumetricSpace - params.row.currentCapacity,
     },
     {
       field: 'actions',
