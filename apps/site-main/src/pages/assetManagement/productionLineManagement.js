@@ -180,7 +180,9 @@ export const ProductionLineManagement = (props) => {
   const handleDelete = (id) => {
     deleteProductionLine(id)
       .then(() => {
-        handleAlertOpen(`Successfully deleted Production Line`, 'success');
+        handleAlertOpen(`Successfully deleted Production Line!`, 'success');
+        setSelectedRowId(null);
+        setSelectedRow(null);
       })
       .then(() => getProductionLines());
   };
@@ -237,7 +239,7 @@ export const ProductionLineManagement = (props) => {
 	},
     {
       field: 'productionCostPerLot',
-      headerName: 'Cost /Lot',
+      headerName: 'Cost /hr',
       flex: 1,
     },
     {
