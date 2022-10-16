@@ -5,7 +5,7 @@ import {
   CardContent,
   Container,
   IconButton,
-  Typography
+  Typography,
 } from '@mui/material';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import { useEffect, useState } from 'react';
@@ -20,7 +20,8 @@ import { Toolbar } from '../../components/toolbar';
 import { DashboardLayout } from '../../components/dashboard-layout';
 import { NotificationAlert } from '../../components/notification-alert';
 import {
-  deleteProductionLine, fetchProductionLines
+  deleteProductionLine,
+  fetchProductionLines,
 } from '../../helpers/assetManagement';
 import DayJS from 'dayjs';
 
@@ -77,11 +78,10 @@ export const ProductionLineManagement = (props) => {
   const [updateFormDialogOpen, setUpdateFormDialogOpen] = useState(false);
   const handleUpdateFormDialogOpen = () => {
     setUpdateFormDialogOpen(true);
-  }
+  };
   const handleUpdateFormDialogClose = () => {
     setUpdateFormDialogOpen(false);
-  }
-
+  };
 
   // Machine Dialog Helpers
   const [machineDialogOpen, setMachineDialogOpen] = useState(false);
@@ -139,15 +139,15 @@ export const ProductionLineManagement = (props) => {
   const [rows, setRows] = useState([]);
 
   const getProductionLines = async () => {
-    const response = await fetchProductionLines(user.organisation.id)
+    const response = await fetchProductionLines(user.organisation.id);
 
-	if (response.status === 200 || response.status === 201) {
-		const result = await response.json();
-		console.log(result)
-		setRows(result);
-	} else {
-		setRows([])
-	}         
+    if (response.status === 200 || response.status === 201) {
+      const result = await response.json();
+      console.log(result);
+      setRows(result);
+    } else {
+      setRows([]);
+    }
   };
 
   const addProductionLine = (productionLine) => {
@@ -188,8 +188,8 @@ export const ProductionLineManagement = (props) => {
   }, []);
 
   useEffect(() => {
-    setDeleteDisabled(!selectedRowId)
-  }, [selectedRowId])
+    setDeleteDisabled(!selectedRowId);
+  }, [selectedRowId]);
 
   const columns = [
     {
@@ -218,7 +218,7 @@ export const ProductionLineManagement = (props) => {
       flex: 2,
       valueGetter: (params) => {
         if (params.row) {
-          return params.row.bom.finalGood.name;
+          return params.row.bom?.finalGood.name;
         } else {
           return '';
         }
@@ -229,20 +229,20 @@ export const ProductionLineManagement = (props) => {
     //   headerName: 'Last Stopped',
     //   flex: 2,
     // },
-	{
-		field: 'startTime',
-		headerName: 'Start Time',
-		flex: 1,
-		valueFormatter: (params) =>
-        DayJS(new Date().setHours(params?.value,0,0)).format('hh:mm a'),
-	},
-	{
-		field: 'endTime',
-		headerName: 'End Time',
-		flex: 1,
-		valueFormatter: (params) =>
-		DayJS(new Date().setHours(params?.value,0,0)).format('hh:mm a'),
-	},
+    {
+      field: 'startTime',
+      headerName: 'Start Time',
+      flex: 1,
+      valueFormatter: (params) =>
+        DayJS(new Date().setHours(params?.value, 0, 0)).format('hh:mm a'),
+    },
+    {
+      field: 'endTime',
+      headerName: 'End Time',
+      flex: 1,
+      valueFormatter: (params) =>
+        DayJS(new Date().setHours(params?.value, 0, 0)).format('hh:mm a'),
+    },
     {
       field: 'productionCostPerLot',
       headerName: 'Cost /Lot',
@@ -319,12 +319,12 @@ export const ProductionLineManagement = (props) => {
             handleAlertClose={handleAlertClose}
             addProductionLine={addProductionLine}
           />
-          
+
           <ProductionLineDialogUpdate
             open={updateFormDialogOpen}
             string={'Production Line'}
             productionLine={selectedRow}
-			handleRowUpdate={handleRowUpdate}
+            handleRowUpdate={handleRowUpdate}
             handleClose={handleUpdateFormDialogClose}
             handleAlertOpen={handleAlertOpen}
             handleAlertClose={handleAlertClose}
