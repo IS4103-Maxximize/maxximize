@@ -1,5 +1,6 @@
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import AddRoadIcon from '@mui/icons-material/AddRoad';
+import ArchiveIcon from '@mui/icons-material/Archive';
 import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import CorporateFareIcon from '@mui/icons-material/CorporateFare';
@@ -10,8 +11,9 @@ import EventAvailableIcon from '@mui/icons-material/EventAvailable';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import FactCheckIcon from '@mui/icons-material/FactCheck';
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
+import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered';
 import FormatQuoteIcon from '@mui/icons-material/FormatQuote';
-import InventoryIcon from '@mui/icons-material/Inventory';
+import Inventory2Icon from '@mui/icons-material/Inventory2';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import LiveHelpIcon from '@mui/icons-material/LiveHelp';
 import MarkEmailReadIcon from '@mui/icons-material/MarkEmailRead';
@@ -57,13 +59,6 @@ const standalone = [
     subsystemName: '',
     access: ['admin', 'superadmin'],
   },
-  {
-    href: '/warehouse',
-    icon: <WarehouseIcon fontSize="small" />,
-    title: 'Warehouse',
-    subsystemName: '',
-    access: ['superadmin', 'manager', 'factoryworker'],
-  },
 ];
 
 const items = [
@@ -101,6 +96,33 @@ const items = [
     ],
   },
   {
+    subsystem: 'Inventory',
+    basepath: 'inventory',
+    access: ['manager', 'factoryworker', 'superadmin'],
+    icon: (
+      <Inventory2Icon
+        sx={{ marginTop: 0.2, color: '#9CA3AF' }}
+        fontSize="small"
+      />
+    ),
+    open: 'openInventory',
+    handleClick: 'handleInventoryClick',
+    modules: [
+      {
+        href: '/inventory/warehouse',
+        icon: <WarehouseIcon fontSize="small" />,
+        title: 'Warehouse',
+        access: ['superadmin', 'manager', 'factoryworker'],
+      },
+      {
+        href: '/inventory/masterlist',
+        icon: <FormatListNumberedIcon fontSize="small" />,
+        title: 'Masterlist',
+        access: ['superadmin', 'manager', 'factoryworker'],
+      },
+    ],
+  },
+  {
     subsystem: 'Product',
     basepath: 'products',
     access: ['manager', 'superadmin'],
@@ -129,10 +151,7 @@ const items = [
     basepath: 'procurement',
     access: ['manager', 'factoryworker', 'superadmin'],
     icon: (
-      <InventoryIcon
-        sx={{ marginTop: 0.2, color: '#9CA3AF' }}
-        fontSize="small"
-      />
+      <ArchiveIcon sx={{ marginTop: 0.2, color: '#9CA3AF' }} fontSize="small" />
     ),
     open: 'openProcurement',
     handleClick: 'handleProcurementClick',
@@ -258,6 +277,13 @@ export const DashboardSidebar = (props) => {
 
   const handleQualityAssuranceClick = () => {
     setOpenQualityAssurance(!openQualityAssurance);
+  };
+
+  //Handle inventory nested menu
+  const [openInventory, setOpenInventory] = useState(true);
+
+  const handleInventoryClick = () => {
+    setOpenInventory(!openInventory);
   };
 
   //Handle product nested menu

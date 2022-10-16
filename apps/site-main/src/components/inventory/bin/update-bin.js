@@ -45,16 +45,16 @@ export const UpdateBin = ({ bin, updateBin, handleAlertOpen }) => {
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
-      warehouseId: bin?.warehouse?.id,
+      rackId: bin?.rack?.id,
       name: bin?.name,
       capacity: bin?.capacity,
       currentCapacity: bin?.currentCapacity,
     },
     validationSchema: Yup.object({
-      //   warehouseId: Yup.string()
-      //     .min(1, 'Warehouse ID must be at least be 1 character long')
-      //     .max(50, 'Warehouse ID can at most be 50 characters long')
-      //     .required('Warehouse ID is required'),
+      //   rackId: Yup.string()
+      //     .min(1, 'Rack ID must be at least be 1 character long')
+      //     .max(50, 'Rack ID can at most be 50 characters long')
+      //     .required('Rack ID is required'),
       name: Yup.string()
         .min(1, 'Name must be at least be 1 character long')
         .max(50, 'Name can at most be 50 characters long')
@@ -145,17 +145,15 @@ export const UpdateBin = ({ bin, updateBin, handleAlertOpen }) => {
         <Box p={2}>
           <TextField
             disabled
-            error={Boolean(
-              formik.touched.warehouseId && formik.errors.warehouseId
-            )}
+            error={Boolean(formik.touched.rackId && formik.errors.rackId)}
             fullWidth
-            helperText={formik.touched.warehouseId && formik.errors.warehouseId}
-            label="Warehouse ID"
+            helperText={formik.touched.rackId && formik.errors.rackId}
+            label="Rack ID"
             margin="normal"
-            name="warehouseId"
+            name="rackId"
             onBlur={formik.handleBlur}
             onChange={formik.handleChange}
-            value={formik.values.warehouseId || ''}
+            value={formik.values.rackId || ''}
             variant="outlined"
             size="small"
           />
@@ -178,7 +176,7 @@ export const UpdateBin = ({ bin, updateBin, handleAlertOpen }) => {
               error={Boolean(formik.touched.capacity && formik.errors.capacity)}
               fullWidth
               helperText={formik.touched.capacity && formik.errors.capacity}
-              label="Capacity"
+              label="Volumetric Space"
               margin="normal"
               name="capacity"
               onBlur={formik.handleBlur}
@@ -207,7 +205,7 @@ export const UpdateBin = ({ bin, updateBin, handleAlertOpen }) => {
             <TextField
               disabled
               fullWidth
-              label="Remaining Capacity"
+              label="Remaining Volumetric Space"
               margin="normal"
               name="remainingCapacity"
               onBlur={formik.handleBlur}

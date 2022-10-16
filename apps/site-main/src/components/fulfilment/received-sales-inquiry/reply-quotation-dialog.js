@@ -212,11 +212,11 @@ export const ReplyQuotationDialog = (props) => {
       },
     },
     {
-      field: 'quantity',
-      headerName: 'Quantity',
-      flex: 1,
+      field: 'finalGoodDescription',
+      headerName: 'Description',
+      flex: 2,
       valueGetter: (params) => {
-        return params.row ? params.row.quantity : '';
+        return params.row ? params.row.finalGood.description : '';
       },
     },
     {
@@ -228,12 +228,29 @@ export const ReplyQuotationDialog = (props) => {
       },
     },
     {
+      field: 'quantity',
+      headerName: 'Quantity',
+      flex: 1,
+      valueGetter: (params) => {
+        return params.row ? params.row.quantity : '';
+      },
+    },
+    {
       field: 'price',
-      headerName: 'Quoted Price*',
+      headerName: 'Quoted Price *',
       flex: 1,
       editable: true,
       valueGetter: (params) => {
         return params.row.price ? params.row.price : params.row.indicativePrice;
+      },
+    },
+    {
+      field: 'subtotal',
+      headerName: 'Subtotal',
+      flex: 1,
+      valueGetter: (params) => {
+        console.log(params);
+        return params.row.quantity * params.row.price;
       },
     },
   ];

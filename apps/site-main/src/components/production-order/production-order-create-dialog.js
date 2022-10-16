@@ -58,7 +58,7 @@ export const ProductionOrderCreateDialog = (props) => {
 
   const [maximumFinalGoodOutput, setMaximumFinalGoodOutput] = useState(0);
 
-  const handleOnSubmit = async (values) => {
+  const handleOnSubmit = async () => {
     const response = await fetch(
       'http://localhost:3000/api/production-orders',
       {
@@ -155,12 +155,7 @@ export const ProductionOrderCreateDialog = (props) => {
     }
     // Clear Prod Line Items if BOM selector is cleared
     if (!selectedBom) {
-      formik.setFieldValue('prodLineItems', []);
-      formik.setFieldValue('schedules', []);
-      formik.setFieldValue('quantity', 0);
-      formik.setFieldValue('multiplier', 1);
-      formik.setFieldValue('daily', false);
-      formik.setFieldValue('noOfDays', 0);
+      formik.resetForm();
       formik.setFieldTouched('noOfDays', false, false);
       setMaximumFinalGoodOutput(0);
     }
@@ -217,10 +212,9 @@ export const ProductionOrderCreateDialog = (props) => {
       } else {
         const result = await response.json();
         setError(result.message);
-        // formik.setFieldValue('schedules', []);
-        if (loading) {
-          setLoading(!loading);
-        }
+
+        formik.setFieldValue('prodLineItems', []);
+        setLoading(false);
       }
     } catch (error) {
       setError(error);
@@ -230,7 +224,47 @@ export const ProductionOrderCreateDialog = (props) => {
   // Rerender Earliest Schedules for final product
   const rerenderPossibleSchedules = async () => {
     setError('');
-    if (maximumFinalGoodOutput) {
+
+    console.log('Rerender Entering');
+
+    // Daily but not enough to cover all days, then it should not show any schedules
+    // if (
+    //   formik.values.daily &&
+    //   maximumFinalGoodOutput !==
+    //     formik.values.multiplier * formik.values.noOfDays
+    // ) {
+    //   setError('Not enough raw materials to fulfil everyday production');
+    //   formik.setFieldValue('schedules', []);
+
+    //   // Adhoc based on the maximum final good output that can be producted
+    // } else
+
+    if (formik.values.daily && maximumFinalGoodOutput) {
+      try {
+        const response = await fetch(
+          `http://localhost:3000/api/production-lines/earliestSchedules?quantity=${formik.values.quantity}&finalGoodId=${selectedBom.finalGood.id}&daily=${formik.values.daily}&days=${formik.values.noOfDays}&organisationId=${organisationId}`
+        );
+
+        if (response.status === 200 || response.status === 201) {
+          const result = await response.json();
+
+          formik.setFieldValue('schedules', result);
+
+          setRerender(true);
+          setError('');
+        } else {
+          const result = await response.json();
+          setError(result.message);
+          formik.setFieldValue('schedules', []);
+          formik.setFieldValue('prodLineItems', []);
+        }
+      } catch (error) {
+        setError(error);
+      }
+
+      // If rerender but not enough final goods CHECK
+    } else if (maximumFinalGoodOutput) {
+      console.log('Rerender');
       try {
         const maximumAllowed =
           selectedBom.finalGood.lotQuantity * maximumFinalGoodOutput;
@@ -249,20 +283,29 @@ export const ProductionOrderCreateDialog = (props) => {
           const result = await response.json();
           setError(result.message);
           formik.setFieldValue('schedules', []);
+          formik.setFieldValue('prodLineItems', []);
         }
       } catch (error) {
         setError(error);
       }
+
+      // If rerender but not enough final goods CHECK
+    } else {
+      formik.setFieldValue('schedules', []);
     }
   };
 
   // Retrieve Production Line Items (Sufficient/Insufficient)
   const retrieveProductionLineItems = async () => {
     try {
+      const productMultiplier = formik.values.daily
+        ? formik.values.multiplier * formik.values.noOfDays
+        : formik.values.multiplier;
+
       const response = await fetch(
         `http://localhost:3000/api/batch-line-items/getLineItem/${
           selectedBom.id
-        }/${formik.values.multiplier}/${organisationId}/${
+        }/${productMultiplier}/${organisationId}/${
           firstSchedules.length !== 0
             ? firstSchedules[firstSchedules.length - 1].end
             : null
@@ -303,11 +346,8 @@ export const ProductionOrderCreateDialog = (props) => {
       retrievePossibleSchedules();
 
       setLoading(!loading);
-
       setRerender(false);
-
       setError('');
-
       setMaximumFinalGoodOutput(0);
     }
   };
@@ -323,30 +363,67 @@ export const ProductionOrderCreateDialog = (props) => {
     }
   }, [firstSchedules]);
 
+  // After prod line items changes, calculate maximum possible production
   useEffect(() => {
     if (formik.values.prodLineItems.length > 0) {
-      const insufficientLineItem = formik.values.prodLineItems.find(
+      const insufficientLineItems = formik.values.prodLineItems.filter(
         (prodLineItem) => prodLineItem.sufficient === false
       );
 
-      if (insufficientLineItem) {
+      let limitingLineQuantity;
+      let insufficientLineItem;
+      let currentBOMLineItem;
+
+      if (insufficientLineItems.length !== 0) {
+        limitingLineQuantity = 9999999999;
+        insufficientLineItem = '';
+        insufficientLineItems.map((lineItem) => {
+          // The BOM line item associated with the line item
+          const bomLineItem = selectedBom.bomLineItems.find(
+            (bomLineItem) =>
+              bomLineItem.rawMaterial.id === lineItem.rawMaterial.id
+          );
+          // This is the maximum that can be produced based on the per unit final good (BOM)
+          const maxProduceable = lineItem.quantity / bomLineItem.quantity;
+
+          // Find the lowest one, this will be limiting the possible production
+          if (maxProduceable < limitingLineQuantity) {
+            limitingLineQuantity = maxProduceable;
+            insufficientLineItem = lineItem;
+            currentBOMLineItem = bomLineItem;
+          }
+        });
+
         const insufficientQuantity = insufficientLineItem.quantity;
-        const insufficientRawMaterialId = insufficientLineItem.rawMaterial.id;
-        const bomLineItem = selectedBom.bomLineItems.find(
-          (bomLineItem) =>
-            bomLineItem.rawMaterial.id === insufficientRawMaterialId
-        );
+        // const insufficientRawMaterialId = insufficientLineItem.rawMaterial.id;
+        // const bomLineItem = selectedBom.bomLineItems.find(
+        //   (bomLineItem) =>
+        //     bomLineItem.rawMaterial.id === insufficientRawMaterialId
+        // );
 
         setMaximumFinalGoodOutput(
           formik.values.multiplier -
-            insufficientQuantity / bomLineItem.quantity >=
+            insufficientQuantity / currentBOMLineItem.quantity >=
             0
             ? formik.values.multiplier -
-                insufficientQuantity / bomLineItem.quantity
+                insufficientQuantity / currentBOMLineItem.quantity
             : 0
         );
+
+        if (
+          maximumFinalGoodOutput === 0 &&
+          formik.values.prodLineItems.length > 0
+        ) {
+          setError('Insufficient raw material to produce');
+        }
       } else {
-        setMaximumFinalGoodOutput(formik.values.multiplier);
+        if (formik.values.daily) {
+          setMaximumFinalGoodOutput(
+            formik.values.multiplier * formik.values.noOfDays
+          );
+        } else {
+          setMaximumFinalGoodOutput(formik.values.multiplier);
+        }
       }
     }
   }, [formik.values.prodLineItems]);
@@ -359,6 +436,7 @@ export const ProductionOrderCreateDialog = (props) => {
 
   useEffect(() => {
     rerenderPossibleSchedules();
+    console.log('Use Effect rerender');
   }, [maximumFinalGoodOutput]);
 
   // Schedule Headers
@@ -482,7 +560,8 @@ export const ProductionOrderCreateDialog = (props) => {
               disabled={
                 formik.isSubmitting ||
                 !formik.values.bomId ||
-                formik.values.prodLineItems.length === 0
+                formik.values.prodLineItems.length === 0 ||
+                Boolean(error)
               }
               onClick={() => setConfirmDialogOpen(true)}
             >

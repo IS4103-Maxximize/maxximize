@@ -167,7 +167,7 @@ const Quotation = (props) => {
       headerName: 'Date Created',
       flex: 2,
       valueGetter: (params) => {
-        return dayjs(params.row.created).format('DD MMM YYYY');
+        return dayjs(params.row.created).format('DD MMM YYYY hh:mm a');
       },
     },
     {
@@ -196,7 +196,7 @@ const Quotation = (props) => {
       flex: 2,
     },
     {
-      field: 'actions',
+      field: 'Actions',
       flex: 1,
       renderCell: menuButton,
     },
