@@ -4,6 +4,7 @@ import ArchiveIcon from '@mui/icons-material/Archive';
 import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import CorporateFareIcon from '@mui/icons-material/CorporateFare';
+import DashboardIcon from '@mui/icons-material/Dashboard';
 import DocumentScannerIcon from '@mui/icons-material/DocumentScanner';
 import DoneAllIcon from '@mui/icons-material/DoneAll';
 import EggIcon from '@mui/icons-material/Egg';
@@ -46,6 +47,12 @@ import { User as UserIcon } from '../icons/user';
 import { Logo } from './logo';
 
 const standalone = [
+  {
+    href: '/',
+    icon: <DashboardIcon fontSize="small" />,
+    title: 'Dashboard',
+    access: ['admin', 'manager', 'factoryworker', 'superadmin']
+  },
   {
     href: '/workermanagement',
     icon: <UserIcon fontSize="small" />,
