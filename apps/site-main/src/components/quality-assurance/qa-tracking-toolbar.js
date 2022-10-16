@@ -96,6 +96,7 @@ export const QATrackingToolbar = (props) => {
                     color="primary"
                     onClick={handleSearch}
                     sx={{ mr: 2 }}
+                    disabled={!search}
                   >
                     <FindReplaceIcon />
                   </IconButton>
@@ -104,6 +105,7 @@ export const QATrackingToolbar = (props) => {
                   <IconButton
                     color="error"
                     onClick={clearSearch}
+                    disabled={!search}
                   >
                     <ClearIcon />
                   </IconButton>
