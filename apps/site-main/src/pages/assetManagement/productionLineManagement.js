@@ -1,3 +1,5 @@
+import CancelIcon from '@mui/icons-material/Cancel';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import MoreVert from '@mui/icons-material/MoreVert';
 import {
   Box,
@@ -8,6 +10,7 @@ import {
   Typography,
 } from '@mui/material';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
+import DayJS from 'dayjs';
 import { useEffect, useState } from 'react';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { ConfirmDialog } from '../../components/assetManagement/confirm-dialog';
@@ -16,14 +19,13 @@ import { ProductionLineDialogNew } from '../../components/assetManagement/produc
 import { ProductionLineDialogUpdate } from '../../components/assetManagement/production-line-dialog-update';
 import { ProductionLineManagementMenu } from '../../components/assetManagement/production-line-management-menu';
 import { ScheduleViewDialog } from '../../components/assetManagement/schedule-view-dialog';
-import { Toolbar } from '../../components/toolbar';
 import { DashboardLayout } from '../../components/dashboard-layout';
 import { NotificationAlert } from '../../components/notification-alert';
+import { Toolbar } from '../../components/toolbar';
 import {
   deleteProductionLine,
   fetchProductionLines,
 } from '../../helpers/assetManagement';
-import DayJS from 'dayjs';
 
 export const ProductionLineManagement = (props) => {
   const user = JSON.parse(localStorage.getItem('user'));
@@ -178,7 +180,9 @@ export const ProductionLineManagement = (props) => {
   const handleDelete = (id) => {
     deleteProductionLine(id)
       .then(() => {
-        handleAlertOpen(`Successfully deleted Production Line`, 'success');
+        handleAlertOpen(`Successfully deleted Production Line!`, 'success');
+        setSelectedRowId(null);
+        setSelectedRow(null);
       })
       .then(() => getProductionLines());
   };
@@ -211,41 +215,31 @@ export const ProductionLineManagement = (props) => {
       field: 'isAvailable',
       headerName: 'Available',
       flex: 1,
-    },
-    {
-      field: 'finalGood',
-      headerName: 'Final Good',
-      flex: 2,
-      valueGetter: (params) => {
-        if (params.row) {
-          return params.row.bom?.finalGood.name;
-        } else {
-          return '';
-        }
+      renderCell: (params) => {
+        return params.row.isAvailable ? (
+          <CheckCircleIcon color="success" />
+        ) : (
+          <CancelIcon color="error" />
+        );
       },
     },
-    // {
-    //   field: 'lastStopped',
-    //   headerName: 'Last Stopped',
-    //   flex: 2,
-    // },
-    {
-      field: 'startTime',
-      headerName: 'Start Time',
-      flex: 1,
-      valueFormatter: (params) =>
-        DayJS(new Date().setHours(params?.value, 0, 0)).format('hh:mm a'),
-    },
-    {
-      field: 'endTime',
-      headerName: 'End Time',
-      flex: 1,
-      valueFormatter: (params) =>
-        DayJS(new Date().setHours(params?.value, 0, 0)).format('hh:mm a'),
-    },
+	{
+		field: 'startTime',
+		headerName: 'Start Time',
+		flex: 1,
+		valueFormatter: (params) =>
+        DayJS(new Date().setHours(params?.value,0,0)).format('hh:mm a'),
+	},
+	{
+		field: 'endTime',
+		headerName: 'End Time',
+		flex: 1,
+		valueFormatter: (params) =>
+		DayJS(new Date().setHours(params?.value,0,0)).format('hh:mm a'),
+	},
     {
       field: 'productionCostPerLot',
-      headerName: 'Cost /Lot',
+      headerName: 'Cost /hr',
       flex: 1,
     },
     {

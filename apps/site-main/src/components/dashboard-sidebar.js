@@ -1,29 +1,31 @@
+import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import AddRoadIcon from '@mui/icons-material/AddRoad';
+import ArchiveIcon from '@mui/icons-material/Archive';
 import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import CorporateFareIcon from '@mui/icons-material/CorporateFare';
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import DocumentScannerIcon from '@mui/icons-material/DocumentScanner';
 import DoneAllIcon from '@mui/icons-material/DoneAll';
 import EggIcon from '@mui/icons-material/Egg';
+import EventAvailableIcon from '@mui/icons-material/EventAvailable';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import FactCheckIcon from '@mui/icons-material/FactCheck';
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
+import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered';
 import FormatQuoteIcon from '@mui/icons-material/FormatQuote';
-import ArchiveIcon from '@mui/icons-material/Archive';
+import Inventory2Icon from '@mui/icons-material/Inventory2';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import LiveHelpIcon from '@mui/icons-material/LiveHelp';
+import MarkEmailReadIcon from '@mui/icons-material/MarkEmailRead';
 import PrecisionManufacturingIcon from '@mui/icons-material/PrecisionManufacturing';
 import RawOnIcon from '@mui/icons-material/RawOn';
 import ReceiptIcon from '@mui/icons-material/Receipt';
+import ReplyAllIcon from '@mui/icons-material/ReplyAll';
+import RequestPageIcon from '@mui/icons-material/RequestPage';
 import RuleIcon from '@mui/icons-material/Rule';
 import TaskIcon from '@mui/icons-material/Task';
 import WarehouseIcon from '@mui/icons-material/Warehouse';
-import RequestPageIcon from '@mui/icons-material/RequestPage';
-import ReplyAllIcon from '@mui/icons-material/ReplyAll';
-import EventAvailableIcon from '@mui/icons-material/EventAvailable';
-import MarkEmailReadIcon from '@mui/icons-material/MarkEmailRead';
-import DocumentScannerIcon from '@mui/icons-material/DocumentScanner';
-import Inventory2Icon from '@mui/icons-material/Inventory2';
-import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered';
 import {
   Accordion,
   AccordionDetails,
@@ -35,7 +37,7 @@ import {
   Drawer,
   Link,
   Typography,
-  useMediaQuery,
+  useMediaQuery
 } from '@mui/material';
 import PropTypes from 'prop-types';
 import { useState } from 'react';
@@ -45,6 +47,12 @@ import { User as UserIcon } from '../icons/user';
 import { Logo } from './logo';
 
 const standalone = [
+  {
+    href: '/',
+    icon: <DashboardIcon fontSize="small" />,
+    title: 'Dashboard',
+    access: ['admin', 'manager', 'factoryworker', 'superadmin']
+  },
   {
     href: '/workermanagement',
     icon: <UserIcon fontSize="small" />,
@@ -84,6 +92,12 @@ const items = [
         href: '/quality-assurance/checklists',
         icon: <AssignmentTurnedInIcon fontSize="small" />,
         title: 'Checklist',
+        access: ['manager', 'factoryworker', 'superadmin'],
+      },
+      {
+        href: '/quality-assurance/tracking',
+        icon: <AccountTreeIcon fontSize="small" />,
+        title: 'Tracking',
         access: ['manager', 'factoryworker', 'superadmin'],
       },
     ],
@@ -222,6 +236,7 @@ const items = [
   },
   {
     subsystem: 'Fulfilment',
+    basepath: 'fulfilment',
     access: ['manager', 'factoryworker', 'superadmin'],
     icon: (
       <EventAvailableIcon

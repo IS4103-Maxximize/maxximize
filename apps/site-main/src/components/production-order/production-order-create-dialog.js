@@ -334,6 +334,13 @@ export const ProductionOrderCreateDialog = (props) => {
   // Error Handling
   const [error, setError] = useState('');
 
+  // Stop loading upon error
+  useEffect(() => {
+    if (error !== '') {
+      setLoading(false)
+    }
+  }, [error])
+
   const refreshInformation = () => {
     if (selectedBom) {
       retrievePossibleSchedules();
@@ -817,7 +824,7 @@ export const ProductionOrderCreateDialog = (props) => {
                   autoHeight
                   rows={formik.values.prodLineItems}
                   columns={productionOrderColumns}
-                  pageSize={5}
+                  pageSize={10}
                   rowsPerPageOptions={[5]}
                   disableSelectionOnClick
                   // experimentalFeatures={{ newEditingApi: true }}

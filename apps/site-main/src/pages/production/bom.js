@@ -299,7 +299,8 @@ export const BillOfMaterial = (props) => {
                 }}
                 experimentalFeatures={{ newEditingApi: true }}
                 isRowSelectable={(params) => {
-                  return params.row.productionOrders.length === 0;
+                  return params.row.productionOrders.length === 0 && 
+                    params.row.productionLines.length === 0
                 }}
               />
             ) : (
