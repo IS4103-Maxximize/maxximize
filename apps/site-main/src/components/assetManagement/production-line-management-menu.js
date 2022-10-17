@@ -1,7 +1,9 @@
 import SearchIcon from "@mui/icons-material/Search";
 import PrecisionManufacturingIcon from '@mui/icons-material/PrecisionManufacturing';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import DataUsageIcon from '@mui/icons-material/DataUsage';
 import { ListItemIcon, ListItemText, Menu, MenuItem, MenuList } from "@mui/material";
+
 
 export const ProductionLineManagementMenu = (props) => {
   const {
@@ -12,15 +14,15 @@ export const ProductionLineManagementMenu = (props) => {
     handleClickViewEdit,
     handleClickViewMachine,
     handleClickViewSchedule,
+    handleClickViewUtilization,
+    ...rest
   } = props;
+
   return (
     <Menu 
       anchorEl={anchorEl}
       open={menuOpen}
       onClose={handleMenuClose}
-      handleClickViewEdit={handleClickViewEdit}
-      handleClickViewMachine={handleClickViewMachine}
-      handleClickViewSchedule={handleClickViewSchedule}
     >
       <MenuList>
         <MenuItem onClick={() => {
@@ -55,6 +57,17 @@ export const ProductionLineManagementMenu = (props) => {
           </ListItemIcon>
           <ListItemText>
             Schedule
+          </ListItemText>
+        </MenuItem>
+        <MenuItem onClick={() => {
+          handleClickViewUtilization();
+          handleMenuClose();
+        }}>
+          <ListItemIcon>
+            <DataUsageIcon />
+          </ListItemIcon>
+          <ListItemText>
+            Utilization
           </ListItemText>
         </MenuItem>
       </MenuList>

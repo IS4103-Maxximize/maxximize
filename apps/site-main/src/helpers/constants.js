@@ -29,7 +29,7 @@ const perc2color = (type, object) => {
     perc = ((object.volumetricSpace - object.currentCapacity) / object.volumetricSpace) * 100;
   }
   if (type === 'production-line') {
-    //
+    perc = ((100 - object.utilization) / 100) * 100
   }
 
   let r,
