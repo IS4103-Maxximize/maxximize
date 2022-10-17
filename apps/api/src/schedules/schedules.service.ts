@@ -119,7 +119,7 @@ export class SchedulesService {
     let schedule: Schedule = await this.findOne(scheduleId)
     await this.datasource.manager.transaction(async (transactionalEntityManager) => {
       let newBatch: Batch;
-      newBatch = await this.batchesService.allocate(orgId, schedule.productionOrder.bom.finalGood.id, quantity)
+      // newBatch = await this.batchesService.allocate(orgId, schedule.productionOrder.bom.finalGood.id, quantity)
       // const batch = await transactionalEntityManager.create(Batch, {
       //   batchNumber: newBatch.batchNumber,
       //   organisationId: orgId,

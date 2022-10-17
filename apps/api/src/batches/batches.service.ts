@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { randomUUID } from 'crypto';
 import { DataSource, QueryRunner, Repository } from 'typeorm';
@@ -9,12 +9,10 @@ import { FinalGoodsService } from '../final-goods/final-goods.service';
 import { GrLineItem } from '../gr-line-items/entities/gr-line-item.entity';
 import { ProductionLineItem } from '../production-line-items/entities/production-line-item.entity';
 import { ProductionOrder } from '../production-orders/entities/production-order.entity';
-import { ProductionOrdersService } from '../production-orders/production-orders.service';
 import { PurchaseRequisition } from '../purchase-requisitions/entities/purchase-requisition.entity';
 import { PurchaseRequisitionsService } from '../purchase-requisitions/purchase-requisitions.service';
 import { RawMaterial } from '../raw-materials/entities/raw-material.entity';
 import { SalesInquiryService } from '../sales-inquiry/sales-inquiry.service';
-import { WarehousesService } from '../warehouses/warehouses.service';
 import { CreateBatchDto } from './dto/create-batch.dto';
 import { UpdateBatchDto } from './dto/update-batch.dto';
 import { Batch } from './entities/batch.entity';
@@ -23,7 +21,6 @@ import { Batch } from './entities/batch.entity';
 export class BatchesService {
   constructor(@InjectRepository(Batch)
   private readonly batchRepository: Repository<Batch>,
-  private warehouseService: WarehousesService,
   private binService: BinsService,
   private salesInquiryService: SalesInquiryService,
   private purchaseRequisitionService: PurchaseRequisitionsService,
@@ -320,7 +317,7 @@ export class BatchesService {
     return this.batchRepository.delete(id);
   }
 
-  async allocate(orgId: number, finalGoodId: number, quantity: number) {
+  async allocate(orgId: number, finalGoodId: number, quantity: number, volumetricSpace: number) {
     const finalGood = await this.finalGoodService.findOne(finalGoodId);
     const batch = new Batch();
     batch.batchNumber = 'B-' + randomUUID().substring(0, 5) + '-' + new Date().toLocaleDateString().replace(/\//g, '-') +
@@ -329,20 +326,24 @@ export class BatchesService {
 
     const bins = await this.binService.findAllByOrganisationId(orgId);
     const batchLineItems: BatchLineItem[] = [];
+
+    const unitOfVolumetricSpace = volumetricSpace / quantity;
     
     for (const bin of bins) {
       const lineItemCapacity = quantity;
       if (lineItemCapacity <= bin.volumetricSpace - bin.currentCapacity) {
         const batchLineItem = new BatchLineItem();
+        batchLineItem.code = "B-" + bin.name + "-R-" + bin.rack.name + "-W-" + bin.rack.warehouse.name;
         batchLineItem.bin = bin;
         batchLineItem.product = finalGood;
         batchLineItem.quantity = quantity
+        batchLineItem.unitOfVolumetricSpace = unitOfVolumetricSpace;
         batchLineItem.subTotal = finalGood.unitPrice * quantity;
         const date = new Date();
         date.setDate(date.getDate() + finalGood.expiry);
         batchLineItem.expiryDate = date;
         batchLineItems.push(batchLineItem);
-        bin.currentCapacity = bin.currentCapacity + lineItemCapacity;
+        bin.currentCapacity = bin.currentCapacity + volumetricSpace;
         batch.batchLineItems = batchLineItems
         return batch;
       }
@@ -351,31 +352,44 @@ export class BatchesService {
     let qty = quantity;
     for (const bin of bins) {
       const availableSpace = bin.volumetricSpace - bin.currentCapacity;
+      const spaceRequired = qty * unitOfVolumetricSpace;
       if (availableSpace > 0) {
         const batchLineItem = new BatchLineItem();
-        if (qty > availableSpace) {
-          batchLineItem.quantity =  availableSpace;
-          bin.currentCapacity = bin.volumetricSpace;
+        if (spaceRequired > availableSpace) {
+          batchLineItem.quantity =  Math.floor(availableSpace / unitOfVolumetricSpace);
+          bin.currentCapacity = bin.currentCapacity + (batchLineItem.quantity * unitOfVolumetricSpace);
         } else {
           batchLineItem.quantity =  qty;
-          bin.currentCapacity = bin.currentCapacity + qty;
+          bin.currentCapacity = bin.currentCapacity + spaceRequired;
         }
+        batchLineItem.code = "B-" + bin.name + "-R-" + bin.rack.name + "-W-" + bin.rack.warehouse.name;
         batchLineItem.bin = bin;
         batchLineItem.product = finalGood
         batchLineItem.subTotal = finalGood.unitPrice * batchLineItem.quantity;
+        batchLineItem.unitOfVolumetricSpace = unitOfVolumetricSpace;
         const date = new Date();
         date.setDate(date.getDate() + finalGood.expiry);
         batchLineItem.expiryDate = date;
         batchLineItems.push(batchLineItem);
 
-        qty -= availableSpace;
+        qty -= batchLineItem.quantity;
       }
       if (qty < 0) {
         break;
       }
     }
+
     if (qty > 0) {
-      throw new InternalServerErrorException("Could not allocate to bins");
+      const batchLineItem = new BatchLineItem();
+      batchLineItem.code = "";
+      batchLineItem.product = finalGood;
+      batchLineItem.quantity = qty;
+      batchLineItem.subTotal = finalGood.unitPrice * qty;
+      batchLineItem.unitOfVolumetricSpace = unitOfVolumetricSpace;
+      const date = new Date();
+      date.setDate(date.getDate() + finalGood.expiry);
+      batchLineItem.expiryDate = date;
+      batchLineItems.push(batchLineItem);
     }
 
     for (const bin of bins) {
