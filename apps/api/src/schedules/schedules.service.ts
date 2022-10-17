@@ -130,7 +130,7 @@ export class SchedulesService {
       // for (const lineItem of batch.batchLineItems) {
       //   await transactionalEntityManager.save(lineItem)
       // }
-      await transactionalEntityManager.update(Schedule, scheduleId, { status: ScheduleType.ALLOCATED})
+      await transactionalEntityManager.update(Schedule, scheduleId, { status: ScheduleType.ALLOCATED, completedGoods:newBatch })
       let productionOrder : ProductionOrder = await transactionalEntityManager.findOne(ProductionOrder, {
         where: {
           id: schedule.productionOrder.id

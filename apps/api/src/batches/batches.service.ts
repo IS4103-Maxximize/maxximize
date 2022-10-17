@@ -274,14 +274,14 @@ export class BatchesService {
 
   async findAll() {
     return await this.batchRepository.find({
-      relations: ["batchLineItems", "goodsReceipt"]
+      relations: ["batchLineItems", "goodsReceipt", "schedule"]
     });
   }
 
   async findOne(id: number) {
     return await this.batchRepository.findOne({
       where: { id },
-      relations: ["batchLineItems", "goodsReceipt"]
+      relations: ["batchLineItems", "goodsReceipt", "schedule"]
     });
   }
 
@@ -290,7 +290,7 @@ export class BatchesService {
       where: {
         organisationId: id
       },
-      relations: ["batchLineItems", "goodsReceipt"]
+      relations: ["batchLineItems", "goodsReceipt", "schedule"]
     });
   }
 
