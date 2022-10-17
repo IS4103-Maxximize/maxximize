@@ -7,10 +7,12 @@ import { DeliveryRequest } from '../delivery-requests/entities/delivery-request.
 import { Organisation } from '../organisations/entities/organisation.entity';
 import { Schedule } from '../schedules/entities/schedule.entity';
 import { Sensor } from '../sensors/entities/sensor.entity';
+import { OrganisationsModule } from '../organisations/organisations.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Vehicle, DeliveryRequest, Organisation, Schedule, Sensor])],
+  imports: [TypeOrmModule.forFeature([Vehicle, DeliveryRequest, Organisation, Schedule, Sensor]), OrganisationsModule],
   controllers: [VehiclesController],
-  providers: [VehiclesService]
+  providers: [VehiclesService],
+  exports: [VehiclesService]
 })
 export class VehiclesModule {}

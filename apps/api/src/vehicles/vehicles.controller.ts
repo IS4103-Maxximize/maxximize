@@ -17,6 +17,11 @@ export class VehiclesController {
     return this.vehiclesService.findAll();
   }
 
+  @Get('orgId/:id')
+  findAllByOrg(@Param('id') id: string) {
+    return this.vehiclesService.findAllByOrg(+id)
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.vehiclesService.findOne(+id);

@@ -115,18 +115,18 @@ export class SchedulesService {
   }
 
   async allocate(allocateScheduleDto: AllocateScheduleDto) {
-    const {orgId, scheduleId, quantity } = allocateScheduleDto
+    const {orgId, scheduleId, quantity, volumetricSpace } = allocateScheduleDto
     let schedule: Schedule = await this.findOne(scheduleId)
     await this.datasource.manager.transaction(async (transactionalEntityManager) => {
       let newBatch: Batch;
-      // newBatch = await this.batchesService.allocate(orgId, schedule.productionOrder.bom.finalGood.id, quantity)
+      newBatch = await this.batchesService.allocate(orgId, schedule.productionOrder.bom.finalGood.id, quantity, volumetricSpace)
       // const batch = await transactionalEntityManager.create(Batch, {
       //   batchNumber: newBatch.batchNumber,
       //   organisationId: orgId,
       //   batchLineItems: newBatch.batchLineItems
       // })
 
-      console.log(await transactionalEntityManager.save(newBatch))
+      await transactionalEntityManager.save(newBatch)
       // for (const lineItem of batch.batchLineItems) {
       //   await transactionalEntityManager.save(lineItem)
       // }
