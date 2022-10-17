@@ -16,7 +16,7 @@ export class VehiclesService {
     private dataSource: DataSource
   ) {}
   async create(createVehicleDto: CreateVehicleDto): Promise<Vehicle> {
-    const {description, isOperating, make, model, year, lastServiced, remarks, organisationId, licensePlate, loadCapacity, location } = createFactoryMachineDto
+    const {description, isOperating, make, model, year, lastServiced, remarks, organisationId, licensePlate, loadCapacity, location } = createVehicleDto
     const organisation = await this.organisationsService.findOne(organisationId)
     const newVehicle = this.vehiclesRepository.create({
       description,
