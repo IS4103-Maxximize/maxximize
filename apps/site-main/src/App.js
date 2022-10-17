@@ -33,6 +33,7 @@ import ProductionOrder from './pages/production/production-order';
 import Products from './pages/products';
 import ProtectedPublicRoute from './pages/protectedPublicRoute';
 import ProtectedRoute from './pages/protectedRoute';
+import QATracking from './pages/qa-tracking';
 import QAChecklists from './pages/qaChecklists';
 import QARules from './pages/qaRules';
 import { RegisterOrganisation } from './pages/registerOrganisation';
@@ -143,6 +144,7 @@ const routes = (
               path="quality-assurance/checklists"
               element={<QAChecklists />}
             ></Route>
+            <Route path="quality-assurance/tracking" element={<QATracking />}></Route>
           </Route>
 
           {/* Protected Routes for Manager and Factory Worker */}

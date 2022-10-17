@@ -63,7 +63,9 @@ export class BillOfMaterialsService {
     return this.billOfMaterialRepository.find({
       relations: [
         "finalGood",
-        "bomLineItems.rawMaterial"
+        "bomLineItems.rawMaterial",
+        "productionOrders",
+        "productionLines"
       ]
     });
   }
@@ -80,7 +82,8 @@ export class BillOfMaterialsService {
       relations: [
         "finalGood",
         "bomLineItems.rawMaterial",
-        "productionOrders"
+        "productionOrders",
+        "productionLines"
       ]
     });
   }
@@ -92,7 +95,8 @@ export class BillOfMaterialsService {
       }, relations: [
         "finalGood",
         "bomLineItems.rawMaterial",
-        "productionOrders"
+        "productionOrders",
+        "productionLines"
       ]})
       return billOfMaterial
     } catch (err) {

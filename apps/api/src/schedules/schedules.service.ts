@@ -1,11 +1,18 @@
 import { forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
+import { BatchesService } from '../batches/batches.service';
+import { LineItem } from '../line-Items/LineItem';
 import { ProductionLine } from '../production-lines/entities/production-line.entity';
 import { ProductionLinesService } from '../production-lines/production-lines.service';
 import { CreateScheduleDto } from './dto/create-schedule.dto';
 import { UpdateScheduleDto } from './dto/update-schedule.dto';
 import { Schedule } from './entities/schedule.entity';
+import { ScheduleType } from './enums/scheduleType.enum';
+import {Batch} from '../batches/entities/batch.entity';
+import { AllocateScheduleDto } from './dto/allocate-schedule.dto';
+import { ProductionOrder } from '../production-orders/entities/production-order.entity';
+import { ProductionOrderStatus } from '../production-orders/enums/production-order-status.enum';
 
 @Injectable()
 export class SchedulesService {
@@ -14,7 +21,9 @@ export class SchedulesService {
     private readonly scheduleRepository: Repository<Schedule>,
     @Inject(forwardRef(() => ProductionLinesService))
     private productionLineService: ProductionLinesService,
-    private datasource: DataSource
+    private datasource: DataSource,
+    @Inject(forwardRef(() => BatchesService))
+    private batchesService: BatchesService
   ) {}
   async create(createScheduleDto: CreateScheduleDto): Promise<Schedule> {
       const {start, end, status, productionLineId} = createScheduleDto
@@ -46,7 +55,16 @@ export class SchedulesService {
         //REMOVE THIS (Required for testing)
         // finalGood: true,
         productionLine: true,
-        productionOrder: true
+        completedGoods: true,
+        prodLineItems: {
+          rawMaterial: true,
+          batchLineItem: true
+        },
+        productionOrder: {
+          bom: {
+            finalGood:true
+          }
+        }
       }
     })
   }
@@ -59,9 +77,14 @@ export class SchedulesService {
         //REMOVE THIS (Required for testing)
         // finalGood: true,
         productionLine: true,
+        completedGoods: true,
+        prodLineItems: {
+          rawMaterial: true,
+          batchLineItem: true
+        },
         productionOrder: {
           bom: {
-            finalGood: true
+            finalGood:true
           }
         }
       }})
@@ -89,5 +112,43 @@ export class SchedulesService {
     //dont anyhow remove schedules
     const scheduleToRemove = await this.findOne(id)
     return this.scheduleRepository.remove(scheduleToRemove)
+  }
+
+  async allocate(allocateScheduleDto: AllocateScheduleDto) {
+    const {orgId, scheduleId, quantity, volumetricSpace } = allocateScheduleDto
+    let schedule: Schedule = await this.findOne(scheduleId)
+    await this.datasource.manager.transaction(async (transactionalEntityManager) => {
+      let newBatch: Batch;
+      newBatch = await this.batchesService.allocate(orgId, schedule.productionOrder.bom.finalGood.id, quantity, volumetricSpace)
+      // const batch = await transactionalEntityManager.create(Batch, {
+      //   batchNumber: newBatch.batchNumber,
+      //   organisationId: orgId,
+      //   batchLineItems: newBatch.batchLineItems
+      // })
+
+      await transactionalEntityManager.save(newBatch)
+      // for (const lineItem of batch.batchLineItems) {
+      //   await transactionalEntityManager.save(lineItem)
+      // }
+      await transactionalEntityManager.update(Schedule, scheduleId, { status: ScheduleType.ALLOCATED, completedGoods:newBatch })
+      let productionOrder : ProductionOrder = await transactionalEntityManager.findOne(ProductionOrder, {
+        where: {
+          id: schedule.productionOrder.id
+        }, relations: {
+          schedules: true
+        }
+      })
+      let checker = true
+      for (const sche of productionOrder.schedules) {
+        if (!(sche.status == ScheduleType.ALLOCATED)) {
+          checker = false
+        }
+      }
+      if (checker) {
+        await transactionalEntityManager.update(ProductionOrder, schedule.productionOrder.id, {status: ProductionOrderStatus.ALLOCATED})
+      }
+      return null
+    })
+    return this.findOne(scheduleId)
   }
 }

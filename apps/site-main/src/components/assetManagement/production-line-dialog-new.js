@@ -29,8 +29,8 @@ export const ProductionLineDialogNew = (props) => {
     const createProductionLineDto = {
       name: values.name,
       description: values.description,
-      bomId: selectedBom.id,
-      productionCostPerLot: values.productionCostPerLot,
+      bomIds: selectedBoms.map(bom => bom.id),
+      productionCostPerLot: values.productionCostPerHour,
       gracePeriod: 3600000 * values.hours + 60000 * values.minutes + 1000 * values.seconds,
       organisationId: organisationId,
       outputPerHour: values.outputPerHour,
@@ -48,7 +48,7 @@ export const ProductionLineDialogNew = (props) => {
       .catch(err => console.log(err)) //handleAlertOpen('Failed to Create Production Line', 'error'));
   };
 
-  const [selectedBom, setSelectedBom] = useState();
+  const [selectedBoms, setSelectedBoms] = useState([]);
   const [selectedMachines, setSelectedMachines] = useState([]);
   const [boms, setBoms] = useState([]);
   const [machines, setMachines] = useState([]);
@@ -82,10 +82,13 @@ export const ProductionLineDialogNew = (props) => {
       minutes: 0,
       seconds: 0,
       // ---------
-      productionCostPerLot: 1,
+      productionCostPerHour: 1,
+      totalProductionCost: 1,
       outputPerHour: 1,
+      totalOutput: 1,
       startTime: 0,
       endTime: 0,
+      totalTime: 0,
     },
     validationSchema: Yup.object({
       name: Yup.string().required('Enter Production Line name'),
@@ -107,10 +110,10 @@ export const ProductionLineDialogNew = (props) => {
         .min(0, 'Seconds must not be negative')
         .max(59, 'Seconds cannot be more than 59')
         .required('Enter number of seconds for grace period'),
-      productionCostPerLot: Yup
+      productionCostPerHour: Yup
         .number()
         .positive('Must be positive')
-        .required('Enter Production Cost per Lot'),
+        .required('Enter Production Cost per Hour'),
       outputPerHour: Yup
         .number()
         .positive('Must be positive').required('Enter Output per Hour'),
@@ -139,6 +142,24 @@ export const ProductionLineDialogNew = (props) => {
   const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
   const checkedIcon = <CheckBoxIcon fontSize="small" />;
 
+  // Time Changes
+  useEffect(() => {
+    const newTotalTime = Math.max(formik.values.endTime - formik.values.startTime, 0)
+    formik.setFieldValue('totalTime', newTotalTime);
+    formik.setFieldValue('totalOutput', formik.values.outputPerHour * newTotalTime);
+    formik.setFieldValue('totalProductionCost', formik.values.productionCostPerHour * newTotalTime)
+  }, [formik.values.startTime, formik.values.endTime])
+
+  // Output per Hour change
+  useEffect(() => {
+    formik.setFieldValue('totalOutput', formik.values.outputPerHour * formik.values.totalTime)
+  }, [formik.values.outputPerHour])
+
+  // Prod Cost per Hour change
+  useEffect(() => {
+    formik.setFieldValue('totalProductionCost', formik.values.productionCostPerHour * formik.values.totalTime)
+  }, [formik.values.productionCostPerHour])
+
   return (
     <form onSubmit={formik.handleSubmit}>
       <Dialog 
@@ -152,25 +173,36 @@ export const ProductionLineDialogNew = (props) => {
           {string}
         </DialogTitle>
         <DialogContent>
-          <Stack sx={{ mt: 1 }} direction="row" spacing={1}>
+          <Stack sx={{ mt: 1 }} spacing={1}>
             {/* BOM Selection */}
             <Autocomplete
-              id="bom-selector"
-              sx={{ width: '40%'}}
+              id="boms-selector"
+              multiple
+              disableCloseOnSelect
               options={boms}
-              getOptionLabel={(option) => `BOM ${option.id} - ${option.finalGood.skuCode}`}
+              getOptionLabel={(option) => `${option.id} - ${option.finalGood.skuCode}`}
               isOptionEqualToValue={(option, value) => option.id === value.id}
-              onChange={(e, value) => setSelectedBom(value)}
-              renderInput={(params) => (<TextField {...params} label="BOM" />)}
+              onChange={(e, value) => setSelectedBoms(value)}
+              renderOption={(props, option, { selected }) => (
+                <li {...props}>
+                  <Checkbox
+                    icon={icon}
+                    checkedIcon={checkedIcon}
+                    style={{ marginRight: 8 }}
+                    checked={selected}
+                  />
+                  {`BOM ${option.id} - ${option.finalGood.skuCode}`}
+                </li>
+              )}
+              renderInput={(params) => (<TextField {...params} label="Bills of Material" />)}
             />
             {/* Machines Selection */}
             <Autocomplete
               id="machines-selector"
-              sx={{ width: '60%'}}
               multiple
               disableCloseOnSelect
               options={machines}
-              getOptionLabel={(option) => `${option.make} ${option.model}`}
+              getOptionLabel={(option) => `${option.make}-${option.model}`}
               isOptionEqualToValue={(option, value) => option.id === value.id}
               onChange={(e, value) => setSelectedMachines(value)}
               renderOption={(props, option, { selected }) => (
@@ -181,7 +213,7 @@ export const ProductionLineDialogNew = (props) => {
                     style={{ marginRight: 8 }}
                     checked={selected}
                   />
-                  {`${option.make} ${option.model}`}
+                  {`${option.make}-${option.model}`}
                 </li>
               )}
               renderInput={(params) => (<TextField {...params} label="Machines" />)}
@@ -213,37 +245,7 @@ export const ProductionLineDialogNew = (props) => {
             multiline
             minRows={3}
           />
-          <Stack direction="row" spacing={1} alignItems="baseline">
-            <TextField
-              fullWidth
-              error={Boolean(formik.touched.startTime && formik.errors.startTime)}
-              helperText={formik.touched.startTime && formik.errors.startTime}
-              label="Start Time (Hour)"
-              margin="normal"
-              name="startTime"
-              type="number"
-              onBlur={formik.handleBlur}
-              onChange={formik.handleChange}
-              value={formik.values.startTime}
-              variant="outlined"
-              InputProps={{ inputProps: { min: 0, max: 23 } }}
-            />
-            <TextField
-              fullWidth
-              error={Boolean(formik.touched.endTime && formik.errors.endTime)}
-              helperText={formik.touched.endTime && formik.errors.endTime}
-              label="End Time (Hour)"
-              margin="normal"
-              name="endTime"
-              type="number"
-              onBlur={formik.handleBlur}
-              onChange={formik.handleChange}
-              value={formik.values.endTime}
-              variant="outlined"
-              InputProps={{ inputProps: { min: 0, max: 23 } }}
-            />
-          </Stack>
-          <Typography sx={{ml: 1}}>Grace Period</Typography>
+          <Typography sx={{ml: 1}}>Change Over Time</Typography>
           <Stack direction="row" spacing={1} alignItems="baseline">
             <TextField
               fullWidth
@@ -291,6 +293,47 @@ export const ProductionLineDialogNew = (props) => {
           <Stack direction="row" spacing={1} alignItems="baseline">
             <TextField
               fullWidth
+              error={Boolean(formik.touched.startTime && formik.errors.startTime)}
+              helperText={formik.touched.startTime && formik.errors.startTime}
+              label="Start Time (Hour)"
+              margin="normal"
+              name="startTime"
+              type="number"
+              onBlur={formik.handleBlur}
+              onChange={formik.handleChange}
+              value={formik.values.startTime}
+              variant="outlined"
+              InputProps={{ inputProps: { min: 0, max: 23 } }}
+            />
+            <TextField
+              fullWidth
+              error={Boolean(formik.touched.endTime && formik.errors.endTime)}
+              helperText={formik.touched.endTime && formik.errors.endTime}
+              label="End Time (Hour)"
+              margin="normal"
+              name="endTime"
+              type="number"
+              onBlur={formik.handleBlur}
+              onChange={formik.handleChange}
+              value={formik.values.endTime}
+              variant="outlined"
+              InputProps={{ inputProps: { min: 0, max: 23 } }}
+            />
+            <TextField
+              fullWidth
+              label="Total Hours"
+              margin="normal"
+              name="totalTime"
+              type="number"
+              value={formik.values.totalTime}
+              variant="outlined"
+              InputProps={{ inputProps: { min: 0, max: 23 } }}
+              disabled
+            />
+          </Stack>
+          <Stack direction="row" spacing={1} alignItems="baseline">
+            <TextField
+              fullWidth
               error={Boolean(formik.touched.outputPerHour && formik.errors.outputPerHour)}
               helperText={formik.touched.outputPerHour && formik.errors.outputPerHour}
               label="Output per Hour"
@@ -305,23 +348,52 @@ export const ProductionLineDialogNew = (props) => {
             />
             <TextField
               fullWidth
-              error={Boolean(formik.touched.productionCostPerLot && formik.errors.productionCostPerLot)}
-              helperText={formik.touched.productionCostPerLot && formik.errors.productionCostPerLot}
-              label="Production Cost per Lot"
+              label="Total Output"
               margin="normal"
-              name="productionCostPerLot"
+              name="totalOutput"
+              type="number"
+              value={formik.values.totalOutput}
+              variant="outlined"
+              InputProps={{ inputProps: { min: 0 } }}
+              disabled
+            />
+          </Stack>
+          <Stack direction="row" spacing={1} alignItems="baseline">
+            <TextField
+              fullWidth
+              error={Boolean(formik.touched.productionCostPerHour && formik.errors.productionCostPerHour)}
+              helperText={formik.touched.productionCostPerHour && formik.errors.productionCostPerHour}
+              label="Production Cost per Hour"
+              margin="normal"
+              name="productionCostPerHour"
               type="number"
               onBlur={formik.handleBlur}
               onChange={formik.handleChange}
-              value={formik.values.productionCostPerLot}
+              value={formik.values.productionCostPerHour}
               variant="outlined"
               InputProps={{ inputProps: { min: 0 } }}
+            />
+            <TextField
+              fullWidth
+              label="Total Production Cost"
+              margin="normal"
+              name="totalProductionCost"
+              type="number"
+              value={formik.values.totalProductionCost}
+              variant="outlined"
+              InputProps={{ inputProps: { min: 0 } }}
+              disabled
             />
           </Stack>
         </DialogContent>
         <DialogActions>
           <Button
-            disabled={!formik.isValid || formik.isSubmitting || !selectedBom || selectedMachines.length === 0}
+            disabled={
+              !formik.isValid || 
+              formik.isSubmitting || 
+              selectedBoms.length === 0 || 
+              selectedMachines.length === 0
+            }
             variant="contained"
             onClick={formik.handleSubmit}
           >

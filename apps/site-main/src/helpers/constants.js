@@ -17,6 +17,47 @@ const requestOptionsHelper = (method, body) => {
   };
 };
 
+// License: MIT - https://opensource.org/licenses/MIT
+  // Author: Michele Locati <michele@locati.it>
+  // Source: https://gist.github.com/mlocati/7210513
+  //Edited for darker shade, better constrast
+const perc2color = (type, object) => {
+  let perc
+
+  // perc = ((object.max - object.current) / object.max) * 100
+  if (type === 'bin') {
+    perc = ((object.volumetricSpace - object.currentCapacity) / object.volumetricSpace) * 100;
+  }
+  if (type === 'production-line') {
+    perc = ((100 - object.utilization) / 100) * 100
+  }
+
+  let r,
+    g,
+    b = 0;
+  if (perc < 50) {
+    r = 255;
+    g = Math.round(5.1 * perc);
+  } else {
+    g = 255;
+    r = Math.round(510 - 5.1 * perc);
+  }
+  let h = r * 0x10000 + g * 0x100 + b * 0x1;
+  h = h.toString(16);
+
+  let newString = '';
+
+  for (let i = 0; i < h.length; i++) {
+    if (i % 2 != 0) {
+      newString += '0';
+    } else {
+      newString += h.charAt(i);
+    }
+  }
+
+  return '#' + ('000000' + newString).slice(-6);
+};
+
 const procurementBreadcrumbs = (subdomain) => [
   <Link
     component={RouterLink}
@@ -109,5 +150,6 @@ export {
   headers, 
   requestOptionsHelper, 
   procurementBreadcrumbs, 
-  productionBreadcrumbs 
+  productionBreadcrumbs,
+  perc2color
 };

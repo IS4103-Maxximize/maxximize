@@ -25,10 +25,6 @@ export class ProductionOrder {
     })
     status: ProductionOrderStatus
 
-    @OneToOne(() => Batch, batch => batch.productionOrder, {nullable: true})
-    @JoinColumn()
-    completedGoods?: Batch
-
     @ManyToOne(() => BillOfMaterial, bom => bom.productionOrders, {onDelete:"CASCADE"})
     bom: BillOfMaterial
 

@@ -255,13 +255,13 @@ export class AppService implements OnApplicationBootstrap {
 
       await this.binsService.create({
         name: 'SLOC-001-Warehouse1',
-        volumetricSpace: 300,
+        volumetricSpace: 30000000,
         rackId: 1,
       });
 
       await this.binsService.create({
         name: 'SLOC-002-Warehouse1',
-        volumetricSpace: 200,
+        volumetricSpace: 20000000,
         rackId: 2,
       });
 
@@ -277,7 +277,7 @@ export class AppService implements OnApplicationBootstrap {
         lotQuantity: 50,
         unit: MeasurementUnit.KILOGRAM,
         unitPrice: 10,
-        expiry: 7,
+        expiry: 7000,
         organisationId: 2,
       });
 
@@ -287,7 +287,7 @@ export class AppService implements OnApplicationBootstrap {
         lotQuantity: 50,
         unit: MeasurementUnit.KILOGRAM,
         unitPrice: 5,
-        expiry: 6,
+        expiry: 6000,
         organisationId: 2,
       });
 
@@ -297,7 +297,7 @@ export class AppService implements OnApplicationBootstrap {
         lotQuantity: 50,
         unit: MeasurementUnit.LITRE,
         unitPrice: 20,
-        expiry: 60,
+        expiry: 60000,
         organisationId: 2,
       });
 
@@ -350,20 +350,20 @@ export class AppService implements OnApplicationBootstrap {
       //create SI and update suppliers
       await this.salesInquiryService.create({
         currentOrganisationId: 2,
-        totalPrice: 1850,
+        totalPrice: 1850000,
         salesInquiryLineItemsDtos: [
           {
-            quantity: 500,
+            quantity: 50000,
             indicativePrice: 10,
             rawMaterialId: 1,
           },
           {
-            quantity: 300,
+            quantity: 30000,
             indicativePrice: 5,
             rawMaterialId: 2,
           },
           {
-            quantity: 6000,
+            quantity: 60000,
             indicativePrice: 20,
             rawMaterialId: 3,
           },
@@ -407,21 +407,21 @@ export class AppService implements OnApplicationBootstrap {
       //create Quotation Line Item
 
       await this.quotationLineItemService.create({
-        quantity: 500,
+        quantity: 50000,
         price: 10,
         rawMaterialId: 1,
         quotationId: 1,
       });
 
       await this.quotationLineItemService.create({
-        quantity: 300,
+        quantity: 30000,
         price: 5,
         rawMaterialId: 2,
         quotationId: 1,
       });
 
       await this.quotationLineItemService.create({
-        quantity: 6000,
+        quantity: 60000,
         price: 20,
         rawMaterialId: 3,
         quotationId: 1,
@@ -430,24 +430,24 @@ export class AppService implements OnApplicationBootstrap {
       //create purchaseOrder
       await this.purchaseOrderService.create({
         deliveryAddress: 'ManuAddress1',
-        totalPrice: 1850,
+        totalPrice: 1850000,
         deliveryDate: new Date(),
         currentOrganisationId: 2,
         quotationId: 1,
         userContactId: 2,
         poLineItemDtos: [
           {
-            quantity: 500,
+            quantity: 50000,
             price: 10,
             rawMaterialId: 1,
           },
           {
-            quantity: 300,
+            quantity: 30000,
             price: 5,
             rawMaterialId: 2,
           },
           {
-            quantity: 6000,
+            quantity: 60000,
             price: 20,
             rawMaterialId: 3,
           },
@@ -463,17 +463,17 @@ export class AppService implements OnApplicationBootstrap {
         organisationId: 2,
         goodsReceiptLineItemsDtos: [
           {
-            quantity: 500,
+            quantity: 50000,
             rawMaterialId: 1,
             volumetricSpace: 500,
           },
           {
-            quantity: 300,
+            quantity: 30000,
             rawMaterialId: 2,
             volumetricSpace: 300,
           },
           {
-            quantity: 6000,
+            quantity: 60000,
             rawMaterialId: 3,
             volumetricSpace: 6000,
           },
