@@ -1,4 +1,5 @@
 import {
+  Box,
   Button,
   Card,
   CardContent,
@@ -9,6 +10,7 @@ import {
   Typography,
 } from '@mui/material';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
+import DayJS from 'dayjs';
 import { useEffect, useState } from 'react';
 import { fetchProductionLine } from '../../helpers/assetManagement';
 
@@ -49,30 +51,36 @@ export const ScheduleViewDialog = (props) => {
 
   const columns = [
     {
-        field: 'id',
-        headerName: 'ID',
-        flex: 1,
-      },
-      {
-        field: 'start',
-        headerName: 'Start Date',
-        flex: 1,
-      },
-      {
-        field: 'end',
-        headerName: 'End Date',
-        flex: 1,
-      },
-      {
-          field: 'status',
-          headerName: 'status',
-          flex: 1,
-      },
-      {
-        field: 'productionLineId',
-        headerName: 'Production Line Id',
-        flex: 1,
-      },
+      field: 'id',
+      headerName: 'ID',
+      flex: 1,
+    },
+    {
+      field: 'start',
+      headerName: 'Start',
+      flex: 2,
+      valueFormatter: (params) => {
+        return DayJS(params.value).format('DD MMM YYYY hh:mm a')
+      }
+    },
+    {
+      field: 'end',
+      headerName: 'End',
+      flex: 2,
+      valueFormatter: (params) => {
+        return DayJS(params.value).format('DD MMM YYYY hh:mm a')
+      }
+    },
+    {
+      field: 'status',
+      headerName: 'status',
+      flex: 1,
+    },
+    {
+      field: 'productionLineId',
+      headerName: 'Prod. Line Id',
+      flex: 1,
+    },
     ];
   
   const onClose = () => {
@@ -84,60 +92,64 @@ export const ScheduleViewDialog = (props) => {
       <DialogTitle>{`Schedule Overview`}</DialogTitle>
       <DialogContent>
       {ongoingSchedules?.length > 0 ? (
-              <DataGrid
-                autoHeight
-                rows={ongoingSchedules}
-                columns={columns}
-                pageSize={10}
-                rowsPerPageOptions={[10]}
-                checkboxSelection
-                components={{
-                  Toolbar: GridToolbar,
-                }}
-                onSelectionModelChange={(ids) => {
-                  setRowsOngoing(ids);
-                }}
-              /> 
-              ): (
-                <Card
-                  variant="outlined"
-                  sx={{
-                    textAlign: 'center',
-                  }}
-                >
-                  <CardContent>
-                    <Typography>{`No Ongoing Schedule Found`}</Typography>
-                  </CardContent>
-                </Card>
-              )}
+        <Box
+          sx={{ mt: 2 }}
+        >
+          <Typography>Ongoing Schedules</Typography>
+          <DataGrid
+            autoHeight
+            rows={ongoingSchedules}
+            columns={columns}
+            pageSize={10}
+            rowsPerPageOptions={[10]}
+            components={{
+              Toolbar: GridToolbar,
+            }}
+            disableSelectionOnClick
+          /> 
+        </Box>
+        ) : (
+          <Card
+            variant="outlined"
+            sx={{
+              textAlign: 'center',
+            }}
+          >
+            <CardContent>
+              <Typography>{`No Ongoing Schedule Found`}</Typography>
+            </CardContent>
+          </Card>
+        )}
 
-              {plannedSchedules?.length > 0 ? (
-                <DataGrid
-                  autoHeight
-                  rows={plannedSchedules}
-                  columns={columns}
-                  pageSize={10}
-                  rowsPerPageOptions={[10]}
-                  checkboxSelection
-                  components={{
-                    Toolbar: GridToolbar,
-                  }}
-                  onSelectionModelChange={(ids) => {
-                    setRowsPlanned(ids);
-                  }}
-                  /> 
-              ) : (
-                <Card
-                  variant="outlined"
-                  sx={{
-                    textAlign: 'center',
-                  }}
-                >
-                  <CardContent>
-                    <Typography>{`No Planned Schedule Found`}</Typography>
-                  </CardContent>
-                </Card>
-              )}
+        {plannedSchedules?.length > 0 ? (
+          <Box
+            sx={{ mt: 2 }}
+          >
+            <Typography>Planned Schedules</Typography>
+            <DataGrid
+              autoHeight
+              rows={plannedSchedules}
+              columns={columns}
+              pageSize={10}
+              rowsPerPageOptions={[10]}
+              components={{
+                Toolbar: GridToolbar,
+              }}
+              disableSelectionOnClick
+            /> 
+          </Box>
+        ) : (
+          <Card
+            variant="outlined"
+            sx={{
+              textAlign: 'center',
+            }}
+          >
+            <CardContent>
+              <Typography>{`No Planned Schedule Found`}</Typography>
+            </CardContent>
+          </Card>
+        )}
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Back</Button>
