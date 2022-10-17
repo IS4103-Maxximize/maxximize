@@ -229,6 +229,7 @@ export const ProductionLineDialogUpdate = (props) => {
                 </li>
               )}
               renderInput={(params) => (<TextField {...params} label="Bills of Material" />)}
+              disabled={disabled}
             />
             {/* Machines Selection */}
             <Autocomplete
