@@ -62,6 +62,18 @@ const BinDetails = () => {
   //Columns for datagrid, column headers & specs
   const columns = [
     {
+      field: 'code',
+      headerName: 'Code',
+      flex: 3,
+      valueGetter: (params) => {
+        if (params.row.code) {
+          return params.row.code;
+        } else {
+          return '';
+        }
+      },
+    },
+    {
       field: 'productName',
       headerName: 'Product Name',
       flex: 3,
@@ -84,7 +96,7 @@ const BinDetails = () => {
     {
       field: 'reservedQuantity',
       headerName: 'Reserved Quantity',
-      flex: 1,
+      flex: 1.5,
       width: 120,
       editable: false,
     },

@@ -1,4 +1,11 @@
-import { Box, Card, Container, IconButton } from '@mui/material';
+import {
+  Box,
+  Button,
+  Card,
+  Container,
+  IconButton,
+  Typography,
+} from '@mui/material';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import { useEffect, useState } from 'react';
@@ -8,6 +15,7 @@ import { WarehouseToolbar } from '../../components/inventory/warehouse/warehouse
 import { CreateWarehouseDialog } from '../../components/inventory/warehouse/create-warehouse-dialog';
 import { WarehouseConfirmDialog } from '../../components/inventory/warehouse/warehouse-confirm-dialog';
 import { useNavigate } from 'react-router-dom';
+import DayJS from 'dayjs';
 
 const Warehouse = () => {
   const [warehouses, setWarehouses] = useState([]);
@@ -21,6 +29,7 @@ const Warehouse = () => {
   //Load in list of warehouses, initial
   useEffect(() => {
     retrieveAllWarehouses();
+    retrieveStagingBatchLineItems();
   }, []);
 
   //Keep track of selectedRows for deletion
@@ -41,6 +50,77 @@ const Warehouse = () => {
     }
 
     setWarehouses(result);
+  };
+
+  // Unallocated batch line items
+  const [stagingBatchLineItems, setStagingBatchLineItems] = useState([]);
+
+  const retrieveStagingBatchLineItems = async () => {
+    const response = await fetch(
+      `http://localhost:3000/api/batch-line-items/findAllByOrgId/${organisationId}`
+    );
+
+    let result = [];
+
+    if (response.status == 200 || response.status == 201) {
+      result = await response.json();
+      console.log(result);
+      result = result.filter((lineItems) => !lineItems.code);
+      console.log(result);
+    }
+
+    setStagingBatchLineItems(result);
+  };
+
+  // Selecting the unallocated line items for allocation
+  const [selectedUnallocatedRows, setSelectedUnallocatedRows] = useState([]);
+  const [available, setAvailable] = useState(false);
+
+  useEffect(() => {
+    if (selectedUnallocatedRows.length > 0) checkBinAvailability();
+    if (selectedUnallocatedRows.length === 0) setAvailable(false);
+  }, [selectedUnallocatedRows]);
+
+  // Check bin volumetric space against line items
+  const checkBinAvailability = async () => {
+    const idsOfUnallocated = selectedUnallocatedRows.join(',');
+
+    const response = await fetch(
+      `http://localhost:3000/api/batch-line-items/checkBinCapacityAgainstLineItems?batchLineItemsIds=${idsOfUnallocated}?organisationId=${organisationId}`
+    );
+    if (response.status == 200 || response.status == 201) {
+      const result = await response.json();
+      setAvailable(result);
+
+      if (!result) {
+        handleAlertOpen('Not enough space in bin to auto allocate', 'error');
+      }
+    }
+  };
+
+  // Perform auto allocation, only if the bin is available
+  const autoAllocateLineItems = async () => {
+    console.log(selectedUnallocatedRows);
+
+    const response = await fetch(
+      'http://localhost:3000/api/batch-line-items/autoAllocate',
+      {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          batchLineItemIds: selectedUnallocatedRows,
+          organisationId: organisationId,
+        }),
+      }
+    );
+
+    if (response.status == 200 || response.status == 201) {
+      retrieveStagingBatchLineItems();
+      handleAlertOpen('Successfully allocated batch line item(s)');
+    }
   };
 
   //Search Function
@@ -167,8 +247,41 @@ const Warehouse = () => {
     },
   ];
 
+  const unallocatedColumns = [
+    { field: 'id', headerName: 'ID', flex: 1 },
+    {
+      field: 'productName',
+      headerName: 'Product Name',
+      flex: 3,
+      width: 300,
+      valueGetter: (params) => {
+        if (params.row.product?.name) {
+          return params.row.product?.name;
+        } else {
+          return '';
+        }
+      },
+    },
+    {
+      field: 'quantity',
+      headerName: 'Quantity',
+      flex: 1,
+      width: 120,
+      editable: false,
+    },
+    {
+      field: 'expiryDate',
+      headerName: 'Expiry Date',
+      flex: 2,
+      width: 120,
+      editable: false,
+      valueFormatter: (params) => DayJS(params?.value).format('DD MMM YYYY'),
+    },
+  ];
+
   //Row for datagrid, set the list returned from API
   const rows = warehouses;
+  const unallocatedRows = stagingBatchLineItems;
 
   //Navigate to the bin page
   const navigate = useNavigate();
@@ -253,6 +366,48 @@ const Warehouse = () => {
                 />
               </Box>
             </Card>
+
+            <Box mt={5} display="flex" justifyContent="space-between">
+              <Typography variant="h5">
+                Unallocated Batch Line Items (Staging)
+              </Typography>
+              <Button
+                variant="contained"
+                onClick={autoAllocateLineItems}
+                disabled={!available}
+              >
+                Allocate
+              </Button>
+            </Box>
+            <Box sx={{ mt: 2 }}>
+              <Card>
+                <Box sx={{ minWidth: 1050 }}>
+                  <DataGrid
+                    autoHeight
+                    minHeight="500"
+                    rows={unallocatedRows.filter((row) => {
+                      if (search === '') {
+                        return row;
+                      } else {
+                        return row.product.name.toLowerCase().includes(search);
+                      }
+                    })}
+                    columns={unallocatedColumns}
+                    pageSize={5}
+                    rowsPerPageOptions={[5]}
+                    allowSorting={true}
+                    components={{
+                      Toolbar: GridToolbar,
+                    }}
+                    checkboxSelection
+                    onSelectionModelChange={(ids) => {
+                      setSelectedUnallocatedRows(ids);
+                    }}
+                    disableSelectionOnClick
+                  />
+                </Box>
+              </Card>
+            </Box>
           </Box>
         </Container>
       </Box>

@@ -51,6 +51,7 @@ export const CreateGoodsReceiptDialog = ({
   const handleCreateDialogClose = () => {
     setOpen(false);
     setError('');
+    setInputValue('');
     setAcceptedProducts([]);
     setFollowUpProducts([]);
     setCurrentQARules([]);
@@ -70,12 +71,15 @@ export const CreateGoodsReceiptDialog = ({
 
   //Create goods receipt, handle Formik submission
   const handleOnSubmit = async () => {
+    console.log(acceptedProducts);
     const processedAcceptedProducts = acceptedProducts.map(
       (acceptedProduct) => ({
         quantity: Number(acceptedProduct.quantity),
         rawMaterialId: acceptedProduct.rawMaterial.id,
+        volumetricSpace: Number(acceptedProduct.volume),
       })
     );
+    console.log(processedAcceptedProducts);
 
     const processedFollowUpProducts = followUpProducts.map(
       (followUpProduct) => ({
@@ -165,7 +169,14 @@ export const CreateGoodsReceiptDialog = ({
             setFollowUpProducts([]);
           } else {
             setLineItems(result.poLineItems);
-            setAcceptedProducts(result.poLineItems);
+
+            setAcceptedProducts(
+              result.poLineItems.map((poLineItem) => ({
+                ...poLineItem,
+                volume: 1,
+              }))
+            );
+
             setFollowUpProducts([]);
             setError('');
           }
@@ -215,6 +226,23 @@ export const CreateGoodsReceiptDialog = ({
         if (hasError) {
           handleAlertOpen(
             'Quantity must be more than 0 and less than procured quantity, not updated. Press Esc to exit editing mode',
+            'error'
+          );
+        }
+        return { error: hasError };
+      },
+    },
+    {
+      field: 'volume',
+      headerName: 'Volume',
+      width: 120,
+      editable: true,
+      flex: 1,
+      preProcessEditCellProps: (params) => {
+        const hasError = params.props.value <= 0;
+        if (hasError) {
+          handleAlertOpen(
+            'Volume must be more than 0, not updated. Press Esc to exit editing mode',
             'error'
           );
         }
@@ -369,24 +397,28 @@ export const CreateGoodsReceiptDialog = ({
       } else {
         if (
           acceptedProducts.some(
-            (lineItem) => lineItem.rawMaterial.name == productName
+            (lineItem) => lineItem.rawMaterial.name === productName
           )
         ) {
           const lineItemToAdd = lineItems.find(
             (lineItem) => lineItem.id == selectedId
           );
 
+          const newLineItemToAdd = { ...lineItemToAdd, volume: 1 };
+
+          console.log(newLineItemToAdd);
+
           const index = acceptedProducts.findIndex(
             (lineItem) => lineItem.rawMaterial.name === productName
           );
 
-          newAcceptedProducts.splice(index, 1, lineItemToAdd);
+          newAcceptedProducts.splice(index, 1, newLineItemToAdd);
         } else {
-          newAcceptedProducts = newAcceptedProducts.concat(
-            followUpProducts.filter(
-              (lineItem) => lineItem.rawMaterial.name == productName
-            )
-          );
+          const lineItem = followUpProducts
+            .filter((lineItem) => lineItem.rawMaterial.name == productName)
+            .map((lineItem) => ({ ...lineItem, volume: 1 }));
+
+          newAcceptedProducts = newAcceptedProducts.concat(lineItem);
         }
 
         setAcceptedProducts(newAcceptedProducts);
@@ -420,7 +452,7 @@ export const CreateGoodsReceiptDialog = ({
   useEffect(() => {
     retrieveQAChecklists();
     retrievePurchaseOrders();
-  }, []);
+  }, [open]);
 
   //Current Checklist
   const [currentChecklist, setCurrentChecklist] = useState();

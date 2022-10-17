@@ -520,7 +520,7 @@ export const SalesInquiryDialog = (props) => {
                     <TextField {...params} label="Raw Materials" />
                   )}
                   inputValue={inputValue}
-                  onInputChange={(event, newInputValue) => {
+                  onChange={(event, newInputValue) => {
                     setInputValue(newInputValue);
                   }}
                 />
@@ -532,7 +532,7 @@ export const SalesInquiryDialog = (props) => {
                       <TextField {...params} label="Supplier Final Good" />
                     )}
                     inputValue={selectedFinalGood}
-                    onInputChange={(event, newInputValue) => {
+                    onChange={(event, newInputValue) => {
                       setSelectedFinalGood(newInputValue);
                     }}
                   />

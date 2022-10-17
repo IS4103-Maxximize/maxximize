@@ -236,34 +236,32 @@ export class AppService implements OnApplicationBootstrap {
       });
 
       await this.rackService.create({
-        name: "Rack 1",
-        description: "Rack 1 Warehouse 1",
-        warehouseId: 1
+        name: 'Rack 1',
+        description: 'Rack 1 Warehouse 1',
+        warehouseId: 1,
       });
 
       await this.rackService.create({
-        name: "Rack 2",
-        description: "Rack 2 Warehouse 1",
-        warehouseId: 1
+        name: 'Rack 2',
+        description: 'Rack 2 Warehouse 1',
+        warehouseId: 1,
       });
 
       await this.rackService.create({
-        name: "Rack 3",
-        description: "Rack 1 Warehouse 2",
-        warehouseId: 2
+        name: 'Rack 3',
+        description: 'Rack 1 Warehouse 2',
+        warehouseId: 2,
       });
-
-
 
       await this.binsService.create({
         name: 'SLOC-001-Warehouse1',
-        volumetricSpace: 30000000,
+        volumetricSpace: 300,
         rackId: 1,
       });
 
       await this.binsService.create({
         name: 'SLOC-002-Warehouse1',
-        volumetricSpace: 20000000,
+        volumetricSpace: 200,
         rackId: 2,
       });
 
@@ -279,7 +277,7 @@ export class AppService implements OnApplicationBootstrap {
         lotQuantity: 50,
         unit: MeasurementUnit.KILOGRAM,
         unitPrice: 10,
-        expiry: 7000,
+        expiry: 7,
         organisationId: 2,
       });
 
@@ -289,7 +287,7 @@ export class AppService implements OnApplicationBootstrap {
         lotQuantity: 50,
         unit: MeasurementUnit.KILOGRAM,
         unitPrice: 5,
-        expiry: 6000,
+        expiry: 6,
         organisationId: 2,
       });
 
@@ -299,7 +297,7 @@ export class AppService implements OnApplicationBootstrap {
         lotQuantity: 50,
         unit: MeasurementUnit.LITRE,
         unitPrice: 20,
-        expiry: 60000,
+        expiry: 60,
         organisationId: 2,
       });
 
@@ -352,78 +350,78 @@ export class AppService implements OnApplicationBootstrap {
       //create SI and update suppliers
       await this.salesInquiryService.create({
         currentOrganisationId: 2,
-        totalPrice: 1850000,
+        totalPrice: 1850,
         salesInquiryLineItemsDtos: [
           {
-            quantity: 50000,
+            quantity: 500,
             indicativePrice: 10,
             rawMaterialId: 1,
           },
           {
-            quantity: 30000,
+            quantity: 300,
             indicativePrice: 5,
             rawMaterialId: 2,
           },
           {
-            quantity: 60000,
+            quantity: 6000,
             indicativePrice: 20,
             rawMaterialId: 3,
           },
         ],
       });
-	  await this.salesInquiryService.sendEmail({
-		salesInquiryId: 1,
-		shellOrganisationIds: [1]
-	  })
-    //   const supplier: ShellOrganisation =
-    //     await this.shellOrganisationsService.findOne(1);
-    //   await this.salesInquiryService.update(1, {
-    //     suppliers: [supplier],
-    //     salesInquiryLineItemsDtos: [
-    //       {
-    //         quantity: 50,
-    //         indicativePrice: 10,
-    //         rawMaterialId: 1,
-    //       },
-    //       {
-    //         quantity: 30,
-    //         indicativePrice: 5,
-    //         rawMaterialId: 2,
-    //       },
-    //       {
-    //         quantity: 60,
-    //         indicativePrice: 20,
-    //         rawMaterialId: 3,
-    //       },
-    //     ],
-    //   });
+      await this.salesInquiryService.sendEmail({
+        salesInquiryId: 1,
+        shellOrganisationIds: [1],
+      });
+      //   const supplier: ShellOrganisation =
+      //     await this.shellOrganisationsService.findOne(1);
+      //   await this.salesInquiryService.update(1, {
+      //     suppliers: [supplier],
+      //     salesInquiryLineItemsDtos: [
+      //       {
+      //         quantity: 50,
+      //         indicativePrice: 10,
+      //         rawMaterialId: 1,
+      //       },
+      //       {
+      //         quantity: 30,
+      //         indicativePrice: 5,
+      //         rawMaterialId: 2,
+      //       },
+      //       {
+      //         quantity: 60,
+      //         indicativePrice: 20,
+      //         rawMaterialId: 3,
+      //       },
+      //     ],
+      //   });
 
       //create Quotation
       await this.quotationService.create({
         salesInquiryId: 1,
         shellOrganisationId: 1,
         leadTime: 5,
-        currentOrganisationId: 2
+        currentOrganisationId: 2,
       });
 
       //create Quotation Line Item
 
       await this.quotationLineItemService.create({
-        quantity: 50000,
+        quantity: 500,
         price: 10,
         rawMaterialId: 1,
         quotationId: 1,
       });
 
       await this.quotationLineItemService.create({
-        quantity: 30000,
+        quantity: 300,
         price: 5,
         rawMaterialId: 2,
         quotationId: 1,
       });
 
       await this.quotationLineItemService.create({
-        quantity: 60000,
+        quantity: 6000,
         price: 20,
         rawMaterialId: 3,
         quotationId: 1,
@@ -432,24 +430,24 @@ export class AppService implements OnApplicationBootstrap {
       //create purchaseOrder
       await this.purchaseOrderService.create({
         deliveryAddress: 'ManuAddress1',
-        totalPrice: 1850000,
+        totalPrice: 1850,
         deliveryDate: new Date(),
         currentOrganisationId: 2,
         quotationId: 1,
         userContactId: 2,
         poLineItemDtos: [
           {
-            quantity: 50000,
+            quantity: 500,
             price: 10,
             rawMaterialId: 1,
           },
           {
-            quantity: 30000,
+            quantity: 300,
             price: 5,
             rawMaterialId: 2,
           },
           {
-            quantity: 60000,
+            quantity: 6000,
             price: 20,
             rawMaterialId: 3,
           },
@@ -465,23 +463,23 @@ export class AppService implements OnApplicationBootstrap {
         organisationId: 2,
         goodsReceiptLineItemsDtos: [
           {
-            quantity: 50000,
+            quantity: 500,
             rawMaterialId: 1,
-            volumetricSpace: 50
+            volumetricSpace: 500,
           },
           {
-            quantity: 30000,
+            quantity: 300,
             rawMaterialId: 2,
-            volumetricSpace: 30
+            volumetricSpace: 300,
           },
           {
-            quantity: 60000,
+            quantity: 6000,
             rawMaterialId: 3,
-            volumetricSpace: 60
+            volumetricSpace: 6000,
           },
         ],
         followUpLineItemsDtos: [],
       });
     }
-  }  
+  }
 }
