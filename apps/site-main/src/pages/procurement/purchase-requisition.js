@@ -14,7 +14,7 @@ import { NotificationAlert } from '../../components/notification-alert';
 import { CreatePRSalesInquiryDialog } from '../../components/procurement-ordering/create-pr-sales-inquiry-dialog';
 import { PurchaseRequisitionToolbar } from '../../components/procurement-ordering/purchase-requisition-toolbar';
 import { fetchPurchaseRequistions } from '../../helpers/procurement-ordering/purchase-requisition';
-import { mock_prs } from '../../__mocks__/purchase-requisitions';
+
 
 export const PurchaseRequisition = (props) => {
   const user = JSON.parse(localStorage.getItem('user'));
