@@ -208,12 +208,20 @@ export class ProductionOrdersService {
             const endJob = new CronJob(
               schedule.end,
               async () => {
-                this.update(newProductionOrder.id, {
-                  status: ProductionOrderStatus.COMPLETED,
-                });
+                
                 this.schedulesService.update(schedule.id, {
                   status: ScheduleType.COMPLETED,
                 });
+                let checker = true
+                let prodO: ProductionOrder = await this.findOne(schedule.productionOrder.id)
+                for (const sche of prodO.schedules) {
+                  if (!(sche.status == ScheduleType.COMPLETED)) {
+                    checker = false
+                  }
+                }
+                if (checker) {
+                  await transactionalEntityManager.update(ProductionOrder, prodO.id, {status: ProductionOrderStatus.COMPLETED})
+                }
                 this.logger.warn(
                   `time (${schedule.end}) for end job ${schedule.id} to run!`
                 );
@@ -358,7 +366,7 @@ export class ProductionOrdersService {
             );
             let cronTest = 10000
             for (const schedule of schedulesToBeAdded) {
-              const startJob = new CronJob(new Date((new Date()).getTime() + cronTest), async () => {
+              const startJob = new CronJob(schedule.start, async () => {
                 await this.schedulesService.update(schedule.id, {
                   status: ScheduleType.ONGOING,
                 });
@@ -370,13 +378,21 @@ export class ProductionOrdersService {
                 );
               });
               cronTest += 10000
-              const endJob = new CronJob(new Date((new Date()).getTime() + cronTest), async () => {
+              const endJob = new CronJob(schedule.end, async () => {
                 await this.schedulesService.update(schedule.id, {
                   status: ScheduleType.COMPLETED,
                 });
-                await this.update(newProductionOrder.id, {
-                  status: ProductionOrderStatus.COMPLETED,
-                });
+                let checker = true
+                let prodO: ProductionOrder = await this.findOne(schedule.productionOrder.id)
+                for (const sche of prodO.schedules) {
+                  if (!(sche.status == ScheduleType.COMPLETED)) {
+                    checker = false
+                  }
+                }
+                if (checker) {
+                  await transactionalEntityManager.update(ProductionOrder, prodO.id, {status: ProductionOrderStatus.COMPLETED})
+                }
+                
                 this.logger.warn(
                   `time (${schedule.end}) for end job ${schedule.id} to run!`
                 );
@@ -480,12 +496,20 @@ export class ProductionOrdersService {
                 const endJob = new CronJob(
                   schedule.end,
                   async () => {
-                    this.update(newProductionOrder.id, {
-                      status: ProductionOrderStatus.COMPLETED,
-                    });
+                    
                     this.schedulesService.update(schedule.id, {
                       status: ScheduleType.COMPLETED,
                     });
+                    let checker = true
+                  let prodO: ProductionOrder = await this.findOne(schedule.productionOrder.id)
+                  for (const sche of prodO.schedules) {
+                    if (!(sche.status == ScheduleType.COMPLETED)) {
+                      checker = false
+                    }
+                  }
+                  if (checker) {
+                    await transactionalEntityManager.update(ProductionOrder, prodO.id, {status: ProductionOrderStatus.COMPLETED})
+                  }
                     this.logger.warn(
                       `time (${schedule.end}) for end job ${schedule.id} to run!`
                     );
@@ -796,12 +820,19 @@ export class ProductionOrdersService {
                 const endJob = new CronJob(
                   schedule.end,
                   async () => {
-                    this.update(productionOrderToUpdate.id, {
-                      status: ProductionOrderStatus.COMPLETED,
-                    });
                     this.schedulesService.update(schedule.id, {
                       status: ScheduleType.COMPLETED,
                     });
+                    let checker = true
+                    let prodO: ProductionOrder = await this.findOne(schedule.productionOrder.id)
+                    for (const sche of prodO.schedules) {
+                      if (!(sche.status == ScheduleType.COMPLETED)) {
+                        checker = false
+                      }
+                    }
+                    if (checker) {
+                      await transactionalEntityManager.update(ProductionOrder, prodO.id, {status: ProductionOrderStatus.COMPLETED})
+                    }
                     this.logger.warn(
                       `time (${end}) for end job ${schedule.id} to run!`
                     );
