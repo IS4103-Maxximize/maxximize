@@ -285,6 +285,34 @@ export class BatchesService {
     });
   }
 
+  async findOneDeep(id: number) {
+    return await this.batchRepository.findOne({
+      where: {
+        id
+      }, relations: {
+        batchLineItems: {
+          batch: {
+            schedule: {
+              prodLineItems: {
+                batchLineItem: {
+                  batch: {
+                    goodsReceipt: {
+                      purchaseOrder: {
+                        supplier: {
+                          contact: true
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    })
+  }
+
   async findAllByOrganisationId(id: number) {
     return await this.batchRepository.find({
       where: {
@@ -401,5 +429,143 @@ export class BatchesService {
     batch.batchLineItems = batchLineItems;
 
     return batch;
+  }
+
+  selectiveFlatten (object: any, count: number, flow: any[]) {
+      let result = {}
+      if (count === flow.length) {
+        //this is the return case
+        return {
+          ...object //this should be the supplier's contact object
+        }
+      }
+      const mark = flow[count]
+      const {key, select, replacementKey, displayPreviousObjAttr} = mark
+      const value = object[key]
+
+      let setObject = {}
+      if (displayPreviousObjAttr && Array.isArray(displayPreviousObjAttr)) {
+        for (const attribute of displayPreviousObjAttr) {
+          setObject[attribute] = object[attribute]
+        }
+      } else if (displayPreviousObjAttr) {
+        setObject = object
+      }
+
+      if (!value) {
+        return {
+          ...setObject,
+          [key]: {}
+        }
+      }
+
+      if (typeof value === 'object' && !Array.isArray(value)) {
+        const temp = this.selectiveFlatten(value, count + 1 , flow)
+        if (select) {
+          //if true, return the result with the key and temp
+          result[replacementKey ?? key] = temp
+        } else {
+          //else just pass temp up the chain
+          result = temp
+        }
+        displayPreviousObjAttr ? result = {
+          ...setObject,
+          ...result
+        } : {
+          ...result
+        }
+      } else if (typeof value === 'object' && Array.isArray(value)) {
+        const objectArray = []
+        for (const currentObj of value) {
+          const temp = this.selectiveFlatten(currentObj, count + 1, flow)
+          objectArray.push(temp)
+        }
+        if (select) {
+          result[replacementKey ?? key] = objectArray
+        } else {
+          result = objectArray
+        }
+        
+      }
+      return result
+    }
+
+  async batckTrackBatch(batchNumber: string) {
+    const batchEntity = await this.batchRepository.findOne({
+      where: {
+        batchNumber
+      }
+    })
+    const batchId = batchEntity.id
+    const batch = await this.findOneDeep(batchId)
+    const count = 0
+    //key, select, replacementKey, displayPreviousObjAttr
+    
+
+    const flow = [
+      {
+        key: "batchLineItems",
+        select: true,
+        replacementKey: 'fgBatchLineItems',
+        displayPreviousObjAttr: false
+      },
+      {
+        key: "batch",
+        select: false,
+        replacementKey: null, 
+        displayPreviousObjAttr: ['id', 'code', 'expiryDate', 'quantity']
+      },
+      {
+        key: "schedule",
+        select: false,
+        replacementKey: null,
+        displayPreviousObjAttr: false
+      },
+      {
+        key: "prodLineItems",
+        select: true,
+        replacementKey: "rmBatchLineItems",
+        displayPreviousObjAttr: false
+      },
+      {
+        key: "batchLineItem",
+        select: false,
+        replacementKey: null,
+        displayPreviousObjAttr: false
+      },
+      {
+        key: "batch",
+        select: true,
+        replacementKey: null, 
+        displayPreviousObjAttr: ['id', 'code', 'expiryDate', 'quantity']
+      },
+      {
+        key: "goodsReceipt",
+        select: true,
+        replacementKey: null, 
+        displayPreviousObjAttr: ['id', 'batchNumber']
+      },
+      {
+        key: "purchaseOrder",
+        select: true,
+        replacementKey: null, 
+        displayPreviousObjAttr: ['id', 'createdDateTime', 'recipientName', 'description']
+      },
+      {
+        key: 'supplier',
+        select: true,
+        replacementKey: null, 
+        displayPreviousObjAttr: ['id', 'status', 'deliveryAddress', 'totalPrice', 'created', 'deliveryDate']
+      },
+      {
+        key: 'contact',
+        select: true,
+        replacementKey: null, 
+        displayPreviousObjAttr: true
+      }
+    ]
+    
+    const finalResult = this.selectiveFlatten(batch, count, flow)
+    return finalResult
   }
 }

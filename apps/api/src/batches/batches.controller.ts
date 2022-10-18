@@ -27,6 +27,11 @@ export class BatchesController {
     return this.batchesService.findAllByOrganisationId(+id);
   }
 
+  @Get('batchTracking/:batchNumber')
+  findOneDeep(@Param('batchNumber') batchNumber: string) {
+    return this.batchesService.batckTrackBatch(batchNumber)
+  }
+
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateBatchDto: UpdateBatchDto) {
     return this.batchesService.update(+id, updateBatchDto);
