@@ -468,7 +468,6 @@ export class BatchesService {
           //else just pass temp up the chain
           result = temp
         }
-
         displayPreviousObjAttr ? result = {
           ...setObject,
           ...result
