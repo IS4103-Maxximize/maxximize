@@ -537,9 +537,16 @@ export const ProductionOrderCreateDialog = (props) => {
         open={confirmDialogOpen}
         handleClose={() => setConfirmDialogOpen(false)}
         dialogTitle={`Create Production Order`}
-        dialogContent={`Confirm Creation of Production Order?`}
+        dialogContent={
+          formik.values.prodLineItems.some(
+            (prodLineItem) => prodLineItem.sufficient === false
+          )
+            ? `Production Order is only partially fulfilled, proceed to create two production orders?`
+            : `Confirm Creation of Production Order?`
+        }
         dialogAction={handleOnSubmit}
       />
+
       <Dialog fullScreen open={open} onClose={onClose}>
         <AppBar sx={{ position: 'relative' }}>
           <Toolbar>

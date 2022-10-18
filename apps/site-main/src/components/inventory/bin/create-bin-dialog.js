@@ -33,6 +33,7 @@ export const CreateBinDialog = ({
   //Handle dialog close from child dialog
   const handleDialogClose = () => {
     setOpen(false);
+    setError('');
     formik.resetForm();
   };
 
@@ -49,7 +50,7 @@ export const CreateBinDialog = ({
       body: JSON.stringify({
         rackId: rack.id,
         name: formik.values.name,
-        capacity: formik.values.volumetricSpace,
+        volumetricSpace: formik.values.volumetricSpace,
       }),
     });
 

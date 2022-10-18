@@ -25,6 +25,11 @@ export class BatchLineItemsController {
     return this.batchLineItemsService.checkBinCapacityAgainstLineItems(checkBinCapacityLineItemsDto);
   }
 
+  @Get('findAllByOrgId/:id')
+  findAllByOrgId(@Param('id') id: string) {
+    return this.batchLineItemsService.findAllByOrganisationId(+id);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.batchLineItemsService.findOne(+id);

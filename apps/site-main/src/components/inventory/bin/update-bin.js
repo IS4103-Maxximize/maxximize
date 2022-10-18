@@ -26,7 +26,7 @@ export const UpdateBin = ({ bin, updateBin, handleAlertOpen }) => {
       },
       body: JSON.stringify({
         name: formik.values.name,
-        capacity: formik.values.capacity,
+        volumetricSpace: formik.values.volumetricSpace,
       }),
     });
 
@@ -47,7 +47,7 @@ export const UpdateBin = ({ bin, updateBin, handleAlertOpen }) => {
     initialValues: {
       rackId: bin?.rack?.id,
       name: bin?.name,
-      capacity: bin?.capacity,
+      volumetricSpace: bin?.volumetricSpace,
       currentCapacity: bin?.currentCapacity,
     },
     validationSchema: Yup.object({
@@ -59,9 +59,9 @@ export const UpdateBin = ({ bin, updateBin, handleAlertOpen }) => {
         .min(1, 'Name must be at least be 1 character long')
         .max(50, 'Name can at most be 50 characters long')
         .required('Name is required'),
-      capacity: Yup.number()
-        .positive('Capacity must be positive')
-        .required('Capacity is required'),
+      volumetricSpace: Yup.number()
+        .positive('Volumetric Space must be positive')
+        .required('Volumetric Space is required'),
     }),
     onSubmit: handleOnSubmit,
   });
@@ -75,7 +75,8 @@ export const UpdateBin = ({ bin, updateBin, handleAlertOpen }) => {
   // Source: https://gist.github.com/mlocati/7210513
   //Edited for darker shade, better constrast
   const perc2color = (bin) => {
-    let perc = ((bin.capacity - bin.currentCapacity) / bin.capacity) * 100;
+    let perc =
+      ((bin.volumetricSpace - bin.currentCapacity) / bin.volumetricSpace) * 100;
     let r,
       g,
       b = 0;
@@ -173,15 +174,19 @@ export const UpdateBin = ({ bin, updateBin, handleAlertOpen }) => {
               sx={{ width: '68%' }}
             />
             <TextField
-              error={Boolean(formik.touched.capacity && formik.errors.capacity)}
+              error={Boolean(
+                formik.touched.volumetricSpace && formik.errors.volumetricSpace
+              )}
               fullWidth
-              helperText={formik.touched.capacity && formik.errors.capacity}
+              helperText={
+                formik.touched.volumetricSpace && formik.errors.volumetricSpace
+              }
               label="Volumetric Space"
               margin="normal"
-              name="capacity"
+              name="volumetricSpace"
               onBlur={formik.handleBlur}
               onChange={formik.handleChange}
-              value={formik.values.capacity || ''}
+              value={formik.values.volumetricSpace || ''}
               variant="outlined"
               size="small"
               sx={{ width: '15%' }}
@@ -211,7 +216,8 @@ export const UpdateBin = ({ bin, updateBin, handleAlertOpen }) => {
               onBlur={formik.handleBlur}
               onChange={formik.handleChange}
               value={
-                formik.values.capacity - formik.values.currentCapacity || '0'
+                formik.values.volumetricSpace - formik.values.currentCapacity ||
+                '0'
               }
               variant="outlined"
               size="small"

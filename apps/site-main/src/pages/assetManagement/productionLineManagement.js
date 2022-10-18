@@ -109,10 +109,10 @@ export const ProductionLineManagement = (props) => {
   const [utilizationDialogOpen, setUtilizationDialogOpen] = useState(false);
   const handleUtilizationDialogOpen = () => {
     setUtilizationDialogOpen(true);
-  }
+  };
   const handleUtilizationDialogClose = () => {
     setUtilizationDialogOpen(false);
-  }
+  };
 
   // Menu Helpers
   const [anchorEl, setAnchorEl] = useState(null);
@@ -134,8 +134,6 @@ export const ProductionLineManagement = (props) => {
   // const handleClickViewSchedule = () => {
   //   setAction('GET');
   // };
-
-  
 
   const menuButton = (params) => {
     return (
@@ -236,20 +234,20 @@ export const ProductionLineManagement = (props) => {
         );
       },
     },
-	{
-		field: 'startTime',
-		headerName: 'Start Time',
-		flex: 1,
-		valueFormatter: (params) =>
-        DayJS(new Date().setHours(params?.value,0,0)).format('hh:mm a'),
-	},
-	{
-		field: 'endTime',
-		headerName: 'End Time',
-		flex: 1,
-		valueFormatter: (params) =>
-		DayJS(new Date().setHours(params?.value,0,0)).format('hh:mm a'),
-	},
+    {
+      field: 'startTime',
+      headerName: 'Start Time',
+      flex: 1,
+      valueFormatter: (params) =>
+        DayJS(new Date().setHours(params?.value, 0, 0)).format('hh:mm a'),
+    },
+    {
+      field: 'endTime',
+      headerName: 'End Time',
+      flex: 1,
+      valueFormatter: (params) =>
+        DayJS(new Date().setHours(params?.value, 0, 0)).format('hh:mm a'),
+    },
     {
       field: 'productionCostPerLot',
       headerName: 'Cost /hr',

@@ -236,24 +236,22 @@ export class AppService implements OnApplicationBootstrap {
       });
 
       await this.rackService.create({
-        name: "Rack 1",
-        description: "Rack 1 Warehouse 1",
-        warehouseId: 1
+        name: 'Rack 1',
+        description: 'Rack 1 Warehouse 1',
+        warehouseId: 1,
       });
 
       await this.rackService.create({
-        name: "Rack 2",
-        description: "Rack 2 Warehouse 1",
-        warehouseId: 1
+        name: 'Rack 2',
+        description: 'Rack 2 Warehouse 1',
+        warehouseId: 1,
       });
 
       await this.rackService.create({
-        name: "Rack 3",
-        description: "Rack 1 Warehouse 2",
-        warehouseId: 2
+        name: 'Rack 3',
+        description: 'Rack 1 Warehouse 2',
+        warehouseId: 2,
       });
-
-
 
       await this.binsService.create({
         name: 'SLOC-001-Warehouse1',
@@ -371,39 +369,39 @@ export class AppService implements OnApplicationBootstrap {
           },
         ],
       });
-	  await this.salesInquiryService.sendEmail({
-		salesInquiryId: 1,
-		shellOrganisationIds: [1]
-	  })
-    //   const supplier: ShellOrganisation =
-    //     await this.shellOrganisationsService.findOne(1);
-    //   await this.salesInquiryService.update(1, {
-    //     suppliers: [supplier],
-    //     salesInquiryLineItemsDtos: [
-    //       {
-    //         quantity: 50,
-    //         indicativePrice: 10,
-    //         rawMaterialId: 1,
-    //       },
-    //       {
-    //         quantity: 30,
-    //         indicativePrice: 5,
-    //         rawMaterialId: 2,
-    //       },
-    //       {
-    //         quantity: 60,
-    //         indicativePrice: 20,
-    //         rawMaterialId: 3,
-    //       },
-    //     ],
-    //   });
+      await this.salesInquiryService.sendEmail({
+        salesInquiryId: 1,
+        shellOrganisationIds: [1],
+      });
+      //   const supplier: ShellOrganisation =
+      //     await this.shellOrganisationsService.findOne(1);
+      //   await this.salesInquiryService.update(1, {
+      //     suppliers: [supplier],
+      //     salesInquiryLineItemsDtos: [
+      //       {
+      //         quantity: 50,
+      //         indicativePrice: 10,
+      //         rawMaterialId: 1,
+      //       },
+      //       {
+      //         quantity: 30,
+      //         indicativePrice: 5,
+      //         rawMaterialId: 2,
+      //       },
+      //       {
+      //         quantity: 60,
+      //         indicativePrice: 20,
+      //         rawMaterialId: 3,
+      //       },
+      //     ],
+      //   });
 
       //create Quotation
       await this.quotationService.create({
         salesInquiryId: 1,
         shellOrganisationId: 1,
         leadTime: 5,
-        currentOrganisationId: 2
+        currentOrganisationId: 2,
       });
 
       //create Quotation Line Item
@@ -467,21 +465,21 @@ export class AppService implements OnApplicationBootstrap {
           {
             quantity: 50000,
             rawMaterialId: 1,
-            volumetricSpace: 50
+            volumetricSpace: 500,
           },
           {
             quantity: 30000,
             rawMaterialId: 2,
-            volumetricSpace: 30
+            volumetricSpace: 300,
           },
           {
             quantity: 60000,
             rawMaterialId: 3,
-            volumetricSpace: 60
+            volumetricSpace: 6000,
           },
         ],
         followUpLineItemsDtos: [],
       });
     }
-  }  
+  }
 }
