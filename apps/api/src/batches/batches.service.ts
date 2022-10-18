@@ -298,7 +298,9 @@ export class BatchesService {
                   batch: {
                     goodsReceipt: {
                       purchaseOrder: {
-                        supplier: true
+                        supplier: {
+                          contact: true
+                        }
                       }
                     }
                   }
@@ -434,13 +436,29 @@ export class BatchesService {
       if (count === flow.length) {
         //this is the return case
         return {
-          ...object //this should be the supplier object
+          ...object //this should be the supplier's contact object
         }
       }
       const mark = flow[count]
       const {key, select, replacementKey, displayPreviousObjAttr} = mark
       const value = object[key]
-      
+
+      let setObject = {}
+      if (displayPreviousObjAttr && Array.isArray(displayPreviousObjAttr)) {
+        for (const attribute of displayPreviousObjAttr) {
+          setObject[attribute] = object[attribute]
+        }
+      } else if (displayPreviousObjAttr) {
+        setObject = object
+      }
+
+      if (!value) {
+        return {
+          ...setObject,
+          [key]: {}
+        }
+      }
+
       if (typeof value === 'object' && !Array.isArray(value)) {
         const temp = this.selectiveFlatten(value, count + 1 , flow)
         if (select) {
@@ -450,15 +468,7 @@ export class BatchesService {
           //else just pass temp up the chain
           result = temp
         }
-        let setObject = {}
-        if (displayPreviousObjAttr && Array.isArray(displayPreviousObjAttr)) {
-          for (const attribute of displayPreviousObjAttr) {
-            setObject[attribute] = object[attribute]
-          }
-        } else if (displayPreviousObjAttr) {
-          setObject = object
-        }
-        
+
         displayPreviousObjAttr ? result = {
           ...setObject,
           ...result
@@ -547,6 +557,12 @@ export class BatchesService {
         select: true,
         replacementKey: null, 
         displayPreviousObjAttr: ['id', 'status', 'deliveryAddress', 'totalPrice', 'created', 'deliveryDate']
+      },
+      {
+        key: 'contact',
+        select: true,
+        replacementKey: null, 
+        displayPreviousObjAttr: true
       }
     ]
     
