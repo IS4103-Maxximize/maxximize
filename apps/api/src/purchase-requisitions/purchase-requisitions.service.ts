@@ -64,17 +64,21 @@ export class PurchaseRequisitionsService {
   }
 
   async findAllByOrg(id: number) {
-    const [purchaseRequisitions, count] = await this.purchaseRequisitionsRepository.findAndCount({where : {
-      organisationId: id
-    }, relations: {
-      salesInquiry: true,
-      productionLineItem: {
-        productionOrder: true
+    const [purchaseRequisitions, count] = await this.purchaseRequisitionsRepository.findAndCount({
+      where : {
+        organisationId: id
+      }, 
+      relations: {
+        salesInquiry: true,
+        productionLineItem: {
+          productionOrder: true,
+        },
+        rawMaterial: true
       },
-      rawMaterial: true
-    }})
+      withDeleted: true
+    })
     if (count > 0) {
-      return purchaseRequisitions
+      return purchaseRequisitions;
     } else {
       throw new NotFoundException('No Purchase Requisitions Found!')
     }
@@ -150,17 +154,17 @@ export class PurchaseRequisitionsService {
   }
 
   async updateFulfilledQtyQueryRunner(purchaseRequisition: PurchaseRequisition, qty: number, queryRunner: QueryRunner) {
-	let pr = await this.findOne(purchaseRequisition.id);
+	  const pr = await this.findOne(purchaseRequisition.id);
     if (pr.status === 'processing' && pr.quantityToFulfill !== 0) {
 		pr.quantityToFulfill = qty
-      if (qty === 0) {
-        //means its fulfilled
-        pr.status = PRStatus.FULFILLED
-        //TODO: update PR's ProdO status to readytorelease
-        const prodLineItemId = purchaseRequisition.productionLineItem.id
-        await queryRunner.manager.softDelete(ProductionLineItem, prodLineItemId)
-      }
-      return await queryRunner.manager.save(pr);
+    if (qty === 0) {
+      //means its fulfilled
+      pr.status = PRStatus.FULFILLED
+      //TODO: update PR's ProdO status to readytorelease
+      const prodLineItemId = purchaseRequisition.productionLineItem.id
+      await queryRunner.manager.softDelete(ProductionLineItem, prodLineItemId)
+    }
+    return await queryRunner.manager.save(pr);
     } else {
       throw new NotFoundException('purchase requisition is not in processing or quantityToFulfill is already 0!')
     }
