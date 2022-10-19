@@ -19,6 +19,7 @@ import { ProductionLineDialogNew } from '../../components/assetManagement/produc
 import { ProductionLineDialogUpdate } from '../../components/assetManagement/production-line-dialog-update';
 import { ProductionLineManagementMenu } from '../../components/assetManagement/production-line-management-menu';
 import { ScheduleViewDialog } from '../../components/assetManagement/schedule-view-dialog';
+import { UtilizationDialog } from '../../components/assetManagement/utilization-dialog';
 import { DashboardLayout } from '../../components/dashboard-layout';
 import { NotificationAlert } from '../../components/notification-alert';
 import { Toolbar } from '../../components/toolbar';
@@ -104,6 +105,16 @@ export const ProductionLineManagement = (props) => {
     setScheduleDialogOpen(false);
   };
 
+  // Utilization Dialog Helpers
+  const [utilizationDialogOpen, setUtilizationDialogOpen] = useState(false);
+  const handleUtilizationDialogOpen = () => {
+    setUtilizationDialogOpen(true);
+  }
+  const handleUtilizationDialogClose = () => {
+    setUtilizationDialogOpen(false);
+  }
+
+  // Menu Helpers
   const [anchorEl, setAnchorEl] = useState(null);
   const menuOpen = Boolean(anchorEl);
 
@@ -123,6 +134,8 @@ export const ProductionLineManagement = (props) => {
   // const handleClickViewSchedule = () => {
   //   setAction('GET');
   // };
+
+  
 
   const menuButton = (params) => {
     return (
@@ -284,6 +297,7 @@ export const ProductionLineManagement = (props) => {
             handleClickViewEdit={handleClickViewEdit}
             handleClickViewMachine={handleMachineDialogOpen}
             handleClickViewSchedule={handleScheduleDialogOpen}
+            handleClickViewUtilization={handleUtilizationDialogOpen}
           />
           <MachineViewDialog
             open={machineDialogOpen}
@@ -294,6 +308,13 @@ export const ProductionLineManagement = (props) => {
             open={scheduleDialogOpen}
             selectedProductionLine={selectedRow}
             handleClose={handleScheduleDialogClose}
+          />
+          <UtilizationDialog
+            open={utilizationDialogOpen}
+            productionLine={selectedRow}
+            handleClose={handleUtilizationDialogClose}
+            handleAlertOpen={handleAlertOpen}
+            handleAlertClose={handleAlertClose}
           />
           <ConfirmDialog
             open={confirmDialogOpen}
