@@ -58,7 +58,7 @@ export class BinsService {
       where: {
         id: id,
       },
-      relations: ['rack', 'batchLineItems.product'],
+      relations: ['rack.warehouse', 'batchLineItems.product'],
     });
     if (bin) {
       return bin;
@@ -99,9 +99,18 @@ export class BinsService {
 
     try {
       await queryRunner.manager.update(Bin, id, updateBinDto);
+      if (updateBinDto.name) {
+        const bin = await this.findOne(id);
+        const batchLineItems = bin.batchLineItems;
+        for (const batchLineItem of batchLineItems) {
+          batchLineItem.code = "B-" + updateBinDto.name + "-R-" + bin.rack.name + "-W-" + bin.rack.warehouse.name;
+          queryRunner.manager.save(batchLineItem);
+        }
+      }
       await queryRunner.commitTransaction();
       return await this.findOne(id);
     } catch (err) {
+      console.log(err)
       await queryRunner.rollbackTransaction();
     } finally {
       await queryRunner.release();

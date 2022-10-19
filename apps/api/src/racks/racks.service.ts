@@ -52,7 +52,19 @@ export class RacksService {
         where: {
           id: id
         },
-        relations: ["warehouse", "bins"]
+        relations: {
+          warehouse: true,
+          bins: {
+            batchLineItems: {
+              product: true,
+              bin: {
+                rack: {
+                  warehouse: true
+                }
+              }
+            }
+          }
+        }
       });
     } catch (err) {
       throw new NotFoundException(`Rack with id: ${id} not found`);
@@ -82,6 +94,19 @@ export class RacksService {
     await queryRunner.startTransaction();
     try {
       await queryRunner.manager.update(Rack, id, updateRackDto);
+
+      if (updateRackDto.name) {
+        const rack = await this.findOne(id);
+        const batchLineItems = rack.bins.flatMap(bin => {
+          return bin.batchLineItems;
+        });
+
+        for (const batchLineItem of batchLineItems) {
+          batchLineItem.code = "B-" + batchLineItem.bin.name + "-R-" + updateRackDto.name + "-W-" + batchLineItem.bin.rack.warehouse.name;
+          queryRunner.manager.save(batchLineItem);
+        }
+      }
+
       await queryRunner.commitTransaction();
       return await this.findOne(id);
     } catch (err) {
