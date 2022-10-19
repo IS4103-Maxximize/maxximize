@@ -620,11 +620,10 @@ export class ProductionOrdersService {
         schedules: true,
         prodLineItems: {
           batchLineItem: { 
-			bin: true,
-		  },
+            bin: true,
+          },
           rawMaterial: true,
           purchaseRequisition: true,
-		  
         },
         purchaseOrder: true,
         organisation: true,
@@ -654,7 +653,11 @@ export class ProductionOrdersService {
           finalGood: true,
           bomLineItems: true,
         },
-        schedules: true,
+        schedules: {
+          completedGoods: {
+            batchLineItems: true,
+          }
+        },
         prodLineItems: {
           batchLineItem: { 
 			bin: true,
@@ -713,7 +716,9 @@ export class ProductionOrdersService {
         relations: {
 			bom: {
 			  finalGood: true,
-			  bomLineItems: true,
+			  bomLineItems: {
+          rawMaterial: true
+        },
 			},
 			schedules: true,
 			prodLineItems: {
