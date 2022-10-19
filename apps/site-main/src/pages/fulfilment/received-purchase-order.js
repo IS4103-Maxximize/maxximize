@@ -6,10 +6,10 @@ import SendIcon from '@mui/icons-material/Send';
 import { NotificationAlert } from '../../components/notification-alert';
 import DayJS from 'dayjs';
 import { ReceivedPurchaseOrderConfirmDialog } from '../../components/fulfilment/received-purchase-orders/received-po-confirm-dialog';
-import { ReceivedPurchaseOrderToolbar } from '../../components/fulfilment/received-purchase-orders/received-po-toolbar';
 import MoreVert from '@mui/icons-material/MoreVert';
 import { ReceivedPurchaseOrderMenu } from '../../components/fulfilment/received-purchase-orders/received-po-menu';
 import { ReceivedPurchaseOrderViewDialog } from '../../components/fulfilment/received-purchase-orders/received-po-view-dialog';
+import { Toolbar } from '../../components/toolbar';
 
 const ReceivedPurchaseOrder = () => {
   //TODO remove
@@ -235,11 +235,15 @@ const ReceivedPurchaseOrder = () => {
         }}
       >
         <Container maxWidth={false}>
-          <ReceivedPurchaseOrderToolbar
-            disabled={disabled}
-            numPurchaseOrder={selectedRows.length}
-            handleConfirmDialogOpen={handleConfirmDialogOpen}
+          <Toolbar
+            key="received-purchase-order"
+            name={'Received Purchase Order'}
+            numRows={selectedRows.length}
+            deleteDisabled={disabled}
             handleSearch={handleSearch}
+            handleAdd={null}
+            handleFormDialogOpen={null}
+            handleConfirmDialogOpen={handleConfirmDialogOpen}
           />
           <ReceivedPurchaseOrderMenu
             anchorEl={anchorEl}
