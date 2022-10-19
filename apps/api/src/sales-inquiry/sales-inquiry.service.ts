@@ -20,6 +20,8 @@ import { SalesInquiry } from './entities/sales-inquiry.entity';
 import { SalesInquiryStatus } from './enums/salesInquiryStatus.enum';
 import { Cron } from '@nestjs/schedule';
 import { CronJob } from 'cron';
+import { ChronJobsService } from '../chron-jobs/chron-jobs.service';
+import { ChronType } from '../chron-jobs/enums/chronType.enum';
 
 @Injectable()
 export class SalesInquiryService {
@@ -43,7 +45,9 @@ export class SalesInquiryService {
     private purchaseRequisitionSevice: PurchaseRequisitionsService,
     private organisationService: OrganisationsService,
     private finalGoodService: FinalGoodsService,
-    private schedulerRegistry: SchedulerRegistry
+    private schedulerRegistry: SchedulerRegistry,
+    @Inject(forwardRef(() => ChronJobsService))
+    private chronJobService: ChronJobsService
   ) {}
 
   async create(
@@ -109,7 +113,7 @@ export class SalesInquiryService {
       //add chrom Job for this new SI
       if (expiryDuration) {
        
-        const dataToUpdate = new Date(new Date().getTime() + expiryDuration)
+        const dataToUpdate = new Date(new Date().getTime() + 1800000)
 
         const job = new CronJob(dataToUpdate, async() => {
           //update SI status to expired
@@ -121,6 +125,8 @@ export class SalesInquiryService {
       
         this.schedulerRegistry.addCronJob(`${newSI.id}-updateSiToExpired`, job);
         job.start();
+        //add chron job to database
+        await this.chronJobService.create({scheduledDate: dataToUpdate, type: ChronType.SALESINQUIRY, targetId: newSI.id})
       }
       
 

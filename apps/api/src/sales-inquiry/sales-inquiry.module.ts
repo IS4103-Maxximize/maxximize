@@ -13,13 +13,15 @@ import { PurchaseRequisition } from '../purchase-requisitions/entities/purchase-
 import { PurchaseRequisitionsModule } from '../purchase-requisitions/purchase-requisitions.module';
 import { OrganisationsModule } from '../organisations/organisations.module';
 import { FinalGoodsModule } from '../final-goods/final-goods.module';
+import { ChronJobsModule } from '../chron-jobs/chron-jobs.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([SalesInquiry, SalesInquiryLineItem, ShellOrganisation, Quotation, Organisation, RawMaterial, PurchaseRequisition]), 
     MailModule, FinalGoodsModule,
     forwardRef(() => PurchaseRequisitionsModule),
-    OrganisationsModule
+    OrganisationsModule,
+    forwardRef(() => ChronJobsModule),
   ],
   controllers: [SalesInquiryController],
   providers: [SalesInquiryService],
