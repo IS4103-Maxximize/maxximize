@@ -14,6 +14,9 @@ export abstract class LineItem {
     quantity: number;
 
     @Column({
+        type: "decimal",
+        precision: 10,
+        scale: 5,
 		nullable: true
 	})
     unitOfVolumetricSpace: number;

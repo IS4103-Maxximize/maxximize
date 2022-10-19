@@ -33,7 +33,4 @@ export class ProductionLineItem {
 
     // @ManyToMany(() => Schedule, schedule => schedule.prodLineItems)
     // schedules: Schedule[]
-
-    @DeleteDateColumn()
-    deletedAt: Date;
 }
