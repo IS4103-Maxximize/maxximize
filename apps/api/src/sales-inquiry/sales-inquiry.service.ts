@@ -113,7 +113,7 @@ export class SalesInquiryService {
       //add chrom Job for this new SI
       if (expiryDuration) {
        
-        const dataToUpdate = new Date(new Date().getTime() + 1800000)
+        const dataToUpdate = new Date(new Date().getTime() + expiryDuration)
 
         const job = new CronJob(dataToUpdate, async() => {
           //update SI status to expired
