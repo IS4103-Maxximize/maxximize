@@ -13,22 +13,7 @@ import { Toolbar } from '../../components/toolbar';
 
 const ReceivedPurchaseOrder = () => {
   //TODO remove
-  const [receivedPurchaseOrder, setReceivedPurchaseOrder] = useState([
-    {
-      id: 1,
-      dateReceived: '05/10/2022 03:00PM',
-      inquirer: 'Testing Manufacturer',
-      totalPrice: '$1500',
-      status: 'Awaiting Response',
-    },
-    {
-      id: 2,
-      dateReceived: '06/10/2022 11:27AM',
-      inquirer: 'Testing Manufacturer 2',
-      totalPrice: '$10000',
-      status: 'Awaiting Response',
-    },
-  ]);
+  const [receivedPurchaseOrder, setReceivedPurchaseOrder] = useState([]);
   const [selectedRow, setSelectedRow] = useState();
   const [selectedRows, setSelectedRows] = useState([]);
   const [disabled, setDisabled] = useState();

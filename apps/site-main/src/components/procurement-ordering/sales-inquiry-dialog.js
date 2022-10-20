@@ -208,6 +208,7 @@ export const SalesInquiryDialog = (props) => {
           const result = await response.json();
 
           const data = result.filter((product) => product.type === 'FinalGood');
+
           console.log(data);
           setFinalGoods(data);
         }
@@ -218,6 +219,50 @@ export const SalesInquiryDialog = (props) => {
     formik.setFieldValue('lineItems', []);
     setSelectedFinalGood('');
   }, [formik.values.receivingOrg]);
+
+  useEffect(() => {
+    if (formik.values.receivingOrg) {
+      const fetchFinalGoods = async () => {
+        const response = await fetch(
+          `http://localhost:3000/api/final-goods/orgId/${formik.values.receivingOrg}`
+        );
+
+        if (response.status === 200 || response.status === 201) {
+          const result = await response.json();
+
+          const response2 = await fetch(
+            `http://localhost:3000/api/bill-of-materials/all/${formik.values.receivingOrg}`
+          );
+
+          if (response2.status === 200 || response2.status === 201) {
+            const result2 = await response2.json();
+
+            console.log(result2);
+
+            let dataWithBOM = [];
+
+            if (result2.length !== 0) {
+              const data = result.filter((el) =>
+                formik.values.lineItems
+                  .map((item) => item.finalGood.skuCode)
+                  .includes(el.skuCode)
+                  ? null
+                  : el
+              );
+
+              dataWithBOM = data.filter((finalGood) =>
+                result2.map((bom) => bom.finalGood.id).includes(finalGood.id)
+              );
+            }
+
+            setFinalGoods(dataWithBOM);
+          }
+        }
+      };
+
+      fetchFinalGoods();
+    }
+  }, [formik.values.lineItems]);
 
   // DataGrid Helpers
   const [selectedRows, setSelectedRows] = useState([]);
@@ -255,6 +300,7 @@ export const SalesInquiryDialog = (props) => {
       }, 0)
     );
     setInputValue('');
+    setSelectedFinalGood('');
     formik.setFieldValue('numProd', 1);
   };
 

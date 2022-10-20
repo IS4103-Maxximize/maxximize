@@ -36,6 +36,7 @@ export const createPurchaseOrder = async (values, lineItems) => {
     currentOrganisationId,
     quotationId,
     userContactId,
+	supplierId,
     ...rest
   } = values
 
@@ -48,6 +49,7 @@ export const createPurchaseOrder = async (values, lineItems) => {
     currentOrganisationId: currentOrganisationId,
     quotationId: quotationId,
     userContactId: userContactId,
+	supplierId: supplierId,
     poLineItemDtos: poLineItemDtos,
   });
 
