@@ -65,7 +65,19 @@ export class WarehousesService {
       where: {
         id: id
       },
-      relations: ["organisation", "racks.bins.batchLineItems.product", "racks"]
+      relations: {
+        organisation: true,
+        racks: {
+          bins: {
+            batchLineItems: {
+              product: true,
+              bin: {
+                rack: true
+              }
+            }
+          }
+        }
+      }
     });
     if (warehouse) {
       return warehouse;
@@ -80,6 +92,20 @@ export class WarehousesService {
     await queryRunner.startTransaction();
     try {
       await queryRunner.manager.update(Warehouse, id, updateWarehouseDto);
+      const warehouse = await this.findOne(id);
+
+      if (updateWarehouseDto.name) {
+        const batchLineItems = warehouse.racks.flatMap(rack => {
+          return rack.bins.flatMap(bin => {
+            return bin.batchLineItems;
+          })
+        });
+
+        for (const batchLineItem of batchLineItems) {
+          batchLineItem.code = "B-" + batchLineItem.bin.name + "-R-" + batchLineItem.bin.rack.name + "-W-" + updateWarehouseDto.name;
+          queryRunner.manager.save(batchLineItem);
+        }
+      }
       await queryRunner.commitTransaction();
       return await this.findOne(id);
     } catch (err) {
