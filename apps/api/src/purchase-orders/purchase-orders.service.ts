@@ -37,7 +37,7 @@ export class PurchaseOrdersService {
   ) {}
   async create(createPurchaseOrderDto: CreatePurchaseOrderDto): Promise<PurchaseOrder> {
     try {
-      const { deliveryAddress, totalPrice, deliveryDate, currentOrganisationId, quotationId, userContactId, poLineItemDtos, supplierId} = createPurchaseOrderDto
+      const { deliveryAddress, totalPrice, deliveryDate, currentOrganisationId, quotationId, userContactId, poLineItemDtos} = createPurchaseOrderDto
       let quotationToBeAdded: Quotation
       let orgContact: Contact
       let userContact: Contact
@@ -47,8 +47,17 @@ export class PurchaseOrdersService {
       let supplierOnboarded: Organisation
       await this.datasource.manager.transaction(async (transactionalEntityManager) => {
         if (quotationId) {
-          quotationToBeAdded = await transactionalEntityManager.findOneByOrFail(Quotation, {
-            id: quotationId
+          quotationToBeAdded = await transactionalEntityManager.findOneOrFail(Quotation, {
+            where: {
+              id: quotationId
+            }, relations: {
+              shellOrganisation: {
+                contact: true
+              },
+              currentOrganisation: {
+                contact: true
+              }
+            }
           })
         }
         if (userContactId) {
@@ -56,15 +65,16 @@ export class PurchaseOrdersService {
             id: userContactId
           })
         }
-        if (supplierId) {
-          supplierOnboarded = await this.organisationsService.findOne(supplierId);
-        }
-        orgContact = (await this.organisationsService.findOne(currentOrganisationId)).contact
-        if (supplierId) {
-          supplierContact = supplierOnboarded.contact;
+        //check Quotation if its a shell or a registered organisation
+        const {shellOrganisation, currentOrganisation} = quotationToBeAdded
+        if (shellOrganisation) {
+          supplierContact = shellOrganisation.contact
         } else {
-          supplierContact = (await this.quotationsService.findOne(quotationId)).shellOrganisation.contact
+          //quotation is sent to a registered Entity
+          supplierOnboarded = currentOrganisation
+          supplierContact = currentOrganisation.contact
         }
+       
         for (const dto of poLineItemDtos) {
           const { quantity, price, rawMaterialId, finalGoodId} = dto
           let rawMaterialToBeAdded: RawMaterial
@@ -96,9 +106,9 @@ export class PurchaseOrdersService {
           totalPrice,
           created: new Date(),
           deliveryDate: deliveryDate,
-          organisationId: currentOrganisationId,
+          currentOrganisationId: currentOrganisationId,
           quotation: quotationToBeAdded,
-          supplier: supplierOnboarded,
+          supplier: supplierOnboarded ?? null,
           orgContact,
           userContact,
           supplierContact,
@@ -109,7 +119,7 @@ export class PurchaseOrdersService {
         
       })
 
-      if (supplierId) {
+      if (supplierOnboarded) {
         return this.findOne(newPurchaseOrder.id);
       } else {
         const organisation = await this.organisationsService.findOne(currentOrganisationId)
@@ -141,7 +151,7 @@ export class PurchaseOrdersService {
   findAllByOrgId(organisationId: number): Promise<PurchaseOrder[]> {
     return this.purchaseOrdersRepository.find({
       where: {
-        organisationId
+        currentOrganisationId: organisationId
       }, relations: [
         'quotation',
         'currentOrganisation',
@@ -153,6 +163,66 @@ export class PurchaseOrdersService {
         'followUpLineItems.rawMaterial',
         'goodsReceipts.goodsReceiptLineItems.product'
       ]
+    })
+  }
+
+  async findSentPurchaseOrderByOrg(id: number) {
+    return await this.purchaseOrdersRepository.find({
+      where: {
+        currentOrganisationId: id
+      }, relations: {
+        quotation: {
+          shellOrganisation: true,
+          receivingOrganisation: true
+        },
+        currentOrganisation: true,
+        supplier: true,
+        orgContact: true,
+        userContact: true,
+        supplierContact: true,
+        poLineItems: {
+          rawMaterial: true,
+          finalGood: true
+        },
+        followUpLineItems: {
+          rawMaterial: true
+        },
+        goodsReceipts: {
+          goodsReceiptLineItems: {
+            product: true
+          }
+        }
+      }
+    })
+  }
+
+  async findReceivedPurchaseOrderByOrg(id: number) {
+    return await this.purchaseOrdersRepository.find({
+      where: {
+        supplierId : id
+      }, relations: {
+        quotation: {
+          shellOrganisation: true,
+          receivingOrganisation: true
+        },
+        currentOrganisation: true,
+        supplier: true,
+        orgContact: true,
+        userContact: true,
+        supplierContact: true,
+        poLineItems: {
+          rawMaterial: true,
+          finalGood: true
+        },
+        followUpLineItems: {
+          rawMaterial: true
+        },
+        goodsReceipts: {
+          goodsReceiptLineItems: {
+            product: true
+          }
+        }
+      }
     })
   }
 
