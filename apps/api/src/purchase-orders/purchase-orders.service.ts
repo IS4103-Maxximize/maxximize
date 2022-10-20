@@ -185,7 +185,8 @@ export class PurchaseOrdersService {
           finalGood: true
         },
         followUpLineItems: {
-          rawMaterial: true
+          rawMaterial: true,
+          finalGood: true
         },
         goodsReceipts: {
           goodsReceiptLineItems: {
@@ -215,7 +216,8 @@ export class PurchaseOrdersService {
           finalGood: true
         },
         followUpLineItems: {
-          rawMaterial: true
+          rawMaterial: true,
+          finalGood: true
         },
         goodsReceipts: {
           goodsReceiptLineItems: {
