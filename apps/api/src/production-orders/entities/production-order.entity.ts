@@ -3,6 +3,7 @@ import { Batch } from "../../batches/entities/batch.entity";
 import { BillOfMaterial } from "../../bill-of-materials/entities/bill-of-material.entity";
 import { Organisation } from "../../organisations/entities/organisation.entity";
 import { ProductionLineItem } from "../../production-line-items/entities/production-line-item.entity";
+import { ProductionRequest } from "../../production-requests/entities/production-request.entity";
 import { PurchaseOrder } from "../../purchase-orders/entities/purchase-order.entity";
 import { PurchaseRequisition } from "../../purchase-requisitions/entities/purchase-requisition.entity";
 import { Schedule } from "../../schedules/entities/schedule.entity";
@@ -34,9 +35,9 @@ export class ProductionOrder {
     @OneToMany(() => ProductionLineItem, prodLineItem => prodLineItem.productionOrder)
     prodLineItems: ProductionLineItem[]
 
-    @OneToOne(() => PurchaseOrder, {nullable:true})
+    @OneToOne(() => ProductionRequest, prodRequest => prodRequest.prodOrder, {nullable:true})
     @JoinColumn()
-    purchaseOrder?: PurchaseOrder
+    prodRequest: ProductionRequest
 
     @Column()
     organisationId: number

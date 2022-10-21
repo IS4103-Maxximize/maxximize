@@ -13,6 +13,9 @@ import {Batch} from '../batches/entities/batch.entity';
 import { AllocateScheduleDto } from './dto/allocate-schedule.dto';
 import { ProductionOrder } from '../production-orders/entities/production-order.entity';
 import { ProductionOrderStatus } from '../production-orders/enums/production-order-status.enum';
+import { ProductionRequest } from '../production-requests/entities/production-request.entity';
+import { ProdRequestStatus } from '../production-requests/enums/prodRequestStatus.enum';
+import { BatchLineItem } from '../batch-line-items/entities/batch-line-item.entity';
 
 @Injectable()
 export class SchedulesService {
@@ -63,7 +66,8 @@ export class SchedulesService {
         productionOrder: {
           bom: {
             finalGood:true
-          }
+          },
+          prodRequest: true
         }
       }
     })
@@ -85,7 +89,8 @@ export class SchedulesService {
         productionOrder: {
           bom: {
             finalGood:true
-          }
+          },
+          prodRequest: true
         }
       }})
       return schedule
@@ -127,17 +132,21 @@ export class SchedulesService {
       // })
 
       await transactionalEntityManager.save(newBatch)
-      // for (const lineItem of batch.batchLineItems) {
-      //   await transactionalEntityManager.save(lineItem)
-      // }
+      
       await transactionalEntityManager.update(Schedule, scheduleId, { status: ScheduleType.ALLOCATED, completedGoods:newBatch })
       let productionOrder : ProductionOrder = await transactionalEntityManager.findOne(ProductionOrder, {
         where: {
           id: schedule.productionOrder.id
         }, relations: {
-          schedules: true
+          schedules: true,
+          prodRequest:true
         }
       })
+      if (productionOrder.prodRequest) {
+        for (const lineItem of newBatch.batchLineItems) {
+          await transactionalEntityManager.update(BatchLineItem, lineItem.id, {reservedQuantity: quantity})
+        }
+      }
       let checker = true
       for (const sche of productionOrder.schedules) {
         if (!(sche.status == ScheduleType.ALLOCATED)) {
@@ -146,6 +155,11 @@ export class SchedulesService {
       }
       if (checker) {
         await transactionalEntityManager.update(ProductionOrder, schedule.productionOrder.id, {status: ProductionOrderStatus.ALLOCATED})
+        if(schedule.productionOrder.prodRequest) {
+          await transactionalEntityManager.update(ProductionRequest, schedule.productionOrder.prodRequest.id, {
+            status: ProdRequestStatus.FULFILLED,
+          });
+        }
       }
       return null
     })
