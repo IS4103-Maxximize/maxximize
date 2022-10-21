@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { BillOfMaterialsService } from '../bill-of-materials/bill-of-materials.service';
 import { BinsService } from '../bins/bins.service';
+import { FinalGood } from '../final-goods/entities/final-good.entity';
 import { CreateProductionLineItemDto } from '../production-line-items/dto/create-production-line-item.dto';
 import { RawMaterial } from '../raw-materials/entities/raw-material.entity';
 import { RawMaterialsService } from '../raw-materials/raw-materials.service';
@@ -389,5 +390,27 @@ export class BatchLineItemsService {
     } else {
       return false;
     }
+  }
+
+  async getAggregatedFinalGoods(organisationId: number) {
+    const batchLineItems = await this.findAllByOrganisationId(organisationId);
+    const finalGoodsStock = new Map<number, BatchLineItem[]>();
+
+    // Retrieve all batch line items and add to map only if batch line item does not expire before end of production
+    for (const batchLineItem of batchLineItems) {
+      const product = batchLineItem.product;
+      if (product instanceof FinalGood) {
+        if (!finalGoodsStock.has(product.id)) {
+          const lineItemsArr: BatchLineItem[] = [];
+          lineItemsArr.push(batchLineItem);
+          finalGoodsStock.set(product.id, lineItemsArr);
+        } else {
+          const lineItems = finalGoodsStock.get(product.id);
+          lineItems.push(batchLineItem);
+          finalGoodsStock.set(product.id, lineItems);
+        }
+      }
+    }
+    return finalGoodsStock;
   }
 }

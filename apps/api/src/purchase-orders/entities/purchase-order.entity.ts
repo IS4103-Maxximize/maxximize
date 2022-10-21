@@ -1,5 +1,7 @@
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { BatchLineItem } from "../../batch-line-items/entities/batch-line-item.entity";
 import { Contact } from "../../contacts/entities/contact.entity";
+import { DeliveryRequest } from "../../delivery-requests/entities/delivery-request.entity";
 import { FollowUpLineItem } from "../../follow-up-line-items/entities/follow-up-line-item.entity";
 import { GoodsReceipt } from "../../goods-receipts/entities/goods-receipt.entity";
 import { Organisation } from "../../organisations/entities/organisation.entity";
@@ -32,14 +34,17 @@ export class PurchaseOrder {
     deliveryDate: Date
 
     @Column()
-    organisationId: number
+    currentOrganisationId: number
     @ManyToOne(() => Organisation, currentOrganisation => currentOrganisation.purchaseOrders)
-    @JoinColumn({name: 'organisationId'})
+    @JoinColumn({name: 'currentOrganisationId'})
     currentOrganisation: Organisation
 
-    @ManyToOne(() => Organisation, supplier => supplier.purchaseOrders, {
+    @Column({nullable: true})
+    supplierId: number
+    @ManyToOne(() => Organisation, supplier => supplier.receivedPurchaseOrders, {
         nullable: true
     })
+    @JoinColumn({name: 'supplierId'})
     supplier: Organisation
 
     @ManyToOne(() => Contact)
@@ -67,4 +72,10 @@ export class PurchaseOrder {
 
     @OneToMany(() => ProductionRequest, prodRequest => prodRequest.purchaseOrder, {nullable: true})
     prodRequests: ProductionRequest[]
+    @OneToMany(() => DeliveryRequest, deliveryRequest => deliveryRequest.purchaseOrder)
+    deliveryRequests: DeliveryRequest[];
+
+    @ManyToMany(() => BatchLineItem, batchLineItem => batchLineItem.purchaseOrders)
+    @JoinColumn()
+    batchLineItems: BatchLineItem[];
 }

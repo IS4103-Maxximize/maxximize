@@ -25,9 +25,24 @@ export class PurchaseOrdersController {
     return this.purchaseOrdersService.findAll();
   }
 
+  @Get('sent/:id')
+  findSentPurchaseOrdersByOrg(@Param('id') id: string) {
+    return this.purchaseOrdersService.findSentPurchaseOrderByOrg(+id)
+  }
+
+  @Get('received/:id')
+  findReceivedPurchaseOrdersByOrg(@Param('id') id: string) {
+    return this.purchaseOrdersService.findReceivedPurchaseOrderByOrg(+id)
+  }
+
   @Get('all/:id')
   findAllByOrgId(@Param('id') id: string) {
     return this.purchaseOrdersService.findAllByOrgId(+id);
+  }
+
+  @Get('getUnfufilledLineItems/:id')
+  getUnfufilledLineItems(@Param('id') id: string) {
+    return this.purchaseOrdersService.getUnfufilledLineItems(+id);
   }
 
   @Get(':id')
