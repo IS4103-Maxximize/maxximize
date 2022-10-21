@@ -22,6 +22,7 @@ import { MailService } from '../mail/mail.service';
 import { Organisation } from '../organisations/entities/organisation.entity';
 import { Contact } from '../contacts/entities/contact.entity';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { Role } from './enums/role.enum';
 
 @Injectable()
 export class UsersService {
@@ -226,5 +227,16 @@ export class UsersService {
         `Organisation: ${organisationId} cannot be found`
       );
     }
+  }
+
+  async findOrganisationDrivers(orgId: number) {
+    return this.usersRepository.find({
+      where: {
+        organisation: {
+          id: orgId
+        },
+        role: Role.DRIVER
+      }
+    });
   }
 }

@@ -46,6 +46,7 @@ import { PurchaseRequisitionsModule } from '../purchase-requisitions/purchase-re
 import { RacksModule } from '../racks/racks.module';
 import { MulterModule } from '@nestjs/platform-express';
 import { FilesModule } from '../files/files.module';
+import { DeliveryRequestLineItemsModule } from '../delivery-request-line-items/delivery-request-line-items.module';
 
 @Module({
   imports: [
@@ -104,6 +105,8 @@ import { FilesModule } from '../files/files.module';
     PurchaseRequisitionsModule,
     RacksModule,
     FilesModule,
+    DeliveryRequestLineItemsModule,
+    DeliveryRequestsModule,
     MulterModule.register({
       dest: '/uploads'
     }),

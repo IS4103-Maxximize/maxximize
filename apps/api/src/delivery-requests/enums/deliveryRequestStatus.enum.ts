@@ -1,8 +1,6 @@
 export enum DeliveryRequestStatus {
-    UNASSIGNED = 'unassigned',
-    ASSIGNED = 'assigned',
+    READYTODELIVER = "readytodeliver",
+    READYTODELIVERPARTIAL = "readytodeliverpartial",
     OUTFORDELIVERY = 'outfordelivery',
-    DELIVERED = 'delivered',
-    COLLECTED = 'collected',
-    FAILED = 'failed'
+    COMPLETED = 'completed',
 }
