@@ -1,5 +1,4 @@
 import { Column, Entity, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
-import { DeliveryRequest } from "../../delivery-requests/entities/delivery-request.entity";
 import { Invoice } from "../../invoices/entities/invoice.entity";
 import { OrderLineItem } from "../../order-line-items/entities/order-line-item.entity";
 import { Organisation } from "../../organisations/entities/organisation.entity";
@@ -62,7 +61,4 @@ export class Order {
 
     @OneToMany(() => OrderLineItem, orderLineItem => orderLineItem.order)
     orderLineItems: OrderLineItem[]
-
-    @OneToOne(() => DeliveryRequest, deliveryRequest => deliveryRequest.order)
-    deliveryRequest: DeliveryRequest
 }

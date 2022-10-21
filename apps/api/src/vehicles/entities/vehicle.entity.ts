@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { DeliveryRequest } from "../../delivery-requests/entities/delivery-request.entity";
 import { Organisation } from "../../organisations/entities/organisation.entity";
 import { Sensor } from "../../sensors/entities/sensor.entity";
@@ -22,7 +22,7 @@ export abstract class Machine {
     model: string;
 
     @Column()
-    year: String;
+    year: string;
 
     @Column()
     lastServiced: Date;
@@ -59,7 +59,7 @@ export class Vehicle extends Machine {
     })
     currentStatus: VehicleStatus;
 
-    @ManyToMany(() => DeliveryRequest, (deliveryRequest) => deliveryRequest.vehicles, {
+    @OneToMany(() => DeliveryRequest, (deliveryRequest) => deliveryRequest.vehicle, {
         nullable: true
     })
     deliveryRequests: DeliveryRequest[];

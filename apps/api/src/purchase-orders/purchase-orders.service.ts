@@ -167,6 +167,7 @@ export class PurchaseOrdersService {
       'userContact',
       'supplierContact',
       'poLineItems.rawMaterial',
+      'poLineItems.finalGood',
       'followUpLineItems.rawMaterial',
       'goodsReceipts.goodsReceiptLineItems.product'
     ]})
