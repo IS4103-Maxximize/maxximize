@@ -40,6 +40,11 @@ export class PurchaseOrdersController {
     return this.purchaseOrdersService.findAllByOrgId(+id);
   }
 
+  @Get('getUnfufilledLineItems/:id')
+  getUnfufilledLineItems(@Param('id') id: string) {
+    return this.purchaseOrdersService.getUnfufilledLineItems(+id);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.purchaseOrdersService.findOne(+id);

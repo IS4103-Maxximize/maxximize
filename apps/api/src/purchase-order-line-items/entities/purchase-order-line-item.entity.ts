@@ -11,6 +11,11 @@ export class PurchaseOrderLineItem {
     @Column()
     quantity: number
 
+    @Column({
+        default: 0
+    })
+    fufilledQty: number;
+
     @Column()
     price: number
 

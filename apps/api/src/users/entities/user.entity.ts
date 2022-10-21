@@ -1,6 +1,7 @@
-import { Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Exclude } from 'class-transformer';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Contact } from "../../contacts/entities/contact.entity";
+import { DeliveryRequest } from "../../delivery-requests/entities/delivery-request.entity";
 import { Organisation } from "../../organisations/entities/organisation.entity";
 import { Role } from "../enums/role.enum";
 
@@ -22,15 +23,24 @@ export class User {
     @Exclude()
     password: string;
 
-    @Column({default: "true"})
+    @Column({
+        default: "true"
+    })
     isActive: string;
 
     @Column()
     @Exclude()
     salt: string;
 
-    @Column({default: false})
+    @Column({
+        default: false
+    })
     passwordChanged: boolean;
+
+    @Column({
+        default: true
+    })
+    available: boolean;
 
     @Column({
         type: 'enum',
@@ -48,4 +58,7 @@ export class User {
     })
     @JoinColumn()
     contact: Contact;
+
+    @OneToMany(() => DeliveryRequest, (deliveryRequest) => deliveryRequest.user)
+    deliveryRequests: DeliveryRequest;
 }
