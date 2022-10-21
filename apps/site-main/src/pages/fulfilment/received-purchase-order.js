@@ -21,7 +21,7 @@ const ReceivedPurchaseOrder = () => {
   const user = JSON.parse(localStorage.getItem('user'));
   const organisationId = user.organisation.id;
 
-  //Load in list of sales inquiries, initial
+  //Load in list of purchase orders, initial
   useEffect(() => {
     retrieveAllReceivedPurchaseOrder();
   }, []);
@@ -31,10 +31,10 @@ const ReceivedPurchaseOrder = () => {
     setDisabled(selectedRows.length === 0);
   }, [selectedRows]);
 
-  //Retrieve all incoming sales inquiries
+  //Retrieve all incoming purchase orders
   const retrieveAllReceivedPurchaseOrder = async () => {
     const response = await fetch(
-      `http://localhost:3000/api/sales-inquiry/all/${organisationId}`
+      `http://localhost:3000/api/purchase-orders/received/${organisationId}`
     );
     let result = [];
     if (response.status == 200 || response.status == 201) {
@@ -111,7 +111,7 @@ const ReceivedPurchaseOrder = () => {
   };
 
   //Handle Delete
-  //Rejecting a sales inquiry
+  //Rejecting a purchase order
   //Also alerts user of ourcome
   const handleDelete = async (selectedIds) => {
     const requestOptions = {
@@ -150,8 +150,8 @@ const ReceivedPurchaseOrder = () => {
         DayJS(params?.value).format('DD MMM YYYY hh:mm a'),
     },
     {
-      field: 'inquirer',
-      headerName: 'Inquirer',
+      field: 'buyer',
+      headerName: 'Buyer',
       width: 200,
       flex: 4,
       //TODO
@@ -200,7 +200,7 @@ const ReceivedPurchaseOrder = () => {
         open={confirmDialogOpen}
         handleClose={handleConfirmDialogClose}
         dialogTitle={`Reject Purchase Order(s)`}
-        dialogContent={`Confirm rejection of sales inquiry(s)?`}
+        dialogContent={`Confirm rejection of purchase order(s)?`}
         dialogAction={() => {
           handleDelete(selectedRows);
         }}
@@ -247,7 +247,9 @@ const ReceivedPurchaseOrder = () => {
                     } else {
                       return (
                         row.id.toString().includes(search) ||
-                        row.inquirer.toLowerCase().includes(search)
+                        row.currentOrganisation?.name
+                          .toLowerCase()
+                          .includes(search)
                       );
                     }
                   })}

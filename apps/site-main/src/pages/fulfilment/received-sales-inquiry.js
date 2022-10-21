@@ -123,8 +123,6 @@ const ReceivedSalesInquiry = () => {
       method: 'PATCH',
     };
 
-    console.log(selectedRow);
-
     const response = await fetch(
       `http://localhost:3000/api/sales-inquiry/${selectedRow.id}`,
       {

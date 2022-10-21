@@ -53,7 +53,6 @@ export const PODialog = (props) => {
       currentOrganisationId: organisationId,
       quotationId: formik.values.quotation.id,
       userContactId: user.contact.id,
-      supplierId: values.quotation.currentOrganisationId,
     };
 
     const poLineItems = formik.values.poLineItems.map((item) => {
@@ -61,7 +60,7 @@ export const PODialog = (props) => {
         quantity: item.quantity,
         price: item.price,
         rawMaterialId: item.rawMaterial.id,
-        // finalGoodId:
+        finalGoodId: item.finalGood.id,
       };
     });
 
@@ -122,7 +121,6 @@ export const PODialog = (props) => {
       currentOrganisation: purchaseOrder
         ? purchaseOrder.currentOrganisation
         : user.organisation,
-      supplier: purchaseOrder ? purchaseOrder.supplier : null,
       userContact: purchaseOrder ? purchaseOrder.userContact : null,
       supplierContact: purchaseOrder ? purchaseOrder.supplierContact : null,
       poLineItems: purchaseOrder ? purchaseOrder.poLineItems : [],
@@ -231,7 +229,7 @@ export const PODialog = (props) => {
       headerName: 'Subtotal',
       flex: 1,
       valueGetter: (params) => {
-        return params.row.rawMaterial.unitPrice * params.row.quantity;
+        return params.row.price * params.row.quantity;
       },
     },
   ];
@@ -346,13 +344,15 @@ export const PODialog = (props) => {
               {purchaseOrder && (
                 <TextField
                   sx={{ width: 400 }}
-                  label="Supplier ID & Name"
+                  label="Supplier/Shell Org ID & Name"
                   value={
                     purchaseOrder.supplier
                       ? purchaseOrder.supplier.id +
                         ' ' +
                         purchaseOrder.supplier.name
-                      : 'NULL'
+                      : purchaseOrder.quotation.shellOrganisation.id +
+                        ' ' +
+                        purchaseOrder.quotation.shellOrganisation.name
                   }
                   disabled={Boolean(purchaseOrder)}
                 />

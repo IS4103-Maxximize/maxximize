@@ -64,7 +64,6 @@ const SentQuotation = () => {
     return (
       <IconButton
         onClick={(event) => {
-          console.log(params.row);
           setSelectedRow(params.row);
           handleMenuClick(event);
         }}
@@ -247,6 +246,7 @@ const SentQuotation = () => {
                       return row;
                     } else {
                       return (
+                        row.id.toString().includes(search) ||
                         row.receivingOrganisation?.id
                           .toString()
                           .includes(search) ||

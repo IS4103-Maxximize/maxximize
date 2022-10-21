@@ -86,7 +86,6 @@ export const SalesInquiry = (props) => {
   // Supplier Dialog Helpers
   const [supplierDialogOpen, setSupplierDialogOpen] = useState(false);
   const handleSupplierDialogOpen = () => {
-    console.log(selectedRow);
     setSupplierDialogOpen(true);
   };
   const handleSupplierDialogClose = () => {
@@ -178,11 +177,8 @@ export const SalesInquiry = (props) => {
   };
 
   const addSalesInquiry = (inquiry) => {
-    console.log(inquiry);
     const updatedProducts = [...rows, inquiry];
-    console.log(updatedProducts);
     setRows(updatedProducts);
-    console.log(inquiry);
     handleAlertOpen(
       `Added Sales Inquiry ${inquiry.id} successfully!`,
       'success'
@@ -193,7 +189,6 @@ export const SalesInquiry = (props) => {
     const updatedRow = { ...newRow };
 
     const inquiry = await newRow.json();
-    console.log(inquiry);
 
     getSalesInquiries();
     handleAlertOpen(

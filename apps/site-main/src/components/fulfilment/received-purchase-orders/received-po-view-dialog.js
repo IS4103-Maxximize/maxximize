@@ -17,6 +17,7 @@ import { useEffect, useState } from 'react';
 import * as Yup from 'yup';
 import DayJS from 'dayjs';
 import { Box } from '@mui/system';
+import { ReceivedPurchaseOrderConfirmDialog } from './received-po-confirm-dialog';
 
 export const ReceivedPurchaseOrderViewDialog = (props) => {
   const user = JSON.parse(localStorage.getItem('user'));
@@ -28,21 +29,11 @@ export const ReceivedPurchaseOrderViewDialog = (props) => {
     created: purchaseOrder
       ? DayJS(purchaseOrder.created).format('DD MMM YYYY hh:mm a')
       : '',
-    totalPrice: 0,
-    leadTime: '',
+    totalPrice: purchaseOrder ? purchaseOrder.totalPrice : 0,
+    leadTime: purchaseOrder ? purchaseOrder.quotation.leadTime : '',
     purchaseOrderId: purchaseOrder ? purchaseOrder.id : '',
-    purchaseOrderLineItems: purchaseOrder
-      ? purchaseOrder.salesInquiryLineItems
-      : [],
+    purchaseOrderLineItems: purchaseOrder ? purchaseOrder.poLineItems : [],
   };
-
-  const schema = Yup.object({
-    totalPrice: Yup.number().positive().required('Total Price is required'),
-    leadTime: Yup.number()
-      .integer()
-      .positive()
-      .required('Lead Time is Required'),
-  });
 
   const handleOnSubmit = async (values) => {
     // const response = await fetch('http://localhost:3000/api/quotations', {
@@ -69,81 +60,82 @@ export const ReceivedPurchaseOrderViewDialog = (props) => {
     // }
   };
 
+  // TODO Reject a purchase order
+  const handleReject = async () => {
+    return;
+  };
+
   const onClose = () => {
-    formik.setFieldValue('salesInquiryLineItems', []);
+    formik.setFieldValue('poLineItems', []);
     formik.resetForm();
     handleClose();
   };
 
   const formik = useFormik({
     initialValues: initialValues,
-    validationSchema: schema,
+    // validationSchema: schema,
     enableReinitialize: true,
     onSubmit: handleOnSubmit,
   });
 
   useEffect(() => {
-    // console.log(si ? si.salesInquiryLineItems : []);
     formik.setFieldValue(
       'purchaseOrderLineItems',
       purchaseOrder
-        ? purchaseOrder.salesInquiryLineItems.map((item) => {
+        ? purchaseOrder.poLineItems?.map((item) => {
             return {
               id: item.id,
-              price: item.indicativePrice,
+              price: item.price,
               quantity: item.quantity,
               rawMaterial: item.rawMaterial,
+              finalGood: item.finalGood,
             };
           })
         : []
     );
   }, [open]);
 
-  // DataGrid Helpers
-  const [selectedRows, setSelectedRows] = useState([]);
-
-  const handleRowUpdate = (newRow, oldRow) => {
-    let updatedRow = { ...newRow };
-    if (newRow.price === oldRow.price) {
-      return oldRow;
-    }
-
-    // Open error alert if orice is < 1
-    if (newRow.price < 1) {
-      const message = 'Price must be positive!';
-      handleAlertOpen(message, 'error');
-      throw new Error(message);
-    }
-
-    formik.setFieldValue(
-      'salesInquiryLineItems',
-      formik.values.salesInquiryLineItems.map((item) => {
-        if (item.id === updatedRow.id) {
-          console.log(updatedRow);
-          return updatedRow;
-        } else {
-          return item;
-        }
-      })
-    );
-    return updatedRow;
+  // Delete Confirm dialog
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const handleConfirmDialogOpen = () => {
+    setConfirmDialogOpen(true);
+  };
+  const handleConfirmDialogClose = () => {
+    setConfirmDialogOpen(false);
   };
 
+  // DataGrid Helpers
   const columns = [
     {
       field: 'skuCode',
       headerName: 'SKU',
       flex: 1,
       valueGetter: (params) => {
-        return params.row ? params.row.rawMaterial.skuCode : '';
+        return params.row ? params.row.finalGood?.skuCode : '';
       },
     },
     {
-      field: 'rawName',
-      headerName: 'Raw Material Name',
+      field: 'finalName',
+      headerName: 'Final Good Name',
       flex: 2,
       valueGetter: (params) => {
-        return params.row ? params.row.rawMaterial.name : '';
+        return params.row ? params.row.finalGood?.name : '';
+      },
+    },
+    {
+      field: 'unit',
+      headerName: 'Unit',
+      flex: 2,
+      valueGetter: (params) => {
+        return params.row ? params.row.finalGood?.unit : '';
+      },
+    },
+    {
+      field: 'price',
+      headerName: 'Price',
+      flex: 1,
+      valueGetter: (params) => {
+        return params.row ? params.row.price : '';
       },
     },
     {
@@ -155,126 +147,133 @@ export const ReceivedPurchaseOrderViewDialog = (props) => {
       },
     },
     {
-      field: 'price',
-      headerName: 'Quoted Price*',
+      field: 'subtotal',
+      headerName: 'Subtotal',
       flex: 1,
-      editable: true,
       valueGetter: (params) => {
-        return params.row.price ? params.row.price : params.row.indicativePrice;
+        return params.row.price * params.row.quantity;
       },
     },
   ];
 
   return (
-    <form onSubmit={formik.handleSubmit}>
-      <Dialog fullScreen open={open} onClose={onClose}>
-        <AppBar sx={{ position: 'relative' }}>
-          <Toolbar>
-            <IconButton
-              edge="start"
-              color="inherit"
-              onClick={onClose}
-              aria-label="close"
-            >
-              <CloseIcon />
-            </IconButton>
-            <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
-              View Purchase Order
-            </Typography>
-          </Toolbar>
-        </AppBar>
-        <DialogContent>
-          <TextField
-            fullWidth
-            error={Boolean(formik.touched.id && formik.errors.id)}
-            helperText={formik.touched.id && formik.errors.id}
-            label="Purchase Order ID"
-            margin="normal"
-            name="id"
-            onBlur={formik.handleBlur}
-            onChange={formik.handleChange}
-            value={formik.values.salesInquiryId}
-            variant="outlined"
-            disabled
-            size="small"
-          />
-          <TextField
-            fullWidth
-            error={Boolean(formik.touched.created && formik.errors.created)}
-            helperText={formik.touched.created && formik.errors.created}
-            label="Date Created"
-            margin="normal"
-            name="created"
-            onBlur={formik.handleBlur}
-            onChange={formik.handleChange}
-            value={formik.values.created}
-            variant="outlined"
-            disabled
-            size="small"
-          />
-
-          <TextField
-            fullWidth
-            error={Boolean(
-              formik.touched.totalPrice && formik.errors.totalPrice
-            )}
-            helperText={formik.touched.totalPrice && formik.errors.totalPrice}
-            label="Total Price"
-            margin="normal"
-            name="totalPrice"
-            type="number"
-            onBlur={formik.handleBlur}
-            onChange={formik.handleChange}
-            value={formik.values.totalPrice}
-            variant="outlined"
-            disabled
-            size="small"
-          />
-          <TextField
-            disabled
-            fullWidth
-            error={Boolean(formik.touched.leadTime && formik.errors.leadTime)}
-            helperText={formik.touched.leadTime && formik.errors.leadTime}
-            label="Lead Time"
-            margin="normal"
-            name="leadTime"
-            type="number"
-            onBlur={formik.handleBlur}
-            onChange={formik.handleChange}
-            value={formik.values.leadTime}
-            variant="outlined"
-            size="small"
-          />
-          <DataGrid
-            autoHeight
-            rows={formik.values.purchaseOrderLineItems}
-            columns={columns}
-            pageSize={5}
-            rowsPerPageOptions={[5]}
-            onSelectionModelChange={(ids) => setSelectedRows(ids)}
-            experimentalFeatures={{ newEditingApi: true }}
-            processRowUpdate={handleRowUpdate}
-            disableSelectionOnClick
-          />
-          <Box mt={2} display="flex" justifyContent="flex-end">
-            <Box display="flex" justifyContent="space-evenly" width="30%">
-              <Button variant="contained" onClick={formik.handleSubmit}>
-                Prepare Delivery
-              </Button>
-              <Button variant="contained" onClick={formik.handleSubmit}>
-                Send Production Request
-              </Button>
-              <Button
-                variant="contained"
-                color="error"
-                onClick={formik.handleSubmit}
+    <>
+      <ReceivedPurchaseOrderConfirmDialog
+        open={confirmDialogOpen}
+        handleClose={handleConfirmDialogClose}
+        dialogTitle={`Reject Purchase Order`}
+        dialogContent={`Confirm rejection of purchase order?`}
+        dialogAction={handleReject}
+      />
+      <form onSubmit={formik.handleSubmit}>
+        <Dialog fullScreen open={open} onClose={onClose}>
+          <AppBar sx={{ position: 'relative' }}>
+            <Toolbar>
+              <IconButton
+                edge="start"
+                color="inherit"
+                onClick={onClose}
+                aria-label="close"
               >
-                Reject
-              </Button>
+                <CloseIcon />
+              </IconButton>
+              <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
+                View Purchase Order
+              </Typography>
+            </Toolbar>
+          </AppBar>
+          <DialogContent>
+            <TextField
+              fullWidth
+              error={Boolean(formik.touched.id && formik.errors.id)}
+              helperText={formik.touched.id && formik.errors.id}
+              label="Purchase Order ID"
+              margin="normal"
+              name="id"
+              onBlur={formik.handleBlur}
+              onChange={formik.handleChange}
+              value={formik.values.purchaseOrderId}
+              variant="outlined"
+              disabled
+              size="small"
+            />
+            <TextField
+              fullWidth
+              error={Boolean(formik.touched.created && formik.errors.created)}
+              helperText={formik.touched.created && formik.errors.created}
+              label="Date Created"
+              margin="normal"
+              name="created"
+              onBlur={formik.handleBlur}
+              onChange={formik.handleChange}
+              value={formik.values.created}
+              variant="outlined"
+              disabled
+              size="small"
+            />
+
+            <TextField
+              fullWidth
+              error={Boolean(
+                formik.touched.totalPrice && formik.errors.totalPrice
+              )}
+              helperText={formik.touched.totalPrice && formik.errors.totalPrice}
+              label="Total Price"
+              margin="normal"
+              name="totalPrice"
+              type="number"
+              onBlur={formik.handleBlur}
+              onChange={formik.handleChange}
+              value={formik.values.totalPrice}
+              variant="outlined"
+              disabled
+              size="small"
+            />
+            <TextField
+              disabled
+              fullWidth
+              error={Boolean(formik.touched.leadTime && formik.errors.leadTime)}
+              helperText={formik.touched.leadTime && formik.errors.leadTime}
+              label="Lead Time"
+              margin="normal"
+              name="leadTime"
+              type="number"
+              onBlur={formik.handleBlur}
+              onChange={formik.handleChange}
+              value={formik.values.leadTime}
+              variant="outlined"
+              size="small"
+            />
+            <DataGrid
+              autoHeight
+              rows={formik.values.purchaseOrderLineItems}
+              columns={columns}
+              pageSize={5}
+              rowsPerPageOptions={[5]}
+              // onSelectionModelChange={(ids) => setSelectedRows(ids)}
+              // processRowUpdate={handleRowUpdate}
+              disableSelectionOnClick
+            />
+            <Box mt={2} display="flex" justifyContent="flex-end">
+              <Box display="flex" justifyContent="space-evenly" width="30%">
+                <Button variant="contained" onClick={formik.handleSubmit}>
+                  Prepare Delivery
+                </Button>
+                <Button variant="contained" onClick={formik.handleSubmit}>
+                  Send Production Request
+                </Button>
+                <Button
+                  variant="contained"
+                  color="error"
+                  onClick={handleConfirmDialogOpen}
+                >
+                  Reject
+                </Button>
+              </Box>
             </Box>
-          </Box>
-        </DialogContent>
-      </Dialog>
-    </form>
+          </DialogContent>
+        </Dialog>
+      </form>
+    </>
   );
 };
