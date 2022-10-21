@@ -3,6 +3,7 @@ import { Contact } from "../../contacts/entities/contact.entity";
 import { FollowUpLineItem } from "../../follow-up-line-items/entities/follow-up-line-item.entity";
 import { GoodsReceipt } from "../../goods-receipts/entities/goods-receipt.entity";
 import { Organisation } from "../../organisations/entities/organisation.entity";
+import { ProductionRequest } from "../../production-requests/entities/production-request.entity";
 import { PurchaseOrderLineItem } from "../../purchase-order-line-items/entities/purchase-order-line-item.entity";
 import { Quotation } from "../../quotations/entities/quotation.entity";
 import { PurchaseOrderStatus } from "../enums/purchaseOrderStatus.enum";
@@ -63,4 +64,7 @@ export class PurchaseOrder {
 	@OneToMany(() => GoodsReceipt, goodsReceipt => goodsReceipt.purchaseOrder)
     @JoinColumn()
     goodsReceipts: GoodsReceipt[];
+
+    @OneToMany(() => ProductionRequest, prodRequest => prodRequest.purchaseOrder, {nullable: true})
+    prodRequests: ProductionRequest[]
 }

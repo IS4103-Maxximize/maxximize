@@ -601,7 +601,7 @@ export class ProductionOrdersService {
           purchaseRequisition: true,
 		  
         },
-        purchaseOrder: true,
+        prodRequest: true,
         organisation: true,
       },
     });
@@ -636,7 +636,7 @@ export class ProductionOrdersService {
 			  purchaseRequisition: true,
 			  
 			},
-			purchaseOrder: true,
+			prodRequest: true,
 			organisation: true,
 		  },
     });
@@ -661,7 +661,7 @@ export class ProductionOrdersService {
           purchaseRequisition: true,
 		  
         },
-        purchaseOrder: true,
+        prodRequest: true,
         organisation: true,
       },
     });
@@ -698,7 +698,7 @@ export class ProductionOrdersService {
           purchaseRequisition: true,
 		  
         },
-        purchaseOrder: true,
+        prodRequest: true,
         organisation: true,
       },
     });
@@ -724,7 +724,7 @@ export class ProductionOrdersService {
 			  purchaseRequisition: true,
 			  
 			},
-			purchaseOrder: true,
+			prodRequest: true,
 			organisation: true,
 		  },
       });
@@ -759,7 +759,7 @@ export class ProductionOrdersService {
 			  purchaseRequisition: true,
 			  
 			},
-			purchaseOrder: true,
+			prodRequest: true,
 			organisation: true,
 		  },
       });
