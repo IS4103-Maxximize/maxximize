@@ -77,7 +77,9 @@ export class SchedulesService {
         //REMOVE THIS (Required for testing)
         // finalGood: true,
         productionLine: true,
-        completedGoods: true,
+        completedGoods: {
+          batchLineItems: true,
+        },
         prodLineItems: {
           rawMaterial: true,
           batchLineItem: true
