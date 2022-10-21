@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { ProductionOrdersService } from './production-orders.service';
 import { ProductionOrdersController } from './production-orders.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -18,9 +18,10 @@ import { SchedulesModule } from '../schedules/schedules.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ProductionLinesModule } from '../production-lines/production-lines.module';
 import { BatchLineItemsModule } from '../batch-line-items/batch-line-items.module';
+import { ChronJobsModule } from '../chron-jobs/chron-jobs.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([ProductionOrder, Schedule, ProductionLineItem, Organisation, PurchaseOrder, Batch, BatchLineItem, BillOfMaterial]), BillOfMaterialsModule, OrganisationsModule, RawMaterialsModule, FinalGoodsModule, ScheduleModule.forRoot(), SchedulesModule, ProductionLinesModule, BatchLineItemsModule],
+  imports: [TypeOrmModule.forFeature([ProductionOrder, Schedule, ProductionLineItem, Organisation, PurchaseOrder, Batch, BatchLineItem, BillOfMaterial]), BillOfMaterialsModule, OrganisationsModule, RawMaterialsModule, FinalGoodsModule, ScheduleModule.forRoot(), SchedulesModule, ProductionLinesModule, BatchLineItemsModule, forwardRef(() => ChronJobsModule)],
   controllers: [ProductionOrdersController],
   providers: [ProductionOrdersService],
   exports: [ProductionOrdersService]

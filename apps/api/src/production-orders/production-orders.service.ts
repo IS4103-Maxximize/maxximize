@@ -1,4 +1,4 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { Cron, CronExpression, SchedulerRegistry } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ValidationError } from 'class-validator';
@@ -13,6 +13,9 @@ import { Batch } from '../batches/entities/batch.entity';
 import { BillOfMaterialsService } from '../bill-of-materials/bill-of-materials.service';
 import { BillOfMaterial } from '../bill-of-materials/entities/bill-of-material.entity';
 import { BomLineItem } from '../bom-line-items/entities/bom-line-item.entity';
+import { ChronJobsService } from '../chron-jobs/chron-jobs.service';
+import { ChronJob } from '../chron-jobs/entities/chron-job.entity';
+import { ChronType } from '../chron-jobs/enums/chronType.enum';
 import { FinalGoodsService } from '../final-goods/final-goods.service';
 import { Organisation } from '../organisations/entities/organisation.entity';
 import { OrganisationsService } from '../organisations/organisations.service';
@@ -52,7 +55,9 @@ export class ProductionOrdersService {
     private schedulesService: SchedulesService,
     private productionLinesService: ProductionLinesService,
     private batchLineItemsService: BatchLineItemsService,
-    private datasource: DataSource
+    private datasource: DataSource,
+    @Inject(forwardRef(() => ChronJobsService))
+    private chronJobsService: ChronJobsService
   ) {}
   async create(
     createProductionOrderDto: CreateProductionOrderDto
@@ -188,7 +193,6 @@ export class ProductionOrdersService {
           newProductionOrder = await transactionalEntityManager.save(
             newProductionOrder
           );
-          let cronTest = 10000;
           for (const schedule of schedulesToBeAdded) {
             const startJob = new CronJob(
               schedule.start,
@@ -204,7 +208,6 @@ export class ProductionOrdersService {
                 );
               }
             );
-            cronTest += 10000;
             const endJob = new CronJob(
               schedule.end,
               async () => {
@@ -227,11 +230,22 @@ export class ProductionOrdersService {
                 );
               }
             );
-            cronTest += 10000;
             this.schedulerRegistry.addCronJob(`start ${schedule.id}`, startJob);
             startJob.start();
             this.schedulerRegistry.addCronJob(`end ${schedule.id}`, endJob);
             endJob.start();
+            let chron1 = await transactionalEntityManager.create(ChronJob, {
+              scheduledDate: schedule.start,
+              type: ChronType.SCHEDULESTART,
+              targetId: schedule.id
+            })
+            let chron2 = await transactionalEntityManager.create(ChronJob, {
+              scheduledDate: schedule.end,
+              type: ChronType.SCHEDULEEND,
+              targetId: schedule.id
+            })
+            await transactionalEntityManager.save(chron1)
+            await transactionalEntityManager.save(chron2)
           }
           
         } else {
@@ -364,7 +378,6 @@ export class ProductionOrdersService {
             newProductionOrder = await transactionalEntityManager.save(
               newProductionOrder
             );
-            let cronTest = 10000
             for (const schedule of schedulesToBeAdded) {
               const startJob = new CronJob(schedule.start, async () => {
                 await this.schedulesService.update(schedule.id, {
@@ -377,7 +390,6 @@ export class ProductionOrdersService {
                   `time (${schedule.start}) for start job ${schedule.id} to run!`
                 );
               });
-              cronTest += 10000
               const endJob = new CronJob(schedule.end, async () => {
                 await this.schedulesService.update(schedule.id, {
                   status: ScheduleType.COMPLETED,
@@ -401,10 +413,21 @@ export class ProductionOrdersService {
                 `start ${schedule.id}`,
                 startJob
               );
-              cronTest += 10000
               startJob.start();
               this.schedulerRegistry.addCronJob(`end ${schedule.id}`, endJob);
               endJob.start();
+              let chron1 = await transactionalEntityManager.create(ChronJob, {
+                scheduledDate: schedule.start,
+                type: ChronType.SCHEDULESTART,
+                targetId: schedule.id
+              })
+              let chron2 = await transactionalEntityManager.create(ChronJob, {
+                scheduledDate: schedule.end,
+                type: ChronType.SCHEDULEEND,
+                targetId: schedule.id
+              })
+              await transactionalEntityManager.save(chron1)
+              await transactionalEntityManager.save(chron2)
             }
           } else {
             let possibleQuantity: number = rawMaterialCount / bomMaterialCount;
@@ -522,6 +545,18 @@ export class ProductionOrdersService {
                 startJob.start();
                 this.schedulerRegistry.addCronJob(`end ${schedule.id}`, endJob);
                 endJob.start();
+                let chron1 = await transactionalEntityManager.create(ChronJob, {
+                  scheduledDate: schedule.start,
+                  type: ChronType.SCHEDULESTART,
+                  targetId: schedule.id
+                })
+                let chron2 = await transactionalEntityManager.create(ChronJob, {
+                  scheduledDate: schedule.end,
+                  type: ChronType.SCHEDULEEND,
+                  targetId: schedule.id
+                })
+                await transactionalEntityManager.save(chron1)
+                await transactionalEntityManager.save(chron2)
               }
             }
 
@@ -845,6 +880,18 @@ export class ProductionOrdersService {
                 startJob.start();
                 this.schedulerRegistry.addCronJob(`end ${schedule.id}`, endJob);
                 endJob.start();
+                let chron1 = await transactionalEntityManager.create(ChronJob, {
+                  scheduledDate: schedule.start,
+                  type: ChronType.SCHEDULESTART,
+                  targetId: schedule.id
+                })
+                let chron2 = await transactionalEntityManager.create(ChronJob, {
+                  scheduledDate: schedule.end,
+                  type: ChronType.SCHEDULEEND,
+                  targetId: schedule.id
+                })
+                await transactionalEntityManager.save(chron1)
+                await transactionalEntityManager.save(chron2)
               }
               await transactionalEntityManager.update(ProductionOrder, id, {
                 status: value,
