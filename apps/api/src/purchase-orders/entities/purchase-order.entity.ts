@@ -33,14 +33,17 @@ export class PurchaseOrder {
     deliveryDate: Date
 
     @Column()
-    organisationId: number
+    currentOrganisationId: number
     @ManyToOne(() => Organisation, currentOrganisation => currentOrganisation.purchaseOrders)
-    @JoinColumn({name: 'organisationId'})
+    @JoinColumn({name: 'currentOrganisationId'})
     currentOrganisation: Organisation
 
-    @ManyToOne(() => Organisation, supplier => supplier.purchaseOrders, {
+    @Column({nullable: true})
+    supplierId: number
+    @ManyToOne(() => Organisation, supplier => supplier.receivedPurchaseOrders, {
         nullable: true
     })
+    @JoinColumn({name: 'supplierId'})
     supplier: Organisation
 
     @ManyToOne(() => Contact)

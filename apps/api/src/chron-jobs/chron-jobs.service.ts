@@ -1,22 +1,32 @@
-import { forwardRef, Inject, Injectable, OnModuleInit } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CronJob } from 'cron';
 import { Repository } from 'typeorm';
+import { ProductionOrder } from '../production-orders/entities/production-order.entity';
+import { ProductionOrderStatus } from '../production-orders/enums/production-order-status.enum';
+import { ProductionOrdersService } from '../production-orders/production-orders.service';
 import { SalesInquiryStatus } from '../sales-inquiry/enums/salesInquiryStatus.enum';
 import { SalesInquiryService } from '../sales-inquiry/sales-inquiry.service';
+import { ScheduleType } from '../schedules/enums/scheduleType.enum';
+import { SchedulesService } from '../schedules/schedules.service';
 import { CreateChronJobDto } from './dto/create-chron-job.dto';
 import { UpdateChronJobDto } from './dto/update-chron-job.dto';
 import { ChronJob } from './entities/chron-job.entity';
 
 @Injectable()
 export class ChronJobsService implements OnModuleInit {
+  private readonly logger = new Logger(ChronJobsService.name);
   constructor(
     @InjectRepository(ChronJob)
     private readonly chronJobRepository: Repository<ChronJob>,
     private schedulerRegistry: SchedulerRegistry,
     @Inject(forwardRef(() => SalesInquiryService))
-    private salesInquiryService: SalesInquiryService
+    private salesInquiryService: SalesInquiryService,
+    @Inject(forwardRef(() => SchedulesService))
+    private schedulesService: SchedulesService,
+    @Inject(forwardRef(() => ProductionOrdersService))
+    private productionOrdersService: ProductionOrdersService
   ) {}
   create(createChronJobDto: CreateChronJobDto) {
     const {scheduledDate, type, targetId} = createChronJobDto
@@ -71,9 +81,53 @@ export class ChronJobsService implements OnModuleInit {
           break
           case "scheduleStart":
             //create chron job for schedule start
+            let schedule = await this.schedulesService.findOne(targetId)
+            let prodO = await this.productionOrdersService.findOne(schedule.productionOrder.id)
+            const startJob = new CronJob(
+              scheduledDate,
+              async () => {
+                this.productionOrdersService.update(prodO.id, {
+                  status: ProductionOrderStatus.ONGOING,
+                });
+                this.schedulesService.update(schedule.id, {
+                  status: ScheduleType.ONGOING,
+                });
+                this.logger.warn(
+                  `time (${schedule.start}) for start job ${schedule.id} to run!`
+                );
+              }
+            );
+            this.schedulerRegistry.addCronJob(
+              `start ${schedule.id}`,
+              startJob
+            );
+            startJob.start();
           break
           case "scheduleEnd":
             //create chron job for schedule end
+            let schedule1 = await this.schedulesService.findOne(targetId)
+            let prodO1 = await this.productionOrdersService.findOne(schedule1.productionOrder.id)
+            const endJob = new CronJob(schedule1.end, async () => {
+              await this.schedulesService.update(schedule1.id, {
+                status: ScheduleType.COMPLETED,
+              });
+              let checker = true
+              let prodOrder: ProductionOrder = await this.productionOrdersService.findOne(schedule1.productionOrder.id)
+              for (const sche of prodO1.schedules) {
+                if (!(sche.status == ScheduleType.COMPLETED)) {
+                  checker = false
+                }
+              }
+              if (checker) {
+                await this.productionOrdersService.update(prodOrder.id, {status: ProductionOrderStatus.COMPLETED})
+              }
+              
+              this.logger.warn(
+                `time (${schedule1.end}) for end job ${schedule1.id} to run!`
+              );
+            });
+            this.schedulerRegistry.addCronJob(`end ${schedule1.id}`, endJob);
+            endJob.start();
           break 
         }
       }
