@@ -2,10 +2,12 @@ import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { BatchLineItemsService } from '../batch-line-items/batch-line-items.service';
+import { BatchLineItem } from '../batch-line-items/entities/batch-line-item.entity';
 import { DeliveryRequestLineItem } from '../delivery-request-line-items/entities/delivery-request-line-item.entity';
 import { OrganisationsService } from '../organisations/organisations.service';
 import { PurchaseOrdersService } from '../purchase-orders/purchase-orders.service';
 import { Role } from '../users/enums/role.enum';
+import { UsersService } from '../users/users.service';
 import { VehicleStatus } from '../vehicles/enums/vehicleStatus.enum';
 import { VehiclesService } from '../vehicles/vehicles.service';
 import { CreateDeliveryRequestDto } from './dto/create-delivery-request.dto';
@@ -21,6 +23,7 @@ export class DeliveryRequestsService {
   private organisationService: OrganisationsService,
   private vehicleService: VehiclesService,
   private batchLineItemService: BatchLineItemsService,
+  private userService: UsersService,
   private dataSource: DataSource
   ) {}
 
@@ -33,9 +36,8 @@ export class DeliveryRequestsService {
       const deliveryRequest = new DeliveryRequest();
       deliveryRequest.addressFrom = createDeliveryRequestDto.addressFrom;
       deliveryRequest.dateCreated = new Date();
-      deliveryRequest.status = DeliveryRequestStatus.READYTODELIVER;
 
-      const purchaseOrder = await this.purchaseOrderService.findOne(createDeliveryRequestDto.purchaseOrderId);
+    const purchaseOrder = await this.purchaseOrderService.findOne(createDeliveryRequestDto.purchaseOrderId);
       deliveryRequest.purchaseOrder = purchaseOrder;
       deliveryRequest.addressTo = purchaseOrder.deliveryAddress;
 
@@ -46,6 +48,7 @@ export class DeliveryRequestsService {
 
       const finalGoodsStock = await this.batchLineItemService.getAggregatedFinalGoods(organisationId);
       const deliveryLineItems = [];
+      let flag = false;
 
       for (const purchaseLineItem of purchaseOrder.poLineItems) {
         const productId = purchaseLineItem.finalGood.id;
@@ -63,13 +66,15 @@ export class DeliveryRequestsService {
             if ((batchLineItem.quantity - batchLineItem.reservedQuantity) > qty) {
               purchaseLineItem.fufilledQty += qty;
               batchLineItem.reservedQuantity += qty;
+              await queryRunner.manager.save(batchLineItem);
               qty = 0;
             } else {
               batchLineItem.reservedQuantity = batchLineItem.quantity;
               purchaseLineItem.fufilledQty += (batchLineItem.quantity - batchLineItem.reservedQuantity);
               qty -= (batchLineItem.quantity - batchLineItem.reservedQuantity);
+              await queryRunner.manager.save(batchLineItem);
+              await queryRunner.manager.softDelete(BatchLineItem, batchLineItem.id);
             }
-            await queryRunner.manager.save(batchLineItem);
             await queryRunner.manager.save(purchaseLineItem);
             if (qty <= 0) {
               break;
@@ -82,6 +87,10 @@ export class DeliveryRequestsService {
           purchaseLineItem.fufilledQty = purchaseLineItem.quantity;
           await queryRunner.manager.save(purchaseLineItem);
         } else {
+          if (totalQty < purchaseLineItem.quantity) {
+            flag = true;
+          }
+          deliveryRequest.status = DeliveryRequestStatus.READYTODELIVERPARTIAL;
           const deliveryRequestLineItem = new DeliveryRequestLineItem();
           deliveryRequestLineItem.quantity = totalQty;
           deliveryRequestLineItem.product = purchaseLineItem.finalGood;
@@ -90,9 +99,26 @@ export class DeliveryRequestsService {
             batchLineItem.reservedQuantity = batchLineItem.quantity;
             purchaseLineItem.fufilledQty += batchLineItem.quantity;
             await queryRunner.manager.save(batchLineItem);
+            await queryRunner.manager.softDelete(BatchLineItem, batchLineItem.id);
             await queryRunner.manager.save(purchaseLineItem);
           }
         }
+      }
+
+
+      if (!flag) {
+        deliveryRequest.status = DeliveryRequestStatus.READYTODELIVER;
+      }
+
+      let canDeliver = false;
+      for (const lineItem of deliveryLineItems) {
+        if (lineItem.quantity > 0) {
+          canDeliver = true;
+        }
+      }
+
+      if (!canDeliver) {
+        throw new InternalServerErrorException("No final goods can fulfill purchase order");
       }
 
       deliveryRequest.deliveryRequestLineItems = deliveryLineItems;
@@ -111,10 +137,7 @@ export class DeliveryRequestsService {
   }
 
   async allocateDriverToRequest(orgId: number, deliveryRequest: DeliveryRequest) {
-    const workers = await this.organisationService.findOrganisationWorkers(orgId);
-    const drivers = workers.filter((worker) => {
-      return worker.role = Role.DRIVER;
-    });
+    const drivers = await this.userService.findOrganisationDrivers(orgId);
     let flag = false;
     for (const driver of drivers) {
       if (driver.available) {
@@ -156,7 +179,6 @@ export class DeliveryRequestsService {
       let deliveryRequest = new DeliveryRequest();
       deliveryRequest.addressFrom = createDeliveryRequestDto.addressFrom;
       deliveryRequest.dateCreated = new Date();
-      deliveryRequest.status = DeliveryRequestStatus.CREATED;
 
       const purchaseOrder = await this.purchaseOrderService.findOne(createDeliveryRequestDto.purchaseOrderId);
       deliveryRequest.purchaseOrder = purchaseOrder;
@@ -191,7 +213,7 @@ export class DeliveryRequestsService {
 
   async findAll() {
     return await this.deliveryRequestRepository.find({
-      relations: ["vehicles", "purchaseOrder", "users", "deliveryRequestLineItems"]
+      relations: ["vehicle", "purchaseOrder", "user", "deliveryRequestLineItems"]
     });
   }
 
@@ -200,7 +222,7 @@ export class DeliveryRequestsService {
       where: {
         id: id
       },
-      relations: ["vehicles", "purchaseOrder", "users", "deliveryRequestLineItems"]
+      relations: ["vehicle", "purchaseOrder", "user", "deliveryRequestLineItems"]
     });
   }
 
@@ -208,10 +230,10 @@ export class DeliveryRequestsService {
     return await this.deliveryRequestRepository.find({
       where: {
         purchaseOrder: {
-          organisationId: orgId
+          currentOrganisationId: orgId
         }
       },
-      relations: ["vehicles", "purchaseOrder", "users", "deliveryRequestLineItems"]
+      relations: ["vehicle", "purchaseOrder", "user", "deliveryRequestLineItems"]
     });
   } 
 
@@ -222,7 +244,7 @@ export class DeliveryRequestsService {
           id: workerId
         }
       },
-      relations: ["vehicles", "purchaseOrder", "users", "deliveryRequestLineItems"]
+      relations: ["vehicle", "purchaseOrder", "user", "deliveryRequestLineItems"]
     });
   }
 

@@ -245,6 +245,20 @@ export class PurchaseOrdersService {
     ]})
   }
 
+  async getUnfufilledLineItems(purchaseOrderId: number) {
+    const purchaseOrder = await this.findOne(purchaseOrderId);
+    const list = [];
+    for (const lineItem of purchaseOrder.poLineItems) {
+      if (lineItem.fufilledQty != lineItem.quantity) {
+        list.push({
+          finalGood: lineItem.finalGood,
+          quantity: lineItem.quantity - lineItem.fufilledQty
+        })
+      }
+    }
+    return list;
+  }
+
   async update(id: number, updatePurchaseOrderDto: UpdatePurchaseOrderDto): Promise<PurchaseOrder> {
     const purchaseOrderToUpdate = await this.purchaseOrdersRepository.findOneBy({id})
     const arrayOfKeyValues = Object.entries(updatePurchaseOrderDto)

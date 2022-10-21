@@ -46,7 +46,7 @@ export class DeliveryRequestLineItemsService {
       where: {
         deliveryRequest: {
           purchaseOrder: {
-            organisationId: orgId
+            currentOrganisationId: orgId
           }
         }
       },

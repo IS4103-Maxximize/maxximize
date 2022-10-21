@@ -1,6 +1,6 @@
 export enum DeliveryRequestStatus {
-    CREATED = "created",
     READYTODELIVER = "readytodeliver",
+    READYTODELIVERPARTIAL = "readytodeliverpartial",
     OUTFORDELIVERY = 'outfordelivery',
     COMPLETED = 'completed',
 }

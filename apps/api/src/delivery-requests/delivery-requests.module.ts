@@ -11,6 +11,7 @@ import { PurchaseOrdersModule } from '../purchase-orders/purchase-orders.module'
 import { OrganisationsModule } from '../organisations/organisations.module';
 import { VehiclesModule } from '../vehicles/vehicles.module';
 import { BatchLineItemsModule } from '../batch-line-items/batch-line-items.module';
+import { UsersModule } from '../users/users.module';
 
 @Module({
   imports: [TypeOrmModule.forFeature(
@@ -18,7 +19,8 @@ import { BatchLineItemsModule } from '../batch-line-items/batch-line-items.modul
     PurchaseOrdersModule,
     OrganisationsModule,
     VehiclesModule,
-    BatchLineItemsModule
+    BatchLineItemsModule,
+    UsersModule
   ],
   controllers: [DeliveryRequestsController],
   providers: [DeliveryRequestsService]
