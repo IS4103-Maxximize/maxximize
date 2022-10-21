@@ -8,6 +8,7 @@ import NotFound from './pages/404';
 import MachineManagement from './pages/assetManagement/machineManagement';
 import ProductionLineManagement from './pages/assetManagement/productionLineManagement';
 import BusinessRelations from './pages/businessRelations';
+import DeliveryFleetManagement from './pages/deliveryFleetManagement';
 import Dashboard from './pages/dashboard';
 import ForgotPassword from './pages/forgotPassword';
 import ReceivedPurchaseOrder from './pages/fulfilment/received-purchase-order';
@@ -218,6 +219,11 @@ const routes = (
               path="inventory/masterlist/lineItems"
               element={<MasterlistLineItems />}
             ></Route>
+
+            {/* Delivery Fleet */}
+            {/* Delivery Fleet Module */}
+            <Route path="deliveryFleetManagement" element={<DeliveryFleetManagement />}></Route>
+
 
             {/* Fulfilment */}
             {/* Fulfilment Modules */}
