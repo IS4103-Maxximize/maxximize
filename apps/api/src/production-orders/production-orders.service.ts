@@ -22,6 +22,9 @@ import { OrganisationsService } from '../organisations/organisations.service';
 import { CreateProductionLineItemDto } from '../production-line-items/dto/create-production-line-item.dto';
 import { ProductionLineItem } from '../production-line-items/entities/production-line-item.entity';
 import { ProductionLinesService } from '../production-lines/production-lines.service';
+import { ProductionRequest } from '../production-requests/entities/production-request.entity';
+import { ProdRequestStatus } from '../production-requests/enums/prodRequestStatus.enum';
+import { ProductionRequestsService } from '../production-requests/production-requests.service';
 import { RawMaterial } from '../raw-materials/entities/raw-material.entity';
 import { RawMaterialsService } from '../raw-materials/raw-materials.service';
 import { CreateScheduleDto } from '../schedules/dto/create-schedule.dto';
@@ -57,7 +60,9 @@ export class ProductionOrdersService {
     private batchLineItemsService: BatchLineItemsService,
     private datasource: DataSource,
     @Inject(forwardRef(() => ChronJobsService))
-    private chronJobsService: ChronJobsService
+    private chronJobsService: ChronJobsService,
+    @Inject(forwardRef(() => ProductionRequestsService))
+    private prodRequestsService: ProductionRequestsService
   ) {}
   async create(
     createProductionOrderDto: CreateProductionOrderDto
@@ -69,6 +74,7 @@ export class ProductionOrdersService {
       organisationId,
       duration,
       purchaseOrderId,
+      prodRequestId
     } = createProductionOrderDto;
     let bomToBeAdded: BillOfMaterial;
     let newProductionOrder: ProductionOrder;
@@ -80,6 +86,12 @@ export class ProductionOrdersService {
     let finalGoodId: number = bomToBeAdded.finalGood.id;
     await this.datasource.manager.transaction(
       async (transactionalEntityManager) => {
+        let prodRequest = null
+
+        if (prodRequestId){
+          prodRequest= await this.prodRequestsService.findOne(prodRequestId)
+          await transactionalEntityManager.update(ProductionRequest, prodRequestId, { status: ProdRequestStatus.PROCESSING })
+        }
         if (daily) {
           scheduleDtos =
             await this.productionLinesService.retrieveSchedulesForProductionOrder(
@@ -188,6 +200,7 @@ export class ProductionOrdersService {
               schedules: schedulesToBeAdded,
               prodLineItems: prodLineItemsToBeAdded,
               organisationId,
+              prodRequest
             }
           );
           newProductionOrder = await transactionalEntityManager.save(
@@ -372,6 +385,7 @@ export class ProductionOrdersService {
                 schedules: schedulesToBeAdded,
                 prodLineItems: prodLineItemsToBeAdded,
                 organisationId,
+                prodRequest
               }
             );
             
@@ -496,6 +510,7 @@ export class ProductionOrdersService {
                   schedules: schedulesToBeAdded,
                   prodLineItems: prodLineItemsToBeAdded,
                   organisationId,
+                  prodRequest
                 }
               );
               newProductionOrder = await transactionalEntityManager.save(
@@ -570,6 +585,7 @@ export class ProductionOrdersService {
                 schedules: [],
                 prodLineItems: insufficientLineItems,
                 organisationId,
+                prodRequest
               });
             createdProductionOrder = await transactionalEntityManager.save(
               createdProductionOrder

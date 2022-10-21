@@ -8,4 +8,5 @@ export class CreateProductionOrderDto {
     organisationId: number;
     duration?: number;
     purchaseOrderId?: number;
+    prodRequestId?: number;
 }
