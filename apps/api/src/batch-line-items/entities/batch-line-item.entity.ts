@@ -3,6 +3,7 @@ import { Batch } from "../../batches/entities/batch.entity";
 import { Bin } from "../../bins/entities/bin.entity";
 import { LineItem } from "../../line-Items/LineItem";
 import { PurchaseOrder } from "../../purchase-orders/entities/purchase-order.entity";
+import { ReservationLineItem } from "../../reservation-line-items/entities/reservation-line-item.entity";
 
 @Entity()
 export class BatchLineItem extends LineItem {

@@ -8,6 +8,7 @@ import { Organisation } from "../../organisations/entities/organisation.entity";
 import { ProductionRequest } from "../../production-requests/entities/production-request.entity";
 import { PurchaseOrderLineItem } from "../../purchase-order-line-items/entities/purchase-order-line-item.entity";
 import { Quotation } from "../../quotations/entities/quotation.entity";
+import { ReservationLineItem } from "../../reservation-line-items/entities/reservation-line-item.entity";
 import { PurchaseOrderStatus } from "../enums/purchaseOrderStatus.enum";
 
 @Entity()
@@ -78,4 +79,8 @@ export class PurchaseOrder {
     @ManyToMany(() => BatchLineItem, batchLineItem => batchLineItem.purchaseOrders)
     @JoinColumn()
     batchLineItems: BatchLineItem[];
+
+    @OneToMany(() => ReservationLineItem, reservationLineItem => reservationLineItem.purchaseOrder)
+    @JoinColumn()
+    reservationLineItems: ReservationLineItem[];
 }
