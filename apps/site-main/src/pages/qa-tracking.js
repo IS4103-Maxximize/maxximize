@@ -26,6 +26,8 @@ export const QATracking = (props) => {
   const organisationId = user ? user.organisation.id : null;
   const name = 'Batch Tracking';
 
+  
+
   const [loading, setLoading] = useState(true); // loading upon entering page
 
 
@@ -90,86 +92,81 @@ export const QATracking = (props) => {
 
   // Tree View Helpers
   const labels = [
+    'batch',
     'Final Good Batch Line Item',
     'Raw Material Batch Line Item',
     'Batch',
     'Goods Receipt',
     'Purchase Order',
-    'Supplier'
+    'Supplier',
+    'Contact'
   ]
 
   const [nodeIdMap, setNodeIdMap] = useState(new Map()); // id => parentId
   const [objectNodeIdMap, setObjectNodeIdMap] = useState(new Map()); // nodeId => object
 
-  const transform = (nodes, parentId, depth) => {
-    // console.log(nodes);
+  const transform = (object, parentId, depth) => {
+    let result = {}
+    const rng = uuid();
+    setNodeIdMap(nodeIdMap.set(rng, parentId));
+    setObjectNodeIdMap(objectNodeIdMap.set(rng, object))
 
-    const treeViewArr = nodes.map(attr => {
-      const rng = uuid();
-      
-      if (parentId) {
-        setNodeIdMap(nodeIdMap.set(rng, parentId));
-      }
-
-      if (Array.isArray(attr[1])) {
-        const nodeArray = attr[1].map(node => {
-          const id = uuid();
-          setNodeIdMap(nodeIdMap.set(id, rng));
-
-          return {
-            id: id,
-            parentId: rng,
-            name: `${labels[depth]} (${node.id})`,
-            children: transform(Object.entries(node), rng, depth+1)
-          }
-        })
-
-        return {
-          id: rng,
-          parentId: parentId,
-          name: attr[0],
-          children: nodeArray
+    const keys = Object.keys(object)
+    const newDepth = depth + 1
+    const title = (depth === 0) ? `${labels[depth]} (${search})` : `${labels[depth]} (${object.id})`
+    const id = rng
+    //there should only 1 instance of object or array
+    for (const key of keys) {
+      const value = object[key]
+      if (typeof object[key] === 'object' && !Array.isArray(value)) {
+        //Object but not an array
+        result = {
+          id,
+          title,
+          children: [transform(value, id, newDepth)],
+          parentId
+        }
+      } else if (typeof value === 'object' && Array.isArray(value)) {
+        //Object and is an array
+        let resultArray = []
+        for (const currentVal of value) {
+          const temp = transform(currentVal, rng, newDepth)
+          resultArray.push(temp)
+        }
+        result = {
+          id,
+          title,
+          children: resultArray,
+          parentId
         }
       }
-
-      if (attr[1] instanceof Object) {
-        setObjectNodeIdMap(objectNodeIdMap.set(rng, attr[1]))
-        return {
-          id: rng,
-          parentId: parentId,
-          name: `${labels[depth]} (${attr[1].id})`,
-          children: transform(Object.entries(attr[1]), rng, depth+1)
-        }
-      }
-
-      return {
-        id: rng,
-        parentId: parentId,
-        name: `${attr[0]}: ${attr[1]}`,
-      }
-    })
-
-    return treeViewArr;
+    }
+    if (depth === 0) {
+      console.log([result])
+    }
+    
+    return result
   }
 
-  const renderTree = (nodes) => {
-    if (nodes) {
+  const renderTree = (treeViewArr) => {
+    if (!treeViewArr) {
+      return null
+    }
+    return treeViewArr.map((treeViewItem) => {
       return (
-        <TreeItem key={nodes.id} nodeId={nodes.id} label={nodes.name}>
-          {Array.isArray(nodes.children)
-            ? nodes.children.map((node) => renderTree(node))
-            : null}
+        <TreeItem key={treeViewItem.id} nodeId={treeViewItem.id} label={treeViewItem.title}>
+          {renderTree(treeViewItem.children)}
         </TreeItem>
       )
-    }
-    return [];
+    })
   }
 
   const [treeViewArr, setTreeViewArr] = useState();
 
   useEffect(() => {
     if (batch) {
-      const treeViewArr = transform(Object.entries(batch?.fgBatchLineItems), null, 0)[0];
+      console.log(batch)
+      const treeViewArr = [transform(batch, null, 0)]
       // console.log(treeViewArr)
       // console.log(nodeIdMap)
       // console.log(objectNodeIdMap)
@@ -302,7 +299,7 @@ export const QATracking = (props) => {
                       <Typography>TRACKING</Typography>
                     </CardContent>
                   </Card> */}
-                  {renderTrackingCards(nodeIds)}
+                  {/* {renderTrackingCards(nodeIds)} */}
                 </Box>
               </Stack>
             ) : (
