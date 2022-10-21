@@ -14,9 +14,27 @@ import { FinalGood } from '../final-goods/entities/final-good.entity';
 import { MailModule } from '../mail/mail.module';
 import { FollowUpLineItem } from '../follow-up-line-items/entities/follow-up-line-item.entity';
 import { GoodsReceipt } from '../goods-receipts/entities/goods-receipt.entity';
+import { BatchLineItemsModule } from '../batch-line-items/batch-line-items.module';
+import { ReservationLineItem } from '../reservation-line-items/entities/reservation-line-item.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Organisation, PurchaseOrder, PurchaseOrderLineItem, Quotation, FollowUpLineItem, RawMaterial, FinalGood, GoodsReceipt]), PurchaseOrderLineItemsModule, OrganisationsModule, QuotationsModule, MailModule],
+  imports: [TypeOrmModule.forFeature([
+    Organisation, 
+    PurchaseOrder, 
+    PurchaseOrderLineItem, 
+    Quotation, 
+    FollowUpLineItem, 
+    RawMaterial, 
+    FinalGood, 
+    GoodsReceipt, 
+    ReservationLineItem
+  ]), 
+    PurchaseOrderLineItemsModule, 
+    OrganisationsModule, 
+    QuotationsModule, 
+    MailModule,
+    BatchLineItemsModule
+  ],
   controllers: [PurchaseOrdersController],
   providers: [PurchaseOrdersService],
   exports: [PurchaseOrdersService]
