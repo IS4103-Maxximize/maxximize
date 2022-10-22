@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { randomUUID } from 'crypto';
 import { DataSource, QueryRunner, Repository } from 'typeorm';
@@ -286,20 +286,23 @@ export class BatchesService {
   }
 
   async findOneDeep(id: number) {
-    return await this.batchRepository.findOne({
-      where: {
-        id
-      }, relations: {
-        batchLineItems: {
-          batch: {
-            schedule: {
-              prodLineItems: {
-                batchLineItem: {
-                  batch: {
-                    goodsReceipt: {
-                      purchaseOrder: {
-                        supplier: {
-                          contact: true
+    try {
+      return await this.batchRepository.findOneOrFail({
+        where: {
+          id
+        }, relations: {
+          schedule: true,
+          batchLineItems: {
+            batch: {
+              schedule: {
+                prodLineItems: {
+                  batchLineItem: {
+                    batch: {
+                      goodsReceipt: {
+                        purchaseOrder: {
+                          supplier: {
+                            contact: true
+                          }
                         }
                       }
                     }
@@ -309,8 +312,10 @@ export class BatchesService {
             }
           }
         }
-      }
-    })
+      })
+    } catch (error) {
+      throw new NotFoundException(`batch number does not exist`)
+    }
   }
 
   async findAllByOrganisationId(id: number) {
@@ -498,6 +503,10 @@ export class BatchesService {
     })
     const batchId = batchEntity.id
     const batch = await this.findOneDeep(batchId)
+    //check if its a final good batch based on if theres a schedule
+    if (!batch.schedule) {
+      throw new NotFoundException("Batch number is not associated with a final Good")
+    }
     const count = 0
     //key, select, replacementKey, displayPreviousObjAttr
     
