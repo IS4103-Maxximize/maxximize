@@ -8,7 +8,7 @@ import NotFound from './pages/404';
 import MachineManagement from './pages/assetManagement/machineManagement';
 import ProductionLineManagement from './pages/assetManagement/productionLineManagement';
 import BusinessRelations from './pages/businessRelations';
-import Dashboard from './pages/dashboard';
+import DeliveryDashboard from './pages/dashboards/delivery-dashboard';
 import ForgotPassword from './pages/forgotPassword';
 import ReceivedPurchaseOrder from './pages/fulfilment/received-purchase-order';
 import ReceivedSalesInquiry from './pages/fulfilment/received-sales-inquiry';
@@ -97,7 +97,7 @@ const routes = (
 
         <Route element={<DashboardLayout />}>
           {/* Dashboard */}
-          <Route path="/" element={<Dashboard />}></Route>
+          <Route path="/" element={<DeliveryDashboard />}></Route>
 
           {/* Protected Routes for Admin Specifically */}
           <Route
