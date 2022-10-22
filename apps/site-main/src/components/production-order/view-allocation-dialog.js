@@ -25,6 +25,9 @@ export const ViewAllocationDialog = (props) => {
       field: 'code',
       headerName: 'Batch Item Code',
       flex: 3,
+      valueGetter: (params) => {
+        return params.value === '' ? 'STAGING' : params.value;
+      }
     },
     {
       field: 'expiryDate',

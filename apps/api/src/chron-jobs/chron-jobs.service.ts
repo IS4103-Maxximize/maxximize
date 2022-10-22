@@ -113,7 +113,7 @@ export class ChronJobsService implements OnModuleInit {
               });
               let checker = true
               let prodOrder: ProductionOrder = await this.productionOrdersService.findOne(schedule1.productionOrder.id)
-              for (const sche of prodO1.schedules) {
+              for (const sche of prodOrder.schedules) {
                 if (!(sche.status == ScheduleType.COMPLETED)) {
                   checker = false
                 }

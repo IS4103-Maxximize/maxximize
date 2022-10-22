@@ -31,7 +31,7 @@ export const ProductionOrderViewDialog = (props) => {
     handleAlertClose,
     ...rest
   } = props;
-
+  console.log(productionOrder)
   const user = JSON.parse(localStorage.getItem('user'));
   const organisationId = user.organisation.id;
 
@@ -331,7 +331,7 @@ export const ProductionOrderViewDialog = (props) => {
       headerName: 'Batch Line Item ID',
       flex: 1,
       valueGetter: (params) => {
-        return params.row ? params.row.batchLineItem.id : '';
+        return params.row ? params.row.batchLineItem?.id : '';
       },
     },
     {
@@ -339,7 +339,7 @@ export const ProductionOrderViewDialog = (props) => {
       headerName: 'Bin ID',
       flex: 1,
       valueGetter: (params) => {
-        return params.row ? params.row.batchLineItem.bin.id : '';
+        return params.row ? params.row.batchLineItem?.bin?.id : '';
       },
     },
     {
