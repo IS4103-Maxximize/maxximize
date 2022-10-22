@@ -20,6 +20,7 @@ import { useEffect, useState } from 'react';
 import { PurchaseRequisitionNew } from '../../pages/procurement/purchase-requisition-new';
 import { ConfirmDialog } from '../assetManagement/confirm-dialog';
 import { FinalGoodsAllocationDialog } from './final-goods-allocation-dialog';
+import { ViewAllocationDialog } from './view-allocation-dialog';
 
 export const ProductionOrderViewDialog = (props) => {
   const {
@@ -30,7 +31,7 @@ export const ProductionOrderViewDialog = (props) => {
     handleAlertClose,
     ...rest
   } = props;
-
+  console.log(productionOrder)
   const user = JSON.parse(localStorage.getItem('user'));
   const organisationId = user.organisation.id;
 
@@ -90,6 +91,21 @@ export const ProductionOrderViewDialog = (props) => {
     }
   };
 
+
+  // Selected Schedule Helpers
+  const [selectedSchedule, setSelectedSchedule] = useState(null);
+
+  // Update Schedules after allocation
+  const updateSchedules = (newSchedule) => {
+    const updatedSchedules = formik.values.schedules.map((schedule) => {
+      if (schedule.id === newSchedule.id) {
+        return newSchedule;
+      }
+      return schedule;
+    });
+    formik.setFieldValue('schedules', updatedSchedules);
+  }
+
   // Collection and allocation of Final Good
   const [allocationDialogOpen, setAllocationDialogOpen] = useState(false);
   const handleAllocationDialogOpen = () => {
@@ -98,6 +114,29 @@ export const ProductionOrderViewDialog = (props) => {
   const handleAllocationDialogClose = () => {
     setAllocationDialogOpen(false);
   }
+
+  useEffect(() => {
+    if (!allocationDialogOpen) {
+      setSelectedSchedule(null);
+    }
+  }, [allocationDialogOpen])
+
+
+  // View Allocated Batch
+  const [viewAllocationDialogOpen, setViewAllocationDialogOpen] = useState(false);
+  const handleViewAllocationDialogOpen = () => {
+    setViewAllocationDialogOpen(true);
+  }
+  const handleViewAllocationDialogClose = () => {
+    setViewAllocationDialogOpen(false);
+  }
+
+  useEffect(() => {
+    if (!viewAllocationDialogOpen) {
+      setSelectedSchedule(null);
+    }
+  }, [viewAllocationDialogOpen])
+
 
   const formik = useFormik({
     initialValues: {
@@ -115,12 +154,14 @@ export const ProductionOrderViewDialog = (props) => {
   // Schedule Headers
   const scheduleColumns = [
     {
+      field: 'id',
+      headerName: 'ID',
+      flex: 1
+    },
+    {
       field: 'start',
       headerName: 'Start Time',
       flex: 2,
-      valueGetter: (params) => {
-        return params.row ? params.row.start : '';
-      },
       valueFormatter: (params) =>
         DayJS(params?.value).format('DD MMM YYYY hh:mm a'),
     },
@@ -128,29 +169,52 @@ export const ProductionOrderViewDialog = (props) => {
       field: 'end',
       headerName: 'End Time',
       flex: 2,
-      valueGetter: (params) => {
-        return params.row ? params.row.end : '';
-      },
       valueFormatter: (params) =>
         DayJS(params?.value).format('DD MMM YYYY hh:mm a'),
+    },
+    {
+      field: 'status',
+      headerName: 'Schedule Status',
+      flex: 1
     },
     {
       field: 'productionLineId',
       headerName: 'Production Line ID',
       flex: 1,
-      valueGetter: (params) => {
-        return params.row ? params.row.productionLineId : '';
-      },
     },
     {
       field: 'actions',
-      headerName: '',
+      headerName: 'Actions',
       flex: 1,
-      renderCell: (params) => { return (
-        <Button variant="contained" onClick={handleAllocationDialogOpen}>
-          {`Allocate for Schedule ${params.row.id}`}
-        </Button>
-      )}
+      renderCell: (params) => {
+        if (params.row.status === 'completed') {
+          return (
+            <Button 
+              variant="contained" 
+              onClick={() => {
+                setSelectedSchedule(params.row);
+                handleAllocationDialogOpen();
+              }}
+            >
+              {`Allocate for Schedule (${params.row.id})`}
+            </Button>
+          )
+        }
+        if (params.row.status === 'allocated') {
+          return (
+            <Button 
+              variant="contained" 
+              color="secondary"
+              onClick={() => {
+                setSelectedSchedule(params.row);
+                handleViewAllocationDialogOpen();
+              }}
+            >
+              {`View Allocated Goods`}
+            </Button>
+          )
+        }
+      }
     }
   ];
 
@@ -267,7 +331,7 @@ export const ProductionOrderViewDialog = (props) => {
       headerName: 'Batch Line Item ID',
       flex: 1,
       valueGetter: (params) => {
-        return params.row ? params.row.batchLineItem.id : '';
+        return params.row ? params.row.batchLineItem?.id : '';
       },
     },
     {
@@ -275,7 +339,7 @@ export const ProductionOrderViewDialog = (props) => {
       headerName: 'Bin ID',
       flex: 1,
       valueGetter: (params) => {
-        return params.row ? params.row.batchLineItem.bin.id : '';
+        return params.row ? params.row.batchLineItem?.bin?.id : '';
       },
     },
     {
@@ -291,6 +355,10 @@ export const ProductionOrderViewDialog = (props) => {
       },
     },
   ];
+
+  useEffect(() => {
+    if (openViewDialog) console.log(productionOrder)
+  }, [openViewDialog])
 
   return (
     <form onSubmit={formik.handleSubmit}>
@@ -311,6 +379,22 @@ export const ProductionOrderViewDialog = (props) => {
         handleAlertOpen={handleAlertOpen}
         handleAlertClose={handleAlertClose}
         closeViewDialog={closeViewDialog}
+      />
+      <FinalGoodsAllocationDialog
+        open={allocationDialogOpen}
+        handleClose={handleAllocationDialogClose}
+        productionOrder={productionOrder}
+        schedule={selectedSchedule}
+        handleAlertOpen={handleAlertOpen}
+        handleAlertClose={handleAlertClose}
+        updateSchedules={updateSchedules}
+      />
+      <ViewAllocationDialog
+        open={viewAllocationDialogOpen}
+        handleClose={handleViewAllocationDialogClose}
+        schedule={selectedSchedule}
+        handleAlertOpen={handleAlertOpen}
+        handleAlertClose={handleAlertClose}
       />
       <Dialog fullScreen open={openViewDialog} onClose={onClose}>
         <AppBar sx={{ position: 'relative' }}>
@@ -411,23 +495,6 @@ export const ProductionOrderViewDialog = (props) => {
                   <Button variant="contained" onClick={handleRelease}>
                     Release
                   </Button>
-                ) : (
-                  <></>
-                )}
-
-                {(productionOrder?.status === 'released' || productionOrder?.status === 'completed') ? (
-                  <>
-                    <Button variant="contained" onClick={handleAllocationDialogOpen}>
-                      Allocate Completed Final Goods
-                    </Button>
-                    <FinalGoodsAllocationDialog
-                      open={allocationDialogOpen}
-                      handleClose={handleAllocationDialogClose}
-                      productionOrder={productionOrder}
-                      handleAlertOpen={handleAlertOpen}
-                      handleAlertClose={handleAlertClose}
-                    />
-                  </>
                 ) : (
                   <></>
                 )}
