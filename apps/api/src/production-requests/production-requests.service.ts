@@ -50,7 +50,7 @@ export class ProductionRequestsService {
       relations: {
         purchaseOrder: true,
         finalGood: true,
-        prodOrder: true
+        prodOrders: true
       }
     })
   }
@@ -63,7 +63,7 @@ export class ProductionRequestsService {
       relations: {
         purchaseOrder: true,
         finalGood: true,
-        prodOrder: true
+        prodOrders: true
       }
     })
   }
@@ -76,7 +76,7 @@ export class ProductionRequestsService {
       relations: {
         purchaseOrder: true,
         finalGood: true,
-        prodOrder: true
+        prodOrders: true
       }
     })
   }

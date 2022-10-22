@@ -42,7 +42,7 @@ export const QATrackingToolbar = (props) => {
   }, [location]);
 
   return (
-    <Box>
+    <>
       <Box
         sx={{
           alignItems: 'center',
@@ -127,6 +127,6 @@ export const QATrackingToolbar = (props) => {
           </CardContent>
         </Card>
       </Box>
-    </Box>
+    </>
   );
 };

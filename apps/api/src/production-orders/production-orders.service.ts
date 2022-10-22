@@ -619,7 +619,7 @@ export class ProductionOrdersService {
         },
         prodRequest: true,
         organisation: true,
-      },
+      }
     });
 
     for (const prodO of productionOrders) {
@@ -655,6 +655,7 @@ export class ProductionOrdersService {
 			prodRequest: true,
 			organisation: true,
 		  },
+      withDeleted: true
     });
   }
 
@@ -671,11 +672,10 @@ export class ProductionOrdersService {
         schedules: true,
         prodLineItems: {
           batchLineItem: { 
-			bin: true,
-		  },
+            bin: true,
+          },
           rawMaterial: true,
           purchaseRequisition: true,
-		  
         },
         prodRequest: true,
         organisation: true,
@@ -705,7 +705,11 @@ export class ProductionOrdersService {
           finalGood: true,
           bomLineItems: true,
         },
-        schedules: true,
+        schedules: {
+          completedGoods: {
+            batchLineItems: true,
+          }
+        },
         prodLineItems: {
           batchLineItem: { 
 			bin: true,
@@ -717,6 +721,7 @@ export class ProductionOrdersService {
         prodRequest: true,
         organisation: true,
       },
+      withDeleted: true
     });
   }
 
@@ -762,22 +767,25 @@ export class ProductionOrdersService {
           id,
         },
         relations: {
-			bom: {
-			  finalGood: true,
-			  bomLineItems: true,
-			},
-			schedules: true,
-			prodLineItems: {
-			  batchLineItem: { 
-				bin: true,
-			  },
-			  rawMaterial: true,
-			  purchaseRequisition: true,
-			  
-			},
-			prodRequest: true,
-			organisation: true,
-		  },
+        bom: {
+          finalGood: true,
+          bomLineItems: {
+            rawMaterial: true
+          },
+        },
+        schedules: true,
+        prodLineItems: {
+          batchLineItem: { 
+          bin: true,
+          },
+          rawMaterial: true,
+          purchaseRequisition: true,
+          
+        },
+        prodRequest: true,
+        organisation: true,
+        },
+        withDeleted: true
       });
     } catch (error) {
       throw new NotFoundException('Production Order not found');
