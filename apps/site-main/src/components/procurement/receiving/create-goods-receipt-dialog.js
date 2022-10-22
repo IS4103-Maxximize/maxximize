@@ -79,7 +79,6 @@ export const CreateGoodsReceiptDialog = ({
         volumetricSpace: Number(acceptedProduct.volume),
       })
     );
-    console.log(processedAcceptedProducts);
 
     const processedFollowUpProducts = followUpProducts.map(
       (followUpProduct) => ({
@@ -137,6 +136,11 @@ export const CreateGoodsReceiptDialog = ({
 
     if (response.status == 200 || response.status == 201) {
       result = await response.json();
+      result = result.filter(
+        (purchaseOrder) =>
+          purchaseOrder.status !== 'fulfilled' &&
+          purchaseOrder.status !== 'rejected'
+      );
     }
 
     setPurchaseOrders(result);

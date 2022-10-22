@@ -160,7 +160,7 @@ const Rack = () => {
   //Navigate to the bin page
   const navigate = useNavigate();
   const handleRowClick = (rowData) => {
-    navigate('bin', { state: { rack: rowData.row } });
+    navigate('bin', { state: { rackId: rowData.row.id } });
   };
 
   return state == null ? (
@@ -247,6 +247,9 @@ const Rack = () => {
                   checkboxSelection
                   onSelectionModelChange={(ids) => {
                     setSelectedRows(ids);
+                  }}
+                  isRowSelectable={(params) => {
+                    return params.row.bins.length === 0;
                   }}
                   onRowClick={(rowData) => handleRowClick(rowData)}
                 />

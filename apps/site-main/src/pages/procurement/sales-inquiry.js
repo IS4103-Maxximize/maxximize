@@ -229,12 +229,12 @@ export const SalesInquiry = (props) => {
     {
       field: 'status',
       headerName: 'Status',
-      flex: 1,
+      flex: 2,
     },
     {
       field: 'hasPRs',
       headerName: 'Purchase Requistions?',
-      flex: 1,
+      flex: 2,
       renderCell: (params) => {
         return params.row.purchaseRequisitions.length === 0 ? (
           <CancelIcon color="error" />
@@ -245,7 +245,7 @@ export const SalesInquiry = (props) => {
     },
     {
       field: 'actions',
-      headerName: '',
+      headerName: 'Actions',
       flex: 1,
       sortable: false,
       renderCell: menuButton,
