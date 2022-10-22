@@ -85,7 +85,12 @@ export const UpdateRack = ({ rack, updateRack, handleAlertOpen }) => {
           >
             <Button
               color="primary"
-              disabled={formik.isSubmitting}
+              disabled={
+                formik.isSubmitting ||
+                (formik.values.name === formik.initialValues.name &&
+                  formik.values.description ===
+                    formik.initialValues.description)
+              }
               size="small"
               type="submit"
               variant="contained"
