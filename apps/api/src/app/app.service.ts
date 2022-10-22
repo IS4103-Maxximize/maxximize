@@ -225,6 +225,32 @@ export class AppService implements OnApplicationBootstrap {
         ])
         .execute();
 
+      await this.organisationsService.create({
+        name: 'Tomato Farm Bali',
+        uen: '123TOM123',
+        type: OrganisationType.SUPPLIER,
+        contact: {
+          phoneNumber: '123123123',
+          email: 'maxximizetest@gmail.com',
+          address: 'Tomato Farm Road 123',
+          postalCode: '123123',
+        }
+      });
+
+      await this.usersService.create({
+        firstName: 'Bali',
+        lastName: 'Manager',
+        role: Role.MANAGER,
+        contact: {
+          phoneNumber: '88880000',
+          email: 'jiayinglim@live.com',
+          address: 'Serangoon Gardens',
+          postalCode: '789273',
+        },
+        username: 'balimanager',
+        organisationId: 4,
+      });
+
       await this.warehousesService.create({
         name: 'Warehouse 1',
         description: 'Warehouse 1 Description',
@@ -325,6 +351,16 @@ export class AppService implements OnApplicationBootstrap {
         organisationId: 2,
       });
 
+      await this.finalGoodsService.create({
+        name: 'Tomatoes Canned (Red)',
+        description: 'Canned Red tomatoes in olive oil',
+        lotQuantity: 40,
+        unit: MeasurementUnit.KILOGRAM,
+        unitPrice: 45,
+        expiry: 20,
+        organisationId: 4,
+      });
+
       //create 2 BOMS
 
       await this.bomService.create({
@@ -347,6 +383,20 @@ export class AppService implements OnApplicationBootstrap {
 
       await this.bomService.create({
         finalGoodId: 5,
+        bomLineItemDtos: [
+          {
+            quantity: 5,
+            rawMaterialId: 1
+          },
+          {
+            quantity: 6,
+            rawMaterialId: 3
+          }
+        ]
+      })
+
+      await this.bomService.create({
+        finalGoodId: 6,
         bomLineItemDtos: [
           {
             quantity: 5,
@@ -388,7 +438,7 @@ export class AppService implements OnApplicationBootstrap {
       //create SI and update suppliers
       await this.salesInquiryService.create({
         currentOrganisationId: 2,
-        totalPrice: 1850000,
+        totalPrice: 4450,
         salesInquiryLineItemsDtos: [
           {
             quantity: 130,
@@ -436,7 +486,7 @@ export class AppService implements OnApplicationBootstrap {
 
       await this.salesInquiryService.create({
         currentOrganisationId: 2,
-        totalPrice: 1850000,
+        totalPrice: 1000,
         salesInquiryLineItemsDtos: [
           {
             quantity: 40,
@@ -454,6 +504,7 @@ export class AppService implements OnApplicationBootstrap {
             rawMaterialId: 3,
           },
         ],
+        receivingOrganisationId: 4
       });
       await this.salesInquiryService.sendEmail({
         salesInquiryId: 2,
@@ -522,7 +573,7 @@ export class AppService implements OnApplicationBootstrap {
       //create purchaseOrder
       await this.purchaseOrderService.create({
         deliveryAddress: 'ManuAddress1',
-        totalPrice: 1850000,
+        totalPrice: 4450,
         deliveryDate: new Date(),
         currentOrganisationId: 2,
         quotationId: 1,
@@ -548,7 +599,7 @@ export class AppService implements OnApplicationBootstrap {
 
       await this.purchaseOrderService.create({
         deliveryAddress: 'ManuAddress1',
-        totalPrice: 1850000,
+        totalPrice: 1000,
         deliveryDate: new Date(),
         currentOrganisationId: 2,
         quotationId: 2,
