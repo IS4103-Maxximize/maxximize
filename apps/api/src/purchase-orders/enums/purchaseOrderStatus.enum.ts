@@ -2,5 +2,8 @@ export enum PurchaseOrderStatus {
     PENDING = 'pending',
     PARTIALLYFULFILLED = 'partiallyfulfilled',
     FULFILLED = "fulfilled",
-    CANCELLED = "cancelled"
+    REJECTED = "rejected",
+    ACCEPTED = "accepted",
+    DELIVERY = 'delivery',
+    PRODUCTION = 'production'
 }
