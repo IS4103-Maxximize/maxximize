@@ -1,8 +1,9 @@
-import { Column, DeleteDateColumn, Entity, ManyToMany, ManyToOne } from "typeorm";
+import { Column, DeleteDateColumn, Entity, ManyToMany, ManyToOne, OneToMany } from "typeorm";
 import { Batch } from "../../batches/entities/batch.entity";
 import { Bin } from "../../bins/entities/bin.entity";
 import { LineItem } from "../../line-Items/LineItem";
 import { PurchaseOrder } from "../../purchase-orders/entities/purchase-order.entity";
+import { ReservationLineItem } from "../../reservation-line-items/entities/reservation-line-item.entity";
 
 @Entity()
 export class BatchLineItem extends LineItem {
@@ -22,8 +23,8 @@ export class BatchLineItem extends LineItem {
     batch: Batch;
 
     @ManyToOne(() => Bin, bin => bin.batchLineItems)
-    bin: Bin
+    bin: Bin;
 
-    @ManyToMany(() => PurchaseOrder, purchaseOrder => purchaseOrder.batchLineItems)
-    purchaseOrders: PurchaseOrder[];
+    @OneToMany(() => ReservationLineItem, reservationLineItem => reservationLineItem.batchLineItem)
+    reservationLineItems: ReservationLineItem[];
 }
