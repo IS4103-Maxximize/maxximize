@@ -22,6 +22,7 @@ import {
 } from '../helpers/deliveryFleet';
 import DayJS from 'dayjs';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
+import { DeliveryRequestViewDialog } from '../components/deliveryFleet/delivery-request-view-dialog';
 
 const DeliveryFleetManagement = (props) => {
   const user = JSON.parse(localStorage.getItem('user'));
@@ -81,14 +82,13 @@ const DeliveryFleetManagement = (props) => {
     setUpdateFormDialogOpen(false);
   }
 
-//   const [deliveryRequestDialogOpen, setDeliveryRequestDialogOpen] = useState(false);
-//   const handleDeliveryRequestDialogOpen = () => {
-//     console.log(selectedRow);
-//     setDeliveryRequestDialogOpen(true);
-//   };
-//   const handleDeliveryRequestDialogClose = () => {
-//     setDeliveryRequestDialogOpen(false);
-//   };
+    const [deliveryRequestDialogOpen, setDeliveryRequestDialogOpen] = useState(false);
+    const handleDeliveryRequestDialogOpen = () => {
+         setDeliveryRequestDialogOpen(true);
+    };
+    const handleDeliveryRequestDialogClose = () => {
+      setDeliveryRequestDialogOpen(false);
+    };
 
 
   const [anchorEl, setAnchorEl] = useState(null);
@@ -263,7 +263,7 @@ const DeliveryFleetManagement = (props) => {
             handleClickOpen={handleUpdateFormDialogOpen}
             handleMenuClose={handleMenuClose}
             handleClickViewEdit={handleClickViewEdit}
-            // handleClickViewDeliveryRequest={deliveryRequestDialogOpen}
+            handleClickViewDeliveryRequest={handleDeliveryRequestDialogOpen}
           />
 
           <ConfirmDialog
@@ -276,11 +276,11 @@ const DeliveryFleetManagement = (props) => {
             }}
           />
 
-          {/* <DeliveryRequestViewDialog
-            open={handleDeliveryRequestDialogOpen}
+          <DeliveryRequestViewDialog
+            open={deliveryRequestDialogOpen}
             selectedVehicle={selectedRow}
             handleClose={handleDeliveryRequestDialogClose}
-          /> */}
+          /> 
 
           <VehicleCreateDialog
             open={formDialogOpen}

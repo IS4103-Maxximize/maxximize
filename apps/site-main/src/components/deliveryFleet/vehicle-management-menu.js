@@ -1,6 +1,5 @@
 import SearchIcon from "@mui/icons-material/Search";
-// import DeviceThermostatIcon from '@mui/icons-material/DeviceThermostat';
-// import ListAltIcon from '@mui/icons-material/ListAlt';
+import ListAltIcon from '@mui/icons-material/ListAlt';
 import { ListItemIcon, ListItemText, Menu, MenuItem, MenuList } from "@mui/material";
 
 export const VehicleManagementMenu = (props) => {
@@ -10,7 +9,7 @@ export const VehicleManagementMenu = (props) => {
     handleClickOpen, 
     handleMenuClose, 
     handleClickViewEdit,
-    // handleClickViewDeliveryRequest
+    handleClickViewDeliveryRequest
   } = props;
   return (
     <Menu 
@@ -31,8 +30,8 @@ export const VehicleManagementMenu = (props) => {
             View/Edit Details
           </ListItemText>
         </MenuItem>
-        {/* <MenuItem onClick={() => {
-          handleClickViewDeliveryRequest;
+        <MenuItem onClick={() => {
+          handleClickViewDeliveryRequest();
           handleMenuClose();
         }}>
          <ListItemIcon>
@@ -41,7 +40,7 @@ export const VehicleManagementMenu = (props) => {
           <ListItemText>
             Delivery Request 
           </ListItemText> 
-        </MenuItem> */}
+        </MenuItem>
       </MenuList>
     </Menu>
   );

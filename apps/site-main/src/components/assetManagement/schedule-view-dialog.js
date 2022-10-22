@@ -25,7 +25,6 @@ export const ScheduleViewDialog = (props) => {
   const [plannedSchedules, setRowsPlanned] = useState([]);
   const [ongoingSchedules, setRowsOngoing] = useState([]);
 
-  const scheduleResponse=[];
 
   const getSchedule = async () => {
     const response = await fetchProductionLine(selectedProductionLine?.id);
