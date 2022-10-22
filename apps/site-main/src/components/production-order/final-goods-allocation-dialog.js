@@ -1,16 +1,18 @@
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from "@mui/material";
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, InputAdornment, TextField } from "@mui/material";
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import { allocateSchedule } from "../../helpers/production/production-order";
 
 
 export const FinalGoodsAllocationDialog = (props) => {
   const {
     open,
     handleClose,
-    // string,
     productionOrder,
+    schedule,
     handleAlertOpen,
     handleAlertClose,
+    updateSchedules,
     ...rest
   } = props;
 
@@ -21,46 +23,46 @@ export const FinalGoodsAllocationDialog = (props) => {
     // submit
     // console.log(values);
 
-    // - name
-    // - description
-    // - productionCostPerLot (Only edited when no planned or ongoing schedules)
-    // - gracePeriod (Only edited when no planned or ongoing schedules)
-    // - outputPerHour (Only edited when no planned or ongoing schedules)
-    // - startTime (Only edited when no planned or ongoing schedules)
-    // - endTime (Only edited when no planned or ongoing schedules)
+    // orgId: number;
+    // scheduleId: number;
+    // quantity: number;
+    // volumetricSpace: number
 
-    // const updateProductionLineDto = {
-    //   name: values.name,
-    //   description: values.description,
-    //   productionCostPerLot: values.productionCostPerLot,
-    //   gracePeriod: 3600000 * values.hours + 60000 * values.minutes + 1000 * values.seconds,
-    //   outputPerHour: values.outputPerHour,
-    //   startTime: values.startTime,
-    //   endTime: values.endTime,
-    //   machineIds: selectedMachines.map(machine => machine.id)
-    // }
+    const allocateScheduleDto = {
+      orgId: organisationId,
+      scheduleId: schedule?.id,
+      quantity: formik.values.quantity,
+      volumetricSpace: formik.values.volumetricSpace
+    }
 
-    // console.log(updateProductionLineDto);
+    console.log(allocateScheduleDto);
 
-    // updateProductionLine(productionLine.id, updateProductionLineDto)
-    //   .then(res => {
-		// handleRowUpdate(res)
-    //     onClose();
-    //     handleAlertOpen(`Successfully Updated Production Line ${res.id}!`, 'success');
-    //   })
-    //   .catch(err => handleAlertOpen('Failed to Update Production Line', 'error'));
+    allocateSchedule(allocateScheduleDto)
+      .then(res => {
+        console.log(res);
+        updateSchedules(res);
+        onClose();
+        handleAlertOpen(`Successfully allocated goods for Schedule ${res.id}!`, 'success');
+      })
+      .catch(err => handleAlertOpen(`Failed to allocate goods`, 'error'));
   };
 
   const formik = useFormik({
     initialValues: {
       quantity: 1,
+      volumetricSpace: 1,
     },
     validationSchema: Yup.object({
       quantity: Yup
         .number()
         .min(1, 'Quantity must be more than 0')
         .integer('Quantity must be an integer')
-        .required('Enter Quantity of Final Goods to allocate')
+        .required('Enter Quantity of Final Goods to allocate'),
+      volumetricSpace: Yup
+        .number()
+        .min(1, 'Volumetric Space must be more than 0')
+        .integer('Volumetric Space must be an integer')
+        .required('Enter Volumetric Space of Final Goods to allocate'),
     }),
     enableReinitialize: true,
     onSubmit: handleOnSubmit,
@@ -71,11 +73,6 @@ export const FinalGoodsAllocationDialog = (props) => {
     handleClose();
   }
 
-  // const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
-  // const checkedIcon = <CheckBoxIcon fontSize="small" />;
-
-  // const disabled = productionLine ? productionLine.schedules.find(schedule => schedule.status === 'ongoing' || schedule.status === 'planned') : false;
-
   return (
     <form onSubmit={formik.handleSubmit}>
       <Dialog 
@@ -84,9 +81,29 @@ export const FinalGoodsAllocationDialog = (props) => {
         onClose={onClose}
       >
         <DialogTitle>
-          {`Allocate and Receive Final Goods`}
+          {`Allocate Final Goods for Schedule (${schedule?.id})`}
         </DialogTitle>
         <DialogContent>
+          <TextField
+            fullWidth
+            label="Planned Production Quantity"
+            margin="normal"
+            name="planned-prod-quantity"
+            type="number"
+            value={
+              productionOrder?.plannedQuantity * productionOrder?.bom?.finalGood?.lotQuantity
+            }
+            variant="outlined"
+            InputProps={{ 
+              inputProps: { min: 1 },
+              endAdornment: (
+                <InputAdornment position="end">
+                  {productionOrder?.bom?.finalGood?.unit}
+                </InputAdornment>
+              )
+            }}
+            disabled
+          />
           <TextField
             fullWidth
             error={Boolean(formik.touched.quantity && formik.errors.quantity)}
@@ -98,6 +115,27 @@ export const FinalGoodsAllocationDialog = (props) => {
             onBlur={formik.handleBlur}
             onChange={formik.handleChange}
             value={formik.values.quantity}
+            variant="outlined"
+            InputProps={{ 
+              inputProps: { min: 1 },
+              endAdornment: (
+                <InputAdornment position="end">
+                  {productionOrder?.bom?.finalGood?.unit}
+                </InputAdornment>
+              )
+            }}
+          />
+          <TextField
+            fullWidth
+            error={Boolean(formik.touched.volumetricSpace && formik.errors.volumetricSpace)}
+            helperText={formik.touched.volumetricSpace && formik.errors.volumetricSpace}
+            label="Volumetric Space"
+            margin="normal"
+            name="volumetricSpace"
+            type="number"
+            onBlur={formik.handleBlur}
+            onChange={formik.handleChange}
+            value={formik.values.volumetricSpace}
             variant="outlined"
             InputProps={{ inputProps: { min: 1 }}}
           />
