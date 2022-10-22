@@ -18,6 +18,7 @@ import { QATrackingToolbar } from '../components/quality-assurance/qa-tracking-t
 import { fetchBatchTracking } from '../helpers/quality-assurance';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { v4 as uuid } from 'uuid'
 
 
@@ -92,7 +93,7 @@ export const QATracking = (props) => {
 
   // Tree View Helpers
   const labels = [
-    'batch',
+    'Batch',
     'Final Good Batch Line Item',
     'Raw Material Batch Line Item',
     'Batch',
@@ -106,10 +107,10 @@ export const QATracking = (props) => {
   const [objectNodeIdMap, setObjectNodeIdMap] = useState(new Map()); // nodeId => object
 
   const transform = (object, parentId, depth) => {
-    let result = {}
+    let result = {};
     const rng = uuid();
     setNodeIdMap(nodeIdMap.set(rng, parentId));
-    setObjectNodeIdMap(objectNodeIdMap.set(rng, object))
+    setObjectNodeIdMap(objectNodeIdMap.set(rng, object));
 
     const keys = Object.keys(object)
     const newDepth = depth + 1
@@ -118,12 +119,13 @@ export const QATracking = (props) => {
     //there should only 1 instance of object or array
     for (const key of keys) {
       const value = object[key]
-      if (typeof object[key] === 'object' && !Array.isArray(value)) {
+      
+      if (typeof value === 'object' && !Array.isArray(value)) {
         //Object but not an array
         result = {
           id,
           title,
-          children: [transform(value, id, newDepth)],
+          children: Object.keys(value).length > 0 ? [transform(value, id, newDepth)] : null,
           parentId
         }
       } else if (typeof value === 'object' && Array.isArray(value)) {
@@ -140,9 +142,6 @@ export const QATracking = (props) => {
           parentId
         }
       }
-    }
-    if (depth === 0) {
-      console.log([result])
     }
     
     return result
@@ -165,11 +164,8 @@ export const QATracking = (props) => {
 
   useEffect(() => {
     if (batch) {
-      console.log(batch)
+      // console.log(batch)
       const treeViewArr = [transform(batch, null, 0)]
-      // console.log(treeViewArr)
-      // console.log(nodeIdMap)
-      // console.log(objectNodeIdMap)
       setTreeViewArr(treeViewArr)
       setNodeIds([])
     }
@@ -188,17 +184,22 @@ export const QATracking = (props) => {
   
   const renderTrackingCards = (nodeIds) => {
     // start from top -> bottom
-    return nodeIds.length > 0 ? nodeIds.map(nodeId => {
+    return nodeIds.length > 0 ? nodeIds.map((nodeId, index) => {
+      if (index === 0) return null;
+
       const object = objectNodeIdMap.get(nodeId);
       console.log(object);
 
       return (
-        <>
+        <div style={{ textAlign: 'center' }}>
           {object && 
           <Card
-            sx={{ my: 1 }}
+            sx={{ 
+              my: 1
+            }}
           >
             <CardContent>
+              <Typography sx={{ mb: 2, fontWeight: 'medium' }}>{labels[index]}</Typography>
               {Object.entries(object).map(entry => {
                 if (!(entry[1] instanceof Object)) {
                   return (
@@ -214,7 +215,8 @@ export const QATracking = (props) => {
               })}
             </CardContent>
           </Card>}
-        </>
+          {(object && index < nodeIds.length-1) && <KeyboardArrowDownIcon />}
+        </div>
       )
     }) :
     <Typography>TRACKING</Typography>
@@ -233,9 +235,11 @@ export const QATracking = (props) => {
           flexGrow: 1,
           pt: 4,
           pb: 4,
+          height: '100vh'
         }}
       >
-        <Container maxWidth={false}>
+        <Container maxWidth={false}
+        >
           <NotificationAlert
             key="notification-alert"
             open={alertOpen}
@@ -243,18 +247,23 @@ export const QATracking = (props) => {
             text={alertText}
             handleClose={handleAlertClose}
           />
-          <QATrackingToolbar
-            key="toolbar"
-            name={name}
-            search={search}
-            setSearch={setSearch}
-            handleSearch={handleSearch}
-            clearSearch={clearSearch}
-            handleConfirmDialogOpen={handleConfirmDialogOpen}
-          />
+          <Box
+            sx={{ height: '10%'}}
+          >
+            <QATrackingToolbar
+              key="toolbar"
+              name={name}
+              search={search}
+              setSearch={setSearch}
+              handleSearch={handleSearch}
+              clearSearch={clearSearch}
+              handleConfirmDialogOpen={handleConfirmDialogOpen}
+            />
+          </Box>
           <Box
             sx={{
               mt: 3,
+              height: '90%'
             }}
           >
             {batch ? (
@@ -262,6 +271,7 @@ export const QATracking = (props) => {
                 <Box
                   sx={{
                     width: '40%',
+                    height: '100%',
                     textAlign: 'left',
                     pt: 2,
                     pr: 2
@@ -292,14 +302,13 @@ export const QATracking = (props) => {
                 <Box
                   sx={{
                     width: '60%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    height: '700px',
+                    overflowY: "scroll"
                   }}
                 >
-                  {/* <Card>
-                    <CardContent>
-                      <Typography>TRACKING</Typography>
-                    </CardContent>
-                  </Card> */}
-                  {/* {renderTrackingCards(nodeIds)} */}
+                  {renderTrackingCards(nodeIds)}
                 </Box>
               </Stack>
             ) : (
