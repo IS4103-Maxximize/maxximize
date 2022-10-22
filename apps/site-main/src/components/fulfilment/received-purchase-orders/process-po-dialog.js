@@ -19,7 +19,7 @@ import DayJS from 'dayjs';
 import { Box } from '@mui/system';
 import { ReceivedPurchaseOrderConfirmDialog } from './received-po-confirm-dialog';
 
-export const ReceivedPurchaseOrderViewDialog = (props) => {
+export const ProcessPurchaseOrderDialog = (props) => {
   const user = JSON.parse(localStorage.getItem('user'));
 
   const { open, handleClose, purchaseOrder, handleAlertOpen } = props;
@@ -34,6 +34,14 @@ export const ReceivedPurchaseOrderViewDialog = (props) => {
     purchaseOrderId: purchaseOrder ? purchaseOrder.id : '',
     purchaseOrderLineItems: purchaseOrder ? purchaseOrder.poLineItems : [],
   };
+
+  //   const schema = Yup.object({
+  //     totalPrice: Yup.number().positive().required('Total Price is required'),
+  //     leadTime: Yup.number()
+  //       .integer()
+  //       .positive()
+  //       .required('Lead Time is Required'),
+  //   });
 
   // Handle on submit may be more of a redirecting function to another dialog
   // The next dialog will handle reserve, creation of Prod R and DR
