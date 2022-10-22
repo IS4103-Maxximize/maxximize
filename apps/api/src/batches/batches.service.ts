@@ -300,8 +300,13 @@ export class BatchesService {
                     batch: {
                       goodsReceipt: {
                         purchaseOrder: {
-                          supplier: {
-                            contact: true
+                          quotation: {
+                            shellOrganisation: {
+                              contact: true
+                            },
+                            currentOrganisation: {
+                              contact: true
+                            }
                           }
                         }
                       }
@@ -445,9 +450,23 @@ export class BatchesService {
           ...object //this should be the supplier's contact object
         }
       }
+      let finalKey: string
       const mark = flow[count]
+      let value: any
       const {key, select, replacementKey, displayPreviousObjAttr} = mark
-      const value = object[key]
+      if (Array.isArray(key)) {
+        for (const currentKey of key) {
+          if (object[currentKey]) {
+            finalKey = currentKey
+            value = object[currentKey]
+            break;
+          }
+        }
+      } else {
+        value = object[key]
+        finalKey = key
+      }
+
 
       let setObject = {}
       if (displayPreviousObjAttr && Array.isArray(displayPreviousObjAttr)) {
@@ -469,7 +488,7 @@ export class BatchesService {
         const temp = this.selectiveFlatten(value, count + 1 , flow)
         if (select) {
           //if true, return the result with the key and temp
-          result[replacementKey ?? key] = temp
+          result[replacementKey ?? finalKey] = temp
         } else {
           //else just pass temp up the chain
           result = temp
@@ -487,7 +506,7 @@ export class BatchesService {
           objectArray.push(temp)
         }
         if (select) {
-          result[replacementKey ?? key] = objectArray
+          result[replacementKey ?? finalKey] = objectArray
         } else {
           result = objectArray
         }
@@ -562,7 +581,13 @@ export class BatchesService {
         displayPreviousObjAttr: ['id', 'createdDateTime', 'recipientName', 'description']
       },
       {
-        key: 'supplier',
+        key: "quotation",
+        select: false,
+        replacementKey: null,
+        displayPreviousObjAttr: false
+      },
+      {
+        key: ['shellOrganisation', 'currentOrganisation'],
         select: true,
         replacementKey: null, 
         displayPreviousObjAttr: ['id', 'status', 'deliveryAddress', 'totalPrice', 'created', 'deliveryDate']
