@@ -392,12 +392,15 @@ export class BatchLineItemsService {
     }
   }
 
-  async getAggregatedFinalGoods(organisationId: number) {
+  async getAggregatedFinalGoods(organisationId: number, deliveryDate: Date) {
     const batchLineItems = await this.findAllByOrganisationId(organisationId);
     const finalGoodsStock = new Map<number, BatchLineItem[]>();
 
     // Retrieve all batch line items and add to map only if batch line item does not expire before end of production
     for (const batchLineItem of batchLineItems) {
+      if (batchLineItem.expiryDate <= deliveryDate) {
+        continue;
+      }
       const product = batchLineItem.product;
       if (product instanceof FinalGood) {
         if (!finalGoodsStock.has(product.id)) {

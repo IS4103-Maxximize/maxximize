@@ -19,6 +19,7 @@ import { MailService } from '../mail/mail.service';
 import { BatchLineItemsService } from '../batch-line-items/batch-line-items.service';
 import { BatchLineItem } from '../batch-line-items/entities/batch-line-item.entity';
 import { ReservationLineItem } from '../reservation-line-items/entities/reservation-line-item.entity';
+import { ReserveDto } from './dto/reserve-dto';
 
 
 @Injectable()
@@ -246,7 +247,8 @@ export class PurchaseOrdersService {
       'poLineItems.rawMaterial',
       'poLineItems.finalGood',
       'followUpLineItems.rawMaterial',
-      'goodsReceipts.goodsReceiptLineItems.product'
+      'goodsReceipts.goodsReceiptLineItems.product',
+      'reservationLineItems'
     ]})
   }
 
@@ -279,24 +281,36 @@ export class PurchaseOrdersService {
     return this.purchaseOrdersRepository.remove(purchaseOrderToRemove)
   }
 
-  async reserve(purchaseOrderId: number, organisationId: number) {
+  async reserve(reserveDto: ReserveDto) {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
 
     try {
+      const purchaseOrderId = reserveDto.purchaseOrderId;
+      const organisationId = reserveDto.organisationId;
+
       const purchaseOrder = await this.findOne(purchaseOrderId);
-      const finalGoodsStock = await this.batchLineItemService.getAggregatedFinalGoods(organisationId);
+      const finalGoodsStock = await this.batchLineItemService.getAggregatedFinalGoods(organisationId, purchaseOrder.deliveryDate);
+      console.log(finalGoodsStock);
 
       const reservationLineItems = [];
 
       for (const purchaseLineItem of purchaseOrder.poLineItems) {
         const productId = purchaseLineItem.finalGood.id;
-        const totalQty = finalGoodsStock.get(productId).reduce((seed, lineItem) => {
-          return seed + (lineItem.quantity - lineItem.reservedQuantity);
-        }, 0);
-        if (totalQty > purchaseLineItem.quantity) {
-          let qty = purchaseLineItem.quantity - purchaseLineItem.fufilledQty;
+        let totalQty = 0;
+        if (finalGoodsStock.has(productId)) {
+          totalQty = finalGoodsStock.get(productId).reduce((seed, lineItem) => {
+            return seed + (lineItem.quantity - lineItem.reservedQuantity);
+          }, 0);
+        } else {
+          continue;
+        }
+        let qty = purchaseLineItem.quantity - purchaseLineItem.fufilledQty;
+        if (qty <= 0) {
+          continue;
+        }
+        if (totalQty > qty) {
           const batchLineItems = finalGoodsStock.get(productId);
           batchLineItems.sort(
             (lineItemOne, lineItemTwo) =>
@@ -309,22 +323,22 @@ export class PurchaseOrdersService {
               batchLineItem.reservedQuantity += qty;
               reservationLineItem.quantity = qty;
               await queryRunner.manager.save(batchLineItem);
+              await queryRunner.manager.save(purchaseLineItem);
               qty = 0;
             } else {
+              purchaseLineItem.fufilledQty += (batchLineItem.quantity - batchLineItem.reservedQuantity);
               batchLineItem.reservedQuantity = batchLineItem.quantity;
               reservationLineItem.quantity = (batchLineItem.quantity - batchLineItem.reservedQuantity);
-              purchaseLineItem.fufilledQty += (batchLineItem.quantity - batchLineItem.reservedQuantity);
               qty -= (batchLineItem.quantity - batchLineItem.reservedQuantity);
               await queryRunner.manager.save(batchLineItem);
+              await queryRunner.manager.save(purchaseLineItem);
               await queryRunner.manager.softDelete(BatchLineItem, batchLineItem.id);
             }
             reservationLineItem.batchLineItem = batchLineItem;
-            reservationLineItem.purchaseOrder = purchaseOrder;
-            await queryRunner.manager.save(purchaseLineItem);
+            reservationLineItems.push(reservationLineItem);
             if (qty <= 0) {
               break;
             }
-            reservationLineItems.push(reservationLineItem);
           }
           purchaseLineItem.fufilledQty = purchaseLineItem.quantity;
           await queryRunner.manager.save(purchaseLineItem);
@@ -333,17 +347,24 @@ export class PurchaseOrdersService {
             const reservationLineItem = new ReservationLineItem();
             reservationLineItem.batchLineItem = batchLineItem;
             reservationLineItem.quantity = (batchLineItem.quantity - batchLineItem.reservedQuantity);
-            reservationLineItem.purchaseOrder = purchaseOrder;
-            reservationLineItems.push(reservationLineItem);
-            batchLineItem.reservedQuantity = batchLineItem.quantity;
             purchaseLineItem.fufilledQty += (batchLineItem.quantity - batchLineItem.reservedQuantity);
+            batchLineItem.reservedQuantity = batchLineItem.quantity;
+            reservationLineItems.push(reservationLineItem);
             await queryRunner.manager.save(batchLineItem);
-            await queryRunner.manager.softDelete(BatchLineItem, batchLineItem.id);
             await queryRunner.manager.save(purchaseLineItem);
+            await queryRunner.manager.softDelete(BatchLineItem, batchLineItem.id);
           }
         }
       }
+
+      purchaseOrder.reservationLineItems = purchaseOrder.reservationLineItems.concat(reservationLineItems);
+
+      const purchaseO = await queryRunner.manager.save(purchaseOrder);
+      await queryRunner.commitTransaction();
+
+      return purchaseO;
     } catch (err) {
+      console.log(err);
       await queryRunner.rollbackTransaction();
       throw new InternalServerErrorException(err);
     } finally {

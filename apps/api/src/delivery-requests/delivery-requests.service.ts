@@ -107,45 +107,45 @@ export class DeliveryRequestsService {
   }
 
   // Partial fufillment
-  async createDeliveryRequestProdReq(createDeliveryRequestDto: CreateDeliveryRequestDto) {
-    const queryRunner = this.dataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
-    try {
-      let deliveryRequest = new DeliveryRequest();
-      deliveryRequest.addressFrom = createDeliveryRequestDto.addressFrom;
-      deliveryRequest.dateCreated = new Date();
+  // async createDeliveryRequestProdReq(createDeliveryRequestDto: CreateDeliveryRequestDto) {
+  //   const queryRunner = this.dataSource.createQueryRunner();
+  //   await queryRunner.connect();
+  //   await queryRunner.startTransaction();
+  //   try {
+  //     let deliveryRequest = new DeliveryRequest();
+  //     deliveryRequest.addressFrom = createDeliveryRequestDto.addressFrom;
+  //     deliveryRequest.dateCreated = new Date();
 
-      const purchaseOrder = await this.purchaseOrderService.findOne(createDeliveryRequestDto.purchaseOrderId);
-      deliveryRequest.purchaseOrder = purchaseOrder;
-      deliveryRequest.addressTo = purchaseOrder.deliveryAddress;
+  //     const purchaseOrder = await this.purchaseOrderService.findOne(createDeliveryRequestDto.purchaseOrderId);
+  //     deliveryRequest.purchaseOrder = purchaseOrder;
+  //     deliveryRequest.addressTo = purchaseOrder.deliveryAddress;
 
-      const organisationId = createDeliveryRequestDto.organisationId;
+  //     const organisationId = createDeliveryRequestDto.organisationId;
 
-      deliveryRequest = await this.allocateDriverToRequest(organisationId, deliveryRequest);
-      deliveryRequest = await this.allocateVehicleToRequest(organisationId, deliveryRequest);
+  //     deliveryRequest = await this.allocateDriverToRequest(organisationId, deliveryRequest);
+  //     deliveryRequest = await this.allocateVehicleToRequest(organisationId, deliveryRequest);
 
-      const deliveryLineItems = [];
+  //     const deliveryLineItems = [];
 
-      for (const batchLineItem of purchaseOrder.batchLineItems) {
-        const deliveryRequestLineItem = new DeliveryRequestLineItem();
-        deliveryRequestLineItem.quantity = batchLineItem.quantity;
-        deliveryRequestLineItem.product = batchLineItem.product;
-        deliveryLineItems.push(deliveryRequestLineItem);
-      }
+  //     for (const batchLineItem of purchaseOrder.batchLineItems) {
+  //       const deliveryRequestLineItem = new DeliveryRequestLineItem();
+  //       deliveryRequestLineItem.quantity = batchLineItem.quantity;
+  //       deliveryRequestLineItem.product = batchLineItem.product;
+  //       deliveryLineItems.push(deliveryRequestLineItem);
+  //     }
 
-      deliveryRequest.deliveryRequestLineItems = deliveryLineItems;
+  //     deliveryRequest.deliveryRequestLineItems = deliveryLineItems;
       
-      const deliveryReq = await queryRunner.manager.save(deliveryRequest);
-      await queryRunner.commitTransaction();
-      return deliveryReq;
-    } catch (err) {
-      await queryRunner.rollbackTransaction();
-      throw new InternalServerErrorException(err);
-    } finally {
-      await queryRunner.release();
-    }
-  }
+  //     const deliveryReq = await queryRunner.manager.save(deliveryRequest);
+  //     await queryRunner.commitTransaction();
+  //     return deliveryReq;
+  //   } catch (err) {
+  //     await queryRunner.rollbackTransaction();
+  //     throw new InternalServerErrorException(err);
+  //   } finally {
+  //     await queryRunner.release();
+  //   }
+  // }
 
   async findAll() {
     return await this.deliveryRequestRepository.find({

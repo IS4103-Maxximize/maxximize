@@ -76,11 +76,9 @@ export class PurchaseOrder {
     @OneToMany(() => DeliveryRequest, deliveryRequest => deliveryRequest.purchaseOrder)
     deliveryRequests: DeliveryRequest[];
 
-    @ManyToMany(() => BatchLineItem, batchLineItem => batchLineItem.purchaseOrders)
-    @JoinColumn()
-    batchLineItems: BatchLineItem[];
-
-    @OneToMany(() => ReservationLineItem, reservationLineItem => reservationLineItem.purchaseOrder)
+    @OneToMany(() => ReservationLineItem, reservationLineItem => reservationLineItem.purchaseOrder, {
+        cascade: true
+    })
     @JoinColumn()
     reservationLineItems: ReservationLineItem[];
 }
