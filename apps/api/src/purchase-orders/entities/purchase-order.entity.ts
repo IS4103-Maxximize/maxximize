@@ -5,8 +5,10 @@ import { DeliveryRequest } from "../../delivery-requests/entities/delivery-reque
 import { FollowUpLineItem } from "../../follow-up-line-items/entities/follow-up-line-item.entity";
 import { GoodsReceipt } from "../../goods-receipts/entities/goods-receipt.entity";
 import { Organisation } from "../../organisations/entities/organisation.entity";
+import { ProductionRequest } from "../../production-requests/entities/production-request.entity";
 import { PurchaseOrderLineItem } from "../../purchase-order-line-items/entities/purchase-order-line-item.entity";
 import { Quotation } from "../../quotations/entities/quotation.entity";
+import { ReservationLineItem } from "../../reservation-line-items/entities/reservation-line-item.entity";
 import { PurchaseOrderStatus } from "../enums/purchaseOrderStatus.enum";
 
 @Entity()
@@ -69,10 +71,14 @@ export class PurchaseOrder {
     @JoinColumn()
     goodsReceipts: GoodsReceipt[];
 
+    @OneToMany(() => ProductionRequest, prodRequest => prodRequest.purchaseOrder, {nullable: true})
+    prodRequests: ProductionRequest[]
     @OneToMany(() => DeliveryRequest, deliveryRequest => deliveryRequest.purchaseOrder)
     deliveryRequests: DeliveryRequest[];
 
-    @ManyToMany(() => BatchLineItem, batchLineItem => batchLineItem.purchaseOrders)
+    @OneToMany(() => ReservationLineItem, reservationLineItem => reservationLineItem.purchaseOrder, {
+        cascade: true
+    })
     @JoinColumn()
-    batchLineItems: BatchLineItem[];
+    reservationLineItems: ReservationLineItem[];
 }

@@ -27,6 +27,7 @@ import { PurchaseRequisition } from '../../purchase-requisitions/entities/purcha
 import { Quotation } from '../../quotations/entities/quotation.entity';
 import { File } from '../../files/entities/file.entity';
 import { Application } from '../../applications/entities/application.entity';
+import { ProductionRequest } from '../../production-requests/entities/production-request.entity';
 
 @Entity()
 export class Organisation {
@@ -129,4 +130,7 @@ export class Organisation {
 
   @OneToMany(() => Application, application => application.organisation)
   applications: Application[]
+
+  @OneToMany(() => ProductionRequest, prodRequest => prodRequest.organisation)
+  prodRequests: ProductionRequest[]
 }

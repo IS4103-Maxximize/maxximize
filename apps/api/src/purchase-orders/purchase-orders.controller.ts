@@ -10,6 +10,7 @@ import {
 import { PurchaseOrdersService } from './purchase-orders.service';
 import { CreatePurchaseOrderDto } from './dto/create-purchase-order.dto';
 import { UpdatePurchaseOrderDto } from './dto/update-purchase-order.dto';
+import { ReserveDto } from './dto/reserve-dto';
 
 @Controller('purchase-orders')
 export class PurchaseOrdersController {
@@ -18,6 +19,11 @@ export class PurchaseOrdersController {
   @Post()
   create(@Body() createPurchaseOrderDto: CreatePurchaseOrderDto) {
     return this.purchaseOrdersService.create(createPurchaseOrderDto);
+  }
+
+  @Post('/reserve')
+  reserve(@Body() reserveDto: ReserveDto) {
+    return this.purchaseOrdersService.reserve(reserveDto);
   }
 
   @Get()

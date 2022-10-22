@@ -12,10 +12,10 @@ export class DeliveryRequestsController {
     return this.deliveryRequestsService.create(createDeliveryRequestDto);
   }
 
-  @Post('partialFufillment')
-  createPartialFufillment(@Body() createDeliveryRequestDto: CreateDeliveryRequestDto) {
-    return this.deliveryRequestsService.createDeliveryRequestProdReq(createDeliveryRequestDto);
-  }
+  // @Post('partialFufillment')
+  // createPartialFufillment(@Body() createDeliveryRequestDto: CreateDeliveryRequestDto) {
+  //   return this.deliveryRequestsService.createDeliveryRequestProdReq(createDeliveryRequestDto);
+  // }
 
   @Get()
   findAll() {
