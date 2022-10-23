@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { FinalGood } from "../../final-goods/entities/final-good.entity";
 import { Organisation } from "../../organisations/entities/organisation.entity";
 import { ProductionOrder } from "../../production-orders/entities/production-order.entity";
@@ -22,8 +22,8 @@ export class ProductionRequest {
     @Column()
     createdDateTime: Date;
 
-    @OneToOne(() => ProductionOrder, prodOrder => prodOrder.prodRequest ,{nullable:true})
-    prodOrder?: ProductionOrder
+    @OneToMany(() => ProductionOrder, prodOrder => prodOrder.prodRequest ,{nullable:true})
+    prodOrders?: ProductionOrder[]
 
     @ManyToOne(() => FinalGood)
     finalGood: FinalGood
