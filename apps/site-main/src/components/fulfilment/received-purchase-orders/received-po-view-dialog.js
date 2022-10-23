@@ -23,7 +23,13 @@ import { ProcessPurchaseOrderDialog } from './process-po-dialog';
 export const ReceivedPurchaseOrderViewDialog = (props) => {
   const user = JSON.parse(localStorage.getItem('user'));
 
-  const { open, handleClose, purchaseOrder, handleAlertOpen } = props;
+  const {
+    open,
+    handleClose,
+    purchaseOrder,
+    handleAlertOpen,
+    retrieveAllReceivedPurchaseOrders,
+  } = props;
 
   // Formik Helpers
   const initialValues = {
@@ -63,14 +69,66 @@ export const ReceivedPurchaseOrderViewDialog = (props) => {
   // }
   //   };
 
-  // TODO Accept a purchase order (Status change)
+  // Accept a purchase order (Status change)
   const handleAccept = async () => {
-    return;
+    const response = await fetch(
+      `http://localhost:3000/api/purchase-orders/${purchaseOrder.id}`,
+      {
+        method: 'PATCH',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          status: 'accepted',
+        }),
+      }
+    );
+
+    if (response.status === 200 || response.status === 201) {
+      const result = await response.json();
+
+      handleAlertOpen(`Accepted Purchase Order ${result.id}`);
+      handleClose();
+      retrieveAllReceivedPurchaseOrders();
+    } else {
+      const result = await response.json();
+      handleAlertOpen(
+        `Error accepting Purchase Order ${result.id}. ${result.message}`,
+        'error'
+      );
+    }
   };
 
-  // TODO Reject a purchase order (Status change)
+  // Reject a purchase order (Status change)
   const handleReject = async () => {
-    return;
+    const response = await fetch(
+      `http://localhost:3000/api/purchase-orders/${purchaseOrder.id}`,
+      {
+        method: 'PATCH',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          status: 'rejected',
+        }),
+      }
+    );
+
+    if (response.status === 200 || response.status === 201) {
+      const result = await response.json();
+
+      handleAlertOpen(`Rejected Purchase Order ${result.id}`);
+      handleClose();
+      retrieveAllReceivedPurchaseOrders();
+    } else {
+      const result = await response.json();
+      handleAlertOpen(
+        `Error rejecting Purchase Order ${result.id}. ${result.message}`,
+        'error'
+      );
+    }
   };
 
   // Processing of Purchase Order
