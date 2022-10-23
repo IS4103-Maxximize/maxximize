@@ -224,7 +224,7 @@ const ReceivedPurchaseOrder = () => {
             key="received-purchase-order"
             name={'Received Purchase Order'}
             numRows={selectedRows.length}
-            deleteDisabled={disabled}
+            deleteDisabled={null}
             handleSearch={handleSearch}
             handleAdd={null}
             handleFormDialogOpen={null}
@@ -261,7 +261,7 @@ const ReceivedPurchaseOrder = () => {
                     Toolbar: GridToolbar,
                   }}
                   disableSelectionOnClick
-                  checkboxSelection
+                  //   checkboxSelection
                   onSelectionModelChange={(ids) => {
                     setSelectedRows(ids);
                   }}
