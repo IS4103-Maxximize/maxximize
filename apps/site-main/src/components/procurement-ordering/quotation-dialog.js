@@ -138,6 +138,7 @@ export const QuotationDialog = (props) => {
                 price: item.indicativePrice,
                 quantity: item.quantity,
                 rawMaterial: item.rawMaterial,
+                finalGood: item.finalGood,
               };
             })
           : []

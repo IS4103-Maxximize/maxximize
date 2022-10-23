@@ -104,7 +104,7 @@ export class BinsService {
         const batchLineItems = bin.batchLineItems;
         for (const batchLineItem of batchLineItems) {
           batchLineItem.code = "B-" + updateBinDto.name + "-R-" + bin.rack.name + "-W-" + bin.rack.warehouse.name;
-          queryRunner.manager.save(batchLineItem);
+          await queryRunner.manager.save(batchLineItem);
         }
       }
       await queryRunner.commitTransaction();

@@ -86,7 +86,6 @@ export const SalesInquiry = (props) => {
   // Supplier Dialog Helpers
   const [supplierDialogOpen, setSupplierDialogOpen] = useState(false);
   const handleSupplierDialogOpen = () => {
-    console.log(selectedRow);
     setSupplierDialogOpen(true);
   };
   const handleSupplierDialogClose = () => {
@@ -178,11 +177,8 @@ export const SalesInquiry = (props) => {
   };
 
   const addSalesInquiry = (inquiry) => {
-    console.log(inquiry);
     const updatedProducts = [...rows, inquiry];
-    console.log(updatedProducts);
     setRows(updatedProducts);
-    console.log(inquiry);
     handleAlertOpen(
       `Added Sales Inquiry ${inquiry.id} successfully!`,
       'success'
@@ -193,7 +189,6 @@ export const SalesInquiry = (props) => {
     const updatedRow = { ...newRow };
 
     const inquiry = await newRow.json();
-    console.log(inquiry);
 
     getSalesInquiries();
     handleAlertOpen(
@@ -234,12 +229,12 @@ export const SalesInquiry = (props) => {
     {
       field: 'status',
       headerName: 'Status',
-      flex: 1,
+      flex: 2,
     },
     {
       field: 'hasPRs',
       headerName: 'Purchase Requistions?',
-      flex: 1,
+      flex: 2,
       renderCell: (params) => {
         return params.row.purchaseRequisitions.length === 0 ? (
           <CancelIcon color="error" />
@@ -250,7 +245,7 @@ export const SalesInquiry = (props) => {
     },
     {
       field: 'actions',
-      headerName: '',
+      headerName: 'Actions',
       flex: 1,
       sortable: false,
       renderCell: menuButton,

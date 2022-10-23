@@ -98,7 +98,13 @@ export const UpdateWarehouse = ({
           >
             <Button
               color="primary"
-              disabled={formik.isSubmitting}
+              disabled={
+                formik.isSubmitting ||
+                (formik.values.name === formik.initialValues.name &&
+                  formik.values.description ===
+                    formik.initialValues.description &&
+                  formik.values.address === formik.initialValues.address)
+              }
               size="small"
               type="submit"
               variant="contained"

@@ -135,6 +135,15 @@ const productionBreadcrumbs = (subdomain) => [
     Production Line
   </Link>,
   <Link
+  component={RouterLink}
+  underline="hover"
+  key="production-request"
+  color={subdomain === 'production-request' ? 'primary' : 'inherit'}
+  to="/production/production-request"
+  >
+    Production Request
+  </Link>,
+  <Link
     component={RouterLink}
     underline="hover"
     key="production-order"
@@ -145,11 +154,51 @@ const productionBreadcrumbs = (subdomain) => [
   </Link>,
 ];
 
+const fulfilmentBreadcrumbs = (subdomain) => [
+  <Link
+	component={RouterLink}
+	underline="hover"
+	key="received-sales-inquiry"
+	color={subdomain === 'received-sales-inquiry' ? 'primary' : 'inherit'}
+	to="/fulfilment/received-sales-inquiry"
+  >
+	Received Sales Inquiry
+  </Link>,
+  <Link
+	component={RouterLink}
+	underline="hover"
+	key="sent-quotation"
+	color={subdomain === 'sent-quotation' ? 'primary' : 'inherit'}
+	to="/fulfilment/sent-quotation"
+  >
+	Sent Quotation
+  </Link>,
+  <Link
+	component={RouterLink}
+	underline="hover"
+	key="received-purchase-order"
+	color={subdomain === 'received-purchase-order' ? 'primary' : 'inherit'}
+	to="/fulfilment/received-purchase-order"
+  >
+	Received Purchase Order
+  </Link>,
+  <Link
+  component={RouterLink}
+  underline="hover"
+  key="delivery-request"
+  color={subdomain === 'delivery-request' ? 'primary' : 'inherit'}
+  to="/fulfilment/delivery-request"
+  >
+    Delivery Request
+  </Link>,
+];
+
 export { 
   apiHost, 
   headers, 
   requestOptionsHelper, 
   procurementBreadcrumbs, 
   productionBreadcrumbs,
+  fulfilmentBreadcrumbs,
   perc2color
 };

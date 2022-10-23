@@ -23,7 +23,7 @@ const Bin = () => {
 
   //Load in list of bins, initial
   useEffect(() => {
-    retrieveAllBins();
+    // retrieveAllBins();
     retrieveRack();
   }, []);
 
@@ -36,22 +36,22 @@ const Bin = () => {
   const { state } = useLocation();
 
   //Retrieve all bins
-  const retrieveAllBins = async () => {
-    const response = await fetch(
-      `http://localhost:3000/api/bins/findAllByOrgId/${organisationId}`
-    );
+  //   const retrieveAllBins = async () => {
+  //     const response = await fetch(
+  //       `http://localhost:3000/api/bins/findAllByOrgId/${organisationId}`
+  //     );
 
-    let result = [];
+  //     let result = [];
 
-    if (response.status == 200 || response.status == 201) {
-      result = await response.json();
-    }
-    if (state != null) {
-      console.log(state);
-      result = result.filter((bin) => bin.rack.id == state.rack.id);
-    }
-    setBins(result);
-  };
+  //     if (response.status == 200 || response.status == 201) {
+  //       result = await response.json();
+  //     }
+  //     if (state != null) {
+  //       console.log(state);
+  //       result = result.filter((bin) => bin.rack.id == state.rack.id);
+  //     }
+  //     setBins(result);
+  //   };
 
   const [rack, setRack] = useState('');
 
@@ -59,7 +59,7 @@ const Bin = () => {
   const retrieveRack = async () => {
     if (state != null) {
       const response = await fetch(
-        `http://localhost:3000/api/racks/${state.rack.id}`
+        `http://localhost:3000/api/racks/${state.rackId}`
       );
 
       let result = [];
@@ -67,6 +67,7 @@ const Bin = () => {
         result = await response.json();
       }
       setRack(result);
+      setBins(result.bins);
     }
   };
 
@@ -219,7 +220,7 @@ const Bin = () => {
   //Navigate to the bin page
   const navigate = useNavigate();
   const handleRowClick = (rowData) => {
-    navigate('details', { state: { bin: rowData.row } });
+    navigate('details', { state: { binId: rowData.row.id } });
   };
 
   return state == null ? (
@@ -306,6 +307,9 @@ const Bin = () => {
                   checkboxSelection
                   onSelectionModelChange={(ids) => {
                     setSelectedRows(ids);
+                  }}
+                  isRowSelectable={(params) => {
+                    return params.row?.batchLineItems?.length === 0;
                   }}
                   onRowClick={(rowData) => handleRowClick(rowData)}
                 />

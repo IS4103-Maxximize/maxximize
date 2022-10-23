@@ -18,9 +18,8 @@ import * as Yup from 'yup';
 import DayJS from 'dayjs';
 import { Box } from '@mui/system';
 import { ReceivedPurchaseOrderConfirmDialog } from './received-po-confirm-dialog';
-import { ProcessPurchaseOrderDialog } from './process-po-dialog';
 
-export const ReceivedPurchaseOrderViewDialog = (props) => {
+export const ProcessPurchaseOrderDialog = (props) => {
   const user = JSON.parse(localStorage.getItem('user'));
 
   const { open, handleClose, purchaseOrder, handleAlertOpen } = props;
@@ -36,32 +35,40 @@ export const ReceivedPurchaseOrderViewDialog = (props) => {
     purchaseOrderLineItems: purchaseOrder ? purchaseOrder.poLineItems : [],
   };
 
+  //   const schema = Yup.object({
+  //     totalPrice: Yup.number().positive().required('Total Price is required'),
+  //     leadTime: Yup.number()
+  //       .integer()
+  //       .positive()
+  //       .required('Lead Time is Required'),
+  //   });
+
   // Handle on submit may be more of a redirecting function to another dialog
   // The next dialog will handle reserve, creation of Prod R and DR
-  //   const handleOnSubmit = async (values) => {
-  // const response = await fetch('http://localhost:3000/api/quotations', {
-  //   method: 'POST',
-  //   headers: {
-  //     Accept: 'application/json',
-  //     'Content-Type': 'application/json',
-  //   },
-  //   body: JSON.stringify({
-  //     organisationId: organisationId,
-  //     name: formik.values.name,
-  //     address: formik.values.address,
-  //     description: formik.values.description,
-  //   }),
-  // });
-  // if (response.status === 200 || response.status === 201) {
-  //   const result = await response.json();
-  //   handleAlertOpen(`Sent Quotation ${result.id} successfully`);
-  //   setError('');
-  //   handleClose();
-  // } else {
-  //   const result = await response.json();
-  //   setError(result.message);
-  // }
-  //   };
+  const handleOnSubmit = async (values) => {
+    // const response = await fetch('http://localhost:3000/api/quotations', {
+    //   method: 'POST',
+    //   headers: {
+    //     Accept: 'application/json',
+    //     'Content-Type': 'application/json',
+    //   },
+    //   body: JSON.stringify({
+    //     organisationId: organisationId,
+    //     name: formik.values.name,
+    //     address: formik.values.address,
+    //     description: formik.values.description,
+    //   }),
+    // });
+    // if (response.status === 200 || response.status === 201) {
+    //   const result = await response.json();
+    //   handleAlertOpen(`Sent Quotation ${result.id} successfully`);
+    //   setError('');
+    //   handleClose();
+    // } else {
+    //   const result = await response.json();
+    //   setError(result.message);
+    // }
+  };
 
   // TODO Accept a purchase order (Status change)
   const handleAccept = async () => {
@@ -71,15 +78,6 @@ export const ReceivedPurchaseOrderViewDialog = (props) => {
   // TODO Reject a purchase order (Status change)
   const handleReject = async () => {
     return;
-  };
-
-  // Processing of Purchase Order
-  const [processPODialogOpen, setProcessingPODialogOpen] = useState(false);
-  const handleProcessPODialogOpen = () => {
-    setProcessingPODialogOpen(true);
-  };
-  const handleProcessPODialogClose = () => {
-    setProcessingPODialogOpen(false);
   };
 
   const onClose = () => {
@@ -92,7 +90,7 @@ export const ReceivedPurchaseOrderViewDialog = (props) => {
     initialValues: initialValues,
     // validationSchema: schema,
     enableReinitialize: true,
-    // onSubmit: handleOnSubmit,
+    onSubmit: handleOnSubmit,
   });
 
   useEffect(() => {
@@ -181,12 +179,6 @@ export const ReceivedPurchaseOrderViewDialog = (props) => {
         dialogTitle={`Reject Purchase Order`}
         dialogContent={`Confirm rejection of purchase order?`}
         dialogAction={handleReject}
-      />
-      <ProcessPurchaseOrderDialog
-        open={processPODialogOpen}
-        handleClose={handleProcessPODialogClose}
-        purchaseOrder={purchaseOrder}
-        handleAlertOpen={handleAlertOpen}
       />
       <form onSubmit={formik.handleSubmit}>
         <Dialog fullScreen open={open} onClose={onClose}>
@@ -317,9 +309,7 @@ export const ReceivedPurchaseOrderViewDialog = (props) => {
             {purchaseOrder?.status === 'accepted' ||
             purchaseOrder?.status === 'partiallyFulfilled' ? (
               <Box mt={2} display="flex" justifyContent="flex-end">
-                <Button variant="contained" onClick={handleProcessPODialogOpen}>
-                  {' '}
-                  {/*onClick={formik.handleSubmit}>*/}
+                <Button variant="contained" onClick={formik.handleSubmit}>
                   Process
                 </Button>
               </Box>

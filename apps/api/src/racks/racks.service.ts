@@ -30,7 +30,7 @@ export class RacksService {
       
       const newRack = await queryRunner.manager.save(rack);
       await queryRunner.commitTransaction();
-      return newRack;
+      return this.findOne(newRack.id);
     } catch (err) {
       console.log(err);
       await queryRunner.rollbackTransaction();

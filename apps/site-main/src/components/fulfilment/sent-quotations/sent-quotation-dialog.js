@@ -108,7 +108,7 @@ export const SentQuotationDialog = (props) => {
       field: 'price',
       headerName: 'Quoted Price',
       flex: 1,
-      editable: true,
+      editable: !quotation,
       valueGetter: (params) => {
         return params.row.price;
       },
