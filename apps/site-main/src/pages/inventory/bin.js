@@ -309,7 +309,7 @@ const Bin = () => {
                     setSelectedRows(ids);
                   }}
                   isRowSelectable={(params) => {
-                    return params.row.batchLineItems.length === 0;
+                    return params.row?.batchLineItems?.length === 0;
                   }}
                   onRowClick={(rowData) => handleRowClick(rowData)}
                 />

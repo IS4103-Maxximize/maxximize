@@ -268,13 +268,15 @@ export const SalesInquiryDialog = (props) => {
   const [selectedRows, setSelectedRows] = useState([]);
 
   const addLineItem = (quantity, inputValue) => {
-    const rawMaterial = options.find((option) => option.skuCode === inputValue);
+    const rawMaterial = options.find(
+      (option) => option.skuCode === inputValue.skuCode
+    );
     let finalGood;
     let newItem;
 
     if (selectedFinalGood) {
       finalGood = finalGoods.find(
-        (finalGood) => finalGood.skuCode === selectedFinalGood
+        (finalGood) => finalGood.skuCode === selectedFinalGood.skuCode
       );
       newItem = {
         id: uuid(),
@@ -561,11 +563,13 @@ export const SalesInquiryDialog = (props) => {
               <Stack direction="row" spacing={1}>
                 <Autocomplete
                   sx={{ width: 300 }}
-                  options={options.map((option) => option.skuCode)}
+                  options={options}
+                  getOptionLabel={(option) =>
+                    `${option.name} - ${option.skuCode}`
+                  }
                   renderInput={(params) => (
                     <TextField {...params} label="Raw Materials" />
                   )}
-                  inputValue={inputValue}
                   onChange={(event, newInputValue) => {
                     setInputValue(newInputValue);
                   }}
@@ -573,11 +577,13 @@ export const SalesInquiryDialog = (props) => {
                 {formik.values.receivingOrg ? (
                   <Autocomplete
                     sx={{ width: 300 }}
-                    options={finalGoods.map((option) => option.skuCode)}
+                    options={finalGoods}
                     renderInput={(params) => (
                       <TextField {...params} label="Supplier Final Good" />
                     )}
-                    inputValue={selectedFinalGood}
+                    getOptionLabel={(option) =>
+                      `${option.name} - ${option.skuCode}`
+                    }
                     onChange={(event, newInputValue) => {
                       setSelectedFinalGood(newInputValue);
                     }}

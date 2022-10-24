@@ -90,6 +90,7 @@ const Rack = () => {
   //Add a new rack entry to the list
   const addRack = (rack) => {
     try {
+      console.log(rack);
       const updatedRacks = [...racks, rack];
       setRacks(updatedRacks);
     } catch {
@@ -249,7 +250,7 @@ const Rack = () => {
                     setSelectedRows(ids);
                   }}
                   isRowSelectable={(params) => {
-                    return params.row.bins.length === 0;
+                    return params.row?.bins?.length === 0;
                   }}
                   onRowClick={(rowData) => handleRowClick(rowData)}
                 />
