@@ -364,7 +364,7 @@ const Warehouse = () => {
                     setSelectedRows(ids);
                   }}
                   isRowSelectable={(params) => {
-                    return params.row.racks.length === 0;
+                    return params.row?.racks?.length === 0;
                   }}
                   onRowClick={(rowData) => handleRowClick(rowData)}
                 />
