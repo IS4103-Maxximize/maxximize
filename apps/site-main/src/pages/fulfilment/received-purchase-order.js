@@ -262,7 +262,7 @@ const ReceivedPurchaseOrder = () => {
                     Toolbar: GridToolbar,
                   }}
                   disableSelectionOnClick
-                  checkboxSelection
+                  //   checkboxSelection
                   onSelectionModelChange={(ids) => {
                     setSelectedRows(ids);
                   }}

@@ -1,7 +1,9 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { FinalGoodsService } from '../final-goods/final-goods.service';
+import { PurchaseOrder } from '../purchase-orders/entities/purchase-order.entity';
+import { PurchaseOrderStatus } from '../purchase-orders/enums/purchaseOrderStatus.enum';
 import { PurchaseOrdersService } from '../purchase-orders/purchase-orders.service';
 import { CreateProductionRequestDto } from './dto/create-production-request.dto';
 import { UpdateProductionRequestDto } from './dto/update-production-request.dto';
@@ -15,6 +17,7 @@ export class ProductionRequestsService {
     private readonly productionRequestsRepository: Repository<ProductionRequest>,
     @Inject(forwardRef(() => PurchaseOrdersService))
     private purchaseOrdersService: PurchaseOrdersService,
+	private dataSource: DataSource,
     @Inject(forwardRef(() => FinalGoodsService))
     private finalGoodsService: FinalGoodsService
   ){}
@@ -38,11 +41,23 @@ export class ProductionRequestsService {
   }
 
   async bulkCreate(createProductionRequestDtos: CreateProductionRequestDto[]) {
+	await this.dataSource.manager.transaction(async (transactionalEntityManager) => {
     let prodRequests: ProductionRequest[] = []
+
+	const purchaseOrderId = createProductionRequestDtos[0].purchaseOrderId
+
     for (const dto of createProductionRequestDtos) {
       prodRequests.push(await this.create(dto))
     }
+
+	const productionStatus = PurchaseOrderStatus.PRODUCTION
+
+	await transactionalEntityManager.update(PurchaseOrder, purchaseOrderId, {
+		status: productionStatus,
+	});
+	
     return prodRequests
+	})
   }
 
   findAll() {

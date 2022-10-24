@@ -26,7 +26,7 @@ import {
   gridColumnsTotalWidthSelector,
   selectedGridRowsSelector,
 } from '@mui/x-data-grid';
-import { useFormik, useFormikContext } from 'formik';
+import { FormikConsumer, useFormik, useFormikContext } from 'formik';
 import { useEffect, useState } from 'react';
 import * as Yup from 'yup';
 import { createBOM, fetchBOMs } from '../../helpers/production/bom';
@@ -38,15 +38,9 @@ import SyncIcon from '@mui/icons-material/Sync';
 import DayJS from 'dayjs';
 import { Container } from '@mui/system';
 
-export const ProductionOrderCreateDialog = (props) => {
-  const {
-    open,
-    handleClose,
-    string,
-    addProductionOrder,
-    handleAlertOpen,
-    ...rest
-  } = props;
+export const ProdOFromProdReqCreateDialog = (props) => {
+  const { open, handleClose, productionRequest, handleAlertOpen, ...rest } =
+    props;
 
   const [loading, setLoading] = useState(false);
   const [rerender, setRerender] = useState(true);
@@ -80,10 +74,9 @@ export const ProductionOrderCreateDialog = (props) => {
     if (response.status === 200 || response.status === 201) {
       const result = await response.json();
       //Rerender parent data grid component
-      addProductionOrder(result);
       onClose();
       handleAlertOpen(
-        `Successfully Created ${string} ${result.id}!`,
+        `Successfully Created Production Order ${result.id}!`,
         'success'
       );
       setError('');
@@ -104,23 +97,18 @@ export const ProductionOrderCreateDialog = (props) => {
     setBomOptions([...boms]);
   };
 
-  // Handle when daily change from True/False, set the no. of days
-  const handleDailyChange = () => {
-    formik.setFieldValue('daily', !formik.values.daily);
-
-    if (formik.values.daily) {
-      formik.setFieldValue('noOfDays', 0);
-      formik.setFieldTouched('noOfDays', false, false);
-    } else {
-      formik.setFieldValue('noOfDays', 1);
-    }
-  };
-
   const formik = useFormik({
     initialValues: {
       multiplier: 1,
-      quantity: 0,
-      bomId: null,
+      lotQuantity: 1,
+      quantity: productionRequest ? productionRequest.quantity : '',
+      bomId: productionRequest
+        ? boms
+            .filter(
+              (bom) => bom.finalGood.id === productionRequest.finalGood.id
+            )
+            .map((bom) => bom.id)
+        : '',
       daily: false,
       noOfDays: 0,
       prodLineItems: [],
@@ -131,14 +119,6 @@ export const ProductionOrderCreateDialog = (props) => {
         .positive('Number of lots must be positive')
         .required('Enter number of lots'),
       quantity: Yup.number().integer().positive('Quantity must be positive'),
-      noOfDays: Yup.number()
-        .integer()
-        .when('daily', {
-          is: true,
-          then: Yup.number()
-            .integer()
-            .positive('Number of days must be positive'),
-        }),
       bomId: Yup.number().required('BOM must be selected'),
       prodLineItems: Yup.array().min(1, 'Line Items must not be empty'),
     }),
@@ -147,29 +127,41 @@ export const ProductionOrderCreateDialog = (props) => {
   });
 
   // Populate Prod Line Items
-  useEffect(() => {
-    if (selectedBom) {
-      setFinalGoodUnit(selectedBom.finalGood.unit);
-      formik.setFieldValue('multiplier', 1);
-      formik.setFieldValue('quantity', selectedBom.finalGood.lotQuantity);
-    }
-    // Clear Prod Line Items if BOM selector is cleared
-    if (!selectedBom) {
-      formik.resetForm();
-      formik.setFieldTouched('noOfDays', false, false);
-      setMaximumFinalGoodOutput(0);
-    }
-  }, [selectedBom]);
+  //   useEffect(() => {
+  //     if (selectedBom) {
+  //       setFinalGoodUnit(selectedBom.finalGood.unit);
+  //       formik.setFieldValue('multiplier', 1);
+  //       formik.setFieldValue('quantity', selectedBom.finalGood.lotQuantity);
+  //     }
+  //     // Clear Prod Line Items if BOM selector is cleared
+  //     if (!selectedBom) {
+  //       formik.resetForm();
+  //       formik.setFieldTouched('noOfDays', false, false);
+  //       setMaximumFinalGoodOutput(0);
+  //     }
+  //   }, [selectedBom]);
 
-  // Calculate whenever multiplier changes
-  useEffect(() => {
-    if (selectedBom && formik.values.multiplier > 0) {
-      formik.setFieldValue(
-        'quantity',
-        Math.ceil(selectedBom?.finalGood.lotQuantity * formik.values.multiplier)
-      );
+  //   Calculate whenever multiplier changes
+  //   useEffect(() => {
+  //     if (selectedBom && formik.values.multiplier > 0) {
+  //       formik.setFieldValue(
+  //         'quantity',
+  //         Math.ceil(selectedBom?.finalGood.lotQuantity * formik.values.multiplier)
+  //       );
+  //     }
+  //   }, [formik.values.multiplier]);
+
+  //Retrieve all incoming purchase orders
+  const retrieveSelectedBom = async () => {
+    const response = await fetch(
+      `http://localhost:3000/api/bill-of-materials/${formik.values.bomId}`
+    );
+    let result = [];
+    if (response.status == 200 || response.status == 201) {
+      result = await response.json();
     }
-  }, [formik.values.multiplier]);
+    setSelectedBom(result);
+  };
 
   // Opening and Closing Dialog helpers
   useEffect(() => {
@@ -178,6 +170,14 @@ export const ProductionOrderCreateDialog = (props) => {
       getBOMs();
       setMaximumFinalGoodOutput(0);
       setRerender(true);
+      retrieveSelectedBom();
+
+      formik.setFieldValue('lotQuantity', selectedBom?.finalGood?.lotQuantity);
+
+      formik.setFieldValue(
+        'multiplier',
+        Math.ceil(formik.values.quantity / formik.values.lotQuantity)
+      );
     }
   }, [open]);
 
@@ -224,9 +224,6 @@ export const ProductionOrderCreateDialog = (props) => {
   // Rerender Earliest Schedules for final product
   const rerenderPossibleSchedules = async () => {
     setError('');
-
-    console.log('Rerender Entering');
-
     // Daily but not enough to cover all days, then it should not show any schedules
     // if (
     //   formik.values.daily &&
@@ -262,9 +259,8 @@ export const ProductionOrderCreateDialog = (props) => {
         setError(error);
       }
 
-      // If rerender but not enough final goods CHECK
+      // If rerender but not enough final goods
     } else if (maximumFinalGoodOutput) {
-      console.log('Rerender');
       try {
         const maximumAllowed =
           selectedBom.finalGood.lotQuantity * maximumFinalGoodOutput;
@@ -559,8 +555,7 @@ export const ProductionOrderCreateDialog = (props) => {
               <CloseIcon />
             </IconButton>
             <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
-              {'New '}
-              {string}
+              New Production Order
             </Typography>
             <Button
               variant="contained"
@@ -585,23 +580,14 @@ export const ProductionOrderCreateDialog = (props) => {
                 <Box margin={2}>
                   {/* Bill of Material */}
                   <Stack direction="row" spacing={1}>
-                    <Autocomplete
-                      id="bom-selector"
+                    <TextField
+                      disabled
+                      label="Bill of Material"
                       sx={{ width: '100%', mb: 1 }}
-                      options={bomOptions}
-                      getOptionLabel={(option) =>
-                        `BOM ${option.id} - ${option.finalGood.name} [${option.finalGood.skuCode}]`
-                      }
-                      isOptionEqualToValue={(option, value) =>
-                        option.id === value.id
-                      }
-                      onChange={(e, value) => {
-                        formik.setFieldValue('bomId', value ? value.id : null);
-                        setSelectedBom(value);
-                      }}
-                      renderInput={(params) => (
-                        <TextField {...params} label="Bill Of Material" />
-                      )}
+                      margin="normal"
+                      name="bill-of-material"
+                      value={formik.values.bomId}
+                      variant="outlined"
                       size="small"
                     />
                   </Stack>
@@ -618,9 +604,7 @@ export const ProductionOrderCreateDialog = (props) => {
                       sx={{ width: '49%', mb: 1 }}
                       margin="normal"
                       name="final-good-lotQuantity"
-                      value={
-                        selectedBom ? selectedBom.finalGood.lotQuantity : 0
-                      }
+                      value={formik.values.lotQuantity}
                       variant="outlined"
                       disabled
                       InputProps={{
@@ -633,6 +617,7 @@ export const ProductionOrderCreateDialog = (props) => {
                       size="small"
                     />
                     <TextField
+                      disabled
                       sx={{ width: '49%', mb: 1 }}
                       error={Boolean(
                         formik.touched.multiplier && formik.errors.multiplier
@@ -660,7 +645,7 @@ export const ProductionOrderCreateDialog = (props) => {
                     justifyContent="flex-end"
                   >
                     <TextField
-                      sx={{ width: '100%', mb: 1 }}
+                      sx={{ width: '100%', mb: 2 }}
                       error={Boolean(
                         formik.touched.quantity && formik.errors.quantity
                       )}
@@ -680,45 +665,6 @@ export const ProductionOrderCreateDialog = (props) => {
                     />
                   </Stack>
 
-                  {/* Daily or not, number of days */}
-                  <Stack
-                    direction="row"
-                    alignItems="baseline"
-                    justifyContent="space-between"
-                    marginBottom={1}
-                  >
-                    <FormControlLabel
-                      sx={{ width: '50%' }}
-                      checked={formik.values.daily}
-                      value={formik.values.daily}
-                      control={<Checkbox />}
-                      onChange={handleDailyChange}
-                      label={
-                        <Typography variant="body2">Produce Daily</Typography>
-                      }
-                    />
-                    <Box display="flex" width="50%" alignItems="baseline">
-                      <TextField
-                        disabled={!formik.values.daily}
-                        sx={{ width: '100%' }}
-                        error={Boolean(
-                          formik.touched.noOfDays && formik.errors.noOfDays
-                        )}
-                        helperText={
-                          formik.touched.noOfDays && formik.errors.noOfDays
-                        }
-                        label="Number of Days"
-                        margin="normal"
-                        name="noOfDays"
-                        type="number"
-                        onBlur={formik.handleBlur}
-                        onChange={formik.handleChange}
-                        value={formik.values.noOfDays}
-                        variant="outlined"
-                        size="small"
-                      />
-                    </Box>
-                  </Stack>
                   {/* Button to recalculate respective quantities */}
                   {loading ? (
                     <LoadingButton

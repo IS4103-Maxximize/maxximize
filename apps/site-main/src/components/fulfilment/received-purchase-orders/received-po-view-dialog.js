@@ -22,6 +22,7 @@ import { ProcessPurchaseOrderDialog } from './process-po-dialog';
 
 export const ReceivedPurchaseOrderViewDialog = (props) => {
   const user = JSON.parse(localStorage.getItem('user'));
+  const organisationId = user.organisation.id;
 
   const {
     open,
@@ -126,6 +127,40 @@ export const ReceivedPurchaseOrderViewDialog = (props) => {
       const result = await response.json();
       handleAlertOpen(
         `Error rejecting Purchase Order ${result.id}. ${result.message}`,
+        'error'
+      );
+    }
+  };
+
+  // Reserve final goods for purchase order
+  const [processedPurchaseOrder, setProcessedPurchaseOrder] = useState('');
+
+  const handleReservation = async () => {
+    const response = await fetch(
+      `http://localhost:3000/api/purchase-orders/reserve`,
+      {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          purchaseOrderId: purchaseOrder.id,
+          organisationId: organisationId,
+        }),
+      }
+    );
+
+    if (response.status === 200 || response.status === 201) {
+      const result = await response.json();
+
+      setProcessedPurchaseOrder(result);
+
+      handleProcessPODialogOpen();
+    } else {
+      const result = await response.json();
+      handleAlertOpen(
+        `Error reserving for Purchase Order ${result.id}. ${result.message}`,
         'error'
       );
     }
@@ -243,7 +278,7 @@ export const ReceivedPurchaseOrderViewDialog = (props) => {
       <ProcessPurchaseOrderDialog
         open={processPODialogOpen}
         handleClose={handleProcessPODialogClose}
-        purchaseOrder={purchaseOrder}
+        processedPurchaseOrder={processedPurchaseOrder}
         handleAlertOpen={handleAlertOpen}
       />
       <form onSubmit={formik.handleSubmit}>
@@ -375,9 +410,7 @@ export const ReceivedPurchaseOrderViewDialog = (props) => {
             {purchaseOrder?.status === 'accepted' ||
             purchaseOrder?.status === 'partiallyFulfilled' ? (
               <Box mt={2} display="flex" justifyContent="flex-end">
-                <Button variant="contained" onClick={handleProcessPODialogOpen}>
-                  {' '}
-                  {/*onClick={formik.handleSubmit}>*/}
+                <Button variant="contained" onClick={handleReservation}>
                   Process
                 </Button>
               </Box>

@@ -5,6 +5,7 @@ import { BatchLineItemsService } from '../batch-line-items/batch-line-items.serv
 import { BatchLineItem } from '../batch-line-items/entities/batch-line-item.entity';
 import { DeliveryRequestLineItem } from '../delivery-request-line-items/entities/delivery-request-line-item.entity';
 import { OrganisationsService } from '../organisations/organisations.service';
+import { PurchaseOrderStatus } from '../purchase-orders/enums/purchaseOrderStatus.enum';
 import { PurchaseOrdersService } from '../purchase-orders/purchase-orders.service';
 import { Role } from '../users/enums/role.enum';
 import { UsersService } from '../users/users.service';
@@ -47,7 +48,9 @@ export class DeliveryRequestsService {
       await this.allocateDriverToRequest(organisationId, deliveryRequest);
       await this.allocateVehicleToRequest(organisationId, deliveryRequest);
 
-      
+	  purchaseOrder.status = PurchaseOrderStatus.DELIVERY
+	  await queryRunner.manager.save(purchaseOrder);
+
       const deliveryLineItems = [];
 
       for (const lineItem of purchaseOrder.poLineItems) {
