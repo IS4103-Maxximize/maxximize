@@ -35,8 +35,7 @@ export class ProductionOrder {
     @OneToMany(() => ProductionLineItem, prodLineItem => prodLineItem.productionOrder)
     prodLineItems: ProductionLineItem[]
 
-    @OneToOne(() => ProductionRequest, prodRequest => prodRequest.prodOrder, {nullable:true})
-    @JoinColumn()
+    @ManyToOne(() => ProductionRequest, prodRequest => prodRequest.prodOrders, {nullable:true})
     prodRequest: ProductionRequest
 
     @Column()
