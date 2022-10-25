@@ -79,7 +79,6 @@ export class ProductionOrdersService {
       daily,
       organisationId,
       duration,
-      purchaseOrderId,
       prodRequestId,
     } = createProductionOrderDto;
     let bomToBeAdded: BillOfMaterial;
