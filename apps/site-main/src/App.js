@@ -9,8 +9,6 @@ import MachineManagement from './pages/assetManagement/machineManagement';
 import ProductionLineManagement from './pages/assetManagement/productionLineManagement';
 import BusinessRelations from './pages/businessRelations';
 import Dashboard from './pages/dashboard';
-import DeliveryDashboard from './pages/dashboards/delivery-dashboard';
-import WorkerDashboard from './pages/dashboards/worker-dashboard';
 import ForgotPassword from './pages/forgotPassword';
 import DeliveryRequest from './pages/fulfilment/delivery-request';
 import ReceivedPurchaseOrder from './pages/fulfilment/received-purchase-order';
@@ -99,21 +97,6 @@ const routes = (
         </Route>
 
         <Route element={<DashboardLayout />}>
-
-          {/* Factory Worker Dashboard */}
-          <Route
-            element={
-              <RequireAuth requiredRoles={[
-                  ROLES.FactoryWorker,
-                  // FOR TESTING
-                  // ROLES.SuperAdmin 
-                ]}
-              />
-            }
-          >
-            <Route path="/" element={<WorkerDashboard />}></Route>
-          </Route>
-
           {/* Placeholder Dashboard */}
           <Route path="/" element={<Dashboard />}></Route>
 

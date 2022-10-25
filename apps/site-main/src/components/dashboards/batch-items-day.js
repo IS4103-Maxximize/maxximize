@@ -1,13 +1,10 @@
-import { Bar } from 'react-chartjs-2';
 import { Box, Button, Card, CardContent, CardHeader, Divider, Typography, useTheme } from '@mui/material';
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import ArrowRightIcon from '@mui/icons-material/ArrowRight';
-import CheckIcon from '@mui/icons-material/Check';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
-import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import DayJS from 'dayjs';
 import { useEffect, useState } from 'react';
-import DayJS from 'dayjs'
 import { apiHost } from '../../helpers/constants';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+import { Link as RouterLink} from 'react-router-dom';
 
 export const BatchItemsDay = (props) => {
   const {
@@ -15,8 +12,6 @@ export const BatchItemsDay = (props) => {
     handleAlertOpen,
     ...rest
   } = props;
-
-  const theme = useTheme();
 
   const [rows, setRows] = useState([]);
 
@@ -34,11 +29,19 @@ export const BatchItemsDay = (props) => {
   }
 
   useEffect(() => {
-    getBatchLineItems();
-  });
+    if (user) {
+      getBatchLineItems();
+    }
+  }, [user]);
 
   // Columns for Completed Delivery Requests
   const columns = [
+    {
+      field: 'product',
+      headerName: 'Product',
+      flex: 1,
+      valueGetter: (params) => `${params.row?.batchLineItem?.product?.name} [${params.row?.batchLineItem?.product?.skuCode}]` 
+    },
     {
       field: 'code',
       headerName: 'Batch Line Item Code',
@@ -62,6 +65,17 @@ export const BatchItemsDay = (props) => {
     <Card>
       <CardHeader
         title={`Batch Line Items to Retrieve for Today - ${DayJS(new Date()).format('DD MMMM YYYY')}`}
+        action={
+          <Button 
+            component={RouterLink} 
+            to="/inventory/warehouse"
+            target="_blank" // to open in new tab
+            endIcon={<OpenInNewIcon />}
+            variant="contained"
+          >
+            View Warehouses
+          </Button>
+        }
       />
       <Divider />
       <CardContent>
@@ -77,6 +91,7 @@ export const BatchItemsDay = (props) => {
               rows={rows}
               columns={columns}
               pageSize={10}
+              rowsPerPageOptions={[10]}
               components={{
                 Toolbar: GridToolbar,
               }}
