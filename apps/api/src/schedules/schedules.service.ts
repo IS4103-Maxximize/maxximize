@@ -178,10 +178,24 @@ export class SchedulesService {
             await transactionalEntityManager.update(ProductionRequest, prodReq.id, {
               status: ProdRequestStatus.FULFILLED,
             });
-
-			await transactionalEntityManager.update(PurchaseOrder, prodReq.purchaseOrder.id, {
-				status: PurchaseOrderStatus.ACCEPTED,
-			})
+            let check1 = true
+            const po = await transactionalEntityManager.findOne(PurchaseOrder, {
+              where: {
+                id: prodReq.purchaseOrder.id
+              }, relations: {
+                prodRequests: true
+              }
+            })
+            for (const pr of po.prodRequests) {
+              if(!(pr.status == ProdRequestStatus.FULFILLED)){
+                check1 = false
+              }
+            }
+            if(check1){
+              await transactionalEntityManager.update(PurchaseOrder, prodReq.purchaseOrder.id, {
+                status: PurchaseOrderStatus.ACCEPTED,
+              })
+            }
           }
           
         }
