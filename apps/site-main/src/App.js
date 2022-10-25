@@ -8,13 +8,14 @@ import NotFound from './pages/404';
 import MachineManagement from './pages/assetManagement/machineManagement';
 import ProductionLineManagement from './pages/assetManagement/productionLineManagement';
 import BusinessRelations from './pages/businessRelations';
+import Dashboard from './pages/dashboard';
 import DeliveryDashboard from './pages/dashboards/delivery-dashboard';
+import WorkerDashboard from './pages/dashboards/worker-dashboard';
 import ForgotPassword from './pages/forgotPassword';
 import DeliveryRequest from './pages/fulfilment/delivery-request';
 import ReceivedPurchaseOrder from './pages/fulfilment/received-purchase-order';
 import ReceivedSalesInquiry from './pages/fulfilment/received-sales-inquiry';
 import SentQuotation from './pages/fulfilment/sent-quotation';
-// import Inventory from './pages/inventory';
 import Bin from './pages/inventory/bin';
 import BinDetails from './pages/inventory/bin-details';
 import Masterlist from './pages/inventory/masterlist';
@@ -98,8 +99,23 @@ const routes = (
         </Route>
 
         <Route element={<DashboardLayout />}>
-          {/* Dashboard */}
-          <Route path="/" element={<DeliveryDashboard />}></Route>
+
+          {/* Factory Worker Dashboard */}
+          <Route
+            element={
+              <RequireAuth requiredRoles={[
+                  ROLES.FactoryWorker,
+                  // FOR TESTING
+                  // ROLES.SuperAdmin 
+                ]}
+              />
+            }
+          >
+            <Route path="/" element={<WorkerDashboard />}></Route>
+          </Route>
+
+          {/* Placeholder Dashboard */}
+          <Route path="/" element={<Dashboard />}></Route>
 
           {/* Protected Routes for Admin Specifically */}
           <Route
