@@ -3,29 +3,25 @@ import {
   Inject,
   Injectable,
   Logger,
-  NotFoundException,
+  NotFoundException
 } from '@nestjs/common';
-import { Cron, CronExpression, SchedulerRegistry } from '@nestjs/schedule';
+import { SchedulerRegistry } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ValidationError } from 'class-validator';
 import { CronJob } from 'cron';
-import { start } from 'repl';
-import { endWith } from 'rxjs';
-import { arrayBuffer } from 'stream/consumers';
-import { DataSource, Not, Repository } from 'typeorm';
+import * as dayjs from 'dayjs';
+import { DataSource, Repository } from 'typeorm';
 import { BatchLineItemsService } from '../batch-line-items/batch-line-items.service';
 import { BatchLineItem } from '../batch-line-items/entities/batch-line-item.entity';
 import { Batch } from '../batches/entities/batch.entity';
 import { BillOfMaterialsService } from '../bill-of-materials/bill-of-materials.service';
 import { BillOfMaterial } from '../bill-of-materials/entities/bill-of-material.entity';
-import { BomLineItem } from '../bom-line-items/entities/bom-line-item.entity';
 import { ChronJobsService } from '../chron-jobs/chron-jobs.service';
 import { ChronJob } from '../chron-jobs/entities/chron-job.entity';
 import { ChronType } from '../chron-jobs/enums/chronType.enum';
 import { FinalGoodsService } from '../final-goods/final-goods.service';
-import { Organisation } from '../organisations/entities/organisation.entity';
 import { OrganisationsService } from '../organisations/organisations.service';
 import { CreateProductionLineItemDto } from '../production-line-items/dto/create-production-line-item.dto';
+import { ProductionBatchLineDto } from '../production-line-items/dto/production-batch-line.dto';
 import { ProductionLineItem } from '../production-line-items/entities/production-line-item.entity';
 import { ProductionLinesService } from '../production-lines/production-lines.service';
 import { ProductionRequest } from '../production-requests/entities/production-request.entity';
@@ -1144,5 +1140,42 @@ export class ProductionOrdersService {
   retrieveCronJobs() {
     const jobs = this.schedulerRegistry.getCronJobs();
     console.log(jobs);
+  }
+
+  async retrieveBatchLineItemsForProduction() {
+    const start = dayjs().startOf('day').toDate(); 
+    const end = dayjs().endOf('day').toDate();
+
+    const schedules = await this.datasource
+      .getRepository(Schedule)
+      .createQueryBuilder("schedule")
+      .where("schedule.start BETWEEN :start AND :end", {start : start, end: end})
+      .getMany();
+    
+    const map = new Map<number, number>;
+
+    for (const schedule of schedules) {
+      const fetchedSchedule = await this.schedulesService.findOne(schedule.id);
+      for (const lineItem of fetchedSchedule.prodLineItems) {
+        if (map.has(lineItem.batchLineItem.id)) {
+          let qty = map.get(lineItem.batchLineItem.id);
+          qty += lineItem.quantity;
+          map.set(lineItem.batchLineItem.id, qty);
+        } else {
+          map.set(lineItem.batchLineItem.id, lineItem.quantity);
+        }
+      }
+    }
+
+    const lineItems = [];
+    for (const [key, value] of map.entries()) {
+      const batchLineItem = await this.batchLineItemsService.findOne(key);
+      const productionBatchLine = new ProductionBatchLineDto();
+      productionBatchLine.batchLineItem = batchLineItem;
+      productionBatchLine.quantityToTake = value;
+      lineItems.push(productionBatchLine);
+    }
+
+    return lineItems;
   }
 }
