@@ -164,8 +164,8 @@ export const ReplyQuotationDialog = (props) => {
     }
 
     // Open error alert if orice is < 1
-    if (newRow.price < 1) {
-      const message = 'Price must be positive!';
+    if (newRow.price < 1 || isNaN(newRow.price)) {
+      const message = 'Price must be a positive number!';
       handleAlertOpen(message, 'error');
       throw new Error(message);
     }

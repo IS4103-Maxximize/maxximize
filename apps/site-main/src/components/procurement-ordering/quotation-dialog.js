@@ -152,6 +152,13 @@ export const QuotationDialog = (props) => {
   const handleRowUpdate = (newRow, oldRow) => {
     let updatedRow = { ...newRow };
     console.log(updatedRow);
+
+    if (newRow.price < 1 || isNaN(newRow.price)) {
+      const message = 'Price must be a positive number!';
+      handleAlertOpen(message, 'error');
+      throw new Error(message);
+    }
+
     formik.setFieldValue(
       'quotationLineItems',
       formik.values.quotationLineItems.map((item) => {
@@ -168,6 +175,7 @@ export const QuotationDialog = (props) => {
       if (newRow.price === oldRow.price) {
         return oldRow; // Dont call update api if price didn't change
       }
+
       const updatedId = updatedRow.id;
       updatedRow = updateQuotationLineItem(updatedRow.id, updatedRow.price)
         .then(
