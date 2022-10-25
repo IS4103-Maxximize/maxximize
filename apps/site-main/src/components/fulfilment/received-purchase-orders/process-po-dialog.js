@@ -265,6 +265,42 @@ export const ProcessPurchaseOrderDialog = (props) => {
     },
   ];
 
+  // DataGrid Helpers
+  const unfulfilledColumns = [
+    {
+      field: 'skuCode',
+      headerName: 'SKU',
+      flex: 1,
+      valueGetter: (params) => {
+        return params.row ? params.row.finalGood?.skuCode : '';
+      },
+    },
+    {
+      field: 'finalName',
+      headerName: 'Final Good Name',
+      flex: 3,
+      valueGetter: (params) => {
+        return params.row ? params.row.finalGood?.name : '';
+      },
+    },
+    {
+      field: 'unit',
+      headerName: 'Unit',
+      flex: 2,
+      valueGetter: (params) => {
+        return params.row ? params.row.finalGood?.unit : '';
+      },
+    },
+    {
+      field: 'quantity',
+      headerName: 'Quantity',
+      flex: 1,
+      valueGetter: (params) => {
+        return params.row ? params.row.quantity : '';
+      },
+    },
+  ];
+
   return (
     <>
       {/* <ReceivedPurchaseOrderConfirmDialog
@@ -394,7 +430,7 @@ export const ProcessPurchaseOrderDialog = (props) => {
                     <DataGrid
                       autoHeight
                       rows={formik.values.unfulfilledLineItems}
-                      columns={columns}
+                      columns={unfulfilledColumns}
                       pageSize={5}
                       rowsPerPageOptions={[5]}
                       // onSelectionModelChange={(ids) => setSelectedRows(ids)}

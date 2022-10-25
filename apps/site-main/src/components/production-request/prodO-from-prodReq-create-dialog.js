@@ -40,8 +40,14 @@ import DayJS from 'dayjs';
 import { Container } from '@mui/system';
 
 export const ProdOFromProdReqCreateDialog = (props) => {
-  const { open, handleClose, productionRequest, handleAlertOpen, ...rest } =
-    props;
+  const {
+    open,
+    handleClose,
+    productionRequest,
+    handleAlertOpen,
+    retrieveAllReceivedProductionRequests,
+    ...rest
+  } = props;
 
   const [loading, setLoading] = useState(false);
   const [rerender, setRerender] = useState(true);
@@ -54,17 +60,6 @@ export const ProdOFromProdReqCreateDialog = (props) => {
   const [maximumFinalGoodOutput, setMaximumFinalGoodOutput] = useState(0);
 
   const handleOnSubmit = async () => {
-    console.log(
-      JSON.stringify({
-        plannedQuantity: formik.values.multiplier,
-        bomId: selectedBom.id,
-        daily: formik.values.daily,
-        organisationId: organisationId,
-        duration: formik.values.noOfDays,
-        prodRequestId: productionRequest.id,
-      })
-    );
-
     const response = await fetch(
       'http://localhost:3000/api/production-orders',
       {
@@ -122,20 +117,24 @@ export const ProdOFromProdReqCreateDialog = (props) => {
   };
 
   // Handle when daily change from True/False, set the no. of days
-  const handleDailyChange = () => {
-    formik.setFieldValue('daily', !formik.values.daily);
+  //   const handleDailyChange = () => {
+  //     formik.setFieldValue('daily', !formik.values.daily);
 
-    if (formik.values.daily) {
-      formik.setFieldValue('noOfDays', 0);
-      formik.setFieldTouched('noOfDays', false, false);
-    } else {
-      formik.setFieldValue('noOfDays', 1);
-    }
-  };
+  //     if (formik.values.daily) {
+  //       formik.setFieldValue('noOfDays', 0);
+  //       formik.setFieldTouched('noOfDays', false, false);
+  //     } else {
+  //       formik.setFieldValue('noOfDays', 1);
+  //     }
+  //   };
 
   const formik = useFormik({
     initialValues: {
-      multiplier: 1,
+      multiplier: productionRequest
+        ? Math.ceil(
+            productionRequest.quantity / productionRequest.finalGood.lotQuantity
+          )
+        : 1,
       quantity: productionRequest ? productionRequest?.quantity : 1,
       bomId: productionRequest
         ? boms
@@ -169,49 +168,49 @@ export const ProdOFromProdReqCreateDialog = (props) => {
     onSubmit: handleOnSubmit,
   });
 
-  // Populate Prod Line Items
-  useEffect(() => {
-    if (selectedBom) {
-      setFinalGoodUnit(selectedBom?.finalGood?.unit);
-
-      formik.setFieldValue(
-        'multiplier',
-        formik.values.quantity / selectedBom?.finalGood?.lotQuantity
-      );
-    }
-    // Clear Prod Line Items if BOM selector is cleared
-    if (!selectedBom) {
-      formik.resetForm();
-      formik.setFieldTouched('noOfDays', false, false);
-      setMaximumFinalGoodOutput(0);
-    }
-  }, [selectedBom]);
-
-  // Calculate whenever multiplier changes
-  useEffect(() => {
-    if (selectedBom && formik.values.multiplier > 0) {
-      formik.setFieldValue(
-        'quantity',
-        Math.ceil(
-          selectedBom?.finalGood?.lotQuantity * formik.values.multiplier
-        )
-      );
-    }
-  }, [formik.values.multiplier]);
-
   // Opening and Closing Dialog helpers
   useEffect(() => {
     // fetch when opening create dialog
-    if (open) {
+    if (open && formik.values.bomId) {
       getBOMs();
       setMaximumFinalGoodOutput(0);
       setRerender(true);
 
       retrieveBOM();
+
+      //   if (productionRequest) {
+      //     formik.setFieldValue('multiplier');
+      //   }
     }
-  }, [open]);
+  }, [open, formik.values.bomId]);
+
+  // Populate Prod Line Items
+  useEffect(() => {
+    if (selectedBom) {
+      setFinalGoodUnit(selectedBom?.finalGood?.unit);
+    }
+    // Clear Prod Line Items if BOM selector is cleared
+    // if (!selectedBom) {
+    //   formik.resetForm();
+    //   formik.setFieldTouched('noOfDays', false, false);
+    //   setMaximumFinalGoodOutput(0);
+    // }
+  }, [selectedBom]);
+
+  // Calculate whenever multiplier changes
+  //   useEffect(() => {
+  //     if (selectedBom && formik.values.multiplier > 0) {
+  //       formik.setFieldValue(
+  //         'quantity',
+  //         Math.ceil(
+  //           selectedBom?.finalGood?.lotQuantity * formik.values.multiplier
+  //         )
+  //       );
+  //     }
+  //   }, [formik.values.multiplier]);
 
   const onClose = () => {
+    retrieveAllReceivedProductionRequests();
     formik.resetForm();
     setFirstSchedules([]);
     setFinalGoodUnit('');
@@ -759,7 +758,7 @@ export const ProdOFromProdReqCreateDialog = (props) => {
                       variant="contained"
                       disabled={
                         !selectedBom ||
-                        formik.values.multiplier < 0 ||
+                        formik.values.multiplier < 1 ||
                         (formik.values.daily && formik.values.noOfDays == '')
                       }
                       onClick={refreshInformation}

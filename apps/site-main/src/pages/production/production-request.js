@@ -23,7 +23,7 @@ const ProductionRequest = () => {
 
   //Load in list of sales inquiries, initial
   useEffect(() => {
-    retrieveAllReceivedProductionRequest();
+    retrieveAllReceivedProductionRequests();
   }, []);
 
   //Keep track of selectedRows for deletion
@@ -32,7 +32,7 @@ const ProductionRequest = () => {
   }, [selectedRows]);
 
   //Retrieve all incoming sales inquiries
-  const retrieveAllReceivedProductionRequest = async () => {
+  const retrieveAllReceivedProductionRequests = async () => {
     const response = await fetch(
       `http://localhost:3000/api/production-requests/all/${organisationId}`
     );
@@ -198,6 +198,9 @@ const ProductionRequest = () => {
         handleClose={handleCreateDialogClose}
         productionRequest={selectedRow}
         handleAlertOpen={handleAlertOpen}
+        retrieveAllReceivedProductionRequests={
+          retrieveAllReceivedProductionRequests
+        }
       />
       <Box
         component="main"

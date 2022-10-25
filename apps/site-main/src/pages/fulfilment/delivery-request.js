@@ -5,8 +5,11 @@ import { useEffect, useState } from 'react';
 import SendIcon from '@mui/icons-material/Send';
 import { NotificationAlert } from '../../components/notification-alert';
 import CancelIcon from '@mui/icons-material/Cancel';
+import MoreVert from '@mui/icons-material/MoreVert';
 import DayJS from 'dayjs';
 import { Toolbar } from '../../components/toolbar';
+import { DeliveryRequestMenu } from '../../components/fulfilment/delivery-request/delivery-request-menu';
+import { DeliveryRequestDialog } from '../../components/fulfilment/delivery-request/delivery-request-dialog';
 
 const DeliveryRequest = () => {
   const [deliveryRequest, setDeliveryRequest] = useState([]);
@@ -30,7 +33,7 @@ const DeliveryRequest = () => {
   //Retrieve all incoming sales inquiries
   const retrieveAllDeliveryRequests = async () => {
     const response = await fetch(
-      `http://localhost:3000/api/delivery-requests/findAllByOrganisationId/2`
+      `http://localhost:3000/api/delivery-requests/findAllByOrganisationId/${organisationId}`
     );
     let result = [];
     if (response.status == 200 || response.status == 201) {
@@ -47,35 +50,29 @@ const DeliveryRequest = () => {
     setSearch(event.target.value.toLowerCase().trim());
   };
 
-  // Action buttons
-  //   const actionButtons = (params) => {
-  //     return (
-  //       <>
-  //         {params.row.status === 'sent' ? (
-  //           <>
-  //             <IconButton
-  //               onClick={(event) => {
-  //                 setSelectedRow(params.row);
-  //                 handleConfirmDialogOpen();
-  //               }}
-  //             >
-  //               <CancelIcon color="error" />
-  //             </IconButton>
-  //             <IconButton
-  //               onClick={(event) => {
-  //                 setSelectedRow(params.row);
-  //                 handleCreateOpen();
-  //               }}
-  //             >
-  //               <SendIcon color="primary" />
-  //             </IconButton>
-  //           </>
-  //         ) : (
-  //           <></>
-  //         )}
-  //       </>
-  //     );
-  //   };
+  // Menu Helpers
+  const [anchorEl, setAnchorEl] = useState(null);
+  const menuOpen = Boolean(anchorEl);
+
+  const handleMenuClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const menuButton = (params) => {
+    return (
+      <IconButton
+        onClick={(event) => {
+          setSelectedRow(params.row);
+          handleMenuClick(event);
+        }}
+      >
+        <MoreVert />
+      </IconButton>
+    );
+  };
 
   //Alert Notification
   // NotificationAlert helpers
@@ -94,25 +91,23 @@ const DeliveryRequest = () => {
   };
 
   // Dialog helpers
-  const [productionOrderDialogOpen, setProductionOrderDialogOpen] =
-    useState(false);
+  const [formDialogOpen, setFormDialogOpen] = useState(false);
 
-  const handleCreateOpen = () => {
-    setProductionOrderDialogOpen(true);
+  const handleFormDialogOpen = () => {
+    setFormDialogOpen(true);
   };
-
-  const handleCreateDialogClose = () => {
-    setProductionOrderDialogOpen(false);
+  const handleFormDialogClose = () => {
+    setFormDialogOpen(false);
   };
 
   //Delete Confirm dialog
-  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
-  const handleConfirmDialogOpen = () => {
-    setConfirmDialogOpen(true);
-  };
-  const handleConfirmDialogClose = () => {
-    setConfirmDialogOpen(false);
-  };
+  //   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  //   const handleConfirmDialogOpen = () => {
+  //     setConfirmDialogOpen(true);
+  //   };
+  //   const handleConfirmDialogClose = () => {
+  //     setConfirmDialogOpen(false);
+  //   };
 
   //Handle Delete
   //Rejecting a sales inquiry
@@ -213,13 +208,13 @@ const DeliveryRequest = () => {
       width: 150,
       flex: 2,
     },
-    // {
-    //   field: 'action',
-    //   headerName: 'Action',
-    //   width: 200,
-    //   flex: 1.5,
-    //   renderCell: actionButtons,
-    // },
+    {
+      field: 'action',
+      headerName: 'Action',
+      width: 150,
+      flex: 1,
+      renderCell: menuButton,
+    },
   ];
 
   //Row for datagrid, set the list returned from API
@@ -258,6 +253,17 @@ const DeliveryRequest = () => {
             handleAdd={null}
             handleFormDialogOpen={null}
             handleConfirmDialogOpen={null}
+          />
+          <DeliveryRequestMenu
+            anchorEl={anchorEl}
+            menuOpen={menuOpen}
+            handleMenuClose={handleMenuClose}
+            handleFormDialogOpen={handleFormDialogOpen}
+          />
+          <DeliveryRequestDialog
+            open={formDialogOpen}
+            handleClose={handleFormDialogClose}
+            deliveryRequest={selectedRow}
           />
           <Box sx={{ mt: 3 }}>
             <Card>

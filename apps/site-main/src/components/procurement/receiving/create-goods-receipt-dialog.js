@@ -71,7 +71,6 @@ export const CreateGoodsReceiptDialog = ({
 
   //Create goods receipt, handle Formik submission
   const handleOnSubmit = async () => {
-    console.log(acceptedProducts);
     const processedAcceptedProducts = acceptedProducts.map(
       (acceptedProduct) => ({
         quantity: Number(acceptedProduct.quantity),
@@ -84,8 +83,11 @@ export const CreateGoodsReceiptDialog = ({
       (followUpProduct) => ({
         quantity: Number(followUpProduct.quantity),
         rawMaterialId: followUpProduct.rawMaterial.id,
+        finalGoodId: followUpProduct.finalGood.id,
       })
     );
+
+    console.log(processedFollowUpProducts);
 
     const response = await fetch('http://localhost:3000/api/goods-receipts', {
       method: 'POST',
@@ -148,7 +150,6 @@ export const CreateGoodsReceiptDialog = ({
 
   //Retrieve all PO Line Items
   const retrievePOLineItems = async () => {
-    console.log(formik.values.purchaseOrderId);
     if (
       purchaseOrders
         .map((purchaseOrder) => purchaseOrder.id.toString())
@@ -409,8 +410,6 @@ export const CreateGoodsReceiptDialog = ({
           );
 
           const newLineItemToAdd = { ...lineItemToAdd, volume: 1 };
-
-          console.log(newLineItemToAdd);
 
           const index = acceptedProducts.findIndex(
             (lineItem) => lineItem.rawMaterial.name === productName

@@ -41,6 +41,7 @@ export const ReceivedPurchaseOrderViewDialog = (props) => {
     leadTime: purchaseOrder ? purchaseOrder.quotation.leadTime : '',
     purchaseOrderId: purchaseOrder ? purchaseOrder.id : '',
     purchaseOrderLineItems: purchaseOrder ? purchaseOrder.poLineItems : [],
+    followUpLineItems: purchaseOrder ? purchaseOrder.followUpLineItems : [],
   };
 
   // Handle on submit may be more of a redirecting function to another dialog
@@ -189,6 +190,7 @@ export const ReceivedPurchaseOrderViewDialog = (props) => {
   });
 
   useEffect(() => {
+    console.log(purchaseOrder);
     formik.setFieldValue(
       'purchaseOrderLineItems',
       purchaseOrder
@@ -203,6 +205,23 @@ export const ReceivedPurchaseOrderViewDialog = (props) => {
           })
         : []
     );
+
+    if (purchaseOrder?.followUpLineItems.length !== 0) {
+      formik.setFieldValue(
+        'followUpLineItems',
+        purchaseOrder
+          ? purchaseOrder.followUpLineItems?.map((item) => {
+              return {
+                id: item.id,
+                price: item.price,
+                quantity: item.quantity,
+                rawMaterial: item.rawMaterial,
+                finalGood: item.finalGood,
+              };
+            })
+          : []
+      );
+    }
   }, [open]);
 
   // Delete Confirm dialog
@@ -399,18 +418,37 @@ export const ReceivedPurchaseOrderViewDialog = (props) => {
               />
             </Box>
 
-            <DataGrid
-              autoHeight
-              rows={formik.values.purchaseOrderLineItems}
-              columns={columns}
-              pageSize={5}
-              rowsPerPageOptions={[5]}
-              // onSelectionModelChange={(ids) => setSelectedRows(ids)}
-              // processRowUpdate={handleRowUpdate}
-              disableSelectionOnClick
-            />
+            {purchaseOrder?.followUpLineItems.length === 0 ? (
+              <Box mt={2}>
+                <Typography variant="h6">Purchase Order Line Items</Typography>
+                <DataGrid
+                  autoHeight
+                  rows={formik.values.purchaseOrderLineItems}
+                  columns={columns}
+                  pageSize={5}
+                  rowsPerPageOptions={[5]}
+                  // onSelectionModelChange={(ids) => setSelectedRows(ids)}
+                  // processRowUpdate={handleRowUpdate}
+                  disableSelectionOnClick
+                />
+              </Box>
+            ) : (
+              <Box mt={2}>
+                <Typography variant="h6">Follow Up Line Items</Typography>
+                <DataGrid
+                  autoHeight
+                  rows={formik.values.followUpLineItems}
+                  columns={columns}
+                  pageSize={5}
+                  rowsPerPageOptions={[5]}
+                  // onSelectionModelChange={(ids) => setSelectedRows(ids)}
+                  // processRowUpdate={handleRowUpdate}
+                  disableSelectionOnClick
+                />
+              </Box>
+            )}
             {purchaseOrder?.status === 'accepted' ||
-            purchaseOrder?.status === 'partiallyFulfilled' ? (
+            purchaseOrder?.status === 'partiallyfulfilled' ? (
               <Box mt={2} display="flex" justifyContent="flex-end">
                 <Button variant="contained" onClick={handleReservation}>
                   Process

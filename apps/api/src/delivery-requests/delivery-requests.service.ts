@@ -172,7 +172,14 @@ export class DeliveryRequestsService {
           supplierId: orgId
         }
       },
-      relations: ["vehicle", "purchaseOrder", "user", "deliveryRequestLineItems"]
+      relations: {
+		vehicle: true,
+		purchaseOrder: true,
+		user: true,
+		deliveryRequestLineItems: {
+		  product: true,
+		},
+	  }
     });
   } 
 

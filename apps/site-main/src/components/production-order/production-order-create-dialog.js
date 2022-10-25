@@ -59,6 +59,17 @@ export const ProductionOrderCreateDialog = (props) => {
   const [maximumFinalGoodOutput, setMaximumFinalGoodOutput] = useState(0);
 
   const handleOnSubmit = async () => {
+    console.log(
+      JSON.stringify({
+        plannedQuantity: formik.values.multiplier,
+        bomId: selectedBom.id,
+        daily: formik.values.daily,
+        organisationId: organisationId,
+        duration: formik.values.noOfDays,
+        prodRequestId: null,
+      })
+    );
+
     const response = await fetch(
       'http://localhost:3000/api/production-orders',
       {
@@ -73,6 +84,7 @@ export const ProductionOrderCreateDialog = (props) => {
           daily: formik.values.daily,
           organisationId: organisationId,
           duration: formik.values.noOfDays,
+          prodRequestId: null,
         }),
       }
     );
