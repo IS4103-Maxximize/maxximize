@@ -619,7 +619,7 @@ export class ProductionOrdersService {
         },
         prodRequest: true,
         organisation: true,
-      },
+      }
     });
 
     for (const prodO of productionOrders) {
@@ -655,6 +655,7 @@ export class ProductionOrdersService {
 			prodRequest: true,
 			organisation: true,
 		  },
+      withDeleted: true
     });
   }
 
@@ -720,6 +721,7 @@ export class ProductionOrdersService {
         prodRequest: true,
         organisation: true,
       },
+      withDeleted: true
     });
   }
 
@@ -765,24 +767,25 @@ export class ProductionOrdersService {
           id,
         },
         relations: {
-			bom: {
-			  finalGood: true,
-			  bomLineItems: {
-          rawMaterial: true
+        bom: {
+          finalGood: true,
+          bomLineItems: {
+            rawMaterial: true
+          },
         },
-			},
-			schedules: true,
-			prodLineItems: {
-			  batchLineItem: { 
-				bin: true,
-			  },
-			  rawMaterial: true,
-			  purchaseRequisition: true,
-			  
-			},
-			prodRequest: true,
-			organisation: true,
-		  },
+        schedules: true,
+        prodLineItems: {
+          batchLineItem: { 
+          bin: true,
+          },
+          rawMaterial: true,
+          purchaseRequisition: true,
+          
+        },
+        prodRequest: true,
+        organisation: true,
+        },
+        withDeleted: true
       });
     } catch (error) {
       throw new NotFoundException('Production Order not found');

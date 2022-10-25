@@ -1,9 +1,11 @@
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { BatchesService } from '../batches/batches.service';
+import { BillOfMaterialsService } from '../bill-of-materials/bill-of-materials.service';
 import { BinsService } from '../bins/bins.service';
 import { ContactsService } from '../contacts/contacts.service';
 import { Contact } from '../contacts/entities/contact.entity';
+import { FactoryMachinesService } from '../factory-machines/factory-machines.service';
 import { FinalGoodsService } from '../final-goods/final-goods.service';
 import { GoodsReceiptsService } from '../goods-receipts/goods-receipts.service';
 import { OrganisationType } from '../organisations/enums/organisationType.enum';
@@ -39,7 +41,9 @@ export class AppService implements OnApplicationBootstrap {
     private goodsReceiptService: GoodsReceiptsService,
     private rackService: RacksService,
     private batchService: BatchesService,
-    private dataSource: DataSource
+    private dataSource: DataSource,
+    private bomService: BillOfMaterialsService,
+    private factoryMachineService: FactoryMachinesService
   ) {}
   getData(): { message: string } {
     return { message: 'Welcome to api!' };
@@ -254,20 +258,20 @@ export class AppService implements OnApplicationBootstrap {
       });
 
       await this.binsService.create({
-        name: 'SLOC-001-Warehouse1',
-        volumetricSpace: 30000000,
+        name: 'SLOC-001',
+        volumetricSpace: 150,
         rackId: 1,
       });
 
       await this.binsService.create({
-        name: 'SLOC-002-Warehouse1',
-        volumetricSpace: 20000000,
+        name: 'SLOC-002',
+        volumetricSpace: 150,
         rackId: 2,
       });
 
       await this.binsService.create({
-        name: 'SLOC-001-Warehouse2',
-        volumetricSpace: 140,
+        name: 'SLOC-001',
+        volumetricSpace: 100,
         rackId: 3,
       });
 
@@ -277,7 +281,7 @@ export class AppService implements OnApplicationBootstrap {
         lotQuantity: 50,
         unit: MeasurementUnit.KILOGRAM,
         unitPrice: 10,
-        expiry: 7000,
+        expiry: 20,
         organisationId: 2,
       });
 
@@ -287,7 +291,7 @@ export class AppService implements OnApplicationBootstrap {
         lotQuantity: 50,
         unit: MeasurementUnit.KILOGRAM,
         unitPrice: 5,
-        expiry: 6000,
+        expiry: 20,
         organisationId: 2,
       });
 
@@ -297,7 +301,7 @@ export class AppService implements OnApplicationBootstrap {
         lotQuantity: 50,
         unit: MeasurementUnit.LITRE,
         unitPrice: 20,
-        expiry: 60000,
+        expiry: 20,
         organisationId: 2,
       });
 
@@ -317,9 +321,43 @@ export class AppService implements OnApplicationBootstrap {
         lotQuantity: 40,
         unit: MeasurementUnit.KILOGRAM,
         unitPrice: 45,
-        expiry: 150,
+        expiry: 20,
         organisationId: 2,
       });
+
+      //create 2 BOMS
+
+      await this.bomService.create({
+        finalGoodId: 4,
+        bomLineItemDtos: [
+          {
+            quantity: 5,
+            rawMaterialId: 1
+          },
+          {
+            quantity: 3,
+            rawMaterialId: 2
+          },
+          {
+            quantity: 6,
+            rawMaterialId: 3
+          }
+        ]
+      })
+
+      await this.bomService.create({
+        finalGoodId: 5,
+        bomLineItemDtos: [
+          {
+            quantity: 5,
+            rawMaterialId: 1
+          },
+          {
+            quantity: 6,
+            rawMaterialId: 3
+          }
+        ]
+      })
 
       await this.shellOrganisationsService.create({
         name: 'Tomato Farm Bali',
@@ -353,17 +391,17 @@ export class AppService implements OnApplicationBootstrap {
         totalPrice: 1850000,
         salesInquiryLineItemsDtos: [
           {
-            quantity: 50000,
+            quantity: 130,
             indicativePrice: 10,
             rawMaterialId: 1,
           },
           {
-            quantity: 30000,
+            quantity: 70,
             indicativePrice: 5,
             rawMaterialId: 2,
           },
           {
-            quantity: 60000,
+            quantity: 140,
             indicativePrice: 20,
             rawMaterialId: 3,
           },
@@ -396,6 +434,32 @@ export class AppService implements OnApplicationBootstrap {
       //     ],
       //   });
 
+      await this.salesInquiryService.create({
+        currentOrganisationId: 2,
+        totalPrice: 1850000,
+        salesInquiryLineItemsDtos: [
+          {
+            quantity: 40,
+            indicativePrice: 10,
+            rawMaterialId: 1,
+          },
+          {
+            quantity: 40,
+            indicativePrice: 5,
+            rawMaterialId: 2,
+          },
+          {
+            quantity: 20,
+            indicativePrice: 20,
+            rawMaterialId: 3,
+          },
+        ],
+      });
+      await this.salesInquiryService.sendEmail({
+        salesInquiryId: 2,
+        shellOrganisationIds: [1],
+      });
+
       //create Quotation
       await this.quotationService.create({
         salesInquiryId: 1,
@@ -404,24 +468,52 @@ export class AppService implements OnApplicationBootstrap {
         currentOrganisationId: 2,
       });
 
+      await this.quotationService.create({
+        salesInquiryId: 2,
+        shellOrganisationId: 1,
+        leadTime: 5,
+        currentOrganisationId: 2,
+      });
+
       //create Quotation Line Item
 
       await this.quotationLineItemService.create({
-        quantity: 50000,
+        quantity: 130,
         price: 10,
         rawMaterialId: 1,
         quotationId: 1,
       });
 
       await this.quotationLineItemService.create({
-        quantity: 30000,
+        quantity: 70,
         price: 5,
         rawMaterialId: 2,
         quotationId: 1,
       });
 
       await this.quotationLineItemService.create({
-        quantity: 60000,
+        quantity: 140,
+        price: 20,
+        rawMaterialId: 3,
+        quotationId: 1,
+      });
+
+      await this.quotationLineItemService.create({
+        quantity: 40,
+        price: 10,
+        rawMaterialId: 1,
+        quotationId: 1,
+      });
+
+      await this.quotationLineItemService.create({
+        quantity: 40,
+        price: 5,
+        rawMaterialId: 2,
+        quotationId: 1,
+      });
+
+      await this.quotationLineItemService.create({
+        quantity: 20,
         price: 20,
         rawMaterialId: 3,
         quotationId: 1,
@@ -437,17 +529,43 @@ export class AppService implements OnApplicationBootstrap {
         userContactId: 2,
         poLineItemDtos: [
           {
-            quantity: 50000,
+            quantity: 130,
             price: 10,
             rawMaterialId: 1,
           },
           {
-            quantity: 30000,
+            quantity: 70,
             price: 5,
             rawMaterialId: 2,
           },
           {
-            quantity: 60000,
+            quantity: 140,
+            price: 20,
+            rawMaterialId: 3,
+          },
+        ],
+      });
+
+      await this.purchaseOrderService.create({
+        deliveryAddress: 'ManuAddress1',
+        totalPrice: 1850000,
+        deliveryDate: new Date(),
+        currentOrganisationId: 2,
+        quotationId: 2,
+        userContactId: 2,
+        poLineItemDtos: [
+          {
+            quantity: 40,
+            price: 10,
+            rawMaterialId: 1,
+          },
+          {
+            quantity: 40,
+            price: 5,
+            rawMaterialId: 2,
+          },
+          {
+            quantity: 20,
             price: 20,
             rawMaterialId: 3,
           },
@@ -463,23 +581,47 @@ export class AppService implements OnApplicationBootstrap {
         organisationId: 2,
         goodsReceiptLineItemsDtos: [
           {
-            quantity: 50000,
+            quantity: 130,
             rawMaterialId: 1,
-            volumetricSpace: 500,
+            volumetricSpace: 130,
           },
           {
-            quantity: 30000,
+            quantity: 70,
             rawMaterialId: 2,
-            volumetricSpace: 300,
+            volumetricSpace: 70,
           },
           {
-            quantity: 60000,
+            quantity: 140,
             rawMaterialId: 3,
-            volumetricSpace: 6000,
+            volumetricSpace: 140,
           },
         ],
         followUpLineItemsDtos: [],
       });
+
+      await this.factoryMachineService.create({
+        "serialNumber": "TO123", 
+        "description": "Test machine 1", 
+        "isOperating": true, 
+        "make": "IBM", 
+        "model": "Legacy", 
+        "year": "2009", 
+        "lastServiced": new Date("2022-09-19T16:33:47.000Z"), 
+        "remarks": "TESTER", 
+        "organisationId": 2
+      })
+
+      await this.factoryMachineService.create({
+        "serialNumber": "G0123", 
+        "description": "Test machine 2", 
+        "isOperating": true, 
+        "make": "IBM", 
+        "model": "Exquisite", 
+        "year": "2010", 
+        "lastServiced": new Date("2022-09-19T16:33:47.000Z"), 
+        "remarks": "TESTER2", 
+        "organisationId": 2
+      })
     }
   }
 }

@@ -311,7 +311,8 @@ export class BatchesService {
               }
             }
           }
-        }
+        },
+        withDeleted: true
       })
     } catch (error) {
       throw new NotFoundException(`batch number does not exist`)
