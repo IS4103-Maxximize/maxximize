@@ -400,6 +400,16 @@ export class AppService implements OnApplicationBootstrap {
         organisationId: 4,
       });
 
+      await this.finalGoodsService.create({
+        name: 'Tomatoes Canned 2 (Blue)',
+        description: 'Canned Red tomatoes in olive oil',
+        lotQuantity: 40,
+        unit: MeasurementUnit.KILOGRAM,
+        unitPrice: 45,
+        expiry: 20,
+        organisationId: 4,
+      });
+
       //create 2 BOMS
 
       await this.bomService.create({
@@ -436,6 +446,20 @@ export class AppService implements OnApplicationBootstrap {
 
       await this.bomService.create({
         finalGoodId: 8,
+        bomLineItemDtos: [
+          {
+            quantity: 5,
+            rawMaterialId: 6,
+          },
+          {
+            quantity: 6,
+            rawMaterialId: 7,
+          },
+        ],
+      });
+
+      await this.bomService.create({
+        finalGoodId: 9,
         bomLineItemDtos: [
           {
             quantity: 5,

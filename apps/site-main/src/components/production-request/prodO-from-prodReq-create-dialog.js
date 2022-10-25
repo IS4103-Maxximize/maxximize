@@ -176,7 +176,7 @@ export const ProdOFromProdReqCreateDialog = (props) => {
 
       formik.setFieldValue(
         'multiplier',
-        Math.ceil(formik.values.quantity / selectedBom?.finalGood?.lotQuantity)
+        formik.values.quantity / selectedBom?.finalGood?.lotQuantity
       );
     }
     // Clear Prod Line Items if BOM selector is cleared
@@ -759,7 +759,7 @@ export const ProdOFromProdReqCreateDialog = (props) => {
                       variant="contained"
                       disabled={
                         !selectedBom ||
-                        formik.values.multiplier < 1 ||
+                        formik.values.multiplier < 0 ||
                         (formik.values.daily && formik.values.noOfDays == '')
                       }
                       onClick={refreshInformation}
