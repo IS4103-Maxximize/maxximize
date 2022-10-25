@@ -169,7 +169,7 @@ export class DeliveryRequestsService {
     return await this.deliveryRequestRepository.find({
       where: {
         purchaseOrder: {
-          currentOrganisationId: orgId
+          supplierId: orgId
         }
       },
       relations: ["vehicle", "purchaseOrder", "user", "deliveryRequestLineItems"]

@@ -383,10 +383,10 @@ export class BatchesService {
         batchLineItem.expiryDate = date;
         batchLineItems.push(batchLineItem);
         bin.currentCapacity = bin.currentCapacity + volumetricSpace;
-        batch.batchLineItems = batchLineItems
-		const updateBinDto = new UpdateBinDto();
-     	updateBinDto.currentCapacity = bin.currentCapacity;
-      	await this.binService.update(bin.id, updateBinDto);
+        batch.batchLineItems = batchLineItems;
+        const updateBinDto = new UpdateBinDto();
+        updateBinDto.currentCapacity = bin.currentCapacity;
+        await this.binService.update(bin.id, updateBinDto);
         return batch;
       }
     }

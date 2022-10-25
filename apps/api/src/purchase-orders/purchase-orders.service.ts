@@ -248,7 +248,7 @@ export class PurchaseOrdersService {
       'poLineItems.finalGood',
       'followUpLineItems.rawMaterial',
       'goodsReceipts.goodsReceiptLineItems.product',
-      'reservationLineItems'
+      'reservationLineItems.product'
     ]})
   }
 
