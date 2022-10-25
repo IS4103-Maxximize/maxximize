@@ -1,6 +1,9 @@
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from "@mui/material";
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, InputAdornment, TextField } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import DayJS from "dayjs";
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import DoneAllIcon from '@mui/icons-material/DoneAll';
+import { useState } from "react";
 
 export const ViewAllocationDialog = (props) => {
   const {
@@ -16,15 +19,21 @@ export const ViewAllocationDialog = (props) => {
   const organisationId = user.organisation.id;
 
   const onClose = () => {
-    // formik.resetForm();
+    handleAlertClose();
     handleClose();
+    setCopied(false);
   }
+
+  const [copied, setCopied] = useState(false);
 
   const columns = [
     {
       field: 'code',
       headerName: 'Batch Item Code',
       flex: 3,
+      valueGetter: (params) => {
+        return params.value === '' ? 'STAGING' : params.value;
+      }
     },
     {
       field: 'expiryDate',
@@ -53,7 +62,30 @@ export const ViewAllocationDialog = (props) => {
           name="batch-number"
           value={schedule ? schedule.completedGoods?.batchNumber : ''}
           variant="outlined"
-          disabled
+          // disabled
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton
+                  color="primary"
+                  onClick={() => {
+                    const batchNumber = schedule.completedGoods?.batchNumber
+                    if (batchNumber) {
+                      navigator.clipboard.writeText(batchNumber).then(() => {
+                        setCopied(true);
+                        handleAlertOpen('Copied Batch Number!', 'success')
+                      })
+                    } else {
+                      handleAlertOpen('Failed to copy Batch Number', 'error');
+                    }
+                  }}
+                >
+                  {!copied && <ContentCopyIcon />}
+                  {copied && <DoneAllIcon />}
+                </IconButton>
+              </InputAdornment>
+            )
+          }}
         />
         <DataGrid
           autoHeight

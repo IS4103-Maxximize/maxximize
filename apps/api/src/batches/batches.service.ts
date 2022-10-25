@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { randomUUID } from 'crypto';
 import { DataSource, QueryRunner, Repository } from 'typeorm';
@@ -286,20 +286,28 @@ export class BatchesService {
   }
 
   async findOneDeep(id: number) {
-    return await this.batchRepository.findOne({
-      where: {
-        id
-      }, relations: {
-        batchLineItems: {
-          batch: {
-            schedule: {
-              prodLineItems: {
-                batchLineItem: {
-                  batch: {
-                    goodsReceipt: {
-                      purchaseOrder: {
-                        supplier: {
-                          contact: true
+    try {
+      return await this.batchRepository.findOneOrFail({
+        where: {
+          id
+        }, relations: {
+          schedule: true,
+          batchLineItems: {
+            batch: {
+              schedule: {
+                prodLineItems: {
+                  batchLineItem: {
+                    batch: {
+                      goodsReceipt: {
+                        purchaseOrder: {
+                          quotation: {
+                            shellOrganisation: {
+                              contact: true
+                            },
+                            currentOrganisation: {
+                              contact: true
+                            }
+                          }
                         }
                       }
                     }
@@ -308,9 +316,12 @@ export class BatchesService {
               }
             }
           }
-        }
-      }
-    })
+        },
+        withDeleted: true
+      })
+    } catch (error) {
+      throw new NotFoundException(`batch number does not exist`)
+    }
   }
 
   async findAllByOrganisationId(id: number) {
@@ -373,6 +384,9 @@ export class BatchesService {
         batchLineItems.push(batchLineItem);
         bin.currentCapacity = bin.currentCapacity + volumetricSpace;
         batch.batchLineItems = batchLineItems
+		const updateBinDto = new UpdateBinDto();
+     	updateBinDto.currentCapacity = bin.currentCapacity;
+      	await this.binService.update(bin.id, updateBinDto);
         return batch;
       }
     }
@@ -439,9 +453,23 @@ export class BatchesService {
           ...object //this should be the supplier's contact object
         }
       }
+      let finalKey: string
       const mark = flow[count]
+      let value: any
       const {key, select, replacementKey, displayPreviousObjAttr} = mark
-      const value = object[key]
+      if (Array.isArray(key)) {
+        for (const currentKey of key) {
+          if (object[currentKey]) {
+            finalKey = currentKey
+            value = object[currentKey]
+            break;
+          }
+        }
+      } else {
+        value = object[key]
+        finalKey = key
+      }
+
 
       let setObject = {}
       if (displayPreviousObjAttr && Array.isArray(displayPreviousObjAttr)) {
@@ -463,7 +491,7 @@ export class BatchesService {
         const temp = this.selectiveFlatten(value, count + 1 , flow)
         if (select) {
           //if true, return the result with the key and temp
-          result[replacementKey ?? key] = temp
+          result[replacementKey ?? finalKey] = temp
         } else {
           //else just pass temp up the chain
           result = temp
@@ -481,7 +509,7 @@ export class BatchesService {
           objectArray.push(temp)
         }
         if (select) {
-          result[replacementKey ?? key] = objectArray
+          result[replacementKey ?? finalKey] = objectArray
         } else {
           result = objectArray
         }
@@ -498,6 +526,10 @@ export class BatchesService {
     })
     const batchId = batchEntity.id
     const batch = await this.findOneDeep(batchId)
+    //check if its a final good batch based on if theres a schedule
+    if (!batch.schedule) {
+      throw new NotFoundException("Batch number is not associated with a final Good")
+    }
     const count = 0
     //key, select, replacementKey, displayPreviousObjAttr
     
@@ -552,7 +584,13 @@ export class BatchesService {
         displayPreviousObjAttr: ['id', 'createdDateTime', 'recipientName', 'description']
       },
       {
-        key: 'supplier',
+        key: "quotation",
+        select: false,
+        replacementKey: null,
+        displayPreviousObjAttr: false
+      },
+      {
+        key: ['shellOrganisation', 'currentOrganisation'],
         select: true,
         replacementKey: null, 
         displayPreviousObjAttr: ['id', 'status', 'deliveryAddress', 'totalPrice', 'created', 'deliveryDate']

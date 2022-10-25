@@ -5,11 +5,11 @@ import { useEffect, useState } from 'react';
 import MoreVert from '@mui/icons-material/MoreVert';
 import { NotificationAlert } from '../../components/notification-alert';
 import { useNavigate } from 'react-router-dom';
-import { SentQuotationToolbar } from '../../components/fulfilment/sent-quotations/sent-quotation-toolbar';
 import { SentQuotationConfirmDialog } from '../../components/fulfilment/sent-quotations/sent-quotation-confirm-dialog';
 import DayJS from 'dayjs';
 import { SentQuotationMenu } from '../../components/fulfilment/sent-quotations/sent-quotation-menu';
 import { SentQuotationDialog } from '../../components/fulfilment/sent-quotations/sent-quotation-dialog';
+import { Toolbar } from '../../components/toolbar';
 
 const SentQuotation = () => {
   const [sentQuotations, setSentQuotations] = useState([]);
@@ -64,7 +64,6 @@ const SentQuotation = () => {
     return (
       <IconButton
         onClick={(event) => {
-          console.log(params.row);
           setSelectedRow(params.row);
           handleMenuClick(event);
         }}
@@ -227,11 +226,15 @@ const SentQuotation = () => {
         }}
       >
         <Container maxWidth={false}>
-          <SentQuotationToolbar
-            disabled={disabled}
-            numSentQuotations={selectedRows.length}
-            handleConfirmDialogOpen={handleConfirmDialogOpen}
+          <Toolbar
+            key="sent-quotation"
+            name={'Sent Quotation'}
+            numRows={selectedRows.length}
+            deleteDisabled={null}
             handleSearch={handleSearch}
+            handleAdd={null}
+            handleFormDialogOpen={null}
+            handleConfirmDialogOpen={handleConfirmDialogOpen}
           />
           <Box sx={{ mt: 3 }}>
             <Card>
@@ -243,6 +246,7 @@ const SentQuotation = () => {
                       return row;
                     } else {
                       return (
+                        row.id.toString().includes(search) ||
                         row.receivingOrganisation?.id
                           .toString()
                           .includes(search) ||
@@ -260,7 +264,7 @@ const SentQuotation = () => {
                     Toolbar: GridToolbar,
                   }}
                   disableSelectionOnClick
-                  checkboxSelection
+                  //   checkboxSelection
                   onSelectionModelChange={(ids) => {
                     setSelectedRows(ids);
                   }}

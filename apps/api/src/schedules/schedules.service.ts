@@ -158,9 +158,25 @@ export class SchedulesService {
       if (checker) {
         await transactionalEntityManager.update(ProductionOrder, schedule.productionOrder.id, {status: ProductionOrderStatus.ALLOCATED})
         if(schedule.productionOrder.prodRequest) {
-          await transactionalEntityManager.update(ProductionRequest, schedule.productionOrder.prodRequest.id, {
-            status: ProdRequestStatus.FULFILLED,
-          });
+          let check = true
+          const prodReq = await transactionalEntityManager.findOne(ProductionRequest, {
+            where: {
+              id: schedule.productionOrder.prodRequest.id
+            }, relations: {
+              prodOrders: true
+            }
+          })
+          for (const prodO of prodReq.prodOrders) {
+            if(!(prodO.status == ProductionOrderStatus.ALLOCATED)){
+              check = false
+            }
+          }
+          if(check){
+            await transactionalEntityManager.update(ProductionRequest, prodReq.id, {
+              status: ProdRequestStatus.FULFILLED,
+            });
+          }
+          
         }
       }
       return null

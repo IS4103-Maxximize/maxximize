@@ -1,4 +1,10 @@
-import { forwardRef, Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  Logger,
+  OnModuleInit,
+} from '@nestjs/common';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CronJob } from 'cron';
@@ -29,106 +35,117 @@ export class ChronJobsService implements OnModuleInit {
     private productionOrdersService: ProductionOrdersService
   ) {}
   create(createChronJobDto: CreateChronJobDto) {
-    const {scheduledDate, type, targetId} = createChronJobDto
+    const { scheduledDate, type, targetId } = createChronJobDto;
     const newChronJob = this.chronJobRepository.create({
       scheduledDate,
       type,
-      targetId
-    })
-    return this.chronJobRepository.save(newChronJob)
+      targetId,
+    });
+    return this.chronJobRepository.save(newChronJob);
   }
 
   findAll() {
-    return this.chronJobRepository.find()
+    return this.chronJobRepository.find();
   }
 
   findOne(id: number) {
     return this.chronJobRepository.findOne({
       where: {
-        id
-      }
-    })
+        id,
+      },
+    });
   }
 
   async remove(id: number) {
-    const chronToRemove = await this.findOne(id)
-    return this.chronJobRepository.remove(chronToRemove)
+    const chronToRemove = await this.findOne(id);
+    return this.chronJobRepository.remove(chronToRemove);
   }
 
   async onModuleInit() {
-      await this.recreateSavedCronJobs()
+    await this.recreateSavedCronJobs();
   }
 
   async recreateSavedCronJobs() {
-    const savedCronJobs = await this.findAll()
+    const savedCronJobs = await this.findAll();
     for (const job of savedCronJobs) {
-      const {scheduledDate, type, targetId} = job
+      const { scheduledDate, type, targetId } = job;
       if (new Date().getTime() > scheduledDate.getTime()) {
-        await this.remove(job.id)
+        await this.remove(job.id);
       } else {
-        switch(type) {
-          case "salesInquiry":
-            const si = await this.salesInquiryService.findOne(targetId)
-            const job = new CronJob(scheduledDate, async() => {
+        switch (type) {
+          case 'salesInquiry':
+            const si = await this.salesInquiryService.findOne(targetId);
+            const job = new CronJob(scheduledDate, async () => {
               //update SI status to expired
               if (si.status === SalesInquiryStatus.SENT) {
-                await this.salesInquiryService.update(si.id, {status: SalesInquiryStatus.EXPIRED})
+                await this.salesInquiryService.update(si.id, {
+                  status: SalesInquiryStatus.EXPIRED,
+                });
               }
             });
-          
-            this.schedulerRegistry.addCronJob(`${si.id}-updateSiToExpired`, job);
-            job.start();
-          break
-          case "scheduleStart":
-            //create chron job for schedule start
-            let schedule = await this.schedulesService.findOne(targetId)
-            let prodO = await this.productionOrdersService.findOne(schedule.productionOrder.id)
-            const startJob = new CronJob(
-              scheduledDate,
-              async () => {
-                this.productionOrdersService.update(prodO.id, {
-                  status: ProductionOrderStatus.ONGOING,
-                });
-                this.schedulesService.update(schedule.id, {
-                  status: ScheduleType.ONGOING,
-                });
-                this.logger.warn(
-                  `time (${schedule.start}) for start job ${schedule.id} to run!`
-                );
-              }
-            );
+
             this.schedulerRegistry.addCronJob(
-              `start ${schedule.id}`,
-              startJob
+              `${si.id}-updateSiToExpired`,
+              job
             );
+            job.start();
+            break;
+          case 'scheduleStart':
+            //create chron job for schedule start
+            let schedule = await this.schedulesService.findOne(targetId);
+            let prodO = await this.productionOrdersService.findOne(
+              schedule.productionOrder.id
+            );
+            const startJob = new CronJob(scheduledDate, async () => {
+              this.productionOrdersService.update(prodO.id, {
+                status: ProductionOrderStatus.ONGOING,
+              });
+              this.schedulesService.update(schedule.id, {
+                status: ScheduleType.ONGOING,
+              });
+              this.logger.warn(
+                `time (${schedule.start}) for start job ${schedule.id} to run!`
+              );
+            });
+            this.schedulerRegistry.addCronJob(`start ${schedule.id}`, startJob);
             startJob.start();
-          break
-          case "scheduleEnd":
+            break;
+          case 'scheduleEnd':
             //create chron job for schedule end
-            let schedule1 = await this.schedulesService.findOne(targetId)
-            let prodO1 = await this.productionOrdersService.findOne(schedule1.productionOrder.id)
+            let schedule1 = await this.schedulesService.findOne(targetId);
+            let prodO1 = await this.productionOrdersService.findOne(
+              schedule1.productionOrder.id
+            );
             const endJob = new CronJob(schedule1.end, async () => {
               await this.schedulesService.update(schedule1.id, {
                 status: ScheduleType.COMPLETED,
               });
-              let checker = true
-              let prodOrder: ProductionOrder = await this.productionOrdersService.findOne(schedule1.productionOrder.id)
-              for (const sche of prodO1.schedules) {
-                if (!(sche.status == ScheduleType.COMPLETED)) {
-                  checker = false
+              let checker = true;
+              let prodOrder: ProductionOrder =
+                await this.productionOrdersService.findOne(
+                  schedule1.productionOrder.id
+                );
+              for (const sche of prodOrder.schedules) {
+                if (
+                  !(sche.status == ScheduleType.COMPLETED) &&
+                  !(sche.status == ScheduleType.ALLOCATED)
+                ) {
+                  checker = false;
                 }
               }
               if (checker) {
-                await this.productionOrdersService.update(prodOrder.id, {status: ProductionOrderStatus.COMPLETED})
+                await this.productionOrdersService.update(prodOrder.id, {
+                  status: ProductionOrderStatus.COMPLETED,
+                });
               }
-              
+
               this.logger.warn(
                 `time (${schedule1.end}) for end job ${schedule1.id} to run!`
               );
             });
             this.schedulerRegistry.addCronJob(`end ${schedule1.id}`, endJob);
             endJob.start();
-          break 
+            break;
         }
       }
     }

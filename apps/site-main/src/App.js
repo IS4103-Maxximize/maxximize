@@ -10,6 +10,7 @@ import ProductionLineManagement from './pages/assetManagement/productionLineMana
 import BusinessRelations from './pages/businessRelations';
 import DeliveryDashboard from './pages/dashboards/delivery-dashboard';
 import ForgotPassword from './pages/forgotPassword';
+import DeliveryRequest from './pages/fulfilment/delivery-request';
 import ReceivedPurchaseOrder from './pages/fulfilment/received-purchase-order';
 import ReceivedSalesInquiry from './pages/fulfilment/received-sales-inquiry';
 import SentQuotation from './pages/fulfilment/sent-quotation';
@@ -30,6 +31,7 @@ import Quotation from './pages/procurement/quotation';
 import SalesInquiry from './pages/procurement/sales-inquiry';
 import BillOfMaterial from './pages/production/bom';
 import ProductionOrder from './pages/production/production-order';
+import ProductionRequest from './pages/production/production-request';
 import Products from './pages/products';
 import ProtectedPublicRoute from './pages/protectedPublicRoute';
 import ProtectedRoute from './pages/protectedRoute';
@@ -144,7 +146,10 @@ const routes = (
               path="quality-assurance/checklists"
               element={<QAChecklists />}
             ></Route>
-            <Route path="quality-assurance/tracking" element={<QATracking />}></Route>
+            <Route
+              path="quality-assurance/tracking"
+              element={<QATracking />}
+            ></Route>
           </Route>
 
           {/* Protected Routes for Manager and Factory Worker */}
@@ -197,6 +202,10 @@ const routes = (
               element={<ProductionLineManagement />}
             ></Route>
             <Route
+              path="production/production-request"
+              element={<ProductionRequest />}
+            ></Route>
+            <Route
               path="production/production-order"
               element={<ProductionOrder />}
             ></Route>
@@ -232,6 +241,10 @@ const routes = (
             <Route
               path="fulfilment/received-purchase-order"
               element={<ReceivedPurchaseOrder />}
+            ></Route>
+            <Route
+              path="fulfilment/delivery-request"
+              element={<DeliveryRequest />}
             ></Route>
           </Route>
         </Route>

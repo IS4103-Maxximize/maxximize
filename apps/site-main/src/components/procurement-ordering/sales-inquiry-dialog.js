@@ -208,6 +208,7 @@ export const SalesInquiryDialog = (props) => {
           const result = await response.json();
 
           const data = result.filter((product) => product.type === 'FinalGood');
+
           console.log(data);
           setFinalGoods(data);
         }
@@ -219,17 +220,63 @@ export const SalesInquiryDialog = (props) => {
     setSelectedFinalGood('');
   }, [formik.values.receivingOrg]);
 
+  useEffect(() => {
+    if (formik.values.receivingOrg) {
+      const fetchFinalGoods = async () => {
+        const response = await fetch(
+          `http://localhost:3000/api/final-goods/orgId/${formik.values.receivingOrg}`
+        );
+
+        if (response.status === 200 || response.status === 201) {
+          const result = await response.json();
+
+          const response2 = await fetch(
+            `http://localhost:3000/api/bill-of-materials/all/${formik.values.receivingOrg}`
+          );
+
+          if (response2.status === 200 || response2.status === 201) {
+            const result2 = await response2.json();
+
+            console.log(result2);
+
+            let dataWithBOM = [];
+
+            if (result2.length !== 0) {
+              const data = result.filter((el) =>
+                formik.values.lineItems
+                  .map((item) => item.finalGood.skuCode)
+                  .includes(el.skuCode)
+                  ? null
+                  : el
+              );
+
+              dataWithBOM = data.filter((finalGood) =>
+                result2.map((bom) => bom.finalGood.id).includes(finalGood.id)
+              );
+            }
+
+            setFinalGoods(dataWithBOM);
+          }
+        }
+      };
+
+      fetchFinalGoods();
+    }
+  }, [formik.values.lineItems]);
+
   // DataGrid Helpers
   const [selectedRows, setSelectedRows] = useState([]);
 
   const addLineItem = (quantity, inputValue) => {
-    const rawMaterial = options.find((option) => option.skuCode === inputValue);
+    const rawMaterial = options.find(
+      (option) => option.skuCode === inputValue.skuCode
+    );
     let finalGood;
     let newItem;
 
     if (selectedFinalGood) {
       finalGood = finalGoods.find(
-        (finalGood) => finalGood.skuCode === selectedFinalGood
+        (finalGood) => finalGood.skuCode === selectedFinalGood.skuCode
       );
       newItem = {
         id: uuid(),
@@ -255,6 +302,7 @@ export const SalesInquiryDialog = (props) => {
       }, 0)
     );
     setInputValue('');
+    setSelectedFinalGood('');
     formik.setFieldValue('numProd', 1);
   };
 
@@ -515,11 +563,13 @@ export const SalesInquiryDialog = (props) => {
               <Stack direction="row" spacing={1}>
                 <Autocomplete
                   sx={{ width: 300 }}
-                  options={options.map((option) => option.skuCode)}
+                  options={options}
+                  getOptionLabel={(option) =>
+                    `${option.name} - ${option.skuCode}`
+                  }
                   renderInput={(params) => (
                     <TextField {...params} label="Raw Materials" />
                   )}
-                  inputValue={inputValue}
                   onChange={(event, newInputValue) => {
                     setInputValue(newInputValue);
                   }}
@@ -527,11 +577,13 @@ export const SalesInquiryDialog = (props) => {
                 {formik.values.receivingOrg ? (
                   <Autocomplete
                     sx={{ width: 300 }}
-                    options={finalGoods.map((option) => option.skuCode)}
+                    options={finalGoods}
                     renderInput={(params) => (
                       <TextField {...params} label="Supplier Final Good" />
                     )}
-                    inputValue={selectedFinalGood}
+                    getOptionLabel={(option) =>
+                      `${option.name} - ${option.skuCode}`
+                    }
                     onChange={(event, newInputValue) => {
                       setSelectedFinalGood(newInputValue);
                     }}

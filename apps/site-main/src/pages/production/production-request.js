@@ -4,14 +4,14 @@ import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import { useEffect, useState } from 'react';
 import SendIcon from '@mui/icons-material/Send';
 import { NotificationAlert } from '../../components/notification-alert';
-import { ReceivedSalesInquiryConfirmDialog } from '../../components/fulfilment/received-sales-inquiry/received-si-confirm-dialog';
-import { ReplyQuotationDialog } from '../../components/fulfilment/received-sales-inquiry/reply-quotation-dialog';
 import CancelIcon from '@mui/icons-material/Cancel';
-import { Toolbar } from '../../components/toolbar';
 import DayJS from 'dayjs';
+import { Toolbar } from '../../components/toolbar';
 
-const ReceivedSalesInquiry = () => {
-  const [receivedSalesInquiry, setReceivedSalesInquiry] = useState([]);
+const ProductionRequest = () => {
+  const [receivedProductionRequest, setReceivedProductionRequest] = useState(
+    []
+  );
   const [selectedRow, setSelectedRow] = useState();
   const [selectedRows, setSelectedRows] = useState([]);
   const [disabled, setDisabled] = useState();
@@ -21,7 +21,7 @@ const ReceivedSalesInquiry = () => {
 
   //Load in list of sales inquiries, initial
   useEffect(() => {
-    retrieveAllReceivedSalesInquiry();
+    retrieveAllReceivedProductionRequest();
   }, []);
 
   //Keep track of selectedRows for deletion
@@ -30,7 +30,7 @@ const ReceivedSalesInquiry = () => {
   }, [selectedRows]);
 
   //Retrieve all incoming sales inquiries
-  const retrieveAllReceivedSalesInquiry = async () => {
+  const retrieveAllReceivedProductionRequest = async () => {
     const response = await fetch(
       `http://localhost:3000/api/sales-inquiry/received/${organisationId}`
     );
@@ -38,7 +38,7 @@ const ReceivedSalesInquiry = () => {
     if (response.status == 200 || response.status == 201) {
       result = await response.json();
     }
-    setReceivedSalesInquiry(result);
+    setReceivedProductionRequest(result);
   };
 
   //Search Function
@@ -65,7 +65,7 @@ const ReceivedSalesInquiry = () => {
             <IconButton
               onClick={(event) => {
                 setSelectedRow(params.row);
-                handleClickOpen();
+                handleCreateOpen();
               }}
             >
               <SendIcon color="primary" />
@@ -95,15 +95,15 @@ const ReceivedSalesInquiry = () => {
   };
 
   // Dialog helpers
-  const [replyQuotationDialogOpen, setReplyQuotationDialogOpen] =
+  const [productionOrderDialogOpen, setProductionOrderDialogOpen] =
     useState(false);
 
-  const handleClickOpen = () => {
-    setReplyQuotationDialogOpen(true);
+  const handleCreateOpen = () => {
+    setProductionOrderDialogOpen(true);
   };
 
-  const handleReplyQuotationDialogClose = () => {
-    setReplyQuotationDialogOpen(false);
+  const handleCreateDialogClose = () => {
+    setProductionOrderDialogOpen(false);
   };
 
   //Delete Confirm dialog
@@ -118,38 +118,40 @@ const ReceivedSalesInquiry = () => {
   //Handle Delete
   //Rejecting a sales inquiry
   //Also alerts user of ourcome
-  const handleReject = async (selectedRow) => {
-    const requestOptions = {
-      method: 'PATCH',
-    };
+  //   const handleReject = async (selectedRow) => {
+  //     const requestOptions = {
+  //       method: 'PATCH',
+  //     };
 
-    const response = await fetch(
-      `http://localhost:3000/api/sales-inquiry/${selectedRow.id}`,
-      {
-        method: 'PATCH',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          status: 'rejected',
-        }),
-      }
-    );
+  //     console.log(selectedRow);
 
-    if (response.status === 200 || response.status === 201) {
-      const result = await response.json();
+  //     const response = await fetch(
+  //       `http://localhost:3000/api/sales-inquiry/${selectedRow.id}`,
+  //       {
+  //         method: 'PATCH',
+  //         headers: {
+  //           Accept: 'application/json',
+  //           'Content-Type': 'application/json',
+  //         },
+  //         body: JSON.stringify({
+  //           status: 'rejected',
+  //         }),
+  //       }
+  //     );
 
-      handleAlertOpen(`Rejected Sales Inquiry ${result.id}`);
-      retrieveAllReceivedSalesInquiry();
-    } else {
-      const result = await response.json();
-      handleAlertOpen(
-        `Error rejecting Sales Inquiry ${result.id}. ${result.message}`,
-        'error'
-      );
-    }
-  };
+  //     if (response.status === 200 || response.status === 201) {
+  //       const result = await response.json();
+
+  //       handleAlertOpen(`Rejected Sales Inquiry ${result.id}`);
+  //       retrieveAllReceivedProductionRequest();
+  //     } else {
+  //       const result = await response.json();
+  //       handleAlertOpen(
+  //         `Error rejecting Sales Inquiry ${result.id}. ${result.message}`,
+  //         'error'
+  //       );
+  //     }
+  //   };
 
   //Columns for datagrid, column headers & specs
   const columns = [
@@ -211,7 +213,9 @@ const ReceivedSalesInquiry = () => {
   ];
 
   //Row for datagrid, set the list returned from API
-  const rows = receivedSalesInquiry;
+  const rows = receivedProductionRequest;
+
+  const name = 'Production Request';
 
   return (
     <>
@@ -226,22 +230,6 @@ const ReceivedSalesInquiry = () => {
         text={alertText}
         handleClose={handleAlertClose}
       />
-      <ReceivedSalesInquiryConfirmDialog
-        open={confirmDialogOpen}
-        handleClose={handleConfirmDialogClose}
-        dialogTitle={`Reject Sales Inquiry`}
-        dialogContent={`Confirm rejection of sales inquiry?`}
-        dialogAction={() => {
-          handleReject(selectedRow);
-        }}
-      />
-      <ReplyQuotationDialog
-        open={replyQuotationDialogOpen}
-        handleClose={handleReplyQuotationDialogClose}
-        salesInquiry={selectedRow}
-        handleAlertOpen={handleAlertOpen}
-        retrieveAllReceivedSalesInquiry={retrieveAllReceivedSalesInquiry}
-      />
       <Box
         component="main"
         sx={{
@@ -252,14 +240,14 @@ const ReceivedSalesInquiry = () => {
       >
         <Container maxWidth={false}>
           <Toolbar
-            key="received-sales-inquiry"
-            name={'Received Sales Inquiry'}
+            key="toolbar"
+            name={name}
             numRows={selectedRows.length}
             deleteDisabled={null}
             handleSearch={handleSearch}
             handleAdd={null}
             handleFormDialogOpen={null}
-            handleConfirmDialogOpen={handleConfirmDialogOpen}
+            handleConfirmDialogOpen={null}
           />
           <Box sx={{ mt: 3 }}>
             <Card>
@@ -270,12 +258,7 @@ const ReceivedSalesInquiry = () => {
                     if (search === '') {
                       return row;
                     } else {
-                      return (
-                        row.id.toString().includes(search) ||
-                        row.currentOrganisation?.name
-                          .toLowerCase()
-                          .includes(search)
-                      );
+                      return row.id.toString().includes(search);
                     }
                   })}
                   columns={columns}
@@ -287,7 +270,6 @@ const ReceivedSalesInquiry = () => {
                   }}
                   disableSelectionOnClick
                   //   checkboxSelection
-                  bulkActionButtons={false}
                   onSelectionModelChange={(ids) => {
                     setSelectedRows(ids);
                   }}
@@ -301,4 +283,4 @@ const ReceivedSalesInquiry = () => {
   );
 };
 
-export default ReceivedSalesInquiry;
+export default ProductionRequest;

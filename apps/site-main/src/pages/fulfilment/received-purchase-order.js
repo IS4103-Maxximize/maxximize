@@ -6,29 +6,14 @@ import SendIcon from '@mui/icons-material/Send';
 import { NotificationAlert } from '../../components/notification-alert';
 import DayJS from 'dayjs';
 import { ReceivedPurchaseOrderConfirmDialog } from '../../components/fulfilment/received-purchase-orders/received-po-confirm-dialog';
-import { ReceivedPurchaseOrderToolbar } from '../../components/fulfilment/received-purchase-orders/received-po-toolbar';
 import MoreVert from '@mui/icons-material/MoreVert';
 import { ReceivedPurchaseOrderMenu } from '../../components/fulfilment/received-purchase-orders/received-po-menu';
 import { ReceivedPurchaseOrderViewDialog } from '../../components/fulfilment/received-purchase-orders/received-po-view-dialog';
+import { Toolbar } from '../../components/toolbar';
 
 const ReceivedPurchaseOrder = () => {
   //TODO remove
-  const [receivedPurchaseOrder, setReceivedPurchaseOrder] = useState([
-    {
-      id: 1,
-      dateReceived: '05/10/2022 03:00PM',
-      inquirer: 'Testing Manufacturer',
-      totalPrice: '$1500',
-      status: 'Awaiting Response',
-    },
-    {
-      id: 2,
-      dateReceived: '06/10/2022 11:27AM',
-      inquirer: 'Testing Manufacturer 2',
-      totalPrice: '$10000',
-      status: 'Awaiting Response',
-    },
-  ]);
+  const [receivedPurchaseOrder, setReceivedPurchaseOrder] = useState([]);
   const [selectedRow, setSelectedRow] = useState();
   const [selectedRows, setSelectedRows] = useState([]);
   const [disabled, setDisabled] = useState();
@@ -36,7 +21,7 @@ const ReceivedPurchaseOrder = () => {
   const user = JSON.parse(localStorage.getItem('user'));
   const organisationId = user.organisation.id;
 
-  //Load in list of sales inquiries, initial
+  //Load in list of purchase orders, initial
   useEffect(() => {
     retrieveAllReceivedPurchaseOrder();
   }, []);
@@ -46,10 +31,10 @@ const ReceivedPurchaseOrder = () => {
     setDisabled(selectedRows.length === 0);
   }, [selectedRows]);
 
-  //Retrieve all incoming sales inquiries
+  //Retrieve all incoming purchase orders
   const retrieveAllReceivedPurchaseOrder = async () => {
     const response = await fetch(
-      `http://localhost:3000/api/sales-inquiry/all/${organisationId}`
+      `http://localhost:3000/api/purchase-orders/received/${organisationId}`
     );
     let result = [];
     if (response.status == 200 || response.status == 201) {
@@ -126,7 +111,7 @@ const ReceivedPurchaseOrder = () => {
   };
 
   //Handle Delete
-  //Rejecting a sales inquiry
+  //Rejecting a purchase order
   //Also alerts user of ourcome
   const handleDelete = async (selectedIds) => {
     const requestOptions = {
@@ -165,8 +150,8 @@ const ReceivedPurchaseOrder = () => {
         DayJS(params?.value).format('DD MMM YYYY hh:mm a'),
     },
     {
-      field: 'inquirer',
-      headerName: 'Inquirer',
+      field: 'buyer',
+      headerName: 'Buyer',
       width: 200,
       flex: 4,
       //TODO
@@ -215,7 +200,7 @@ const ReceivedPurchaseOrder = () => {
         open={confirmDialogOpen}
         handleClose={handleConfirmDialogClose}
         dialogTitle={`Reject Purchase Order(s)`}
-        dialogContent={`Confirm rejection of sales inquiry(s)?`}
+        dialogContent={`Confirm rejection of purchase order(s)?`}
         dialogAction={() => {
           handleDelete(selectedRows);
         }}
@@ -235,11 +220,15 @@ const ReceivedPurchaseOrder = () => {
         }}
       >
         <Container maxWidth={false}>
-          <ReceivedPurchaseOrderToolbar
-            disabled={disabled}
-            numPurchaseOrder={selectedRows.length}
-            handleConfirmDialogOpen={handleConfirmDialogOpen}
+          <Toolbar
+            key="received-purchase-order"
+            name={'Received Purchase Order'}
+            numRows={selectedRows.length}
+            deleteDisabled={null}
             handleSearch={handleSearch}
+            handleAdd={null}
+            handleFormDialogOpen={null}
+            handleConfirmDialogOpen={handleConfirmDialogOpen}
           />
           <ReceivedPurchaseOrderMenu
             anchorEl={anchorEl}
@@ -258,7 +247,9 @@ const ReceivedPurchaseOrder = () => {
                     } else {
                       return (
                         row.id.toString().includes(search) ||
-                        row.inquirer.toLowerCase().includes(search)
+                        row.currentOrganisation?.name
+                          .toLowerCase()
+                          .includes(search)
                       );
                     }
                   })}
@@ -270,7 +261,7 @@ const ReceivedPurchaseOrder = () => {
                     Toolbar: GridToolbar,
                   }}
                   disableSelectionOnClick
-                  checkboxSelection
+                  //   checkboxSelection
                   onSelectionModelChange={(ids) => {
                     setSelectedRows(ids);
                   }}

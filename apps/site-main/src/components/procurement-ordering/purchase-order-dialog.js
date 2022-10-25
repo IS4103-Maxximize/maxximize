@@ -1,14 +1,29 @@
-import CloseIcon from "@mui/icons-material/Close";
-import { AppBar, Autocomplete, Button, Dialog, DialogContent, IconButton, Stack, TextField, Toolbar, Typography } from "@mui/material";
-import { DataGrid } from "@mui/x-data-grid";
-import { DatePicker } from "@mui/x-date-pickers";
-import { addDays, parseISO } from "date-fns";
-import { useFormik } from "formik";
-import { useEffect, useState } from "react";
-import * as Yup from "yup";
-import { fetchQuotations } from "../../helpers/procurement-ordering";
-import { createPurchaseOrder, fetchWarehouses } from "../../helpers/procurement-ordering/purchase-order";
+import CloseIcon from '@mui/icons-material/Close';
+import {
+  AppBar,
+  Autocomplete,
+  Button,
+  Dialog,
+  DialogContent,
+  IconButton,
+  Stack,
+  TextField,
+  Toolbar,
+  Typography,
+} from '@mui/material';
+import { DataGrid } from '@mui/x-data-grid';
+import { DatePicker } from '@mui/x-date-pickers';
+import { addDays, parseISO } from 'date-fns';
+import { useFormik } from 'formik';
+import { useEffect, useState } from 'react';
+import * as Yup from 'yup';
+import { fetchQuotations } from '../../helpers/procurement-ordering';
+import {
+  createPurchaseOrder,
+  fetchWarehouses,
+} from '../../helpers/procurement-ordering/purchase-order';
 import PendingIcon from '@mui/icons-material/Pending';
+import { Box } from '@mui/system';
 
 export const PODialog = (props) => {
   const {
@@ -38,16 +53,16 @@ export const PODialog = (props) => {
       currentOrganisationId: organisationId,
       quotationId: formik.values.quotation.id,
       userContactId: user.contact.id,
-    }
+    };
 
     const poLineItems = formik.values.poLineItems.map((item) => {
       return {
         quantity: item.quantity,
         price: item.price,
         rawMaterialId: item.rawMaterial.id,
-        // finalGoodId:
-      }
-    })
+        finalGoodId: item.finalGood.id,
+      };
+    });
 
     console.log(submitValues);
     console.log(poLineItems);
@@ -59,9 +74,14 @@ export const PODialog = (props) => {
       createPurchaseOrder(submitValues, poLineItems)
         .then((res) => {
           onClose();
-          handleAlertOpen(`Successfully Created and Sent Purchase Order ${res.id}!`, 'success');
+          handleAlertOpen(
+            `Successfully Created and Sent Purchase Order ${res.id}!`,
+            'success'
+          );
         })
-        .catch(err => handleAlertOpen('Failed to Create Purchase Order', 'error'));
+        .catch((err) =>
+          handleAlertOpen('Failed to Create Purchase Order', 'error')
+        );
     }
 
     // Update PO
@@ -72,21 +92,23 @@ export const PODialog = (props) => {
 
   const [quotations, setQuotations] = useState([]);
   const getQuotations = async () => {
-    const data = await fetchQuotations()
-      .then((result) => result.filter((quotation) => 
-        quotation.salesInquiry.currentOrganisation.id === organisationId &&
-        !quotation.purchaseOrder
-      ));
+    const data = await fetchQuotations().then((result) =>
+      result.filter(
+        (quotation) =>
+          quotation.salesInquiry.currentOrganisation.id === organisationId &&
+          !quotation.purchaseOrder
+      )
+    );
     // console.log(data);
     setQuotations(data);
-  }
+  };
 
   // const [warehouse, setWarehouse] = useState();
   const [warehouses, setWarehouses] = useState([]);
   const getWarehouses = async () => {
     const data = await fetchWarehouses(organisationId);
     setWarehouses(data);
-  }
+  };
 
   const formik = useFormik({
     initialValues: {
@@ -96,8 +118,9 @@ export const PODialog = (props) => {
       totalPrice: purchaseOrder ? purchaseOrder.totalPrice : 0,
       created: purchaseOrder ? purchaseOrder.created : null,
       deliveryDate: purchaseOrder ? parseISO(purchaseOrder.deliveryDate) : null,
-      currentOrganisation: purchaseOrder ? purchaseOrder.currentOrganisation : user.organisation,
-      orgContact: purchaseOrder ? purchaseOrder.orgContact : null,
+      currentOrganisation: purchaseOrder
+        ? purchaseOrder.currentOrganisation
+        : user.organisation,
       userContact: purchaseOrder ? purchaseOrder.userContact : null,
       supplierContact: purchaseOrder ? purchaseOrder.supplierContact : null,
       poLineItems: purchaseOrder ? purchaseOrder.poLineItems : [],
@@ -120,89 +143,120 @@ export const PODialog = (props) => {
     // create PO
     if (action === 'POST') {
       // console.log('post')
-      formik.setFieldValue('poLineItems', 
-        formik.values.quotation ? 
-          formik.values.quotation.quotationLineItems : []);
-      formik.setFieldValue('totalPrice', 
-        formik.values.quotation ? 
-          formik.values.quotation.totalPrice : 0);
-      formik.setFieldValue('deliveryDate', 
-        formik.values.quotation ? 
-          addDays(new Date(), formik.values.quotation.leadTime) : new Date());
+      formik.setFieldValue(
+        'poLineItems',
+        formik.values.quotation
+          ? formik.values.quotation.quotationLineItems
+          : []
+      );
+      formik.setFieldValue(
+        'totalPrice',
+        formik.values.quotation ? formik.values.quotation.totalPrice : 0
+      );
+      formik.setFieldValue(
+        'deliveryDate',
+        formik.values.quotation
+          ? addDays(new Date(), formik.values.quotation.leadTime)
+          : new Date()
+      );
     }
-  }, [formik.values.quotation])
+    console.log(purchaseOrder);
+    console.log(formik.values.quotation);
+  }, [formik.values.quotation]);
 
   useEffect(() => {
     // fetch when opening create dialog
-    if (open && action === 'POST') { 
-      formik.setFieldValue('deliveryDate', new Date())
+    if (open && action === 'POST') {
+      formik.setFieldValue('deliveryDate', new Date());
       getQuotations();
       getWarehouses();
     }
     // if (open &&  action === 'PATCH') {
     //   console.log(purchaseOrder)
     // }
-  }, [open])
+  }, [open]);
 
   const onClose = () => {
     setQuotations([]);
     setWarehouses([]);
     handleClose();
     formik.resetForm();
-  }
+  };
 
   const columns = [
     {
-      field: "price",
-      headerName: "Price",
-      flex: 1,
-    },
-    {
-      field: "quantity",
-      headerName: "Quantity",
-      flex: 1,
-    },
-    {
-      field: "name",
-      headerName: "Raw Material Name",
-      flex: 2,
-      valueGetter: (params) => {
-        return params.row ? params.row.rawMaterial.name : '';
-      }
-    },
-    {
-      field: "skuCode",
-      headerName: "SKU",
+      field: 'skuCode',
+      headerName: 'SKU',
       flex: 1,
       valueGetter: (params) => {
         return params.row ? params.row.rawMaterial.skuCode : '';
-      }
+      },
     },
-  ]
+    {
+      field: 'name',
+      headerName: 'Raw Material Name',
+      flex: 2,
+      valueGetter: (params) => {
+        return params.row ? params.row.rawMaterial.name : '';
+      },
+    },
+    {
+      field: 'unit',
+      headerName: 'Unit',
+      flex: 1,
+      valueGetter: (params) => {
+        return params.row ? params.row.rawMaterial.unit : '';
+      },
+    },
+    {
+      field: 'price',
+      headerName: 'Price',
+      flex: 1,
+      valueGetter: (params) => {
+        return params.row ? params.row.price : '';
+      },
+    },
+    {
+      field: 'quantity',
+      headerName: 'Quantity',
+      flex: 1,
+      valueGetter: (params) => {
+        return params.row ? params.row.quantity : '';
+      },
+    },
+    {
+      field: 'subtotal',
+      headerName: 'Subtotal',
+      flex: 1,
+      valueGetter: (params) => {
+        return params.row.price * params.row.quantity;
+      },
+    },
+  ];
 
   const columnsFollowup = [
     {
-      field: "quantity",
-      headerName: "Quantity",
+      field: 'quantity',
+      headerName: 'Quantity',
       flex: 1,
     },
     {
-      field: "name",
-      headerName: "Raw Material Name",
+      field: 'name',
+      headerName: 'Raw Material Name',
       flex: 2,
       valueGetter: (params) => {
         return params.row ? params.row.rawMaterial.name : '';
-      }
+      },
     },
     {
-      field: "skuCode",
-      headerName: "SKU",
+      field: 'skuCode',
+      headerName: 'SKU',
       flex: 1,
       valueGetter: (params) => {
         return params.row ? params.row.rawMaterial.skuCode : '';
-      }
+      },
     },
-  ]
+  ];
 
   return (
     <form onSubmit={formik.handleSubmit}>
@@ -219,7 +273,7 @@ export const PODialog = (props) => {
             </IconButton>
             <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
               {!purchaseOrder && `Create `}
-              {purchaseOrder &&`View `}
+              {purchaseOrder && `View `}
               {string}
             </Typography>
             {action === 'POST' && (
@@ -235,13 +289,137 @@ export const PODialog = (props) => {
         </AppBar>
         <DialogContent>
           {/* PO Information */}
-          <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
-            {purchaseOrder && <TextField
-              sx={{ width: 150 }}
-              label="Purchase Order ID"
-              value={purchaseOrder.id}
-              disabled={Boolean(purchaseOrder)}
-            />}
+          <Stack
+            direction="row"
+            spacing={1}
+            sx={{ mb: 2, display: 'flex', justifyContent: 'space-between' }}
+          >
+            <Box display="flex" width="31%" justifyContent="space-between">
+              {purchaseOrder && (
+                <TextField
+                  sx={{ width: 150 }}
+                  label="Purchase Order ID"
+                  value={purchaseOrder.id}
+                  disabled={Boolean(purchaseOrder)}
+                />
+              )}
+              {purchaseOrder && (
+                <TextField
+                  sx={{ width: 150 }}
+                  label="Quotation ID"
+                  value={purchaseOrder.quotation.id}
+                  disabled={Boolean(purchaseOrder)}
+                />
+              )}
+              {purchaseOrder && (
+                <TextField
+                  sx={{ width: 150 }}
+                  label="Status"
+                  value={purchaseOrder.status}
+                  disabled={Boolean(purchaseOrder)}
+                />
+              )}
+            </Box>
+
+            {purchaseOrder && purchaseOrder.goodsReceipts.length > 0 && (
+              <Button
+                size="small"
+                variant="contained"
+                onClick={handlePoGrDialogOpen}
+              >
+                View Goods Receipts
+              </Button>
+            )}
+          </Stack>
+          <Stack
+            direction="row"
+            spacing={1}
+            sx={{ mb: 2, display: 'flex', justifyContent: 'space-between' }}
+          >
+            <Box
+              display="flex"
+              width={purchaseOrder ? '78%' : '72%'}
+              justifyContent="space-between"
+            >
+              {purchaseOrder && (
+                <TextField
+                  sx={{ width: 400 }}
+                  label="Supplier/Shell Org ID & Name"
+                  value={
+                    purchaseOrder.supplier
+                      ? purchaseOrder.supplier.id +
+                        ' ' +
+                        purchaseOrder.supplier.name
+                      : purchaseOrder.quotation.shellOrganisation.id +
+                        ' ' +
+                        purchaseOrder.quotation.shellOrganisation.name
+                  }
+                  disabled={Boolean(purchaseOrder)}
+                />
+              )}
+              {/* Quotation Selection */}
+              {!purchaseOrder && (
+                <Autocomplete
+                  id="quotation-selector"
+                  sx={{ width: 300 }}
+                  options={quotations}
+                  getOptionLabel={(option) => option.id.toString()}
+                  isOptionEqualToValue={(option, value) =>
+                    option.id === value.id
+                  }
+                  // value={formik.values.quotation}
+                  onChange={(e, value) =>
+                    formik.setFieldValue('quotation', value)
+                  }
+                  renderInput={(params) => (
+                    <TextField {...params} label="Quotation ID" />
+                  )}
+                />
+              )}
+
+              {/* Warehouse Selection */}
+              {!purchaseOrder && (
+                <Autocomplete
+                  id="warehouse-selector"
+                  sx={{ width: 500 }}
+                  options={warehouses}
+                  getOptionLabel={(option) =>
+                    `[${option.name}] : ${option.address}`
+                  }
+                  isOptionEqualToValue={(option, value) =>
+                    option.id === value.id
+                  }
+                  onChange={(e, value) => {
+                    formik.setFieldValue(
+                      'deliveryAddress',
+                      value ? value.address : null
+                    );
+                  }}
+                  renderInput={(params) => (
+                    <TextField {...params} label="Deliver To" />
+                  )}
+                />
+              )}
+              {purchaseOrder && (
+                <TextField
+                  sx={{ width: 500 }}
+                  label="Deliver To"
+                  value={purchaseOrder.deliveryAddress}
+                  disabled={Boolean(purchaseOrder)}
+                />
+              )}
+              <DatePicker
+                disabled={!formik.values.quotation || Boolean(purchaseOrder)}
+                renderInput={(props) => <TextField {...props} />}
+                label="Delivery Date"
+                value={formik.values.deliveryDate}
+                minDate={formik.values.deliveryDate} // earliest date is current + leadTime OR purchaseOrder.deliveryDate
+                onChange={(newValue) => {
+                  formik.setFieldValue('deliveryDate', newValue);
+                }}
+              />
+            </Box>
+
             <TextField
               error={Boolean(
                 formik.touched.totalPrice && formik.errors.totalPrice
@@ -257,104 +435,44 @@ export const PODialog = (props) => {
               variant="outlined"
               disabled
             />
-            {purchaseOrder && <TextField
-              sx={{ width: 150 }}
-              label="Status"
-              value={purchaseOrder.status}
-              disabled={Boolean(purchaseOrder)}
-            />}
-            {(purchaseOrder && purchaseOrder.goodsReceipts.length > 0) && 
-              <Button
-                size="small"
-                variant="contained"
-                onClick={handlePoGrDialogOpen}
-              >
-                View Goods Receipts
-              </Button>
-            }
-          </Stack>
-          <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
-            {/* Quotation Selection */}
-            {!purchaseOrder && (
-              <Autocomplete
-                id="quotation-selector"
-                sx={{ width: 300 }}
-                options={quotations}
-                getOptionLabel={(option) => option.id.toString()}
-                isOptionEqualToValue={(option, value) => option.id === value.id}
-                // value={formik.values.quotation}
-                onChange={(e, value) => formik.setFieldValue('quotation', value)}
-                renderInput={(params) => (<TextField {...params} label="Quotation ID" />)}
-              />
-            )}
-            {purchaseOrder && (
-              <TextField
-                sx={{ width: 150 }}
-                label="Quotation ID"
-                value={purchaseOrder.quotation.id}
-                disabled={Boolean(purchaseOrder)}
-              />
-            )}
-            <DatePicker
-              disabled={!formik.values.quotation || Boolean(purchaseOrder)}
-              renderInput={(props) => <TextField {...props} />}
-              label="Delivery Date"
-              value={formik.values.deliveryDate}
-              minDate={formik.values.deliveryDate} // earliest date is current + leadTime OR purchaseOrder.deliveryDate
-              onChange={(newValue) => {
-                formik.setFieldValue('deliveryDate', newValue);
-              }}
-            />
-            {/* Warehouse Selection */}
-            {!purchaseOrder && (
-              <Autocomplete
-                id="warehouse-selector"
-                sx={{ width: 500 }}
-                options={warehouses}
-                getOptionLabel={(option) => `[${option.name}] : ${option.address}`}
-                isOptionEqualToValue={(option, value) => option.id === value.id}
-                onChange={(e, value) => {
-                  formik.setFieldValue('deliveryAddress', value ? value.address : null);
-                }}
-                renderInput={(params) => (<TextField {...params} label="Deliver To" />)}
-              />
-            )}
-            {purchaseOrder && (
-              <TextField
-                sx={{ width: 500 }}
-                label="Deliver To"
-                value={purchaseOrder.deliveryAddress}
-                disabled={Boolean(purchaseOrder)}
-              />
-            )}
           </Stack>
           <Typography>Purchase Order Line Items</Typography>
           <DataGrid
             autoHeight
-            rows={purchaseOrder ? purchaseOrder.poLineItems : formik.values.poLineItems}
+            rows={
+              purchaseOrder
+                ? purchaseOrder.poLineItems
+                : formik.values.poLineItems
+            }
             columns={columns}
             pageSize={5}
             rowsPerPageOptions={[5]}
+            disableSelectionOnClick
           />
-          
+
           {/* For Partial Fulfillment of Line Items */}
-          {purchaseOrder && 
-          // eslint-disable-next-line react/jsx-no-useless-fragment
-          <>
-            {purchaseOrder.followUpLineItems.length > 0 && 
+          {purchaseOrder && (
+            // eslint-disable-next-line react/jsx-no-useless-fragment
             <>
-              <Typography>Follow up Line Items</Typography>
-              <DataGrid
-                autoHeight
-                rows={purchaseOrder ? purchaseOrder.followUpLineItems : formik.values.followUpLineItems}
-                columns={columnsFollowup}
-                pageSize={5}
-                rowsPerPageOptions={[5]}
-                disableSelectionOnClick
-              />
+              {purchaseOrder.followUpLineItems.length > 0 && (
+                <>
+                  <Typography>Follow up Line Items</Typography>
+                  <DataGrid
+                    autoHeight
+                    rows={
+                      purchaseOrder
+                        ? purchaseOrder.followUpLineItems
+                        : formik.values.followUpLineItems
+                    }
+                    columns={columnsFollowup}
+                    pageSize={5}
+                    rowsPerPageOptions={[5]}
+                    disableSelectionOnClick
+                  />
+                </>
+              )}
             </>
-            }
-          </>}
+          )}
         </DialogContent>
       </Dialog>
     </form>
