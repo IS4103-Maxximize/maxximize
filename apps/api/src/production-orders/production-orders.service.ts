@@ -762,6 +762,7 @@ export class ProductionOrdersService {
           completedGoods: {
             batchLineItems: true,
           },
+		  productionLine: true,
         },
         prodLineItems: {
           batchLineItem: {
