@@ -164,7 +164,11 @@ export class SchedulesService {
             },
             relations: {
               schedules: true,
-              prodRequest: true,
+              prodRequest: {
+                purchaseOrder: {
+                  reservationLineItems: true
+                }
+              },
             },
           });
         if (productionOrder.prodRequest) {
@@ -172,9 +176,10 @@ export class SchedulesService {
             await transactionalEntityManager.update(
               BatchLineItem,
               lineItem.id,
-              { reservedQuantity: quantity }
+              { reservedQuantity: productionOrder.prodRequest.quantity }
             );
           }
+          // Update Reservation Line Items of PurchaseOrder here
         }
         let checker = true;
         for (const sche of productionOrder.schedules) {
