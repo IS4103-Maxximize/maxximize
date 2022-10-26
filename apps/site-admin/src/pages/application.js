@@ -9,13 +9,13 @@ import {
 import { useEffect, useState } from 'react';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { NotificationAlert } from '../components/notification-alert';
-import { OnboardClientMenu } from '../components/onboarding/onboard-client-menu';
+import { ApplicationMenu } from '../components/client/application/application-menu';
 import MoreVert from '@mui/icons-material/MoreVert';
-import { OnboardToolbar } from '../components/onboarding/onboard-toolbar';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
-import { OnboardClientDialog } from '../components/onboarding/onboard-client-dialog';
+import { ApplicationDialog } from '../components/client/application/application-dialog';
+import { Toolbar } from '../components/toolbar';
 
-const Onboarding = () => {
+const Application = () => {
   const user = JSON.parse(localStorage.getItem('user'));
 
   const [applications, setApplications] = useState([]);
@@ -215,13 +215,13 @@ const Onboarding = () => {
         text={alertText}
         handleClose={handleAlertClose}
       />
-      <OnboardClientMenu
+      <ApplicationMenu
         anchorEl={anchorEl}
         menuOpen={menuOpen}
         handleMenuClose={handleMenuClose}
         handleDialogOpen={handleDialogOpen}
       />
-      <OnboardClientDialog
+      <ApplicationDialog
         open={applicationDialogOpen}
         handleClose={handleDialogClose}
         application={selectedRow}
@@ -237,7 +237,16 @@ const Onboarding = () => {
         }}
       >
         <Container maxWidth={false}>
-          <OnboardToolbar handleSearch={handleSearch} />
+          <Toolbar
+            key="application"
+            name={'Application'}
+            numRows={null}
+            deleteDisabled={null}
+            handleSearch={handleSearch}
+            handleAdd={null}
+            handleFormDialogOpen={null}
+            handleConfirmDialogOpen={handleConfirmDialogOpen}
+          />
           <Box sx={{ mt: 3 }}>
             <Card>
               <Box sx={{ minWidth: 1050 }}>
@@ -277,4 +286,4 @@ const Onboarding = () => {
   );
 };
 
-export default Onboarding;
+export default Application;
