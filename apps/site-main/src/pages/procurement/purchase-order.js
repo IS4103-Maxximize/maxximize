@@ -197,6 +197,8 @@ export const PurchaseOrder = (props) => {
       headerName: 'Status',
       flex: 1,
       renderCell: (params) => {
+        // Extract out the supplier side purchase order statuses
+        // If there is follow up line items, the default status is partially fulfilled
         if (
           (params.value === 'production' ||
             params.value === 'productioncompleted') &&
@@ -211,6 +213,7 @@ export const PurchaseOrder = (props) => {
           ) : (
             ''
           );
+          // If there isnt any follow up line items, this is the first time. Default accepted
         } else if (
           params.value === 'production' ||
           params.value === 'productioncompleted'
@@ -222,6 +225,7 @@ export const PurchaseOrder = (props) => {
           ) : (
             ''
           );
+          // Else the other statuses can be mirrored
         } else {
           return params.value ? (
             <SeverityPill color={purchaseOrderStatusColorMap[params.value]}>
