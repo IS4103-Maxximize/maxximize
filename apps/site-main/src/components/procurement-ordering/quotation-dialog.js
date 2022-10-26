@@ -6,6 +6,7 @@ import {
   Dialog,
   DialogContent,
   IconButton,
+  InputAdornment,
   Stack,
   TextField,
   Toolbar,
@@ -253,6 +254,7 @@ export const QuotationDialog = (props) => {
           return params.row.price;
         }
       },
+      valueFormatter: (params) => (params.value ? `$ ${params.value}` : ''),
     },
     {
       field: 'subtotal',
@@ -261,6 +263,7 @@ export const QuotationDialog = (props) => {
       valueGetter: (params) => {
         return params.row.price * params.row.quantity;
       },
+      valueFormatter: (params) => (params.value ? `$ ${params.value}` : ''),
     },
   ];
 
@@ -342,6 +345,11 @@ export const QuotationDialog = (props) => {
             variant="outlined"
             disabled
             size="small"
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">$</InputAdornment>
+              ),
+            }}
           />
           <TextField
             fullWidth

@@ -47,6 +47,7 @@ export const FinalGoodsAllocationDialog = (props) => {
       })
       .catch(err => handleAlertOpen(`Failed to allocate goods`, 'error'));
   };
+  const [plannedQuantity, setPlannedQuantity] = useState(0)
 
   const formik = useFormik({
     initialValues: {
@@ -73,8 +74,6 @@ export const FinalGoodsAllocationDialog = (props) => {
     formik.resetForm();
     handleClose();
   }
-
-  const [plannedQuantity, setPlannedQuantity] = useState(0)
 
   const estimatedProduction = () => {
 	// In hours

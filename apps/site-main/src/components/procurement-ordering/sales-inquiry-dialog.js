@@ -10,6 +10,7 @@ import {
   Dialog,
   DialogContent,
   IconButton,
+  InputAdornment,
   TextField,
   Toolbar,
   Typography,
@@ -416,6 +417,7 @@ export const SalesInquiryDialog = (props) => {
       valueGetter: (params) => {
         return params.row.rawMaterial.unitPrice;
       },
+      valueFormatter: (params) => (params.value ? `$ ${params.value}` : ''),
     },
     {
       field: 'subtotal',
@@ -425,6 +427,7 @@ export const SalesInquiryDialog = (props) => {
         console.log(params);
         return params.row.rawMaterial.unitPrice * params.row.quantity;
       },
+      valueFormatter: (params) => (params.value ? `$ ${params.value}` : ''),
     },
     {
       field: 'finalGood',
@@ -557,6 +560,11 @@ export const SalesInquiryDialog = (props) => {
             onChange={formik.handleChange}
             value={updateTotalPrice}
             variant="outlined"
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">$</InputAdornment>
+              ),
+            }}
             disabled
           />
           {/* Adding and Removing of SI Line Items
