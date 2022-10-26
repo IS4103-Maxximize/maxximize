@@ -251,7 +251,6 @@ export const QuotationDialog = (props) => {
       headerName: 'Subtotal',
       flex: 1,
       valueGetter: (params) => {
-        console.log(params);
         return params.row.price * params.row.quantity;
       },
     },

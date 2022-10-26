@@ -117,7 +117,9 @@ export const SalesInquiryDialog = (props) => {
       const expiryDuration = new Date(values.expiryDate) - new Date();
 
       const salesInquiry = {
-        receivingOrganisationId: values.receivingOrg ? values.receivingOrg : '', // check for null orgId
+        receivingOrganisationId: values.receivingOrg
+          ? values.receivingOrg.id
+          : '', // check for null orgId
         expiryDuration: expiryDuration,
         totalPrice: totalPrice,
         currentOrganisationId: currentOrganisationId,
