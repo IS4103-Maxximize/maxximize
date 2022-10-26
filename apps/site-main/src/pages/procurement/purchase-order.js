@@ -196,13 +196,46 @@ export const PurchaseOrder = (props) => {
       field: 'status',
       headerName: 'Status',
       flex: 1,
-      renderCell: (params) => (
-        params.value ? 
-        <SeverityPill color={purchaseOrderStatusColorMap[params.value]}>
-          {params.value}
-        </SeverityPill>
-        : ''
-      )
+      renderCell: (params) => {
+        // Extract out the supplier side purchase order statuses
+        // If there is follow up line items, the default status is partially fulfilled
+        if (
+          (params.value === 'production' ||
+            params.value === 'productioncompleted') &&
+          params.row.followUpLineItems.length !== 0
+        ) {
+          return params.value ? (
+            <SeverityPill
+              color={purchaseOrderStatusColorMap['partiallyfulfilled']}
+            >
+              {'partiallyfulfilled'}
+            </SeverityPill>
+          ) : (
+            ''
+          );
+          // If there isnt any follow up line items, this is the first time. Default accepted
+        } else if (
+          params.value === 'production' ||
+          params.value === 'productioncompleted'
+        ) {
+          return params.value ? (
+            <SeverityPill color={purchaseOrderStatusColorMap['accepted']}>
+              {'accepted'}
+            </SeverityPill>
+          ) : (
+            ''
+          );
+          // Else the other statuses can be mirrored
+        } else {
+          return params.value ? (
+            <SeverityPill color={purchaseOrderStatusColorMap[params.value]}>
+              {params.value}
+            </SeverityPill>
+          ) : (
+            ''
+          );
+        }
+      },
     },
     {
       field: 'goodsReceipts',

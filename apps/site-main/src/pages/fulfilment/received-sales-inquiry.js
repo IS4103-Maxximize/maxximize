@@ -9,6 +9,8 @@ import { ReplyQuotationDialog } from '../../components/fulfilment/received-sales
 import CancelIcon from '@mui/icons-material/Cancel';
 import { Toolbar } from '../../components/toolbar';
 import DayJS from 'dayjs';
+import { SeverityPill } from '../../components/severity-pill';
+import { salesInquiryStatusColorMap } from '../../helpers/constants';
 
 const ReceivedSalesInquiry = () => {
   const [receivedSalesInquiry, setReceivedSalesInquiry] = useState([]);
@@ -200,6 +202,14 @@ const ReceivedSalesInquiry = () => {
       headerName: 'Status',
       width: 150,
       flex: 2,
+      renderCell: (params) =>
+        params.row ? (
+          <SeverityPill color={salesInquiryStatusColorMap[params.value]}>
+            {params.value}
+          </SeverityPill>
+        ) : (
+          ''
+        ),
     },
     {
       field: 'action',
