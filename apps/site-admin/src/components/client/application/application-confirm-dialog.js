@@ -7,7 +7,7 @@ import {
   DialogTitle,
 } from '@mui/material';
 
-export const OnboardConfirmDialog = (props) => {
+export const ApplicationConfirmDialog = (props) => {
   const { open, handleClose, dialogTitle, dialogContent, dialogAction } = props;
 
   return (

@@ -6,11 +6,13 @@ import Unauthorized from './pages/unauthorized';
 import Dashboard from './pages/dashboard';
 import NotFound from './pages/404';
 import RequireAuth from './components/RequireAuth';
-import Onboarding from './pages/onboarding';
+import Onboarding from './pages/application';
 import ForgotPassword from './pages/forgotPassword';
 import ResetPassword from './pages/resetPassword';
 import ProtectedRoute from './pages/protectedRoute';
 import ProtectedPublicRoute from './pages/protectedPublicRoute';
+import Application from './pages/application';
+import OrganisationManagement from './pages/organisation-management';
 
 const ROLES = {
   Admin: 'admin',
@@ -46,7 +48,14 @@ const App = () => {
             {/* Protected Routes for Admin Specifically */}
             <Route element={<RequireAuth requiredRoles={[ROLES.Admin]} />}>
               {/* Add routes here */}
-              <Route path="onboarding" element={<Onboarding />}></Route>
+              <Route
+                path="client/application"
+                element={<Application />}
+              ></Route>
+              <Route
+                path="client/organisation-management"
+                element={<OrganisationManagement />}
+              ></Route>
             </Route>
 
             {/* Protected Routes for Manager Specifically*/}
