@@ -14,11 +14,11 @@ import {
 import { useFormik } from 'formik';
 import CloseIcon from '@mui/icons-material/Close';
 import { useEffect, useState } from 'react';
-import { OnboardConfirmDialog } from './onboard-confirm-dialog';
+import { ApplicationConfirmDialog } from './application-confirm-dialog';
 import { Document, Page } from 'react-pdf';
 import LoadingButton from '@mui/lab/LoadingButton';
 
-export const OnboardClientDialog = (props) => {
+export const ApplicationDialog = (props) => {
   const {
     open,
     handleClose,
@@ -190,7 +190,7 @@ export const OnboardClientDialog = (props) => {
 
   return (
     <>
-      <OnboardConfirmDialog
+      <ApplicationConfirmDialog
         open={confirmDialogOpen}
         handleClose={handleConfirmDialogClose}
         dialogTitle={'Reject Application'}
