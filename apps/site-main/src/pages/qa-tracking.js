@@ -21,6 +21,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { v4 as uuid } from 'uuid'
+import DayJS from 'dayjs';
 
 
 export const QATracking = (props) => {
@@ -199,6 +200,12 @@ export const QATracking = (props) => {
       console.log(nodeIds)
     }
   }, [nodeIds])
+
+  const dateFields = [
+    'expiryDate',
+    'createdDateTime',
+    'created',
+  ]
   
   const renderTrackingCards = (nodeIds) => {
     // start from top -> bottom
@@ -224,7 +231,11 @@ export const QATracking = (props) => {
                     <TextField
                       fullWidth
                       label={entry[0]}
-                      value={entry[1]}
+                      value={
+                        dateFields.includes(entry[0]) ? 
+                          DayJS(entry[1]).format('DD MMM YYYY, hh:mm a') : 
+                          entry[1]
+                      }
                       sx={{ mb: 1 }}
                     />
                   )
@@ -237,9 +248,21 @@ export const QATracking = (props) => {
         </div>
       )
     }) :
-    <Card>
+    <Card
+      sx={{
+        height: 300,
+        textAlign: "center",
+      }}
+    >
       <CardContent>
-        <Typography>Select an Item to Track</Typography>
+        <Typography 
+          variant="h6"
+          sx={{ 
+            fontWeight: "medium"
+          }}
+        >
+          Select an Item to Track
+        </Typography>
       </CardContent>
     </Card>
   }
@@ -297,10 +320,8 @@ export const QATracking = (props) => {
                     pr: 2,
                     display: 'flex',
                     flexDirection: 'column',
-                    // overflowY: "scroll"
                   }}
                 >
-                  {/* <Typography>{JSON.stringify(treeViewArr)}</Typography> */}
                   <Button 
                     sx={{ mb: 1 }}
                     onClick={handleExpandClick}
@@ -314,8 +335,6 @@ export const QATracking = (props) => {
                     expanded={expanded}
                     sx={{ flexGrow: 1, overflowY: 'auto' }}
                     onNodeSelect={(e, nodeIds) => {
-                      // console.log('id: ' + nodeIds)
-                      // console.log('parentId: ' + nodeIdMap.get(nodeIds))
                       let current = nodeIds;
                       const arr = []
                       while (current) {
