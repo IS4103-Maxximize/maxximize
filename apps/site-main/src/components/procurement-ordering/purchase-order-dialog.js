@@ -52,18 +52,35 @@ export const PODialog = (props) => {
       totalPrice: values.totalPrice,
       deliveryDate: values.deliveryDate,
       currentOrganisationId: organisationId,
-      quotationId: formik.values.quotation.id,
+      quotationId: values.quotation.id,
       userContactId: user.contact.id,
     };
 
-    const poLineItems = formik.values.poLineItems.map((item) => {
-      return {
-        quantity: item.quantity,
-        price: item.price,
-        rawMaterialId: item.rawMaterial.id,
-        finalGoodId: item.finalGood.id,
-      };
-    });
+    let poLineItems = [];
+
+    console.log(values.quotation);
+
+    // If there is a receiving organisationg, there is final good mapping
+    if (values.quotation.receivingOrganisationId) {
+      console.log('With receiving org, final goods');
+      poLineItems = formik.values.poLineItems.map((item) => {
+        return {
+          quantity: item.quantity,
+          price: item.price,
+          rawMaterialId: item.rawMaterial.id,
+          finalGoodId: item.finalGood.id,
+        };
+      });
+    } else {
+      console.log('No final goods');
+      poLineItems = formik.values.poLineItems.map((item) => {
+        return {
+          quantity: item.quantity,
+          price: item.price,
+          rawMaterialId: item.rawMaterial.id,
+        };
+      });
+    }
 
     console.log(submitValues);
     console.log(poLineItems);
@@ -161,8 +178,6 @@ export const PODialog = (props) => {
           : new Date()
       );
     }
-    console.log(purchaseOrder);
-    console.log(formik.values.quotation);
   }, [formik.values.quotation]);
 
   useEffect(() => {
@@ -206,7 +221,11 @@ export const PODialog = (props) => {
       headerName: 'Quantity',
       flex: 1,
       valueGetter: (params) => {
-        return params.row ? `${params.row.quantity} ${params.row.rawMaterial.unit === 'kilogram' ? 'kg' : 'litre'}` : '';
+        return params.row
+          ? `${params.row.quantity} ${
+              params.row.rawMaterial.unit === 'kilogram' ? 'kg' : 'litre'
+            }`
+          : '';
       },
     },
     {
@@ -429,7 +448,7 @@ export const PODialog = (props) => {
               disabled
             />
           </Stack>
-          <Typography>Purchase Order Line Items</Typography>
+          <Typography variant="h6">Purchase Order Line Items</Typography>
           <DataGrid
             autoHeight
             rows={
