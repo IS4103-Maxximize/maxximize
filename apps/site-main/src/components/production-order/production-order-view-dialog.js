@@ -17,8 +17,10 @@ import { DataGrid } from '@mui/x-data-grid';
 import DayJS from 'dayjs';
 import { useFormik } from 'formik';
 import { useEffect, useState } from 'react';
+import { prodOrderScheduleStatusColorMap } from '../../helpers/constants';
 import { PurchaseRequisitionNew } from '../../pages/procurement/purchase-requisition-new';
 import { ConfirmDialog } from '../assetManagement/confirm-dialog';
+import { SeverityPill } from '../severity-pill';
 import { FinalGoodsAllocationDialog } from './final-goods-allocation-dialog';
 import { ViewAllocationDialog } from './view-allocation-dialog';
 
@@ -175,7 +177,14 @@ export const ProductionOrderViewDialog = (props) => {
     {
       field: 'status',
       headerName: 'Schedule Status',
-      flex: 1
+      flex: 1,
+      renderCell: (params) => (
+        params.value ? 
+        <SeverityPill color={prodOrderScheduleStatusColorMap[params.value]}>
+          {params.value}
+        </SeverityPill>
+        : ''
+      )
     },
     {
       field: 'productionLineId',

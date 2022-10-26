@@ -270,6 +270,17 @@ const prodOrderStatusStringMap = {
   'allocated': 'Allocated'
 }
 
+const prodOrderScheduleStatusColorMap = {
+  // PLANNED = 'planned',
+  // ONGOING = 'ongoing',
+  // COMPLETED = 'completed',
+  // ALLOCATED= 'allocated',
+  'planned': 'draft',
+  'ongoing': 'warning',
+  'completed': 'primary',
+  'allocated': 'secondary'
+}
+
 
 export { 
   apiHost, 
@@ -285,5 +296,6 @@ export {
   salesInquiryStatusColorMap,
   purchaseOrderStatusColorMap,
   prodOrderStatusColorMap,
-  prodOrderStatusStringMap
+  prodOrderStatusStringMap,
+  prodOrderScheduleStatusColorMap
 };
