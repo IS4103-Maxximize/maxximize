@@ -301,7 +301,7 @@ const deliveryRequestStatusColorMap = {
 
   'readytodeliver': 'primary',
   'readytodeliverpartial': 'draft',
-  'outfordelivery': 'secondary',
+  'outfordelivery': 'warning',
   'completed': 'success'
 }
 

@@ -6,6 +6,7 @@ import {
   Dialog,
   DialogContent,
   IconButton,
+  InputAdornment,
   Stack,
   TextField,
   Toolbar,
@@ -243,6 +244,7 @@ export const ReplyQuotationDialog = (props) => {
       valueGetter: (params) => {
         return params.row.price ? params.row.price : params.row.indicativePrice;
       },
+      valueFormatter: (params) => (params.value ? `$ ${params.value}` : ''),
     },
     {
       field: 'subtotal',
@@ -252,6 +254,7 @@ export const ReplyQuotationDialog = (props) => {
         console.log(params);
         return params.row.quantity * params.row.price;
       },
+      valueFormatter: (params) => (params.value ? `$ ${params.value}` : ''),
     },
   ];
 
@@ -341,6 +344,11 @@ export const ReplyQuotationDialog = (props) => {
             value={formik.values.totalPrice}
             variant="outlined"
             disabled
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">$</InputAdornment>
+              ),
+            }}
             size="small"
           />
           <TextField
