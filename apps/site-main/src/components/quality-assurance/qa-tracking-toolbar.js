@@ -55,10 +55,6 @@ export const QATrackingToolbar = (props) => {
         <Typography sx={{ m: 1 }} variant="h4">
           {name}
         </Typography>
-        {/* <Breadcrumbs separator="-">
-          {domain === 'procurement' && procurementBreadcrumbs(subdomain)}
-          {domain === 'production' && productionBreadcrumbs(subdomain)}
-        </Breadcrumbs> */}
       </Box>
       <Box sx={{ mt: 3 }}>
         <Card>
