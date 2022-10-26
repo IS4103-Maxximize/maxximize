@@ -196,14 +196,42 @@ export const PurchaseOrder = (props) => {
       field: 'status',
       headerName: 'Status',
       flex: 1,
-      renderCell: (params) =>
-        params.value ? (
-          <SeverityPill color={purchaseOrderStatusColorMap[params.value]}>
-            {params.value}
-          </SeverityPill>
-        ) : (
-          ''
-        ),
+      renderCell: (params) => {
+        if (
+          (params.value === 'production' ||
+            params.value === 'productioncompleted') &&
+          params.row.followUpLineItems.length !== 0
+        ) {
+          return params.value ? (
+            <SeverityPill
+              color={purchaseOrderStatusColorMap['partiallyfulfilled']}
+            >
+              {'partiallyfulfilled'}
+            </SeverityPill>
+          ) : (
+            ''
+          );
+        } else if (
+          params.value === 'production' ||
+          params.value === 'productioncompleted'
+        ) {
+          return params.value ? (
+            <SeverityPill color={purchaseOrderStatusColorMap['accepted']}>
+              {'accepted'}
+            </SeverityPill>
+          ) : (
+            ''
+          );
+        } else {
+          return params.value ? (
+            <SeverityPill color={purchaseOrderStatusColorMap[params.value]}>
+              {params.value}
+            </SeverityPill>
+          ) : (
+            ''
+          );
+        }
+      },
     },
     {
       field: 'goodsReceipts',
