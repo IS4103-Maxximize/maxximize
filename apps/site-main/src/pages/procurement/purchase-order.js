@@ -194,6 +194,21 @@ export const PurchaseOrder = (props) => {
       field: 'status',
       headerName: 'Status',
       flex: 1,
+      valueGetter: (params) => {
+        // Abstract out supplier's PO status from the buyer
+        if (
+          (params.row.status === 'production' ||
+            params.row.status === 'delivery') &&
+          params.row.followUpLineItems.length !== 0
+        ) {
+          params.row.status = 'partiallyfulfilled';
+        } else if (
+          params.row.status === 'production' ||
+          params.row.status === 'delivery'
+        ) {
+          params.row.status = 'accepted';
+        }
+      },
     },
     {
       field: 'goodsReceipts',
