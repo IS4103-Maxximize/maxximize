@@ -1,14 +1,13 @@
-import { Box, Card, Container, IconButton } from '@mui/material';
-import { Helmet, HelmetProvider } from 'react-helmet-async';
+import MoreVert from '@mui/icons-material/MoreVert';
+import { Box, Button, Card, Container, IconButton, Stack, Typography } from '@mui/material';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import { useEffect, useState } from 'react';
-import MoreVert from '@mui/icons-material/MoreVert';
-import { NotificationAlert } from '../../components/notification-alert';
-import { WarehouseToolbar } from '../../components/inventory/warehouse/warehouse-toolbar';
-import { CreateWarehouseDialog } from '../../components/inventory/warehouse/create-warehouse-dialog';
-import { WarehouseConfirmDialog } from '../../components/inventory/warehouse/warehouse-confirm-dialog';
+import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { useNavigate } from 'react-router-dom';
 import { MasterlistToolbar } from '../../components/inventory/masterlist/masterlist-toolbar';
+import { SeverityPill } from '../../components/severity-pill';
+import { perc2color, productTypeColorMap, productTypeStringMap } from '../../helpers/constants';
+import InventoryIcon from '@mui/icons-material/Inventory';
 
 const Masterlist = () => {
   const [products, setProducts] = useState([]);
@@ -79,13 +78,16 @@ const Masterlist = () => {
   //Columns for datagrid, column headers & specs
   const columns = [
     {
-      field: 'id',
-      headerName: 'ID',
-      width: 70,
-      flex: 1,
-      valueGetter: (params) => {
-        return params.row ? params.row.product.id : '';
-      },
+      field: 'product-type',
+      headerName: 'Type',
+      width: 150,
+      flex: 2,
+      renderCell: (params) => {
+        const type = params.row?.product?.type?.toLowerCase(); // returns RawMaterial OR FinalGood, why???
+        const string = productTypeStringMap[type];
+        const color = productTypeColorMap[type];
+        return (<SeverityPill color={color}>{string}</SeverityPill>)
+      }
     },
     {
       field: 'skuCode',
@@ -106,6 +108,15 @@ const Masterlist = () => {
       },
     },
     {
+      field: 'totalQuantity',
+      headerName: 'Total',
+      width: 150,
+      flex: 2,
+      valueGetter: (params) => {
+        return params.row ? params.row.totalQuantity : '';
+      },
+    },
+    {
       field: 'reservedQuantity',
       headerName: 'Reserved',
       width: 150,
@@ -115,13 +126,28 @@ const Masterlist = () => {
       },
     },
     {
-      field: 'totalQuantity',
-      headerName: 'Total',
+      field: 'remainingQuantity',
+      headerName: 'Remaining',
       width: 150,
       flex: 2,
       valueGetter: (params) => {
-        return params.row ? params.row.totalQuantity : '';
+        return params.row ? params.row.totalQuantity - params.row.reservedQuantity : '';
       },
+      renderCell: (params) => {
+        const total = params.row ? params.row.totalQuantity : 1
+        const remaining = params.row ? total - params.row.reservedQuantity : 1;
+        return (
+          <Stack 
+            direction="row"
+            spacing={2}
+          >
+            <Typography variant="inherit">{`${remaining} / ${total}`}</Typography>
+            <InventoryIcon
+              sx={{ color: perc2color('masterlist', {'remaining': remaining, 'total': total}) }}
+            />
+          </Stack>
+        )
+      }
     },
   ];
 
@@ -183,9 +209,6 @@ const Masterlist = () => {
                     Toolbar: GridToolbar,
                   }}
                   disableSelectionOnClick
-                  //   onSelectionModelChange={(ids) => {
-                  //     setSelectedRows(ids);
-                  //   }}
                   onRowClick={(rowData) => handleRowClick(rowData)}
                 />
               </Box>

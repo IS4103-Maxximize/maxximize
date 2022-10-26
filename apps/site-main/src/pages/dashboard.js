@@ -85,7 +85,7 @@ const Dashboard = () => {
         />
         <Container maxWidth={false}>
           <Grid container spacing={3}>
-            {workerDashboardPerms.includes(user?.role) && 
+            {/* {workerDashboardPerms.includes(user?.role) && 
               <WorkerDashboard 
                 user={user} 
                 handleAlertOpen={handleAlertOpen}
@@ -93,7 +93,8 @@ const Dashboard = () => {
             }
             {!workerDashboardPerms.includes(user?.role) && 
               <DefaultDashboardItems />
-            }
+            } */}
+            <DefaultDashboardItems />
           </Grid>
         </Container>
       </Box>
