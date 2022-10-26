@@ -22,6 +22,8 @@ import {
   deletePurchaseOrders,
 } from '../../helpers/procurement-ordering/purchase-order';
 import { PoGoodsReceiptDialog } from '../../components/procurement-ordering/po-goods-receipt-dialog';
+import { SeverityPill } from '../../components/severity-pill';
+import { purchaseOrderStatusColorMap } from '../../helpers/constants';
 // import { purchaseOrders } from "../../__mocks__/purchase-orders";
 
 export const PurchaseOrder = (props) => {
@@ -194,6 +196,13 @@ export const PurchaseOrder = (props) => {
       field: 'status',
       headerName: 'Status',
       flex: 1,
+      renderCell: (params) => (
+        params.value ? 
+        <SeverityPill color={purchaseOrderStatusColorMap[params.value]}>
+          {params.value}
+        </SeverityPill>
+        : ''
+      )
     },
     {
       field: 'goodsReceipts',

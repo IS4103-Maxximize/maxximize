@@ -17,7 +17,9 @@ import { ProductMenu } from '../../components/product/product-menu';
 import { ProductionOrderCreateDialog } from '../../components/production-order/production-order-create-dialog';
 import { ProductionOrderMenu } from '../../components/production-order/production-order-menu';
 import { ProductionOrderViewDialog } from '../../components/production-order/production-order-view-dialog';
+import { SeverityPill } from '../../components/severity-pill';
 import { Toolbar } from '../../components/toolbar';
+import { prodOrderStatusColorMap, prodOrderStatusStringMap } from '../../helpers/constants';
 
 export const ProductionOrder = (props) => {
   const user = JSON.parse(localStorage.getItem('user'));
@@ -264,11 +266,12 @@ export const ProductionOrder = (props) => {
       field: 'status',
       headerName: 'Status',
       flex: 1,
-      valueFormatter: (params) => {
-        const valueFormatted =
-          params.value[0].toUpperCase() + params.value.slice(1);
-        return `${valueFormatted}`;
-      },
+      renderCell: (params) => 
+        params.row ? 
+        <SeverityPill color={prodOrderStatusColorMap[params.row.status]}>
+          {prodOrderStatusStringMap [params.row.status]}
+        </SeverityPill> 
+        : ''
     },
     {
       field: 'actions',

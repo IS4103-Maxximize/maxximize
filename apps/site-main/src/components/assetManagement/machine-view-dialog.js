@@ -1,3 +1,5 @@
+import CancelIcon from '@mui/icons-material/Cancel';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import {
   Button,
   Card,
@@ -6,11 +8,13 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  Typography,
+  Typography
 } from '@mui/material';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
+import DayJS from 'dayjs';
 import { useEffect, useState } from 'react';
 import { fetchProductionLine } from '../../helpers/assetManagement';
+
 
 export const MachineViewDialog = (props) => {
   const { open, selectedProductionLine, handleClose } = props;
@@ -41,21 +45,21 @@ export const MachineViewDialog = (props) => {
   }, [rows]);
 
   const columns = [
-    {
-      field: 'id',
-      headerName: 'ID',
-      flex: 1,
-    },
+    // {
+    //   field: 'id',
+    //   headerName: 'ID',
+    //   flex: 1,
+    // },
     {
       field: 'serialNumber',
       headerName: 'Serial Number',
       flex: 1,
     },
-    {
-      field: 'description',
-      headerName: 'Description',
-      flex: 1,
-    },
+    // {
+    //   field: 'description',
+    //   headerName: 'Description',
+    //   flex: 1,
+    // },
     {
       field: 'make',
       headerName: 'Make',
@@ -74,12 +78,20 @@ export const MachineViewDialog = (props) => {
     {
       field: 'lastServiced',
       headerName: 'Last Serviced',
-      flex: 1,
+      flex: 2,
+      valueFormatter: (params) => params.value ? DayJS(params.value).format('DD MMM YYYY hh:mm a') : ''
     },
     {
       field: 'isOperating',
-      headerName: 'Status',
+      headerName: 'Operating',
       flex: 1,
+      renderCell: (params) => {
+        return params.value ? (
+          <CheckCircleIcon color="success" />
+        ) : (
+          <CancelIcon color="error" />
+        );
+      },
     },
     {
       field: 'remarks',

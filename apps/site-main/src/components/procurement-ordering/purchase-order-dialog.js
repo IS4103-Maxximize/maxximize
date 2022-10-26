@@ -24,6 +24,7 @@ import {
 } from '../../helpers/procurement-ordering/purchase-order';
 import PendingIcon from '@mui/icons-material/Pending';
 import { Box } from '@mui/system';
+import { productTypeStringMap } from '../../helpers/constants';
 
 export const PODialog = (props) => {
   const {
@@ -201,27 +202,19 @@ export const PODialog = (props) => {
       },
     },
     {
-      field: 'unit',
-      headerName: 'Unit',
+      field: 'quantity',
+      headerName: 'Quantity',
       flex: 1,
       valueGetter: (params) => {
-        return params.row ? params.row.rawMaterial.unit : '';
+        return params.row ? `${params.row.quantity} ${params.row.rawMaterial.unit === 'kilogram' ? 'kg' : 'litre'}` : '';
       },
     },
     {
       field: 'price',
       headerName: 'Price',
       flex: 1,
-      valueGetter: (params) => {
-        return params.row ? params.row.price : '';
-      },
-    },
-    {
-      field: 'quantity',
-      headerName: 'Quantity',
-      flex: 1,
-      valueGetter: (params) => {
-        return params.row ? params.row.quantity : '';
+      valueFormatter: (params) => {
+        return params.value ? `$ ${params.value}` : '';
       },
     },
     {
@@ -229,7 +222,7 @@ export const PODialog = (props) => {
       headerName: 'Subtotal',
       flex: 1,
       valueGetter: (params) => {
-        return params.row.price * params.row.quantity;
+        return params.row ? `$ ${params.row.price * params.row.quantity}` : '';
       },
     },
   ];

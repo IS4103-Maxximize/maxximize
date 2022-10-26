@@ -50,6 +50,8 @@ export const ViewGoodsReceiptDialog = ({
       flex: 1,
       width: 120,
       editable: false,
+      valueGetter: (params) => 
+        params.row ? `${params.row.quantity} ${params.row.product.unit === 'kilogram' ? 'kg' : 'litre'}` : ''
     },
   ];
 
