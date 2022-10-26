@@ -199,9 +199,10 @@ export const SalesInquiryDialog = (props) => {
 
   useEffect(() => {
     if (formik.values.receivingOrg) {
+      console.log(formik.values.receivingOrg);
       const fetchFinalGoods = async () => {
         const response = await fetch(
-          `http://localhost:3000/api/products/all/${formik.values.receivingOrg}`
+          `http://localhost:3000/api/products/all/${formik.values.receivingOrg.id}`
         );
 
         if (response.status === 200 || response.status === 201) {
@@ -224,14 +225,14 @@ export const SalesInquiryDialog = (props) => {
     if (formik.values.receivingOrg) {
       const fetchFinalGoods = async () => {
         const response = await fetch(
-          `http://localhost:3000/api/final-goods/orgId/${formik.values.receivingOrg}`
+          `http://localhost:3000/api/final-goods/orgId/${formik.values.receivingOrg.id}`
         );
 
         if (response.status === 200 || response.status === 201) {
           const result = await response.json();
 
           const response2 = await fetch(
-            `http://localhost:3000/api/bill-of-materials/all/${formik.values.receivingOrg}`
+            `http://localhost:3000/api/bill-of-materials/all/${formik.values.receivingOrg.id}`
           );
 
           if (response2.status === 200 || response2.status === 201) {
@@ -501,15 +502,15 @@ export const SalesInquiryDialog = (props) => {
               disabled={Boolean(inquiry)}
               filterSelectedOptions
               fullWidth
-              options={orgOptions.map((option) => option.id.toString())}
+              options={orgOptions}
+              getOptionLabel={(option) => `[${option.uen}] ${option.name}`}
               renderInput={(params) => (
                 <TextField
                   {...params}
                   label="Receiving Organisation [Blank for non registered organisation]"
                 />
               )}
-              // inputValue={formik.values.receivingOrg}
-              onInputChange={(event, newInputValue) => {
+              onChange={(event, newInputValue) => {
                 formik.setFieldValue('receivingOrg', newInputValue);
               }}
             />
