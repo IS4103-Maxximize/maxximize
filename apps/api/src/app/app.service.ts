@@ -234,7 +234,7 @@ export class AppService implements OnApplicationBootstrap {
           email: 'maxximizetest@gmail.com',
           address: 'Tomato Farm Road 123',
           postalCode: '123123',
-        }
+        },
       });
 
       await this.usersService.create({
@@ -265,6 +265,13 @@ export class AppService implements OnApplicationBootstrap {
         organisationId: 2,
       });
 
+      await this.warehousesService.create({
+        name: 'Warehouse 1',
+        description: 'Warehouse 1 Description',
+        address: 'Address for Warehouse 1',
+        organisationId: 4,
+      });
+
       await this.rackService.create({
         name: 'Rack 1',
         description: 'Rack 1 Warehouse 1',
@@ -283,6 +290,12 @@ export class AppService implements OnApplicationBootstrap {
         warehouseId: 2,
       });
 
+      await this.rackService.create({
+        name: 'Rack 1',
+        description: 'Rack 1 Warehouse 1',
+        warehouseId: 3,
+      });
+
       await this.binsService.create({
         name: 'SLOC-001',
         volumetricSpace: 150,
@@ -299,6 +312,12 @@ export class AppService implements OnApplicationBootstrap {
         name: 'SLOC-001',
         volumetricSpace: 100,
         rackId: 3,
+      });
+
+      await this.binsService.create({
+        name: 'SLOC-001',
+        volumetricSpace: 5000,
+        rackId: 4,
       });
 
       await this.rawMaterialsService.create({
@@ -351,6 +370,26 @@ export class AppService implements OnApplicationBootstrap {
         organisationId: 2,
       });
 
+      await this.rawMaterialsService.create({
+        name: 'Tomato',
+        description: 'Fresh Tomato',
+        lotQuantity: 50,
+        unit: MeasurementUnit.KILOGRAM,
+        unitPrice: 10,
+        expiry: 20,
+        organisationId: 4,
+      });
+
+      await this.rawMaterialsService.create({
+        name: 'Olive Oil',
+        description: 'Olive Oil',
+        lotQuantity: 50,
+        unit: MeasurementUnit.LITRE,
+        unitPrice: 10,
+        expiry: 20,
+        organisationId: 4,
+      });
+
       await this.finalGoodsService.create({
         name: 'Tomatoes Canned (Red)',
         description: 'Canned Red tomatoes in olive oil',
@@ -368,46 +407,46 @@ export class AppService implements OnApplicationBootstrap {
         bomLineItemDtos: [
           {
             quantity: 5,
-            rawMaterialId: 1
+            rawMaterialId: 1,
           },
           {
             quantity: 3,
-            rawMaterialId: 2
+            rawMaterialId: 2,
           },
           {
             quantity: 6,
-            rawMaterialId: 3
-          }
-        ]
-      })
+            rawMaterialId: 3,
+          },
+        ],
+      });
 
       await this.bomService.create({
         finalGoodId: 5,
         bomLineItemDtos: [
           {
             quantity: 5,
-            rawMaterialId: 1
+            rawMaterialId: 1,
           },
           {
             quantity: 6,
-            rawMaterialId: 3
-          }
-        ]
-      })
+            rawMaterialId: 3,
+          },
+        ],
+      });
 
       await this.bomService.create({
-        finalGoodId: 6,
+        finalGoodId: 8,
         bomLineItemDtos: [
           {
             quantity: 5,
-            rawMaterialId: 1
+            rawMaterialId: 6,
           },
           {
             quantity: 6,
-            rawMaterialId: 3
-          }
-        ]
-      })
+            rawMaterialId: 7,
+          },
+        ],
+      });
 
       await this.shellOrganisationsService.create({
         name: 'Tomato Farm Bali',
@@ -504,7 +543,7 @@ export class AppService implements OnApplicationBootstrap {
             rawMaterialId: 3,
           },
         ],
-        receivingOrganisationId: 4
+        receivingOrganisationId: 4,
       });
       await this.salesInquiryService.sendEmail({
         salesInquiryId: 2,
@@ -650,29 +689,105 @@ export class AppService implements OnApplicationBootstrap {
         followUpLineItemsDtos: [],
       });
 
-      await this.factoryMachineService.create({
-        "serialNumber": "TO123", 
-        "description": "Test machine 1", 
-        "isOperating": true, 
-        "make": "IBM", 
-        "model": "Legacy", 
-        "year": "2009", 
-        "lastServiced": new Date("2022-09-19T16:33:47.000Z"), 
-        "remarks": "TESTER", 
-        "organisationId": 2
-      })
+      //create SI and update suppliers
+      await this.salesInquiryService.create({
+        currentOrganisationId: 4,
+        totalPrice: 4450,
+        salesInquiryLineItemsDtos: [
+          {
+            quantity: 1300,
+            indicativePrice: 10,
+            rawMaterialId: 6,
+          },
+          {
+            quantity: 1300,
+            indicativePrice: 5,
+            rawMaterialId: 7,
+          },
+        ],
+      });
+
+      //create Quotation
+      await this.quotationService.create({
+        salesInquiryId: 3,
+        shellOrganisationId: 1,
+        leadTime: 5,
+        currentOrganisationId: 4,
+      });
+
+      //create Quotation Line Item
+
+      await this.quotationLineItemService.create({
+        quantity: 1300,
+        price: 100,
+        rawMaterialId: 6,
+        quotationId: 3,
+      });
+
+      await this.quotationLineItemService.create({
+        quantity: 1300,
+        price: 500,
+        rawMaterialId: 7,
+        quotationId: 3,
+      });
+
+      //create purchaseOrder
+      await this.purchaseOrderService.create({
+        deliveryAddress: 'ManuAddress1',
+        totalPrice: 4450,
+        deliveryDate: new Date(),
+        currentOrganisationId: 4,
+        quotationId: 3,
+        userContactId: 4,
+        poLineItemDtos: [
+          {
+            quantity: 1300,
+            price: 10,
+            rawMaterialId: 6,
+          },
+          {
+            quantity: 1300,
+            price: 5,
+            rawMaterialId: 7,
+          },
+        ],
+      });
 
       await this.factoryMachineService.create({
-        "serialNumber": "G0123", 
-        "description": "Test machine 2", 
-        "isOperating": true, 
-        "make": "IBM", 
-        "model": "Exquisite", 
-        "year": "2010", 
-        "lastServiced": new Date("2022-09-19T16:33:47.000Z"), 
-        "remarks": "TESTER2", 
-        "organisationId": 2
-      })
+        serialNumber: 'TO123',
+        description: 'Test machine 1',
+        isOperating: true,
+        make: 'IBM',
+        model: 'Legacy',
+        year: '2009',
+        lastServiced: new Date('2022-09-19T16:33:47.000Z'),
+        remarks: 'TESTER',
+        organisationId: 4,
+      });
+
+      await this.factoryMachineService.create({
+        serialNumber: 'TO123',
+        description: 'Test machine 1',
+        isOperating: true,
+        make: 'IBM',
+        model: 'Legacy',
+        year: '2009',
+        lastServiced: new Date('2022-09-19T16:33:47.000Z'),
+        remarks: 'TESTER',
+        organisationId: 2,
+      });
+
+      await this.factoryMachineService.create({
+        serialNumber: 'G0123',
+        description: 'Test machine 2',
+        isOperating: true,
+        make: 'IBM',
+        model: 'Exquisite',
+        year: '2010',
+        lastServiced: new Date('2022-09-19T16:33:47.000Z'),
+        remarks: 'TESTER2',
+        organisationId: 2,
+      });
     }
   }
 }

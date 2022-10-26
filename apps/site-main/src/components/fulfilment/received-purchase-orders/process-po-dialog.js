@@ -24,7 +24,14 @@ export const ProcessPurchaseOrderDialog = (props) => {
   const user = JSON.parse(localStorage.getItem('user'));
   const organisationId = user.organisation.id;
 
-  const { open, handleClose, processedPurchaseOrder, handleAlertOpen } = props;
+  const {
+    open,
+    handleClose,
+    processedPurchaseOrder,
+    handleAlertOpen,
+    retrieveAllReceivedPurchaseOrders,
+    closeReceivedPODialog,
+  } = props;
 
   // Formik Helpers
   const initialValues = {
@@ -37,6 +44,7 @@ export const ProcessPurchaseOrderDialog = (props) => {
     // leadTime: processedPurchaseOrder
     //   ? processedPurchaseOrder.quotation.leadTime
     //   : '',
+    addressFrom: '',
     reservedLineItems: [],
     unfulfilledLineItems: [],
   };
@@ -76,15 +84,42 @@ export const ProcessPurchaseOrderDialog = (props) => {
     // }
   };
 
-  // Creation of DR
-  const [createDRDialogOpen, setCreateDRDialogOpen] = useState(false);
-  const handleCreateDRDialogOpen = () => {
-    setCreateDRDialogOpen(true);
-  };
-  const handleCreateDRDialogClose = () => {
-    setCreateDRDialogOpen(false);
-  };
+  const [error, setError] = useState('');
 
+  // Creation of DR
+  const handleCreateDR = async () => {
+    const response = await fetch(
+      'http://localhost:3000/api/delivery-requests',
+      {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          addressFrom: formik.values.addressFrom,
+          purchaseOrderId: processedPurchaseOrder.id,
+          organisationId: organisationId,
+        }),
+      }
+    );
+
+    if (response.status === 200 || response.status === 201) {
+      const result = await response.json();
+
+      retrieveAllReceivedPurchaseOrders();
+      closeReceivedPODialog();
+      onClose();
+      handleAlertOpen(
+        `Successfully created delivery order ${result.id}!`,
+        'success'
+      );
+      setError('');
+    } else {
+      const result = await response.json();
+      setError(result.message);
+    }
+  };
   // Creation of Prod Request
   const handleCreateProdReq = async () => {
     const body = formik.values.unfulfilledLineItems.map((lineItem) => {
@@ -109,17 +144,16 @@ export const ProcessPurchaseOrderDialog = (props) => {
     );
 
     if (response.status === 200 || response.status === 201) {
-      const result = await response.json();
+      //   const result = await response.json();
 
       handleAlertOpen(`Successfully created production request(s)`, 'success');
 
+      retrieveAllReceivedPurchaseOrders();
+      closeReceivedPODialog();
       handleClose();
     } else {
       const result = await response.json();
-      handleAlertOpen(
-        `Error creating production request. ${result.message}`,
-        'error'
-      );
+      setError(`Error creating production request. ${result.message}`);
     }
   };
 
@@ -163,6 +197,7 @@ export const ProcessPurchaseOrderDialog = (props) => {
 
   useEffect(() => {
     if (processedPurchaseOrder) {
+      console.log(processedPurchaseOrder);
       formik.setFieldValue(
         'reservedLineItems',
         processedPurchaseOrder
@@ -172,7 +207,7 @@ export const ProcessPurchaseOrderDialog = (props) => {
                 price: item.price,
                 quantity: item.quantity,
                 rawMaterial: item.rawMaterial,
-                finalGood: item.finalGood,
+                batchLineItem: item.batchLineItem,
               };
             })
           : []
@@ -201,7 +236,7 @@ export const ProcessPurchaseOrderDialog = (props) => {
       headerName: 'SKU',
       flex: 1,
       valueGetter: (params) => {
-        return params.row ? params.row.finalGood?.skuCode : '';
+        return params.row ? params.row.batchLineItem?.product?.skuCode : '';
       },
     },
     {
@@ -209,7 +244,7 @@ export const ProcessPurchaseOrderDialog = (props) => {
       headerName: 'Final Good Name',
       flex: 3,
       valueGetter: (params) => {
-        return params.row ? params.row.finalGood?.name : '';
+        return params.row ? params.row.batchLineItem?.product?.name : '';
       },
     },
     {
@@ -217,7 +252,7 @@ export const ProcessPurchaseOrderDialog = (props) => {
       headerName: 'Unit',
       flex: 2,
       valueGetter: (params) => {
-        return params.row ? params.row.finalGood?.unit : '';
+        return params.row ? params.row.batchLineItem?.product?.unit : '';
       },
     },
     {
@@ -271,6 +306,23 @@ export const ProcessPurchaseOrderDialog = (props) => {
               disabled
               size="small"
             />
+            {formik.values.unfulfilledLineItems.length === 0 ? (
+              <TextField
+                fullWidth
+                error={Boolean(formik.touched.id && formik.errors.id)}
+                helperText={formik.touched.id && formik.errors.id}
+                label="Delivery From"
+                margin="normal"
+                name="addressFrom"
+                onBlur={formik.handleBlur}
+                onChange={formik.handleChange}
+                value={formik.values.addressFrom}
+                variant="outlined"
+                size="small"
+              />
+            ) : (
+              <></>
+            )}
             {/* <Box display="flex" justifyContent="space-between">
               <Box display="flex" justifyContent="space-between" width="60%">
                 <TextField
@@ -310,7 +362,13 @@ export const ProcessPurchaseOrderDialog = (props) => {
             </Box> */}
 
             <Box display="flex" justifyContent="space-between" mt={1}>
-              <Box width="49%">
+              <Box
+                width={
+                  formik.values.unfulfilledLineItems.length !== 0
+                    ? '49%'
+                    : '100%'
+                }
+              >
                 <Typography variant="h6" style={{ marginBottom: '0.5%' }}>
                   Reserved
                 </Typography>
@@ -327,24 +385,33 @@ export const ProcessPurchaseOrderDialog = (props) => {
                   />
                 </Card>
               </Box>
+              {formik.values.unfulfilledLineItems.length !== 0 ? (
+                <Box width="49%">
+                  <Typography variant="h6" style={{ marginBottom: '0.5%' }}>
+                    Unfulfilled
+                  </Typography>
+                  <Card>
+                    <DataGrid
+                      autoHeight
+                      rows={formik.values.unfulfilledLineItems}
+                      columns={columns}
+                      pageSize={5}
+                      rowsPerPageOptions={[5]}
+                      // onSelectionModelChange={(ids) => setSelectedRows(ids)}
+                      // processRowUpdate={handleRowUpdate}
+                      disableSelectionOnClick
+                    />
+                  </Card>
+                </Box>
+              ) : (
+                <></>
+              )}
+            </Box>
 
-              <Box width="49%">
-                <Typography variant="h6" style={{ marginBottom: '0.5%' }}>
-                  Unfulfilled
-                </Typography>
-                <Card>
-                  <DataGrid
-                    autoHeight
-                    rows={formik.values.unfulfilledLineItems}
-                    columns={columns}
-                    pageSize={5}
-                    rowsPerPageOptions={[5]}
-                    // onSelectionModelChange={(ids) => setSelectedRows(ids)}
-                    // processRowUpdate={handleRowUpdate}
-                    disableSelectionOnClick
-                  />
-                </Card>
-              </Box>
+            <Box mt={2} display="flex" justifyContent={'center'}>
+              <Typography variant="body2" color="red">
+                {error}
+              </Typography>
             </Box>
 
             {formik.values.unfulfilledLineItems.length !== 0 ? (
@@ -359,7 +426,11 @@ export const ProcessPurchaseOrderDialog = (props) => {
 
             {formik.values.unfulfilledLineItems.length === 0 ? (
               <Box mt={2} display="flex" justifyContent="flex-end">
-                <Button variant="contained" onClick={handleCreateDRDialogOpen}>
+                <Button
+                  variant="contained"
+                  onClick={handleCreateDR}
+                  disabled={formik.values.addressFrom === ''}
+                >
                   Create Delivery Request
                 </Button>
               </Box>

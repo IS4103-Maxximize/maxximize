@@ -280,6 +280,8 @@ export const ReceivedPurchaseOrderViewDialog = (props) => {
         handleClose={handleProcessPODialogClose}
         processedPurchaseOrder={processedPurchaseOrder}
         handleAlertOpen={handleAlertOpen}
+        retrieveAllReceivedPurchaseOrders={retrieveAllReceivedPurchaseOrders}
+        closeReceivedPODialog={onClose}
       />
       <form onSubmit={formik.handleSubmit}>
         <Dialog fullScreen open={open} onClose={onClose}>

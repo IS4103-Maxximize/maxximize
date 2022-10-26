@@ -19,7 +19,7 @@ const DeliveryRequest = () => {
 
   //Load in list of sales inquiries, initial
   useEffect(() => {
-    retrieveAllDeliveryRequest();
+    retrieveAllDeliveryRequests();
   }, []);
 
   //Keep track of selectedRows for deletion
@@ -28,13 +28,14 @@ const DeliveryRequest = () => {
   }, [selectedRows]);
 
   //Retrieve all incoming sales inquiries
-  const retrieveAllDeliveryRequest = async () => {
+  const retrieveAllDeliveryRequests = async () => {
     const response = await fetch(
-      `http://localhost:3000/api/sales-inquiry/received/${organisationId}`
+      `http://localhost:3000/api/delivery-requests/findAllByOrganisationId/2`
     );
     let result = [];
     if (response.status == 200 || response.status == 201) {
       result = await response.json();
+      console.log(result);
     }
     setDeliveryRequest(result);
   };
@@ -47,34 +48,34 @@ const DeliveryRequest = () => {
   };
 
   // Action buttons
-  const actionButtons = (params) => {
-    return (
-      <>
-        {params.row.status === 'sent' ? (
-          <>
-            <IconButton
-              onClick={(event) => {
-                setSelectedRow(params.row);
-                handleConfirmDialogOpen();
-              }}
-            >
-              <CancelIcon color="error" />
-            </IconButton>
-            <IconButton
-              onClick={(event) => {
-                setSelectedRow(params.row);
-                handleCreateOpen();
-              }}
-            >
-              <SendIcon color="primary" />
-            </IconButton>
-          </>
-        ) : (
-          <></>
-        )}
-      </>
-    );
-  };
+  //   const actionButtons = (params) => {
+  //     return (
+  //       <>
+  //         {params.row.status === 'sent' ? (
+  //           <>
+  //             <IconButton
+  //               onClick={(event) => {
+  //                 setSelectedRow(params.row);
+  //                 handleConfirmDialogOpen();
+  //               }}
+  //             >
+  //               <CancelIcon color="error" />
+  //             </IconButton>
+  //             <IconButton
+  //               onClick={(event) => {
+  //                 setSelectedRow(params.row);
+  //                 handleCreateOpen();
+  //               }}
+  //             >
+  //               <SendIcon color="primary" />
+  //             </IconButton>
+  //           </>
+  //         ) : (
+  //           <></>
+  //         )}
+  //       </>
+  //     );
+  //   };
 
   //Alert Notification
   // NotificationAlert helpers
@@ -160,40 +161,51 @@ const DeliveryRequest = () => {
       flex: 1,
     },
     {
-      field: 'created',
-      headerName: 'Date Received',
+      field: 'purchaseOrderId',
+      headerName: 'PO ID',
+      width: 200,
+      flex: 1,
+      valueGetter: (params) => {
+        return params.row ? params.row.purchaseOrder?.id : '';
+      },
+    },
+    {
+      field: 'dateCreated',
+      headerName: 'Date Created',
       width: 70,
       flex: 3,
       valueFormatter: (params) =>
         DayJS(params?.value).format('DD MMM YYYY hh:mm a'),
     },
     {
-      field: 'expiringOn',
-      headerName: 'Expiring On',
+      field: 'driver',
+      headerName: 'Driver',
       width: 70,
       flex: 3,
-      valueGetter: (params) =>
-        `${new Date(
-          new Date(params.row.created).getTime() + params.row.expiryDuration
-        )}`,
-      valueFormatter: (params) =>
-        DayJS(params.value).format('DD MMM YYYY hh:mm a'),
-    },
-    {
-      field: 'inquirer',
-      headerName: 'Inquirer',
-      width: 200,
-      flex: 4,
-      //TODO
       valueGetter: (params) => {
-        return params.row ? params.row.currentOrganisation?.name : '';
+        return params.row ? params.row.user?.username : '';
       },
     },
     {
-      field: 'totalPrice',
-      headerName: 'Total Price',
+      field: 'vehicle',
+      headerName: 'Vehicle',
       width: 200,
-      flex: 2,
+      flex: 3,
+      valueGetter: (params) => {
+        return params.row ? params.row.vehicle.licensePlate : '';
+      },
+    },
+    {
+      field: 'addressFrom',
+      headerName: 'Deliver From',
+      width: 70,
+      flex: 3,
+    },
+    {
+      field: 'addressTo',
+      headerName: 'Deliver To',
+      width: 70,
+      flex: 3,
     },
     {
       field: 'status',
@@ -201,13 +213,13 @@ const DeliveryRequest = () => {
       width: 150,
       flex: 2,
     },
-    {
-      field: 'action',
-      headerName: 'Action',
-      width: 200,
-      flex: 1.5,
-      renderCell: actionButtons,
-    },
+    // {
+    //   field: 'action',
+    //   headerName: 'Action',
+    //   width: 200,
+    //   flex: 1.5,
+    //   renderCell: actionButtons,
+    // },
   ];
 
   //Row for datagrid, set the list returned from API
@@ -256,7 +268,16 @@ const DeliveryRequest = () => {
                     if (search === '') {
                       return row;
                     } else {
-                      return row.id.toString().includes(search);
+                      return (
+                        row.id.toString().includes(search) ||
+                        row.purchaseOrder.id.toString().includes(search) ||
+                        row.user.username.toLowerCase().includes(search) ||
+                        row.vehicle.licensePlate
+                          .toLowerCase()
+                          .includes(search) ||
+                        row.addressTo.toLowerCase().includes(search) ||
+                        row.addressFrom.toLowerCase().includes(search)
+                      );
                     }
                   })}
                   columns={columns}

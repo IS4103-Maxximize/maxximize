@@ -225,7 +225,7 @@ const ReceivedPurchaseOrder = () => {
             key="received-purchase-order"
             name={'Received Purchase Order'}
             numRows={selectedRows.length}
-            deleteDisabled={disabled}
+            deleteDisabled={null}
             handleSearch={handleSearch}
             handleAdd={null}
             handleFormDialogOpen={null}
