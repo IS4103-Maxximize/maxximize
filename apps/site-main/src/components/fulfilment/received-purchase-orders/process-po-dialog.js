@@ -264,7 +264,6 @@ export const ProcessPurchaseOrderDialog = (props) => {
       valueGetter: (params) => {
         return params.row ? params.row.quantity : '';
       },
-      valueFormatter: (params) => (params.value ? `$ ${params.value}` : ''),
     },
   ];
 
@@ -301,7 +300,6 @@ export const ProcessPurchaseOrderDialog = (props) => {
       valueGetter: (params) => {
         return params.row ? params.row.quantity : '';
       },
-      valueFormatter: (params) => (params.value ? `$ ${params.value}` : ''),
     },
   ];
 
