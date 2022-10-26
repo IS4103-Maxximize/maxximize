@@ -19,8 +19,8 @@ function RelationsTabs({orgId}) {
         component="main"
         sx={{
         flexGrow: 1,
-        pt:4,
-        py: 4,
+        // pt:4,
+        // py: 4,
         }}
     >
 

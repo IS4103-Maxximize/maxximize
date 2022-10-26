@@ -188,6 +188,7 @@ const Quotation = (props) => {
       field: 'totalPrice',
       headerName: 'Quotation Total Price',
       flex: 2,
+      valueFormatter: (params) => params.value ? `$ ${params.value}` : ''
     },
     {
       field: 'Actions',

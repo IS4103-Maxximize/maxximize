@@ -31,6 +31,10 @@ const perc2color = (type, object) => {
   if (type === 'production-line') {
     perc = ((100 - object.utilization) / 100) * 100
   }
+  if (type === 'masterlist') { 
+    perc = (object.remaining / object.total) * 100;
+  }
+  // Expand for more use cases
 
   let r,
     g,
@@ -193,6 +197,80 @@ const fulfilmentBreadcrumbs = (subdomain) => [
   </Link>,
 ];
 
+const productTypeColorMap = {
+  'rawmaterial': 'primary',
+  'finalgood': 'secondary',
+};
+const productTypeStringMap = {
+  'rawmaterial': 'Raw Material',
+  'finalgood': 'Final Good',
+}
+
+const purchaseRequisitionStatusColorMap = {
+  'pending': 'draft',
+  'processing': 'warning',
+  'fulfilled': 'success'
+}
+
+const salesInquiryStatusColorMap = {
+  // DRAFT = 'draft',
+  // SENT = 'sent',
+  // COMPLETED = "completed",
+  // REPLIED = "replied",
+  // REJECTED = "rejected",
+  // EXPIRED = 'expired'
+  'draft': 'draft',
+  'sent': 'warning',
+  'completed': 'success',
+  'replied': 'primary',
+  'rejected': 'error',
+  'expired': 'expired'
+}
+const purchaseOrderStatusColorMap = {
+  'pending': 'draft',
+  'partiallyfulfilled': 'expired',
+  'fulfilled': 'primary',
+  'rejected': 'error',
+  'accepted': 'success',
+  'delivery': 'warning',
+  'production': 'expired'
+}
+
+const prodOrderStatusColorMap = {
+  // CREATED = 'created',
+	// AWAITINGPROCUREMENT="awaitingprocurement",
+  // READYTORELEASE = 'readytorelease',
+  // RELEASED = 'released',
+  // ONGOING = 'ongoing',
+  // COMPLETED = 'completed',
+  // ALLOCATED = 'allocated'
+  'created': 'draft',
+  'awaitingprocurement': 'expired',
+  'readytorelease': 'error',
+  'released': 'primary',
+  'ongoing': 'warning',
+  'completed': 'success',
+  'allocated': 'secondary'
+}
+
+const prodOrderStatusStringMap = {
+  // CREATED = 'created',
+	// AWAITINGPROCUREMENT="awaitingprocurement",
+  // READYTORELEASE = 'readytorelease',
+  // RELEASED = 'released',
+  // ONGOING = 'ongoing',
+  // COMPLETED = 'completed',
+  // ALLOCATED = 'allocated'
+  'created': 'Created',
+  'awaitingprocurement': 'Awaiting Procurement',
+  'readytorelease': 'Ready To Release',
+  'released': 'Released',
+  'ongoing': 'Ongoing',
+  'completed': 'Completed',
+  'allocated': 'Allocated'
+}
+
+
 export { 
   apiHost, 
   headers, 
@@ -200,5 +278,12 @@ export {
   procurementBreadcrumbs, 
   productionBreadcrumbs,
   fulfilmentBreadcrumbs,
-  perc2color
+  perc2color,
+  productTypeColorMap,
+  productTypeStringMap,
+  purchaseRequisitionStatusColorMap,
+  salesInquiryStatusColorMap,
+  purchaseOrderStatusColorMap,
+  prodOrderStatusColorMap,
+  prodOrderStatusStringMap
 };

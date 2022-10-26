@@ -252,6 +252,7 @@ export const ProductionLineManagement = (props) => {
       field: 'productionCostPerLot',
       headerName: 'Cost /hr',
       flex: 1,
+      valueFormatter: (params) => params.value ? `$ ${params.value}` : ''
     },
     {
       field: 'actions',

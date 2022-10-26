@@ -18,7 +18,9 @@ import { SalesInquiryDialog } from '../../components/procurement-ordering/sales-
 import { SalesInquiryMenu } from '../../components/procurement-ordering/sales-inquiry.menu';
 import { SupplierDialog } from '../../components/procurement-ordering/supplier-dialog';
 import { ConfirmDialog } from '../../components/product/confirm-dialog';
+import { SeverityPill } from '../../components/severity-pill';
 import { Toolbar } from '../../components/toolbar';
+import { salesInquiryStatusColorMap } from '../../helpers/constants';
 import {
   deleteSalesInquiries,
   fetchSalesInquiries,
@@ -225,11 +227,17 @@ export const SalesInquiry = (props) => {
       field: 'totalPrice',
       headerName: 'Total Price',
       flex: 2,
+      valueFormatter: (params) => params.value ? `$ ${params.value}` : ''
     },
     {
       field: 'status',
       headerName: 'Status',
       flex: 2,
+      renderCell: (params) => (
+        params.row ? 
+        <SeverityPill color={salesInquiryStatusColorMap[params.value]}>{params.value}</SeverityPill>
+        : ''
+      )
     },
     {
       field: 'hasPRs',

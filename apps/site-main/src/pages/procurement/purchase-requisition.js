@@ -13,6 +13,8 @@ import { DashboardLayout } from '../../components/dashboard-layout';
 import { NotificationAlert } from '../../components/notification-alert';
 import { CreatePRSalesInquiryDialog } from '../../components/procurement-ordering/create-pr-sales-inquiry-dialog';
 import { PurchaseRequisitionToolbar } from '../../components/procurement-ordering/purchase-requisition-toolbar';
+import { SeverityPill } from '../../components/severity-pill';
+import { purchaseRequisitionStatusColorMap } from '../../helpers/constants';
 import { fetchPurchaseRequistions } from '../../helpers/procurement-ordering/purchase-requisition';
 
 
@@ -170,13 +172,13 @@ export const PurchaseRequisition = (props) => {
       field: 'status',
       headerName: 'Status',
       flex: 1,
+      renderCell: (params) => 
+        params.row ? 
+        <SeverityPill color={purchaseRequisitionStatusColorMap[params.row.status]}>
+          {params.row.status}
+        </SeverityPill> 
+        : ''
     },
-    // {
-    //   field: 'actions',
-    //   headerName: '',
-    //   flex: 1,
-    //   renderCell: menuButton,
-    // },
   ];
 
   return (
