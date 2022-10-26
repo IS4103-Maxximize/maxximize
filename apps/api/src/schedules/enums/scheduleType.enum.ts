@@ -3,9 +3,10 @@ export enum ScheduleType {
     AVAILABLE = 'available',
     RECONFIGURATION = 'reconfiguration',
     DELIVERY = 'delivery',
-    COMPLETED = 'completed',
+    INDRAFT= 'indraft',
+    // Production Order Schedules statuses
     PLANNED = 'planned',
     ONGOING = 'ongoing',
-    INDRAFT= 'indraft',
-    ALLOCATED= 'allocated'
+    COMPLETED = 'completed',
+    ALLOCATED= 'allocated',
 }
