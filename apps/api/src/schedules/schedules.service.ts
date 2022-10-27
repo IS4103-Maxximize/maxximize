@@ -23,6 +23,8 @@ import { ProdRequestStatus } from '../production-requests/enums/prodRequestStatu
 import { BatchLineItem } from '../batch-line-items/entities/batch-line-item.entity';
 import { PurchaseOrderStatus } from '../purchase-orders/enums/purchaseOrderStatus.enum';
 import { PurchaseOrder } from '../purchase-orders/entities/purchase-order.entity';
+import { ReservationLineItem } from '../reservation-line-items/entities/reservation-line-item.entity';
+import { PurchaseOrdersService } from '../purchase-orders/purchase-orders.service';
 
 @Injectable()
 export class SchedulesService {
@@ -31,6 +33,7 @@ export class SchedulesService {
     private readonly scheduleRepository: Repository<Schedule>,
     @Inject(forwardRef(() => ProductionLinesService))
     private productionLineService: ProductionLinesService,
+    private purchaseOrderService: PurchaseOrdersService,
     private datasource: DataSource,
     @Inject(forwardRef(() => BatchesService))
     private batchesService: BatchesService
@@ -136,6 +139,10 @@ export class SchedulesService {
     const { orgId, scheduleId, quantity, volumetricSpace } =
       allocateScheduleDto;
     let schedule: Schedule = await this.findOne(scheduleId);
+    let purchaseOrder: PurchaseOrder;
+    if (allocateScheduleDto.purchaseOrderId) {
+      purchaseOrder = await this.purchaseOrderService.findOne(allocateScheduleDto.purchaseOrderId);
+    }
     await this.datasource.manager.transaction(
       async (transactionalEntityManager) => {
         let newBatch: Batch;
@@ -178,8 +185,14 @@ export class SchedulesService {
               lineItem.id,
               { reservedQuantity: productionOrder.prodRequest.quantity }
             );
+            const reservationLineItem = new ReservationLineItem();
+            reservationLineItem.product = lineItem.product;
+            reservationLineItem.quantity = productionOrder.prodRequest.quantity;
+            reservationLineItem.batchLineItem = lineItem;
+            await transactionalEntityManager.save(reservationLineItem);
+            purchaseOrder.reservationLineItems.push(reservationLineItem);
           }
-          // Update Reservation Line Items of PurchaseOrder here
+          await transactionalEntityManager.save(purchaseOrder);
         }
         let checker = true;
         for (const sche of productionOrder.schedules) {

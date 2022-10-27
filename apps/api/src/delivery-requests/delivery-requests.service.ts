@@ -173,13 +173,13 @@ export class DeliveryRequestsService {
         }
       },
       relations: {
-		vehicle: true,
-		purchaseOrder: true,
-		user: true,
-		deliveryRequestLineItems: {
-		  product: true,
-		},
-	  }
+        vehicle: true,
+        purchaseOrder: true,
+        user: true,
+        deliveryRequestLineItems: {
+          product: true,
+        },
+      }
     });
   } 
 

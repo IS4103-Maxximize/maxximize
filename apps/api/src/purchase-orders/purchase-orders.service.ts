@@ -80,7 +80,7 @@ export class PurchaseOrdersService {
           supplierOnboarded = currentOrganisation
           supplierContact = currentOrganisation.contact
         }
-       
+
         for (const dto of poLineItemDtos) {
           const { quantity, price, rawMaterialId, finalGoodId} = dto
           let rawMaterialToBeAdded: RawMaterial
@@ -247,7 +247,7 @@ export class PurchaseOrdersService {
       'poLineItems.rawMaterial',
       'poLineItems.finalGood',
       'followUpLineItems.rawMaterial',
-	  'followUpLineItems.finalGood',
+      'followUpLineItems.finalGood',
       'goodsReceipts.goodsReceiptLineItems.product',
       'reservationLineItems.batchLineItem.product'
     ]})
@@ -293,12 +293,17 @@ export class PurchaseOrdersService {
 
       const purchaseOrder = await this.findOne(purchaseOrderId);
       const finalGoodsStock = await this.batchLineItemService.getAggregatedFinalGoods(organisationId, purchaseOrder.deliveryDate);
-      console.log(finalGoodsStock);
 
       const reservationLineItems = [];
+      let lineItems = [];
+      if (purchaseOrder.followUpLineItems.length === 0) {
+        lineItems = purchaseOrder.poLineItems;
+      } else {
+        lineItems = purchaseOrder.followUpLineItems;
+      }
 
-      for (const purchaseLineItem of purchaseOrder.poLineItems) {
-        const productId = purchaseLineItem.finalGood.id;
+      for (const lineItem of lineItems) {
+        const productId = lineItem.finalGood.id;
         let totalQty = 0;
         if (finalGoodsStock.has(productId)) {
           totalQty = finalGoodsStock.get(productId).reduce((seed, lineItem) => {
@@ -307,7 +312,7 @@ export class PurchaseOrdersService {
         } else {
           continue;
         }
-        let qty = purchaseLineItem.quantity - purchaseLineItem.fufilledQty;
+        let qty = lineItem.quantity - lineItem.fufilledQty;
         if (qty <= 0) {
           continue;
         }
@@ -320,19 +325,19 @@ export class PurchaseOrdersService {
           for (const batchLineItem of batchLineItems) {
             const reservationLineItem = new ReservationLineItem();
             if ((batchLineItem.quantity - batchLineItem.reservedQuantity) > qty) {
-              purchaseLineItem.fufilledQty += qty;
+              lineItem.fufilledQty += qty;
               batchLineItem.reservedQuantity += qty;
               reservationLineItem.quantity = qty;
               await queryRunner.manager.save(batchLineItem);
-              await queryRunner.manager.save(purchaseLineItem);
+              await queryRunner.manager.save(lineItem);
               qty = 0;
             } else {
-              purchaseLineItem.fufilledQty += (batchLineItem.quantity - batchLineItem.reservedQuantity);
+              lineItem.fufilledQty += (batchLineItem.quantity - batchLineItem.reservedQuantity);
               batchLineItem.reservedQuantity = batchLineItem.quantity;
               reservationLineItem.quantity = (batchLineItem.quantity - batchLineItem.reservedQuantity);
               qty -= (batchLineItem.quantity - batchLineItem.reservedQuantity);
               await queryRunner.manager.save(batchLineItem);
-              await queryRunner.manager.save(purchaseLineItem);
+              await queryRunner.manager.save(lineItem);
               await queryRunner.manager.softDelete(BatchLineItem, batchLineItem.id);
             }
             reservationLineItem.batchLineItem = batchLineItem;
@@ -341,18 +346,18 @@ export class PurchaseOrdersService {
               break;
             }
           }
-          purchaseLineItem.fufilledQty = purchaseLineItem.quantity;
-          await queryRunner.manager.save(purchaseLineItem);
+          lineItem.fufilledQty = lineItem.quantity;
+          await queryRunner.manager.save(lineItem);
         } else {
           for (const batchLineItem of finalGoodsStock.get(productId)) {
             const reservationLineItem = new ReservationLineItem();
             reservationLineItem.batchLineItem = batchLineItem;
             reservationLineItem.quantity = (batchLineItem.quantity - batchLineItem.reservedQuantity);
-            purchaseLineItem.fufilledQty += (batchLineItem.quantity - batchLineItem.reservedQuantity);
+            lineItem.fufilledQty += (batchLineItem.quantity - batchLineItem.reservedQuantity);
             batchLineItem.reservedQuantity = batchLineItem.quantity;
             reservationLineItems.push(reservationLineItem);
             await queryRunner.manager.save(batchLineItem);
-            await queryRunner.manager.save(purchaseLineItem);
+            await queryRunner.manager.save(lineItem);
             await queryRunner.manager.softDelete(BatchLineItem, batchLineItem.id);
           }
         }
