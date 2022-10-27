@@ -733,7 +733,9 @@ export class ProductionOrdersService {
           rawMaterial: true,
           purchaseRequisition: true,
         },
-        prodRequest: true,
+        prodRequest: {
+			purchaseOrder: true,
+		},
         organisation: true,
       },
     });
@@ -752,6 +754,7 @@ export class ProductionOrdersService {
         }
       }
     }
+
     return await this.productionOrdersRepository.find({
       where: {
         organisationId,
@@ -774,7 +777,9 @@ export class ProductionOrdersService {
           rawMaterial: true,
           purchaseRequisition: true,
         },
-        prodRequest: true,
+        prodRequest: {
+			purchaseOrder: true,
+		},
         organisation: true,
       },
       withDeleted: true,
