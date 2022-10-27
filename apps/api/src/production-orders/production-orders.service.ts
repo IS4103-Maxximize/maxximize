@@ -101,6 +101,9 @@ export class ProductionOrdersService {
             { status: ProdRequestStatus.PROCESSING }
           );
         }
+		
+		console.log(prodRequest)
+		
 		prodRequest = await transactionalEntityManager.findOne(ProductionRequest, {
 			where: {
 			  id: prodRequestId
@@ -110,6 +113,9 @@ export class ProductionOrdersService {
 			  prodOrders: true
 			}
 		})
+
+		console.log(prodRequest)
+
         if (daily) {
           scheduleDtos =
             await this.productionLinesService.retrieveSchedulesForProductionOrder(
@@ -650,6 +656,7 @@ export class ProductionOrdersService {
             }
           }
         }
+		console.log(prodRequest)
         return null;
       }
     );

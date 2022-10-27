@@ -16,6 +16,8 @@ import { ProductionOrderStatus } from '../production-orders/enums/production-ord
 import { ProductionRequest } from '../production-requests/entities/production-request.entity';
 import { ProdRequestStatus } from '../production-requests/enums/prodRequestStatus.enum';
 import { BatchLineItem } from '../batch-line-items/entities/batch-line-item.entity';
+import { PurchaseOrderStatus } from '../purchase-orders/enums/purchaseOrderStatus.enum';
+import { PurchaseOrder } from '../purchase-orders/entities/purchase-order.entity';
 
 @Injectable()
 export class SchedulesService {
@@ -163,7 +165,8 @@ export class SchedulesService {
             where: {
               id: schedule.productionOrder.prodRequest.id
             }, relations: {
-              prodOrders: true
+              prodOrders: true,
+			  purchaseOrder: true
             }
           })
           for (const prodO of prodReq.prodOrders) {
@@ -175,6 +178,10 @@ export class SchedulesService {
             await transactionalEntityManager.update(ProductionRequest, prodReq.id, {
               status: ProdRequestStatus.FULFILLED,
             });
+
+			await transactionalEntityManager.update(PurchaseOrder, prodReq.purchaseOrder.id, {
+				status: PurchaseOrderStatus.ACCEPTED,
+			})
           }
           
         }

@@ -54,6 +54,17 @@ export const ProdOFromProdReqCreateDialog = (props) => {
   const [maximumFinalGoodOutput, setMaximumFinalGoodOutput] = useState(0);
 
   const handleOnSubmit = async () => {
+    console.log(
+      JSON.stringify({
+        plannedQuantity: formik.values.multiplier,
+        bomId: selectedBom.id,
+        daily: formik.values.daily,
+        organisationId: organisationId,
+        duration: formik.values.noOfDays,
+        prodRequestId: productionRequest.id,
+      })
+    );
+
     const response = await fetch(
       'http://localhost:3000/api/production-orders',
       {
@@ -68,8 +79,7 @@ export const ProdOFromProdReqCreateDialog = (props) => {
           daily: formik.values.daily,
           organisationId: organisationId,
           duration: formik.values.noOfDays,
-          purchaseOrderId: productionRequest.purchaseOrderId,
-          prodRequestId: productionRequest.Id,
+          prodRequestId: productionRequest.id,
         }),
       }
     );
@@ -77,6 +87,7 @@ export const ProdOFromProdReqCreateDialog = (props) => {
     if (response.status === 200 || response.status === 201) {
       const result = await response.json();
       //Rerender parent data grid component
+      console.log(result);
       onClose();
       handleAlertOpen(
         `Successfully Created production order ${result.id}!`,
