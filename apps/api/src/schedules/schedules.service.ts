@@ -59,9 +59,11 @@ export class SchedulesService {
         // finalGood: true,
         productionLine: true,
         completedGoods: true,
-        prodLineItems: {
-          rawMaterial: true,
-          batchLineItem: true
+        scheduleLineItems: {
+          prodLineItem: {
+            rawMaterial: true,
+            batchLineItem: true
+          }
         },
         productionOrder: {
           bom: {
@@ -81,12 +83,12 @@ export class SchedulesService {
         //REMOVE THIS (Required for testing)
         // finalGood: true,
         productionLine: true,
-        completedGoods: {
-          batchLineItems: true,
-        },
-        prodLineItems: {
-          rawMaterial: true,
-          batchLineItem: true
+        completedGoods: true,
+        scheduleLineItems: {
+          prodLineItem: {
+            rawMaterial: true,
+            batchLineItem: true
+          }
         },
         productionOrder: {
           bom: {
