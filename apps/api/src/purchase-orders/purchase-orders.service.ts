@@ -249,7 +249,7 @@ export class PurchaseOrdersService {
       'followUpLineItems.rawMaterial',
 	  'followUpLineItems.finalGood',
       'goodsReceipts.goodsReceiptLineItems.product',
-      'reservationLineItems.product'
+      'reservationLineItems.batchLineItem.product'
     ]})
   }
 
@@ -363,7 +363,7 @@ export class PurchaseOrdersService {
       const purchaseO = await queryRunner.manager.save(purchaseOrder);
       await queryRunner.commitTransaction();
 
-      return purchaseO;
+      return this.findOne(purchaseO.id);
     } catch (err) {
       console.log(err);
       await queryRunner.rollbackTransaction();
