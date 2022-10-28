@@ -10,6 +10,8 @@ import DayJS from 'dayjs';
 import { Toolbar } from '../../components/toolbar';
 import { DeliveryRequestMenu } from '../../components/fulfilment/delivery-request/delivery-request-menu';
 import { DeliveryRequestDialog } from '../../components/fulfilment/delivery-request/delivery-request-dialog';
+import { deliveryRequestStatusColorMap } from '../../helpers/constants';
+import { SeverityPill } from '../../components/severity-pill';
 
 const DeliveryRequest = () => {
   const [deliveryRequest, setDeliveryRequest] = useState([]);
@@ -207,6 +209,15 @@ const DeliveryRequest = () => {
       headerName: 'Status',
       width: 150,
       flex: 2,
+      // To test, currently unable to test without integrating the full POHandling branch
+      renderCell: (params) =>
+        params.value ? (
+          <SeverityPill color={deliveryRequestStatusColorMap[params.value]}>
+            {params.value}
+          </SeverityPill>
+        ) : (
+          ''
+        ),
     },
     {
       field: 'action',

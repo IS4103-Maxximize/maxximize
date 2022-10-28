@@ -10,6 +10,8 @@ import MoreVert from '@mui/icons-material/MoreVert';
 import { ReceivedPurchaseOrderMenu } from '../../components/fulfilment/received-purchase-orders/received-po-menu';
 import { ReceivedPurchaseOrderViewDialog } from '../../components/fulfilment/received-purchase-orders/received-po-view-dialog';
 import { Toolbar } from '../../components/toolbar';
+import { SeverityPill } from '../../components/severity-pill';
+import { purchaseOrderStatusColorMap } from '../../helpers/constants';
 
 const ReceivedPurchaseOrder = () => {
   //TODO remove
@@ -170,6 +172,14 @@ const ReceivedPurchaseOrder = () => {
       headerName: 'Status',
       width: 150,
       flex: 2,
+      renderCell: (params) =>
+        params.value ? (
+          <SeverityPill color={purchaseOrderStatusColorMap[params.value]}>
+            {params.value}
+          </SeverityPill>
+        ) : (
+          ''
+        ),
     },
     {
       field: 'action',

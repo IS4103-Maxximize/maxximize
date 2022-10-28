@@ -217,6 +217,7 @@ export const ProcessPurchaseOrderDialog = (props) => {
 
       console.log(formik.values.reservedLineItems);
       console.log(formik.values.unfulfilledLineItems);
+      console.log(processedPurchaseOrder);
     }
   }, [open]);
 

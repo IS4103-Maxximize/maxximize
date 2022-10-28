@@ -281,6 +281,30 @@ const prodOrderScheduleStatusColorMap = {
   'allocated': 'secondary'
 }
 
+const deliveryRequestStatusStringMap = {
+  // READYTODELIVER = "readytodeliver",
+  // READYTODELIVERPARTIAL = "readytodeliverpartial",
+  // OUTFORDELIVERY = 'outfordelivery',
+  // COMPLETED = 'completed',
+
+  'readytodeliver': 'Ready To Deliver',
+  'readytodeliverpartial': 'Ready To Deliver Partial',
+  'outfordelivery': 'Out For Delivery',
+  'completed': 'Completed'
+}
+  
+const deliveryRequestStatusColorMap = {
+  // READYTODELIVER = "readytodeliver",
+  // READYTODELIVERPARTIAL = "readytodeliverpartial",
+  // OUTFORDELIVERY = 'outfordelivery',
+  // COMPLETED = 'completed',
+
+  'readytodeliver': 'primary',
+  'readytodeliverpartial': 'draft',
+  'outfordelivery': 'warning',
+  'completed': 'success'
+}
+
 
 export { 
   apiHost, 
@@ -297,5 +321,7 @@ export {
   purchaseOrderStatusColorMap,
   prodOrderStatusColorMap,
   prodOrderStatusStringMap,
-  prodOrderScheduleStatusColorMap
+  prodOrderScheduleStatusColorMap,
+  deliveryRequestStatusStringMap,
+  deliveryRequestStatusColorMap
 };
