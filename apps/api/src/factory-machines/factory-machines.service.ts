@@ -1,6 +1,6 @@
-import { forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, EntityManager, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { OrganisationsService } from '../organisations/organisations.service';
 import { ProductionLinesService } from '../production-lines/production-lines.service';
 import { CreateFactoryMachineDto } from './dto/create-factory-machine.dto';
@@ -14,23 +14,27 @@ export class FactoryMachinesService {
     private readonly factoryMachineRepository: Repository<FactoryMachine>,
     @Inject(forwardRef(() => ProductionLinesService))
     private productionLinesService: ProductionLinesService,
-    private dataSource: DataSource ) {}
+    ) {}
   async create(createFactoryMachineDto: CreateFactoryMachineDto): Promise<FactoryMachine> {
-    const {serialNumber , description, isOperating, make, model, year, lastServiced, remarks, organisationId } = createFactoryMachineDto
-    const organisation = await this.organisationService.findOne(organisationId)
-    const newFactoryMachine = this.factoryMachineRepository.create({
-      serialNumber,
-      description,
-      isOperating,
-      make,
-      model,
-      year,
-      lastServiced,
-      remarks,
-      organisationId: organisation.id
-    })
-    const newMachine = await this.factoryMachineRepository.save(newFactoryMachine)
-    return this.findOne(newMachine.id);
+    try {
+      const {serialNumber , description, isOperating, make, model, year, lastServiced, remarks, organisationId } = createFactoryMachineDto
+      const organisation = await this.organisationService.findOne(organisationId)
+      const newFactoryMachine = this.factoryMachineRepository.create({
+        serialNumber,
+        description,
+        isOperating,
+        make,
+        model,
+        year,
+        lastServiced,
+        remarks,
+        organisationId: organisation.id
+      })
+      const newMachine = await this.factoryMachineRepository.save(newFactoryMachine)
+      return this.findOne(newMachine.id);
+    } catch(error) {
+      throw new NotFoundException(error.message)
+    }
   }
 
   findAll(): Promise<FactoryMachine[]> {
@@ -58,35 +62,24 @@ export class FactoryMachinesService {
   }
 
   findAllByOrg(id: number): Promise<FactoryMachine[]> {
-    return this.factoryMachineRepository.createQueryBuilder('factoryMachine')
-    .leftJoinAndSelect("factoryMachine.organisation", "organisation")
-    .leftJoinAndSelect("factoryMachine.productionLine", "productionLine")
-    .where("organisation.id = :id", {id})
-    .getMany()
+    return this.factoryMachineRepository.find({
+      where: {
+        organisationId: id
+      }, relations: {
+        productionLine: true
+      }
+    })
   }
 
  async update(id: number, updateFactoryMachineDto: UpdateFactoryMachineDto): Promise<FactoryMachine> {
     let factoryMachineToUpdate: FactoryMachine
-    await this.dataSource.manager.transaction(async (transactionalEntityManager) => {
-      factoryMachineToUpdate = await transactionalEntityManager.findOne(FactoryMachine, {
-        where: {
-          id
-        }
-      })
-      // const productionLineId = factoryMachineToUpdate.productionLineId
-      const keyValuePairs = Object.entries(updateFactoryMachineDto)
-      for (const [key, value] of keyValuePairs) {
-        // if (key === 'isOperating' && factoryMachineToUpdate.productionLineId) {
-        //   await this.productionLineService.machineTriggerChange(value, factoryMachineToUpdate.id, productionLineId, transactionalEntityManager)
-        // }
-        // if (key === 'productionLineId') {
-        //   await this.productionLineService.findOne(value)
-        // }
-        factoryMachineToUpdate[key] = value
-      }
-      return transactionalEntityManager.save(factoryMachineToUpdate)
-    })
-    return factoryMachineToUpdate
+    factoryMachineToUpdate = await this.findOne(id)
+    // const productionLineId = factoryMachineToUpdate.productionLineId
+    const keyValuePairs = Object.entries(updateFactoryMachineDto)
+    for (const [key, value] of keyValuePairs) {
+      factoryMachineToUpdate[key] = value
+    }
+    return this.factoryMachineRepository.save(factoryMachineToUpdate)
   }
 
   async remove(id: number): Promise<FactoryMachine> {
@@ -99,7 +92,7 @@ export class FactoryMachinesService {
       if (!hasOngoingPlannedSchedule) {
         return this.factoryMachineRepository.remove(factoryMachineToDelete)
       } else {
-        throw new NotFoundException('There is a schedule that is ongoing/planned, delete Machine after these are done!')
+        throw new BadRequestException('There is a schedule that is ongoing/planned, delete Machine after these are done!')
 	  }
     } else {
 	  return this.factoryMachineRepository.remove(factoryMachineToDelete)
