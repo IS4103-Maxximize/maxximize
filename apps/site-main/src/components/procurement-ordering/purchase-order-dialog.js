@@ -6,6 +6,7 @@ import {
   Dialog,
   DialogContent,
   IconButton,
+  InputAdornment,
   Stack,
   TextField,
   Toolbar,
@@ -445,6 +446,11 @@ export const PODialog = (props) => {
               onChange={formik.handleChange}
               value={formik.values.totalPrice}
               variant="outlined"
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">$</InputAdornment>
+                ),
+              }}
               disabled
             />
           </Stack>

@@ -6,6 +6,7 @@ import {
   Dialog,
   DialogContent,
   IconButton,
+  InputAdornment,
   Stack,
   TextField,
   Toolbar,
@@ -154,6 +155,7 @@ export const ReceivedPurchaseOrderViewDialog = (props) => {
       valueGetter: (params) => {
         return params.row ? params.row.price : '';
       },
+      valueFormatter: (params) => (params.value ? `$ ${params.value}` : ''),
     },
     {
       field: 'quantity',
@@ -170,6 +172,7 @@ export const ReceivedPurchaseOrderViewDialog = (props) => {
       valueGetter: (params) => {
         return params.row.price * params.row.quantity;
       },
+      valueFormatter: (params) => (params.value ? `$ ${params.value}` : ''),
     },
   ];
 
@@ -301,6 +304,11 @@ export const ReceivedPurchaseOrderViewDialog = (props) => {
                 disabled
                 sx={{ width: '13%' }}
                 size="small"
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">$</InputAdornment>
+                  ),
+                }}
               />
             </Box>
 
