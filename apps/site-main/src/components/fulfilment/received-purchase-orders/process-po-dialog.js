@@ -159,6 +159,7 @@ export const ProcessPurchaseOrderDialog = (props) => {
   };
 
   const onClose = () => {
+    setError('');
     formik.setFieldValue('reservedLineItems', []);
     formik.setFieldValue('unfulfilledLineItems', []);
     formik.resetForm();
