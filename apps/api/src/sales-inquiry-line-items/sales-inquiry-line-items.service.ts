@@ -74,15 +74,19 @@ export class SalesInquiryLineItemsService {
     id: number,
     updateSalesInquiryLineItemDto: UpdateSalesInquiryLineItemDto
   ): Promise<SalesInquiryLineItem> {
-    const salesInquiryLineItemToUpdate =
-      await this.salesInquiryLineItemsRepository.findOneBy({ id });
-    const arrayOfKeyValues = Object.entries(updateSalesInquiryLineItemDto);
-    arrayOfKeyValues.forEach(([key, value]) => {
-      salesInquiryLineItemToUpdate[key] = value;
-    });
-    return this.salesInquiryLineItemsRepository.save(
-      salesInquiryLineItemToUpdate
-    );
+    try {
+      const salesInquiryLineItemToUpdate =
+      await this.salesInquiryLineItemsRepository.findOneByOrFail({ id });
+      const arrayOfKeyValues = Object.entries(updateSalesInquiryLineItemDto);
+      arrayOfKeyValues.forEach(([key, value]) => {
+        salesInquiryLineItemToUpdate[key] = value;
+      });
+      return this.salesInquiryLineItemsRepository.save(
+        salesInquiryLineItemToUpdate
+      );
+    } catch(error) {
+      throw new NotFoundException(`sales Inquiry Line item with id:${id} cannot be found`)
+    }
   }
 
   async remove(id: number): Promise<SalesInquiryLineItem> {
