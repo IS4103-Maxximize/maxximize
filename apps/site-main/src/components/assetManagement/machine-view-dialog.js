@@ -15,7 +15,7 @@ import { fetchProductionLine } from '../../helpers/assetManagement';
 export const MachineViewDialog = (props) => {
   const { open, selectedProductionLine, handleClose } = props;
 
-  const user = JSON.parse(localStorage.getItem('user'));
+  //const user = JSON.parse(localStorage.getItem('user'));
 
   const onClose = () => {
     handleClose();
