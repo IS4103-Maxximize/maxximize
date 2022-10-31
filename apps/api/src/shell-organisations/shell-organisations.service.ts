@@ -57,9 +57,9 @@ export class ShellOrganisationsService {
     })
   }
 
-  findOne(id: number): Promise<ShellOrganisation> {
+  async findOne(id: number): Promise<ShellOrganisation> {
     try {
-      return this.shellOrganisationRepository.findOne({
+      return await this.shellOrganisationRepository.findOneOrFail({
         where: {
           id
         }, relations: {
@@ -94,7 +94,7 @@ export class ShellOrganisationsService {
   async update(id: number, updateShellOrganisationDto: UpdateShellOrganisationDto) {
     try {
       //retrieve the shell organisation
-      const shellOrganisation = await this.shellOrganisationRepository.findOne({where: {
+      const shellOrganisation = await this.shellOrganisationRepository.findOneOrFail({where: {
         id: id
       }, relations: {
         parentOrganisation: true,
@@ -125,17 +125,9 @@ export class ShellOrganisationsService {
     return this.shellOrganisationRepository.remove(shellOrgToRemove)
   }
 
-
-  async removeSome(ids: number[]): Promise<ShellOrganisation[]> {
-    const shellsToRemove = await Promise.all(ids.map(async id => {
-      return await this.shellOrganisationRepository.findOneBy({id})
-    }))
-    return this.shellOrganisationRepository.remove(shellsToRemove)
-  }
-
   async retrieveUpdatedContact(shellOrganisation: ShellOrganisation, contact: CreateContactDto): Promise<Contact> {
     const newContact = this.contactsRepository.create({
-      id: shellOrganisation.contact.id ?? null,
+      id: shellOrganisation.contact?.id ?? null,
       ...contact
     })
     return this.contactsRepository.save(newContact)

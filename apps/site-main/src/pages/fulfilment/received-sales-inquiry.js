@@ -196,6 +196,7 @@ const ReceivedSalesInquiry = () => {
       headerName: 'Total Price',
       width: 200,
       flex: 2,
+      valueFormatter: (params) => (params.value ? `$ ${params.value}` : ''),
     },
     {
       field: 'status',

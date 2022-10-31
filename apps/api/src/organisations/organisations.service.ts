@@ -4,8 +4,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { CreateContactDto } from '../contacts/dto/create-contact.dto';
 import { Contact } from '../contacts/entities/contact.entity';
-import { ShellOrganisation } from '../shell-organisations/entities/shell-organisation.entity';
-import { ShellOrganisationsService } from '../shell-organisations/shell-organisations.service';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { User } from '../users/entities/user.entity';
 import * as bcrypt from 'bcrypt';
@@ -25,7 +23,6 @@ export class OrganisationsService {
     private readonly organisationsRepository: Repository<Organisation>,
     @InjectRepository(Contact)
     private readonly contactsRepository: Repository<Contact>,
-    private shellOrganisationSerive: ShellOrganisationsService,
     @Inject(forwardRef(() => UsersService))
     private usersService: UsersService,
     private dataSource: DataSource,
@@ -178,7 +175,7 @@ export class OrganisationsService {
 
   async update(id: number, updateOrganisationDto: UpdateOrganisationDto): Promise<Organisation> {
     try {
-      const organisation = await this.organisationsRepository.findOne({where: {
+      const organisation = await this.organisationsRepository.findOneOrFail({where: {
         id
       }})
       const keyValuePairs = Object.entries(updateOrganisationDto)
@@ -208,7 +205,7 @@ export class OrganisationsService {
 
   async remove(id: number): Promise<Organisation> {
     try {
-      const organisation = await this.organisationsRepository.findOneBy({id})
+      const organisation = await this.findOne(id)
       return this.organisationsRepository.remove(organisation);
     } catch (err) {
       throw new NotFoundException(`Remove failed as Organization with id: ${id} cannot be found`)

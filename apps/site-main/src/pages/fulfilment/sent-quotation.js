@@ -171,6 +171,7 @@ const SentQuotation = () => {
       headerName: 'Quotation Total Price',
       width: 150,
       flex: 2,
+      valueFormatter: (params) => (params.value ? `$ ${params.value}` : ''),
     },
     {
       field: 'action',
