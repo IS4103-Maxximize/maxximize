@@ -1,5 +1,6 @@
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import DeleteIcon from '@mui/icons-material/Delete';
+import Inventory from '@mui/icons-material/Inventory';
 import {
   Badge,
   Box,
@@ -14,6 +15,7 @@ import {
   Typography,
 } from '@mui/material';
 import { GridSearchIcon } from '@mui/x-data-grid';
+import { perc2color } from '../../../helpers/constants'
 
 export const MasterlistLineItemToolbar = ({
   handleSearch,
@@ -38,26 +40,49 @@ export const MasterlistLineItemToolbar = ({
       </Box>
       <Box sx={{ mt: 3 }}>
         <Card sx={{ marginBottom: 1, paddingX: 2, paddingY: 1 }}>
-          <TextField
-            disabled
-            fullWidth
-            label="Reserved Quantity"
-            margin="normal"
-            name="reservedQuantity"
-            value={overallReservedQuantity}
-            variant="outlined"
-            size="small"
-          />
-          <TextField
-            disabled
-            fullWidth
-            label="Total Quantity"
-            margin="normal"
-            name="totalQuantity"
-            value={overallTotalQuantity || ''}
-            variant="outlined"
-            size="small"
-          />
+          <Stack spacing={1} direction="row" alignItems='baseline'>
+            <TextField
+              disabled
+              // fullWidth
+              label="Reserved Quantity"
+              margin="normal"
+              name="reservedQuantity"
+              value={overallReservedQuantity}
+              variant="outlined"
+              size="small"
+            />
+            <TextField
+              disabled
+              // fullWidth
+              label="Total Quantity"
+              margin="normal"
+              name="totalQuantity"
+              value={overallTotalQuantity || ''}
+              variant="outlined"
+              size="small"
+            />
+            <TextField
+              disabled
+              // fullWidth
+              label="Total Remaining Quantity"
+              margin="normal"
+              name="remainingQuantity"
+              value={`${overallTotalQuantity - overallReservedQuantity} / ${overallTotalQuantity}` || ''}
+              variant="outlined"
+              size="small"
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <Inventory 
+                      sx={{
+                        color: perc2color('masterlist', {'remaining': overallTotalQuantity - overallReservedQuantity, 'total': overallTotalQuantity})
+                      }}
+                    />
+                  </InputAdornment>
+                )
+              }}
+            />
+          </Stack>
         </Card>
         <Card>
           <CardContent>
@@ -82,7 +107,7 @@ export const MasterlistLineItemToolbar = ({
                       </InputAdornment>
                     ),
                   }}
-                  placeholder="Search batch line items"
+                  placeholder="Search Batch Line Items"
                   variant="outlined"
                   type="search"
                   onChange={handleSearch}

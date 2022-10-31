@@ -553,21 +553,21 @@ export class AppService implements OnApplicationBootstrap {
         quantity: 40,
         price: 10,
         rawMaterialId: 1,
-        quotationId: 1,
+        quotationId: 2,
       });
 
       await this.quotationLineItemService.create({
         quantity: 40,
         price: 5,
         rawMaterialId: 2,
-        quotationId: 1,
+        quotationId: 2,
       });
 
       await this.quotationLineItemService.create({
         quantity: 20,
         price: 20,
         rawMaterialId: 3,
-        quotationId: 1,
+        quotationId: 2,
       });
 
       //create purchaseOrder

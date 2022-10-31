@@ -1,5 +1,6 @@
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, InputAdornment, TextField } from "@mui/material";
 import { useFormik } from "formik";
+import { useEffect, useState } from "react";
 import * as Yup from "yup";
 import { allocateSchedule } from "../../helpers/production/production-order";
 
@@ -46,6 +47,7 @@ export const FinalGoodsAllocationDialog = (props) => {
       })
       .catch(err => handleAlertOpen(`Failed to allocate goods`, 'error'));
   };
+  const [plannedQuantity, setPlannedQuantity] = useState(0)
 
   const formik = useFormik({
     initialValues: {
@@ -73,6 +75,24 @@ export const FinalGoodsAllocationDialog = (props) => {
     handleClose();
   }
 
+  const estimatedProduction = () => {
+	// In hours
+	const scheduleDuration = (new Date(schedule?.end).getTime() - new Date(schedule?.start).getTime()) / 3600000
+
+	const quantity = Math.ceil(scheduleDuration * schedule?.productionLine?.outputPerHour)
+
+	setPlannedQuantity(quantity);
+
+	return quantity
+  }
+
+  useEffect(() => {
+	if (schedule) {
+		const quantity = estimatedProduction()
+		formik.setFieldValue("quantity", quantity)
+  	}
+  }, [schedule])
+
   return (
     <form onSubmit={formik.handleSubmit}>
       <Dialog 
@@ -90,9 +110,7 @@ export const FinalGoodsAllocationDialog = (props) => {
             margin="normal"
             name="planned-prod-quantity"
             type="number"
-            value={
-              productionOrder?.plannedQuantity * productionOrder?.bom?.finalGood?.lotQuantity
-            }
+            value={plannedQuantity}
             variant="outlined"
             InputProps={{ 
               inputProps: { min: 1 },

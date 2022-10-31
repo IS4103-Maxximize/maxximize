@@ -144,12 +144,17 @@ const Products = (props) => {
       .then(() => getProducts());
   };
 
+  const unitMap = {
+    'kilogram': 'kg',
+    'litre': 'litre',
+  }
+
   const columns = [
-    {
-      field: 'id',
-      headerName: 'ID',
-      flex: 1,
-    },
+    // {
+    //   field: 'id',
+    //   headerName: 'ID',
+    //   flex: 1,
+    // },
     {
       field: 'name',
       headerName: 'Name',
@@ -166,14 +171,10 @@ const Products = (props) => {
       flex: 1,
     },
     {
-      field: 'unit',
-      headerName: 'Unit',
-      flex: 1,
-    },
-    {
       field: 'unitPrice',
       headerName: 'Unit Price',
       flex: 1,
+      valueFormatter: (params) => params.value ? `$ ${params.value}` : ''
     },
     {
       field: 'expiry',
@@ -184,10 +185,11 @@ const Products = (props) => {
       field: 'lotQuantity',
       headerName: 'Lot Quantity',
       flex: 1,
+      valueGetter: (params) => params.row ? `${params.row.lotQuantity} ${unitMap[params.row.unit]}` : ''
     },
     {
       field: 'actions',
-      headerName: 'actions',
+      headerName: 'Actions',
       flex: 1,
       sortable: false,
       renderCell: menuButton,

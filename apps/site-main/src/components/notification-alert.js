@@ -1,7 +1,13 @@
 import { Alert, Snackbar } from "@mui/material";
 
 export const NotificationAlert = (props) => {
-  const {open, severity, text, handleClose} = props;
+  const {
+    open, 
+    severity, 
+    text, 
+    handleClose,
+    ...rest
+  } = props;
 
   return (
     <Snackbar 

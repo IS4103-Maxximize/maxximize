@@ -1,3 +1,5 @@
+import CancelIcon from '@mui/icons-material/Cancel';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import MoreVert from '@mui/icons-material/MoreVert';
 import {
   Box,
@@ -5,19 +7,19 @@ import {
   CardContent,
   Container,
   IconButton,
-  Typography,
+  Typography
 } from '@mui/material';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
+import DayJS from 'dayjs';
 import { useEffect, useState } from 'react';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
-import { DashboardLayout } from '../../components/dashboard-layout';
-import { NotificationAlert } from '../../components/notification-alert';
 import { ConfirmDialog } from '../../components/assetManagement/confirm-dialog';
 import { MachineDialog } from '../../components/assetManagement/machine-dialog';
-import { Toolbar } from '../../components/toolbar';
 import { MachineMenu } from '../../components/assetManagement/machine-menu';
+import { DashboardLayout } from '../../components/dashboard-layout';
+import { NotificationAlert } from '../../components/notification-alert';
+import { Toolbar } from '../../components/toolbar';
 import { deleteMachine, fetchMachines } from '../../helpers/assetManagement';
-import DayJS from 'dayjs';
 
 const MachineManagement = (props) => {
   const user = JSON.parse(localStorage.getItem('user'));
@@ -140,11 +142,11 @@ const MachineManagement = (props) => {
   }, [selectedRowId]);
 
   let columns = [
-    {
-      field: 'id',
-      headerName: 'ID',
-      flex: 1,
-    },
+    // {
+    //   field: 'id',
+    //   headerName: 'ID',
+    //   flex: 1,
+    // },
     {
       field: 'serialNumber',
       headerName: 'Serial Number',
@@ -181,6 +183,13 @@ const MachineManagement = (props) => {
       field: 'isOperating',
       headerName: 'Operating',
       flex: 1,
+      renderCell: (params) => {
+        return params.value ? (
+          <CheckCircleIcon color="success" />
+        ) : (
+          <CancelIcon color="error" />
+        );
+      },
     },
     {
       field: 'remarks',
@@ -193,7 +202,7 @@ const MachineManagement = (props) => {
       flex: 1,
       valueGetter: (params) => {
         if (params.row) {
-          return params.row.productionLineId;
+          return params.row.productionLineId ? params.row.productionLineId : 'NA';
         } else {
           return '';
         }

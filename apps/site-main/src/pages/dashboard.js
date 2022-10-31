@@ -8,9 +8,60 @@ import { TotalCustomers } from '../components/dashboard/total-customers';
 import { TotalProfit } from '../components/dashboard/total-profit';
 import { TrafficByDevice } from '../components/dashboard/traffic-by-device';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
+import { useState } from 'react';
+import { NotificationAlert } from '../components/notification-alert';
+import WorkerDashboard from './dashboards/worker-dashboard';
 
 const Dashboard = () => {
   const user = JSON.parse(localStorage.getItem('user'));
+
+  // Alert Helpers
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertSeverity, setAlertSeverity] = useState('error'); // success || error
+  const [alertText, setAlertText] = useState('');
+  const handleAlertOpen = (text, severity) => {
+    setAlertSeverity(severity);
+    setAlertText(text);
+    setAlertOpen(true);
+  };
+  const handleAlertClose = () => {
+    setAlertOpen(false);
+  };
+
+  const workerDashboardPerms = [
+    'factoryworker',
+    'superadmin',
+  ]
+
+
+  const DefaultDashboardItems = () => (
+    <>
+      <Grid item lg={3} sm={6} xl={3} xs={12}>
+        <Budget />
+      </Grid>
+      <Grid item xl={3} lg={3} sm={6} xs={12}>
+        <TotalCustomers />
+      </Grid>
+      <Grid item xl={3} lg={3} sm={6} xs={12}>
+        <TasksProgress />
+      </Grid>
+      <Grid item xl={3} lg={3} sm={6} xs={12}>
+        <TotalProfit sx={{ height: '100%' }} />
+      </Grid>
+      <Grid item lg={8} md={12} xl={9} xs={12}>
+        <Sales />
+      </Grid>
+      <Grid item lg={4} md={6} xl={3} xs={12}>
+        <TrafficByDevice sx={{ height: '100%' }} />
+      </Grid>
+      <Grid item lg={4} md={6} xl={3} xs={12}>
+        <LatestProducts sx={{ height: '100%' }} />
+      </Grid>
+      <Grid item lg={8} md={12} xl={9} xs={12}>
+        <LatestOrders />
+      </Grid>
+    </>
+  );
 
   return (
     <>
@@ -23,35 +74,27 @@ const Dashboard = () => {
         component="main"
         sx={{
           flexGrow: 1,
-          py: 8,
+          py: 4
         }}
       >
+        <NotificationAlert
+          open={alertOpen}
+          severity={alertSeverity}
+          text={alertText}
+          handleClose={handleAlertClose}
+        />
         <Container maxWidth={false}>
           <Grid container spacing={3}>
-            <Grid item lg={3} sm={6} xl={3} xs={12}>
-              <Budget />
-            </Grid>
-            <Grid item xl={3} lg={3} sm={6} xs={12}>
-              <TotalCustomers />
-            </Grid>
-            <Grid item xl={3} lg={3} sm={6} xs={12}>
-              <TasksProgress />
-            </Grid>
-            <Grid item xl={3} lg={3} sm={6} xs={12}>
-              <TotalProfit sx={{ height: '100%' }} />
-            </Grid>
-            <Grid item lg={8} md={12} xl={9} xs={12}>
-              <Sales />
-            </Grid>
-            <Grid item lg={4} md={6} xl={3} xs={12}>
-              <TrafficByDevice sx={{ height: '100%' }} />
-            </Grid>
-            <Grid item lg={4} md={6} xl={3} xs={12}>
-              <LatestProducts sx={{ height: '100%' }} />
-            </Grid>
-            <Grid item lg={8} md={12} xl={9} xs={12}>
-              <LatestOrders />
-            </Grid>
+            {/* {workerDashboardPerms.includes(user?.role) && 
+              <WorkerDashboard 
+                user={user} 
+                handleAlertOpen={handleAlertOpen}
+              />
+            }
+            {!workerDashboardPerms.includes(user?.role) && 
+              <DefaultDashboardItems />
+            } */}
+            <DefaultDashboardItems />
           </Grid>
         </Container>
       </Box>

@@ -23,13 +23,32 @@ const BinDetails = () => {
   //Batch line items from the bin
   const [batchLineItems, setBatchLineItems] = useState([]);
 
-  //Load in list of bins, initial
-  useEffect(() => {
+  //Retrieve rack
+  const retrieveBin = async () => {
     if (state != null) {
-      setBin(state.bin);
-      setBatchLineItems(state.bin.batchLineItems);
+      const response = await fetch(
+        `http://localhost:3000/api/bins/${state.binId}`
+      );
+
+      let result = [];
+      if (response.status == 200 || response.status == 201) {
+        result = await response.json();
+      }
+      setBin(result);
+      setBatchLineItems(result.batchLineItems);
     }
-  }, [location]);
+  };
+
+  useEffect(() => {
+    retrieveBin();
+  }, []);
+  //Load in list of bins, initial
+  //   useEffect(() => {
+  //     if (state != null) {
+  //       setBin(state.bin);
+  //       setBatchLineItems(state.bin.batchLineItems);
+  //     }
+  //   }, [location]);
 
   //Search Function
   const [search, setSearch] = useState('');
@@ -57,6 +76,8 @@ const BinDetails = () => {
   //Update bin
   const updateBin = (bin) => {
     setBin(bin);
+    console.log(bin);
+    setBatchLineItems(bin.batchLineItems);
   };
 
   //Columns for datagrid, column headers & specs

@@ -27,6 +27,8 @@ import RequestPageIcon from '@mui/icons-material/RequestPage';
 import RuleIcon from '@mui/icons-material/Rule';
 import TaskIcon from '@mui/icons-material/Task';
 import WarehouseIcon from '@mui/icons-material/Warehouse';
+import FindInPageIcon from '@mui/icons-material/FindInPage';
+import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import {
   Accordion,
   AccordionDetails,
@@ -38,7 +40,7 @@ import {
   Drawer,
   Link,
   Typography,
-  useMediaQuery
+  useMediaQuery,
 } from '@mui/material';
 import PropTypes from 'prop-types';
 import { useState } from 'react';
@@ -52,7 +54,7 @@ const standalone = [
     href: '/',
     icon: <DashboardIcon fontSize="small" />,
     title: 'Dashboard',
-    access: ['admin', 'manager', 'factoryworker', 'superadmin']
+    access: ['admin', 'manager', 'factoryworker', 'superadmin'],
   },
   {
     href: '/workermanagement',
@@ -234,6 +236,12 @@ const items = [
         access: ['manager', 'factoryworker', 'superadmin'],
       },
       {
+        href: '/production/production-request',
+        icon: <FindInPageIcon fontSize="small" />,
+        title: 'Production Request',
+        access: ['manager', 'factoryworker', 'superadmin'],
+      },
+      {
         href: '/production/production-order',
         icon: <TaskIcon fontSize="small" />,
         title: 'Production Order',
@@ -270,6 +278,12 @@ const items = [
         href: '/fulfilment/received-purchase-order',
         icon: <DocumentScannerIcon fontSize="small" />,
         title: 'Received Purchase Order',
+        access: ['manager', 'factoryworker', 'superadmin'],
+      },
+      {
+        href: '/fulfilment/delivery-request',
+        icon: <LocalShippingIcon fontSize="small" />,
+        title: 'Delivery Request',
         access: ['manager', 'factoryworker', 'superadmin'],
       },
     ],

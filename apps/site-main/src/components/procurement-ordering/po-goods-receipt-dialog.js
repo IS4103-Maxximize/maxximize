@@ -63,7 +63,9 @@ export const PoGoodsReceiptDialog = (props) => {
     {
       field: 'quantity',
       headerName: 'Quantity',
-      flex: 1
+      flex: 1,
+      valueGetter: (params) => 
+        params.row ? `${params.row.quantity} ${params.row.product.unit === 'kilogram' ? 'kg' : 'litre'}` : ''
     },
     {
       field: 'rawMaterial',

@@ -6,6 +6,7 @@ import {
   DialogContentText,
   DialogTitle,
   FormControlLabel,
+  InputAdornment,
   Radio,
   RadioGroup,
   TextField,
@@ -197,21 +198,6 @@ export const ProductDialog = (props) => {
           <TextField
             required
             disabled={disabled}
-            error={Boolean(formik.touched.unitPrice && formik.errors.unitPrice)}
-            fullWidth
-            helperText={formik.touched.unitPrice && formik.errors.unitPrice}
-            label="Unit Price"
-            margin="normal"
-            name="unitPrice"
-            onBlur={formik.handleBlur}
-            onChange={formik.handleChange}
-            type="number"
-            value={formik.values.unitPrice}
-            variant="outlined"
-          />
-          <TextField
-            required
-            disabled={disabled}
             error={Boolean(
               formik.touched.lotQuantity && formik.errors.lotQuantity
             )}
@@ -227,6 +213,26 @@ export const ProductDialog = (props) => {
             type="number"
             value={formik.values.lotQuantity}
             variant="outlined"
+          />
+          <TextField
+            required
+            disabled={disabled}
+            error={Boolean(formik.touched.unitPrice && formik.errors.unitPrice)}
+            fullWidth
+            helperText={formik.touched.unitPrice && formik.errors.unitPrice}
+            label="Unit Price"
+            margin="normal"
+            name="unitPrice"
+            onBlur={formik.handleBlur}
+            onChange={formik.handleChange}
+            type="number"
+            value={formik.values.unitPrice}
+            variant="outlined"
+            InputProps={{
+              startAdornment: (
+                <InputAdornment sx={{ mr: 1 }}>$</InputAdornment>
+              )
+            }}
           />
           <TextField
             required

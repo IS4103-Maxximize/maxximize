@@ -7,7 +7,7 @@ import {
   MenuList,
 } from '@mui/material';
 
-export const OnboardClientMenu = (props) => {
+export const ApplicationMenu = (props) => {
   const { anchorEl, menuOpen, handleMenuClose, handleDialogOpen } = props;
   return (
     <Menu anchorEl={anchorEl} open={menuOpen} onClose={handleMenuClose}>

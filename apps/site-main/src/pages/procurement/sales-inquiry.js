@@ -18,7 +18,9 @@ import { SalesInquiryDialog } from '../../components/procurement-ordering/sales-
 import { SalesInquiryMenu } from '../../components/procurement-ordering/sales-inquiry.menu';
 import { SupplierDialog } from '../../components/procurement-ordering/supplier-dialog';
 import { ConfirmDialog } from '../../components/product/confirm-dialog';
+import { SeverityPill } from '../../components/severity-pill';
 import { Toolbar } from '../../components/toolbar';
+import { salesInquiryStatusColorMap } from '../../helpers/constants';
 import {
   deleteSalesInquiries,
   fetchSalesInquiries,
@@ -86,7 +88,6 @@ export const SalesInquiry = (props) => {
   // Supplier Dialog Helpers
   const [supplierDialogOpen, setSupplierDialogOpen] = useState(false);
   const handleSupplierDialogOpen = () => {
-    console.log(selectedRow);
     setSupplierDialogOpen(true);
   };
   const handleSupplierDialogClose = () => {
@@ -178,11 +179,8 @@ export const SalesInquiry = (props) => {
   };
 
   const addSalesInquiry = (inquiry) => {
-    console.log(inquiry);
     const updatedProducts = [...rows, inquiry];
-    console.log(updatedProducts);
     setRows(updatedProducts);
-    console.log(inquiry);
     handleAlertOpen(
       `Added Sales Inquiry ${inquiry.id} successfully!`,
       'success'
@@ -193,7 +191,6 @@ export const SalesInquiry = (props) => {
     const updatedRow = { ...newRow };
 
     const inquiry = await newRow.json();
-    console.log(inquiry);
 
     getSalesInquiries();
     handleAlertOpen(
@@ -230,16 +227,22 @@ export const SalesInquiry = (props) => {
       field: 'totalPrice',
       headerName: 'Total Price',
       flex: 2,
+      valueFormatter: (params) => params.value ? `$ ${params.value}` : ''
     },
     {
       field: 'status',
       headerName: 'Status',
-      flex: 1,
+      flex: 2,
+      renderCell: (params) => (
+        params.row ? 
+        <SeverityPill color={salesInquiryStatusColorMap[params.value]}>{params.value}</SeverityPill>
+        : ''
+      )
     },
     {
       field: 'hasPRs',
       headerName: 'Purchase Requistions?',
-      flex: 1,
+      flex: 2,
       renderCell: (params) => {
         return params.row.purchaseRequisitions.length === 0 ? (
           <CancelIcon color="error" />
@@ -250,7 +253,7 @@ export const SalesInquiry = (props) => {
     },
     {
       field: 'actions',
-      headerName: '',
+      headerName: 'Actions',
       flex: 1,
       sortable: false,
       renderCell: menuButton,

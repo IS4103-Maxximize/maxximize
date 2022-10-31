@@ -5,6 +5,7 @@ import {
   Dialog,
   DialogContent,
   IconButton,
+  InputAdornment,
   TextField,
   Toolbar,
   Typography
@@ -192,6 +193,7 @@ export const CreatePRSalesInquiryDialog = (props) => {
       valueGetter: (params) => {
         return params.row ? params.row.rawMaterial.unitPrice : 0;
       },
+	  valueFormatter: (params) => params.value ? `$ ${params.value}` : ''
     },
     {
       field: 'unit',
@@ -279,6 +281,11 @@ export const CreatePRSalesInquiryDialog = (props) => {
                 onChange={formik.handleChange}
                 value={formik.values.totalPrice}
                 variant="outlined"
+				InputProps={{
+              		startAdornment: (
+                		<InputAdornment position="start">$</InputAdornment>
+              		),
+            	}}
                 disabled
               />
             </Box>

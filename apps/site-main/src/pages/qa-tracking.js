@@ -1,5 +1,6 @@
 import {
   Box,
+  Button,
   Card,
   CardContent,
   Container,
@@ -20,6 +21,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { v4 as uuid } from 'uuid'
+import DayJS from 'dayjs';
 
 
 export const QATracking = (props) => {
@@ -27,10 +29,7 @@ export const QATracking = (props) => {
   const organisationId = user ? user.organisation.id : null;
   const name = 'Batch Tracking';
 
-  
-
   const [loading, setLoading] = useState(true); // loading upon entering page
-
 
   // Alert Helpers
   const [alertOpen, setAlertOpen] = useState(false);
@@ -52,17 +51,18 @@ export const QATracking = (props) => {
   // Toolbar Helpers
   // Searchbar
   const [search, setSearch] = useState('');
-  const handleSearch = () => {
+  const handleSearch = async () => {
     console.log(search)
     // fetch batch based on search
-    setLoading(true)
-    // setBatch(batch)
-    fetchBatchTracking(search)
-      .then(res => {
-        setBatch(res);
-        handleAlertOpen(`Successfully Retrieved Batch!`, 'success');
-      })
-      .catch(err => handleAlertOpen(`Invalid Batch Number`, 'warning'));
+    setLoading(true);
+
+    const response = await fetchBatchTracking(search);
+    if (response.status === 200 || response.status === 201) {
+      setBatch(await response.json());
+      handleAlertOpen(`Successfully Retrieved Batch!`, 'success');
+    } else {
+      handleAlertOpen(`Invalid Batch Number`, 'warning');
+    }
   };
 
   const clearSearch = () => {
@@ -143,6 +143,13 @@ export const QATracking = (props) => {
         }
       }
     }
+    if (depth === labels.length - 1) {
+      result = {
+        id,
+        title,
+        parentId
+      }
+    }
     
     return result
   }
@@ -168,23 +175,41 @@ export const QATracking = (props) => {
       const treeViewArr = [transform(batch, null, 0)]
       setTreeViewArr(treeViewArr)
       setNodeIds([])
+      setExpanded([])
     }
   }, [batch])
 
 
   // Tracking Display helpers
-
   const [nodeIds, setNodeIds] = useState([]);
+
+  const [expanded, setExpanded] = useState([]);
+  const handleExpandClick = () => {
+    const allNodeIds = Array.from(nodeIdMap.keys());
+    if (expanded.length === 0) {
+      setExpanded(allNodeIds);
+    } 
+    else { // Collapse
+      setExpanded([]);
+      setNodeIds([]);
+    }
+  }
 
   useEffect(() => {
     if (nodeIds.length > 0) {
       console.log(nodeIds)
     }
   }, [nodeIds])
+
+  const dateFields = [
+    'expiryDate',
+    'createdDateTime',
+    'created',
+  ]
   
   const renderTrackingCards = (nodeIds) => {
     // start from top -> bottom
-    return nodeIds.length > 0 ? nodeIds.map((nodeId, index) => {
+    return nodeIds.length > 1 ? nodeIds.map((nodeId, index) => {
       if (index === 0) return null;
 
       const object = objectNodeIdMap.get(nodeId);
@@ -206,7 +231,11 @@ export const QATracking = (props) => {
                     <TextField
                       fullWidth
                       label={entry[0]}
-                      value={entry[1]}
+                      value={
+                        dateFields.includes(entry[0]) ? 
+                          DayJS(entry[1]).format('DD MMM YYYY, hh:mm a') : 
+                          entry[1]
+                      }
                       sx={{ mb: 1 }}
                     />
                   )
@@ -219,7 +248,23 @@ export const QATracking = (props) => {
         </div>
       )
     }) :
-    <Typography>TRACKING</Typography>
+    <Card
+      sx={{
+        height: 300,
+        textAlign: "center",
+      }}
+    >
+      <CardContent>
+        <Typography 
+          variant="h6"
+          sx={{ 
+            fontWeight: "medium"
+          }}
+        >
+          Select an Item to Track
+        </Typography>
+      </CardContent>
+    </Card>
   }
 
   return (
@@ -232,10 +277,9 @@ export const QATracking = (props) => {
       <Box
         component="main"
         sx={{
-          flexGrow: 1,
+          // flexGrow: 1,
           pt: 4,
           pb: 4,
-          height: '100vh'
         }}
       >
         <Container maxWidth={false}
@@ -248,7 +292,7 @@ export const QATracking = (props) => {
             handleClose={handleAlertClose}
           />
           <Box
-            sx={{ height: '10%'}}
+            sx={{}}
           >
             <QATrackingToolbar
               key="toolbar"
@@ -262,31 +306,35 @@ export const QATracking = (props) => {
           </Box>
           <Box
             sx={{
-              mt: 3,
-              height: '90%'
+              mt: 3
             }}
           >
             {batch ? (
-              <Stack direction="row">
+              <div style={{display: 'flex', flexDirection: 'row'}}>
                 <Box
                   sx={{
                     width: '40%',
-                    height: '100%',
                     textAlign: 'left',
+                    height: '1000px',
                     pt: 2,
-                    pr: 2
+                    pr: 2,
+                    display: 'flex',
+                    flexDirection: 'column',
                   }}
                 >
-                  {/* <Typography>{JSON.stringify(treeViewArr)}</Typography> */}
+                  <Button 
+                    sx={{ mb: 1 }}
+                    onClick={handleExpandClick}
+                  >
+                    {expanded.length === 0 ? 'Expand' : 'Collapse'}
+                  </Button>
                   <TreeView
                     aria-label="batch-tracking-tree"
                     defaultCollapseIcon={<ExpandMoreIcon />}
                     defaultExpandIcon={<ChevronRightIcon />}
+                    expanded={expanded}
                     sx={{ flexGrow: 1, overflowY: 'auto' }}
                     onNodeSelect={(e, nodeIds) => {
-                      console.log('id: ' + nodeIds)
-                      console.log('parentId: ' + nodeIdMap.get(nodeIds))
-                      
                       let current = nodeIds;
                       const arr = []
                       while (current) {
@@ -295,22 +343,26 @@ export const QATracking = (props) => {
                       }
                       setNodeIds(arr.reverse());
                     }}
+                    onNodeToggle={(e, nodeIds) => {
+                      setExpanded(nodeIds)
+                    }}
                   >
                     {renderTree(treeViewArr)}
                   </TreeView>
                 </Box>
                 <Box
                   sx={{
+                    mb: 2,
                     width: '60%',
+                    height: '1000px',
                     display: 'flex',
                     flexDirection: 'column',
-                    height: '700px',
-                    overflowY: "scroll"
+                    overflowY: 'scroll'
                   }}
                 >
                   {renderTrackingCards(nodeIds)}
                 </Box>
-              </Stack>
+              </div>
             ) : (
               <Card
                 variant="outlined"

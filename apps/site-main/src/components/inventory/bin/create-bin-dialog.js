@@ -37,8 +37,6 @@ export const CreateBinDialog = ({
     formik.resetForm();
   };
 
-  useEffect(() => console.log(rack.id), [open]);
-
   //Handle Formik submission
   const handleOnSubmit = async () => {
     const response = await fetch('http://localhost:3000/api/bins', {
@@ -77,7 +75,7 @@ export const CreateBinDialog = ({
         .min(1, 'Name must be at least be 1 character long')
         .max(50, 'Name can at most be 50 characters long')
         .required('Name is required'),
-      volumetricSpace: Yup.number()
+      volumetricSpace: Yup.number('Volumetric space should be a number')
         .positive('Volumetric space must be positive')
         .required('Volumetric space is required'),
     }),
