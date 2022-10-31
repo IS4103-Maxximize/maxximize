@@ -29,6 +29,7 @@ import { ProdRequestStatus } from '../production-requests/enums/prodRequestStatu
 import { ProductionRequestsService } from '../production-requests/production-requests.service';
 import { RawMaterial } from '../raw-materials/entities/raw-material.entity';
 import { RawMaterialsService } from '../raw-materials/raw-materials.service';
+import { ScheduleLineItem } from '../schedule-line-items/entities/schedule-line-item.entity';
 import { CreateScheduleDto } from '../schedules/dto/create-schedule.dto';
 import { Schedule } from '../schedules/entities/schedule.entity';
 import { ScheduleType } from '../schedules/enums/scheduleType.enum';
@@ -173,13 +174,46 @@ export class ProductionOrdersService {
                 end,
                 productionLineId,
                 status: ScheduleType.PLANNED,
-                prodLineItems: [],
+                scheduleLineItems: [],
               }
             );
             schedulesToBeAdded.push(
               await transactionalEntityManager.save(schedule)
             );
           }
+          // for (const bomLineItem of bomToBeAdded.bomLineItems) {
+          //   let current = 0;
+          //   let target = 0;
+          //   for (const schedule of schedulesToBeAdded) {
+          //     const prodLine = await this.productionLinesService.findOne(
+          //       schedule.productionLineId
+          //     );
+          //     const duration =
+          //       (schedule.end.getTime() - schedule.start.getTime()) / 3600000;
+          //     let start = target;
+          //     target +=
+          //       (prodLine.outputPerHour / bomToBeAdded.finalGood.lotQuantity) *
+          //       duration *
+          //       bomLineItem.quantity;
+
+          //     for (const prodLineItem of prodLineItemsToBeAdded) {
+          //       if (prodLineItem.rawMaterial.id == bomLineItem.rawMaterial.id) {
+          //         if (prodLineItem.quantity < target - current) {
+          //           current += prodLineItem.quantity;
+          //         } else {
+          //           current = target;
+          //         }
+          //         if (start < current) {
+          //           schedule.prodLineItems.push(prodLineItem);
+          //         }
+          //         if (current == target) {
+          //           break;
+          //         }
+          //       }
+          //     }
+          //   }
+          // }
+
           for (const bomLineItem of bomToBeAdded.bomLineItems) {
             let current = 0;
             let target = 0;
@@ -194,16 +228,29 @@ export class ProductionOrdersService {
                 (prodLine.outputPerHour / bomToBeAdded.finalGood.lotQuantity) *
                 duration *
                 bomLineItem.quantity;
+              current = 0
 
               for (const prodLineItem of prodLineItemsToBeAdded) {
                 if (prodLineItem.rawMaterial.id == bomLineItem.rawMaterial.id) {
+                  let quan = 0
                   if (prodLineItem.quantity < target - current) {
+                    quan = prodLineItem.quantity + current - start
                     current += prodLineItem.quantity;
                   } else {
+                    if (current > start){
+                      quan = target - current
+                    } else {
+                      quan = target - start
+                    }
                     current = target;
                   }
                   if (start < current) {
-                    schedule.prodLineItems.push(prodLineItem);
+                    const scheduleLineItem = await transactionalEntityManager.create(ScheduleLineItem, {
+                      quantity: quan,
+                      prodLineItem
+                    })
+                    await transactionalEntityManager.save(scheduleLineItem)
+                    schedule.scheduleLineItems.push(scheduleLineItem);
                   }
                   if (current == target) {
                     break;
@@ -366,7 +413,7 @@ export class ProductionOrdersService {
                   end,
                   productionLineId,
                   status: ScheduleType.PLANNED,
-                  prodLineItems: [],
+                  scheduleLineItems: [],
                 }
               );
               schedulesToBeAdded.push(
@@ -384,22 +431,32 @@ export class ProductionOrdersService {
                   (schedule.end.getTime() - schedule.start.getTime()) / 3600000;
                 let start = target;
                 target +=
-                  (prodLine.outputPerHour /
-                    bomToBeAdded.finalGood.lotQuantity) *
+                  (prodLine.outputPerHour / bomToBeAdded.finalGood.lotQuantity) *
                   duration *
                   bomLineItem.quantity;
-
+  
+                current = 0
                 for (const prodLineItem of prodLineItemsToBeAdded) {
-                  if (
-                    prodLineItem.rawMaterial.id == bomLineItem.rawMaterial.id
-                  ) {
+                  if (prodLineItem.rawMaterial.id == bomLineItem.rawMaterial.id) {
+                    let quan = 0
                     if (prodLineItem.quantity < target - current) {
+                      quan = prodLineItem.quantity + current - start
                       current += prodLineItem.quantity;
                     } else {
+                      if (current > start){
+                        quan = target - current
+                      } else {
+                        quan = target - start
+                      }
                       current = target;
                     }
                     if (start < current) {
-                      schedule.prodLineItems.push(prodLineItem);
+                      const scheduleLineItem = await transactionalEntityManager.create(ScheduleLineItem, {
+                        quantity: quan,
+                        prodLineItem
+                      })
+                      await transactionalEntityManager.save(scheduleLineItem)
+                      schedule.scheduleLineItems.push(scheduleLineItem);
                     }
                     if (current == target) {
                       break;
@@ -509,7 +566,7 @@ export class ProductionOrdersService {
                     end,
                     productionLineId,
                     status: ScheduleType.PLANNED,
-                    prodLineItems: [],
+                    scheduleLineItems: [],
                   }
                 );
                 schedulesToBeAdded.push(
@@ -524,26 +581,35 @@ export class ProductionOrdersService {
                     schedule.productionLineId
                   );
                   const duration =
-                    (schedule.end.getTime() - schedule.start.getTime()) /
-                    3600000;
+                    (schedule.end.getTime() - schedule.start.getTime()) / 3600000;
                   let start = target;
                   target +=
-                    (prodLine.outputPerHour /
-                      bomToBeAdded.finalGood.lotQuantity) *
+                    (prodLine.outputPerHour / bomToBeAdded.finalGood.lotQuantity) *
                     duration *
                     bomLineItem.quantity;
-
+    
+                  current = 0
                   for (const prodLineItem of prodLineItemsToBeAdded) {
-                    if (
-                      prodLineItem.rawMaterial.id == bomLineItem.rawMaterial.id
-                    ) {
+                    if (prodLineItem.rawMaterial.id == bomLineItem.rawMaterial.id) {
+                      let quan = 0
                       if (prodLineItem.quantity < target - current) {
+                        quan = prodLineItem.quantity + current - start
                         current += prodLineItem.quantity;
                       } else {
+                        if (current > start){
+                          quan = target - current
+                        } else {
+                          quan = target - start
+                        }
                         current = target;
                       }
                       if (start < current) {
-                        schedule.prodLineItems.push(prodLineItem);
+                        const scheduleLineItem = await transactionalEntityManager.create(ScheduleLineItem, {
+                          quantity: quan,
+                          prodLineItem
+                        })
+                        await transactionalEntityManager.save(scheduleLineItem)
+                        schedule.scheduleLineItems.push(scheduleLineItem);
                       }
                       if (current == target) {
                         break;
@@ -883,7 +949,7 @@ export class ProductionOrdersService {
                     productionLineId,
                     status: ScheduleType.PLANNED,
                     productionOrder: productionOrderToUpdate,
-                    prodLineItems: [],
+                    scheduleLineItems: [],
                   }
                 );
                 schedulesToBeAdded.push(
@@ -892,43 +958,52 @@ export class ProductionOrdersService {
                 const bomToBeAdded = productionOrderToUpdate.bom;
                 const prodLineItemsToBeAdded =
                   productionOrderToUpdate.prodLineItems;
-                for (const bomLineItem of bomToBeAdded.bomLineItems) {
-                  let current = 0;
-                  let target = 0;
-                  for (const schedule of schedulesToBeAdded) {
-                    const prodLine = await this.productionLinesService.findOne(
-                      schedule.productionLineId
-                    );
-                    const duration =
-                      (schedule.end.getTime() - schedule.start.getTime()) /
-                      3600000;
-                    let start = target;
-                    target +=
-                      (prodLine.outputPerHour /
-                        bomToBeAdded.finalGood.lotQuantity) *
-                      duration *
-                      bomLineItem.quantity;
-
-                    for (const prodLineItem of prodLineItemsToBeAdded) {
-                      if (
-                        prodLineItem.rawMaterial.id ==
-                        bomLineItem.rawMaterial.id
-                      ) {
-                        if (prodLineItem.quantity < target - current) {
-                          current += prodLineItem.quantity;
-                        } else {
-                          current = target;
-                        }
-                        if (start < current) {
-                          schedule.prodLineItems.push(prodLineItem);
-                        }
-                        if (current == target) {
-                          break;
+                  for (const bomLineItem of bomToBeAdded.bomLineItems) {
+                    let current = 0;
+                    let target = 0;
+                    for (const schedule of schedulesToBeAdded) {
+                      const prodLine = await this.productionLinesService.findOne(
+                        schedule.productionLineId
+                      );
+                      const duration =
+                        (schedule.end.getTime() - schedule.start.getTime()) / 3600000;
+                      let start = target;
+                      target +=
+                        (prodLine.outputPerHour / bomToBeAdded.finalGood.lotQuantity) *
+                        duration *
+                        bomLineItem.quantity;
+        
+                      current = 0
+                      for (const prodLineItem of prodLineItemsToBeAdded) {
+                        if (prodLineItem.rawMaterial.id == bomLineItem.rawMaterial.id) {
+                          let quan = 0
+                          if (prodLineItem.quantity < target - current) {
+                            quan = prodLineItem.quantity + current - start
+                            current += prodLineItem.quantity;
+                          } else {
+                            if (current > start){
+                              quan = target - current
+                            } else {
+                              quan = target - start
+                            }
+                            
+                            current = target;
+                          }
+                          if (start < current) {
+                            const scheduleLineItem = await transactionalEntityManager.create(ScheduleLineItem, {
+                              quantity: quan,
+                              prodLineItem
+                            })
+                            await transactionalEntityManager.save(scheduleLineItem)
+                            schedule.scheduleLineItems.push(scheduleLineItem);
+                          }
+                          if (current == target) {
+                            break;
+                          }
                         }
                       }
                     }
                   }
-                }
                 for (const schedule of schedulesToBeAdded) {
                   await transactionalEntityManager.save(schedule);
                 }
@@ -1176,13 +1251,13 @@ export class ProductionOrdersService {
 
     for (const schedule of schedules) {
       const fetchedSchedule = await this.schedulesService.findOne(schedule.id);
-      for (const lineItem of fetchedSchedule.prodLineItems) {
-        if (map.has(lineItem.batchLineItem.id)) {
-          let qty = map.get(lineItem.batchLineItem.id);
+      for (const lineItem of fetchedSchedule.scheduleLineItems) {
+        if (map.has(lineItem.prodLineItem.batchLineItem.id)) {
+          let qty = map.get(lineItem.prodLineItem.batchLineItem.id);
           qty += lineItem.quantity;
-          map.set(lineItem.batchLineItem.id, qty);
+          map.set(lineItem.prodLineItem.batchLineItem.id, qty);
         } else {
-          map.set(lineItem.batchLineItem.id, lineItem.quantity);
+          map.set(lineItem.prodLineItem.batchLineItem.id, lineItem.quantity);
         }
       }
     }

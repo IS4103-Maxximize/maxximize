@@ -295,17 +295,19 @@ export class BatchesService {
           batchLineItems: {
             batch: {
               schedule: {
-                prodLineItems: {
-                  batchLineItem: {
-                    batch: {
-                      goodsReceipt: {
-                        purchaseOrder: {
-                          quotation: {
-                            shellOrganisation: {
-                              contact: true
-                            },
-                            currentOrganisation: {
-                              contact: true
+                scheduleLineItems: {
+                  prodLineItem: {
+                    batchLineItem: {
+                      batch: {
+                        goodsReceipt: {
+                          purchaseOrder: {
+                            quotation: {
+                              shellOrganisation: {
+                                contact: true
+                              },
+                              currentOrganisation: {
+                                contact: true
+                              }
                             }
                           }
                         }

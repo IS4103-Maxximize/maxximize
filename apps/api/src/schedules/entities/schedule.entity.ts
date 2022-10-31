@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { BatchLineItem } from "../../batch-line-items/entities/batch-line-item.entity";
 import { Batch } from "../../batches/entities/batch.entity";
 import { ProductionLineItem } from "../../production-line-items/entities/production-line-item.entity";
@@ -6,6 +6,7 @@ import { FinalGood } from "../../final-goods/entities/final-good.entity";
 import { ProductionLine } from "../../production-lines/entities/production-line.entity";
 import { ProductionOrder } from "../../production-orders/entities/production-order.entity";
 import { ScheduleType } from "../enums/scheduleType.enum";
+import { ScheduleLineItem } from "../../schedule-line-items/entities/schedule-line-item.entity";
 
 @Entity()
 export class Schedule {
@@ -38,9 +39,13 @@ export class Schedule {
     @JoinColumn()
     completedGoods: Batch
 
-    @ManyToMany(() => ProductionLineItem)
-    @JoinTable()
-    prodLineItems: ProductionLineItem[]
+    @OneToMany(() => ScheduleLineItem, scheduleLineItem => scheduleLineItem.schedule)
+    scheduleLineItems: ScheduleLineItem[]
+
+    // @ManyToMany(() => ProductionLineItem)
+    // @JoinTable()
+    // prodLineItems: ProductionLineItem[]
+    
     //REMOVE THIS (Required for testing)
     // @Column()
     // finalGoodId: number

@@ -72,9 +72,11 @@ export class SchedulesService {
         // finalGood: true,
         productionLine: true,
         completedGoods: true,
-        prodLineItems: {
-          rawMaterial: true,
-          batchLineItem: true,
+        scheduleLineItems: {
+          prodLineItem: {
+            rawMaterial: true,
+            batchLineItem: true
+          }
         },
         productionOrder: {
           bom: {
@@ -88,30 +90,27 @@ export class SchedulesService {
 
   async findOne(id: number) {
     try {
-      const schedule = await this.scheduleRepository.findOne({
-        where: {
-          id,
-        },
-        relations: {
-          //REMOVE THIS (Required for testing)
-          // finalGood: true,
-          productionLine: true,
-          completedGoods: {
-            batchLineItems: true,
-          },
-          prodLineItems: {
+      const schedule = await this.scheduleRepository.findOne({where: {
+        id
+      }, relations: {
+        //REMOVE THIS (Required for testing)
+        // finalGood: true,
+        productionLine: true,
+        completedGoods: true,
+        scheduleLineItems: {
+          prodLineItem: {
             rawMaterial: true,
-            batchLineItem: true,
-          },
-          productionOrder: {
-            bom: {
-              finalGood: true,
-            },
-            prodRequest: true,
-          },
+            batchLineItem: true
+          }
         },
-      });
-      return schedule;
+        productionOrder: {
+          bom: {
+            finalGood:true
+          },
+          prodRequest: true
+        }
+      }})
+      return schedule
     } catch (error) {
       throw new NotFoundException(`schedule with id: ${id} cannot be found!`);
     }
