@@ -22,6 +22,7 @@ import Rack from './pages/inventory/rack';
 import Warehouse from './pages/inventory/warehouse';
 import Login from './pages/login';
 import OrganisationSelection from './pages/organisationSelection';
+import { PricingPage } from './pages/pricing';
 import ProcurementForecast from './pages/procurement/forecast';
 import ProcurementGoodsReceipt from './pages/procurement/goods-receipt';
 import PurchaseOrder from './pages/procurement/purchase-order';
@@ -95,6 +96,9 @@ const routes = (
         <Route path="/resetpassword" element={<ProtectedRoute />}>
           <Route path="/resetpassword" element={<ResetPassword />} />
         </Route>
+
+        {/* To be changed to new protected route checking if user Org has membership */}
+        <Route path="/pricing" element={<PricingPage />} />
 
         <Route element={<DashboardLayout />}>
           {/* Placeholder Dashboard */}
