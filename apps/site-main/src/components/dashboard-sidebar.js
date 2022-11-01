@@ -47,6 +47,7 @@ import { Link as RouterLink, useLocation } from 'react-router-dom';
 import { Selector as SelectorIcon } from '../icons/selector';
 import { User as UserIcon } from '../icons/user';
 import { Logo } from './logo';
+import { OrganisationPlanBox } from './organisation-plan-box';
 
 const standalone = [
   {
@@ -539,34 +540,9 @@ export const DashboardSidebar = (props) => {
           Welcome {user.firstName}! [{user.role}]
         </Box>
         <Box sx={{ px: 2 }}>
-          <Box
-            sx={{
-              alignItems: 'center',
-              backgroundColor: 'rgba(255, 255, 255, 0.04)',
-              cursor: 'pointer',
-              display: 'flex',
-              justifyContent: 'space-between',
-              px: 3,
-              py: '11px',
-              borderRadius: 1,
-            }}
-          >
-            <div>
-              <Typography color="inherit" variant="subtitle1">
-                {user?.organisation?.name}
-              </Typography>
-              <Typography color="neutral.400" variant="body2">
-                Your tier : Premium
-              </Typography>
-            </div>
-            <SelectorIcon
-              sx={{
-                color: 'neutral.500',
-                width: 14,
-                height: 14,
-              }}
-            />
-          </Box>
+          <OrganisationPlanBox 
+            user={user}
+          />
         </Box>
       </div>
       <Divider

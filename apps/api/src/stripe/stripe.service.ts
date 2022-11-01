@@ -13,7 +13,8 @@ export class StripeService {
   }
 
   // return session url
-  async createCustomerPortalSession(createCustomerPortalSessionDto: CreateCustomerPortalSessionDto): Promise<string> {
+  async createCustomerPortalSession(createCustomerPortalSessionDto: CreateCustomerPortalSessionDto): 
+  Promise<Stripe.Response<Stripe.BillingPortal.Session>> {
     const {
       customerId,
       returnUrl,
@@ -25,6 +26,6 @@ export class StripeService {
       return_url: returnUrl,
     });
 
-    return session.url;
+    return session;
   }
 }
