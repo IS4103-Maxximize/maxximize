@@ -20,8 +20,6 @@ export class StripeService {
       ...rest
     } = createCustomerPortalSessionDto;
 
-    console.log(process.env.STRIPE_SECRET_KEY);
-
     const session = await this.stripe.billingPortal.sessions.create({
       customer: customerId,
       return_url: returnUrl,
