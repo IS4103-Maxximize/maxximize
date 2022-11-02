@@ -5,7 +5,12 @@ import { useEffect, useState } from "react";
 import * as Yup from "yup";
 import { updateVehicle } from "../../helpers/deliveryFleet";
 
-const options = ['available', 'out for service'];
+const options = ['available', 'outforservice'];
+
+const optionLabels = {
+  'available': 'Available',
+  'outforservice': 'Out For Service'
+}
 
 export const VehicleUpdateDialog = (props) => {
   const {
@@ -251,7 +256,7 @@ export const VehicleUpdateDialog = (props) => {
                   key={option}
                   value={option}
                   control={<Radio />}
-                  label={option}
+                  label={optionLabels[option]}
                 />
               ))}
             </RadioGroup>
