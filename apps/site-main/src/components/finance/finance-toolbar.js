@@ -1,11 +1,12 @@
+import ClearIcon from '@mui/icons-material/Clear';
 import SearchIcon from '@mui/icons-material/Search';
 import {
   Box, Button, Card,
-  CardContent, CardHeader, Divider, Grid, IconButton, Stack, TextField, ToggleButton, ToggleButtonGroup, Typography
+  CardContent, CardHeader, Divider, Grid, IconButton, InputAdornment, Stack, Switch, TextField, ToggleButton, ToggleButtonGroup, Typography
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers';
 import DayJS from 'dayjs';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export const FinanceToolbar = (props) => {
   const {
@@ -34,34 +35,46 @@ export const FinanceToolbar = (props) => {
   //   'December'
   // ]
 
+  // Revenue Helpers
   const [revenueType, setRevenueType] = useState('month');
+  const [fromRevenueDate, setFromRevenueDate] = useState(null);
+  const [toRevenueDate, setToRevenueDate] = useState(new Date());
+
   const handleRevenueType = (event, newType) => {
     if (newType !== null) {
       setRevenueType(newType);
     }
   }
 
-  const [fromRevenueDate, setFromRevenueDate] = useState(null);
-  const [toRevenueDate, setToRevenueDate] = useState(new Date());
-
   const resetRevenueDates = () => {
     setFromRevenueDate(null);
     setToRevenueDate(new Date());
   }
 
+  useEffect(() => {
+    resetRevenueDates();
+  }, [revenueType]) 
 
+
+  // Costs Helpers
   const [costsType, setCostsType] = useState('month');
-  const handleCostsType = (event, newType) => {
-    setCostsType(newType);
-  }
-
   const [fromCostsDate, setFromCostsDate] = useState(null);
   const [toCostsDate, setToCostsDate] = useState(new Date());
+
+  const handleCostsType = (event, newType) => {
+    if (newType !== null) {
+      setCostsType(newType);
+    }
+  }
 
   const resetCostsDates = () => {
     setFromCostsDate(null);
     setToCostsDate(new Date());
   }
+
+  useEffect(() => {
+    resetCostsDates();
+  }, [costsType])
 
 
   const FilterCard = (props) => {
@@ -110,16 +123,40 @@ export const FinanceToolbar = (props) => {
                 label="FROM"
                 value={from}
                 onChange={setFrom}
-                renderInput={(params) => <TextField {...params} sx={{ m: 1 }}/>}
+                renderInput={(params) => <TextField {...params} sx={{ m: 1, width: 250 }}/>}
                 disableFuture
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start" sx={{ ml: -1 }}>
+                      <IconButton
+                        onClick={() => setFrom(null)}
+                        disabled={!from}
+                      >
+                        <ClearIcon />
+                      </IconButton>
+                    </InputAdornment>
+                  )
+                }}
               />
               <DatePicker
                 views={type === 'month' ? ['year', 'month'] : ['year']}
                 label="TO"
                 value={to}
                 onChange={setTo}
-                renderInput={(params) => <TextField {...params} sx={{ m: 1 }} />}
+                renderInput={(params) => <TextField {...params} sx={{ m: 1, width: 250 }} />}
                 disableFuture
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start" sx={{ ml: -1 }}>
+                    <IconButton
+                      onClick={() => setTo(null)}
+                      disabled={!to}
+                    >
+                      <ClearIcon />
+                    </IconButton>
+                    </InputAdornment>
+                  )
+                }}
               />
             </Box>
             <Stack direction="row" spacing={2}>
