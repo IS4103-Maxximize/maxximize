@@ -19,10 +19,10 @@ export const OrganisationPlanBox = (props) => {
 
     const requestOptions = requestOptionsHelper('POST', body);
 
-    const customerPortalSession = await
-      fetch(`${apiHost}/stripe/create-customer-portal-session`, requestOptions).then(response => response.json());
-    // console.log(customerPortalSession.url);
-    setSessionUrl(customerPortalSession.url);
+    await fetch(`${apiHost}/stripe/create-customer-portal-session`, requestOptions)
+      .then(response => response.json())
+      .then(result => setSessionUrl(result.url))
+      .catch(err => console.log(err));
   }
 
   useEffect(() => {
