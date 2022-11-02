@@ -306,11 +306,11 @@ const deliveryRequestStatusColorMap = {
 }
 
 
-export { 
-  apiHost, 
-  headers, 
-  requestOptionsHelper, 
-  procurementBreadcrumbs, 
+export {
+  apiHost,
+  headers,
+  requestOptionsHelper,
+  procurementBreadcrumbs,
   productionBreadcrumbs,
   fulfilmentBreadcrumbs,
   perc2color,
