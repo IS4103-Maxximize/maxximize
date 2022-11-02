@@ -1,3 +1,4 @@
+import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import AddRoadIcon from '@mui/icons-material/AddRoad';
 import ArchiveIcon from '@mui/icons-material/Archive';
@@ -11,12 +12,14 @@ import EggIcon from '@mui/icons-material/Egg';
 import EventAvailableIcon from '@mui/icons-material/EventAvailable';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import FactCheckIcon from '@mui/icons-material/FactCheck';
+import FindInPageIcon from '@mui/icons-material/FindInPage';
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered';
 import FormatQuoteIcon from '@mui/icons-material/FormatQuote';
 import Inventory2Icon from '@mui/icons-material/Inventory2';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import LiveHelpIcon from '@mui/icons-material/LiveHelp';
+import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import MarkEmailReadIcon from '@mui/icons-material/MarkEmailRead';
 import PrecisionManufacturingIcon from '@mui/icons-material/PrecisionManufacturing';
 import RawOnIcon from '@mui/icons-material/RawOn';
@@ -26,8 +29,6 @@ import RequestPageIcon from '@mui/icons-material/RequestPage';
 import RuleIcon from '@mui/icons-material/Rule';
 import TaskIcon from '@mui/icons-material/Task';
 import WarehouseIcon from '@mui/icons-material/Warehouse';
-import FindInPageIcon from '@mui/icons-material/FindInPage';
-import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import {
   Accordion,
   AccordionDetails,
@@ -39,7 +40,7 @@ import {
   Drawer,
   Link,
   Typography,
-  useMediaQuery,
+  useMediaQuery
 } from '@mui/material';
 import PropTypes from 'prop-types';
 import { useState } from 'react';
@@ -67,6 +68,13 @@ const standalone = [
     title: 'Business Relations',
     subsystemName: '',
     access: ['admin', 'superadmin'],
+  },
+  {
+    href: '/finance',
+    icon: <AccountBalanceIcon fontSize="small" />,
+    title: 'Finance Management',
+    subsystemName: '',
+    access: ['admin', 'manager', 'superadmin'],
   },
 ];
 

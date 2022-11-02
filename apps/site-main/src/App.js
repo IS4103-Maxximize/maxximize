@@ -9,6 +9,7 @@ import MachineManagement from './pages/assetManagement/machineManagement';
 import ProductionLineManagement from './pages/assetManagement/productionLineManagement';
 import BusinessRelations from './pages/businessRelations';
 import Dashboard from './pages/dashboard';
+import Finance from './pages/finance/finance';
 import ForgotPassword from './pages/forgotPassword';
 import DeliveryRequest from './pages/fulfilment/delivery-request';
 import ReceivedPurchaseOrder from './pages/fulfilment/received-purchase-order';
@@ -97,7 +98,7 @@ const routes = (
         </Route>
 
         <Route element={<DashboardLayout />}>
-          {/* Placeholder Dashboard */}
+          {/* Dashboard */}
           <Route path="/" element={<Dashboard />}></Route>
 
           {/* Protected Routes for Admin Specifically */}
@@ -115,6 +116,16 @@ const routes = (
             <Route
               path="businessrelations"
               element={<BusinessRelations />}
+            ></Route>
+          </Route>
+
+          <Route 
+            element={<RequireAuth requiredRoles={[ROLES.Admin, ROLES.Manager, ROLES.SuperAdmin]}/>}
+          >
+            {/* Finance Management */}
+            <Route
+              path="finance"
+              element={<Finance />}
             ></Route>
           </Route>
 
