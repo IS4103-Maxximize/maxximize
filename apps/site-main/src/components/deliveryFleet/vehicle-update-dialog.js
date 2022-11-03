@@ -21,8 +21,6 @@ export const VehicleUpdateDialog = (props) => {
   const organisationId = user.organisation.id;
 
   const handleOnSubmit = async (values) => {
-    // submit
-    console.log(values);
 
     const updateVehicleDto = {
       id: values.id,
@@ -60,7 +58,7 @@ export const VehicleUpdateDialog = (props) => {
       year: vehicle ? vehicle.year : '',
       lastServiced: vehicle ? vehicle.lastServiced : '',
       remarks: vehicle ? vehicle.remarks : '',
-      currentStatus: vehicle ? vehicle.currentStatus : '',
+      currentStatus: vehicle ? vehicle.currentStatus : 'available',
       licensePlate: vehicle ? vehicle.licensePlate : '',
       loadCapacity:vehicle ? vehicle.loadCapacity : '',
       location: vehicle ? vehicle.location : '',
