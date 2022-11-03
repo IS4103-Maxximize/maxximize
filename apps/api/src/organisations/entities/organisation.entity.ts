@@ -28,6 +28,7 @@ import { Quotation } from '../../quotations/entities/quotation.entity';
 import { File } from '../../files/entities/file.entity';
 import { Application } from '../../applications/entities/application.entity';
 import { ProductionRequest } from '../../production-requests/entities/production-request.entity';
+import { Membership } from '../../memberships/entities/membership.entity';
 
 @Entity()
 export class Organisation {
@@ -133,4 +134,7 @@ export class Organisation {
 
   @OneToMany(() => ProductionRequest, prodRequest => prodRequest.organisation)
   prodRequests: ProductionRequest[]
+
+  @OneToOne(() => Membership, membership => membership.organisation)
+  membership: Membership
 }
