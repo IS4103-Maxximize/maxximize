@@ -17,7 +17,6 @@ import FormatQuoteIcon from '@mui/icons-material/FormatQuote';
 import Inventory2Icon from '@mui/icons-material/Inventory2';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import LiveHelpIcon from '@mui/icons-material/LiveHelp';
-// import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import MarkEmailReadIcon from '@mui/icons-material/MarkEmailRead';
 import PrecisionManufacturingIcon from '@mui/icons-material/PrecisionManufacturing';
 import RawOnIcon from '@mui/icons-material/RawOn';
@@ -69,12 +68,7 @@ const standalone = [
     subsystemName: '',
     access: ['admin', 'superadmin'],
   },
-  {
-    href: '/deliveryfleetmanagement',
-    icon: <LocalShippingIcon fontSize="small" />,
-    title: 'Delivery Fleet',
-    access: [ 'manager', 'factoryworker', 'superadmin'],
-  },
+
 ];
 
 const items = [
@@ -234,6 +228,12 @@ const items = [
         icon: <AddRoadIcon fontSize="small" />,
         title: 'Production Line',
         access: ['manager', 'factoryworker', 'superadmin'],
+      },
+      {
+        href: '/production/delivery-fleet-management',
+        icon: <LocalShippingIcon fontSize="small" />,
+        title: 'Delivery Fleet',
+        access: [ 'manager', 'factoryworker', 'superadmin'],
       },
       {
         href: '/production/production-request',

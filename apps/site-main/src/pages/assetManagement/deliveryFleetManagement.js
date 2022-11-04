@@ -9,19 +9,19 @@ import {
 } from '@mui/material';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import { useEffect, useState } from 'react';
-import { ConfirmDialog } from '../components/deliveryFleet/confirm-dialog';
-import { VehicleUpdateDialog } from '../components/deliveryFleet/vehicle-update-dialog';
-import { VehicleCreateDialog } from '../components/deliveryFleet/vehicle-create-dialog';
-import { VehicleManagementMenu } from '../components/deliveryFleet/vehicle-management-menu';
-import { Toolbar } from '../components/deliveryFleet/toolbar';
-import { DashboardLayout } from '../components/dashboard-layout';
-import { NotificationAlert } from '../components/notification-alert';
+import { ConfirmDialog } from '../components/assetManagement/confirm-dialog';
+import { VehicleUpdateDialog } from '../../components/assetManagement/vehicle-update-dialog';
+import { VehicleCreateDialog } from '../../components/assetManagement/vehicle-create-dialog';
+import { VehicleManagementMenu } from '../../components/assetManagement/vehicle-management-menu';
+import { Toolbar } from '../components/assetManagement/toolbar';
+import { DashboardLayout } from '../../components/dashboard-layout';
+import { NotificationAlert } from '../../components/notification-alert';
 import {
   deleteVehicle, fetchVehicles
-} from '../helpers/deliveryFleet';
+} from '../../helpers/deliveryFleet';
 import DayJS from 'dayjs';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
-import { DeliveryRequestViewDialog } from '../components/deliveryFleet/delivery-request-view-dialog';
+import { DeliveryRequestViewDialog } from '../../components/assetManagement/delivery-request-view-dialog';
 
 const DeliveryFleetManagement = (props) => {
   const user = JSON.parse(localStorage.getItem('user'));
