@@ -49,6 +49,7 @@ import { FilesModule } from '../files/files.module';
 import { ProductionRequestsModule } from '../production-requests/production-requests.module';
 import { DeliveryRequestLineItemsModule } from '../delivery-request-line-items/delivery-request-line-items.module';
 import { ReservationLineItemsModule } from '../reservation-line-items/reservation-line-items.module';
+import { ScheduleLineItemsModule } from '../schedule-line-items/schedule-line-items.module';
 
 @Module({
   imports: [
@@ -111,6 +112,7 @@ import { ReservationLineItemsModule } from '../reservation-line-items/reservatio
     DeliveryRequestLineItemsModule,
     DeliveryRequestsModule,
     ReservationLineItemsModule,
+    ScheduleLineItemsModule,
     MulterModule.register({
       dest: '/uploads'
     }),
