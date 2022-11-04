@@ -46,19 +46,14 @@ export const OrganisationPlanBox = (props) => {
         <Typography color="inherit" variant="subtitle1">
           {user?.organisation?.name}
         </Typography>
+        {/* Tier to be derived from Organisation TBD */}
         <Typography color="neutral.400" variant="body2">
           Your tier : Premium
         </Typography>
       </div>
-      {/* <SelectorIcon
-        sx={{
-          color: 'neutral.500',
-          width: 14,
-          height: 14,
-        }}
-      /> */}
       {sessionUrl ? 
         <Link
+          target='_blank'
           href={sessionUrl}
         >
           <OpenInNewIcon
