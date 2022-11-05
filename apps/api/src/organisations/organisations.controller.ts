@@ -48,4 +48,16 @@ export class OrganisationsController {
   findOrganisationWorkers(@Param('id') id: string) {
     return this.organisationsService.findOrganisationWorkers(+id);
   }
+  
+  //ban
+  @Patch('ban/:id')
+  banOrganisation(@Param('id') id: string) {
+    return this.organisationsService.banOrganisation(+id)
+  }
+
+  //unban
+  @Patch('unban/:id')
+  unbanOrganisation(@Param('id') id: string) {
+    return this.organisationsService.unbanOrganisation(+id)
+  }
 }
