@@ -12,7 +12,7 @@
         "outputPath": "dist/apps/site-retailer",
         "index": "apps/site-retailer/src/index.html",
         "baseHref": "/",
-        "main": "apps/site-retailer/src/main.js",
+        "main": "apps/site-retailer/src/index.js",
         "polyfills": "apps/site-retailer/src/polyfills.js",
         "tsConfig": "apps/site-retailer/tsconfig.app.json",
         "assets": [

@@ -10,6 +10,7 @@
     "api": "nx run api:serve",
     "site": "nx run site-main:serve",
     "site-admin": "nx run site-admin:serve",
+	"site-retailer": "nx run site-retailer:serve",
     "site-b2b": "nx run site-b2b:serve",
     "site-all": "nx run-many --target=serve --projects=site-main,site-admin,site-b2b"
   },
