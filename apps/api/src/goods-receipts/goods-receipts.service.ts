@@ -82,6 +82,7 @@ export class GoodsReceiptsService {
         createFollowUpLineItemsDtos.length === 0
       ) {
         purchaseOrder.status = PurchaseOrderStatus.FULFILLED;
+        purchaseOrder.followUpLineItems = [];
       } else {
         purchaseOrder.status = PurchaseOrderStatus.PARTIALLYFULFILLED;
       }
