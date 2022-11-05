@@ -79,6 +79,8 @@ export const CreateGoodsReceiptDialog = ({
       })
     );
 
+    console.log(followUpProducts);
+
     const processedFollowUpProducts = followUpProducts.map(
       (followUpProduct) => ({
         quantity: Number(followUpProduct.quantity),
@@ -88,6 +90,18 @@ export const CreateGoodsReceiptDialog = ({
     );
 
     console.log(processedFollowUpProducts);
+
+    console.log(
+      JSON.stringify({
+        organisationId: organisationId,
+        purchaseOrderId: formik.values.purchaseOrderId,
+        recipientId: userId,
+        createdDateTime: formik.values.dateReceived,
+        goodsReceiptLineItemsDtos: processedAcceptedProducts,
+        followUpLineItemsDtos: processedFollowUpProducts,
+        description: formik.values.description,
+      })
+    );
 
     const response = await fetch('http://localhost:3000/api/goods-receipts', {
       method: 'POST',
@@ -162,6 +176,8 @@ export const CreateGoodsReceiptDialog = ({
 
         if (response.status === 200 || response.status === 201) {
           const result = await response.json();
+
+          console.log(result);
 
           if (result.status == 'partiallyfulfilled') {
             setLineItems(result.followUpLineItems);
@@ -456,6 +472,14 @@ export const CreateGoodsReceiptDialog = ({
     retrieveQAChecklists();
     retrievePurchaseOrders();
   }, [open]);
+
+  useEffect(() => {
+    console.log(acceptedProducts);
+  }, [acceptedProducts]);
+
+  useEffect(() => {
+    console.log(followUpProducts);
+  }, [followUpProducts]);
 
   //Current Checklist
   const [currentChecklist, setCurrentChecklist] = useState();

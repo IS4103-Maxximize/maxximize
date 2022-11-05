@@ -456,6 +456,7 @@ export const ReceivedPurchaseOrderViewDialog = (props) => {
               </Box>
             )}
             {purchaseOrder?.status === 'accepted' ||
+            purchaseOrder?.status === 'productioncompleted' ||
             purchaseOrder?.status === 'partiallyfulfilled' ? (
               <Box mt={2} display="flex" justifyContent="flex-end">
                 <Button variant="contained" onClick={handleReservation}>
