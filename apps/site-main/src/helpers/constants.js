@@ -121,6 +121,15 @@ const productionBreadcrumbs = (subdomain) => [
     Bill Of Material
   </Link>,
   <Link
+  component={RouterLink}
+  underline="hover"
+  key="delivery-request-management"
+  color={subdomain === 'delivery-request-management' ? 'primary' : 'inherit'}
+  to="/production/delivery-request-management"
+>
+  Delivery Fleet
+</Link>,
+  <Link
     component={RouterLink}
     underline="hover"
     key="machine"
