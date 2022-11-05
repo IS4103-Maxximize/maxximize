@@ -27,10 +27,10 @@ export class BillOfMaterialsController {
     return this.billOfMaterialsService.findOne(+id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateBillOfMaterialDto: UpdateBillOfMaterialDto) {
-    return this.billOfMaterialsService.update(+id, updateBillOfMaterialDto);
-  }
+  // @Patch(':id')
+  // update(@Param('id') id: string, @Body() updateBillOfMaterialDto: UpdateBillOfMaterialDto) {
+  //   return this.billOfMaterialsService.update(+id, updateBillOfMaterialDto);
+  // }
 
   @Delete(':id')
   remove(@Param('id') id: string) {

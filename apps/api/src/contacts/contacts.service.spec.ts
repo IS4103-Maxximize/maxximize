@@ -85,7 +85,7 @@ describe('ContactsService', () => {
   });
 
   describe('remove', () => {
-    it('return the removed organisation', async() => {
+    it('return undefined', async() => {
       expect(await service.remove(1)).toEqual(undefined);
     })
   });
