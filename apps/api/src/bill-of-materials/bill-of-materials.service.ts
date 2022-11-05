@@ -104,14 +104,14 @@ export class BillOfMaterialsService {
     }
   }
 
-  async update(id: number, updateBillOfMaterialDto: UpdateBillOfMaterialDto): Promise<BillOfMaterial> {
-    const billOfMaterialToUpdate = await this.billOfMaterialRepository.findOneBy({id})
-    const arrayOfKeyValues = Object.entries(updateBillOfMaterialDto)
-    arrayOfKeyValues.forEach(([key, value]) => {
-      billOfMaterialToUpdate[key] = value
-    })
-    return this.billOfMaterialRepository.save(billOfMaterialToUpdate)
-  }
+  // async update(id: number, updateBillOfMaterialDto: UpdateBillOfMaterialDto): Promise<BillOfMaterial> {
+  //   const billOfMaterialToUpdate = await this.billOfMaterialRepository.findOneBy({id})
+  //   const arrayOfKeyValues = Object.entries(updateBillOfMaterialDto)
+  //   arrayOfKeyValues.forEach(([key, value]) => {
+  //     billOfMaterialToUpdate[key] = value
+  //   })
+  //   return this.billOfMaterialRepository.save(billOfMaterialToUpdate)
+  // }
 
   async remove(id: number): Promise<BillOfMaterial> {
     const billOfMaterialToRemove = await this.billOfMaterialRepository.findOneBy({id})
