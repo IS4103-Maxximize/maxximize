@@ -1,5 +1,6 @@
 import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Organisation } from "../../organisations/entities/organisation.entity";
+import { MembershipStatus } from "../enums/membership-status.enum";
 import { SubscriptionPlan } from "../enums/subscription-plan.enum";
 
 @Entity()
@@ -29,15 +30,24 @@ export class Membership {
     @Column({nullable: true})
     daysUntilDue: number
 
-    @Column({default: false})
-    isActive: boolean
+    @Column({
+        type: 'enum',
+        enum: MembershipStatus,
+        default: MembershipStatus.INACTIVE
+    })
+    status: MembershipStatus
 
     @Column({nullable: true})
     subscriptionId: string
 
     @Column({nullable: true})
     customerId: string
+
+    @Column({nullable: true})
+    defaultPayment: string
     
+    @Column({nullable: true})
+    organisationId: number
     @OneToOne(() => Organisation, organisation => organisation.membership)
     @JoinColumn()
     organisation: Organisation

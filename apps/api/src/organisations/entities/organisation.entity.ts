@@ -38,8 +38,8 @@ export class Organisation {
   @Column()
   name: string;
 
-  @Column({ default: 'true' })
-  isActive: string;
+  @Column({ default: true })
+  isActive: boolean;
 
   @Column({
     type: 'enum',

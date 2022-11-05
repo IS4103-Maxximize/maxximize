@@ -13,11 +13,6 @@ export class MembershipsController {
     return this.membershipsService.create(createMembershipDto);
   }
 
-  @Post('webhook')
-  eventListener(@Req() request: Request) {
-    return this.membershipsService.handleEvents(request.body)
-  }
-
   @Get()
   findAll() {
     return this.membershipsService.findAll();
@@ -28,6 +23,11 @@ export class MembershipsController {
     return this.membershipsService.findOne(+id);
   }
 
+  @Get('orgId/:id')
+  findOneByOrg(@Param('id') id: string) {
+    return this.membershipsService.findOneByOrg(+id)
+  }
+
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateMembershipDto: UpdateMembershipDto) {
     return this.membershipsService.update(+id, updateMembershipDto);
@@ -36,6 +36,13 @@ export class MembershipsController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.membershipsService.remove(+id);
+  }
+
+  //webhooks
+
+  @Post('webhook')
+  eventListener(@Req() request: Request) {
+    return this.membershipsService.handleEvents(request.body)
   }
 
   //products
@@ -57,9 +64,11 @@ export class MembershipsController {
     return this.membershipsService.getCustomer(id)
   }
 
-  @Post('createCustomer')
-  createCustomerForStripe(@Body() createStripeCustomerDto: CreateStripeCustomerDto) {
-    return this.membershipsService.createStripeCustomer(createStripeCustomerDto)
+  //customer, membership mapping to org
+
+  @Post('createMembershipAndSetCustomer')
+  createCustomerForStripe(@Body() createMembershipDto: CreateMembershipDto) {
+    return this.membershipsService.createMembershipAndSetCustomer(createMembershipDto)
   }
 
 
@@ -72,6 +81,12 @@ export class MembershipsController {
   @Get('stripe/invoices/subscriptions/:id')
   findInvoicesOfSubscription(@Param('id') id: string) {
     return this.membershipsService.getInvoicesOfSubsciption(id)
+  }
+
+  //payment methods
+  @Get('stripe/paymentMethods/customers/:id')
+  findPaymentMethodsOfCustomer(@Param('id') id: string) {
+    return this.membershipsService.getCustomerPaymentMethods(id)
   }
 
 }
