@@ -82,7 +82,7 @@ const Login = () => {
     <>
       <HelmetProvider>
         <Helmet>
-          <title>{'Login | MaxxiMize'}</title>
+          <title>{'Login | Retailer'}</title>
         </Helmet>
       </HelmetProvider>
       <Box
@@ -101,7 +101,7 @@ const Login = () => {
                 MaxxiMize
               </Typography>
               <Typography color="textSecondary" gutterBottom variant="body2">
-                Organisation Portal Login
+                Retailer Portal Login
               </Typography>
             </Box>
             <TextField
@@ -139,7 +139,7 @@ const Login = () => {
             </Typography>
             <Box sx={{ py: 2 }}>
               <Button
-                color="success"
+                color="primary"
                 disabled={formik.isSubmitting}
                 fullWidth
                 size="large"
