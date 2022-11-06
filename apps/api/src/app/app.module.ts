@@ -51,6 +51,8 @@ import { DeliveryRequestLineItemsModule } from '../delivery-request-line-items/d
 import { ReservationLineItemsModule } from '../reservation-line-items/reservation-line-items.module';
 import { ScheduleLineItemsModule } from '../schedule-line-items/schedule-line-items.module';
 import { MembershipsModule } from '../memberships/memberships.module';
+import { CartsModule } from '../carts/carts.module';
+import { CartLineItemsModule } from '../cart-line-items/cart-line-items.module';
 
 @Module({
   imports: [
@@ -115,6 +117,8 @@ import { MembershipsModule } from '../memberships/memberships.module';
     ReservationLineItemsModule,
     ScheduleLineItemsModule,
     MembershipsModule,
+    CartsModule,
+    CartLineItemsModule,
     MulterModule.register({
       dest: '/uploads'
     }),

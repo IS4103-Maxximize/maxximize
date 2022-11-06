@@ -29,6 +29,7 @@ import { File } from '../../files/entities/file.entity';
 import { Application } from '../../applications/entities/application.entity';
 import { ProductionRequest } from '../../production-requests/entities/production-request.entity';
 import { Membership } from '../../memberships/entities/membership.entity';
+import { Cart } from '../../carts/entities/cart.entity';
 
 @Entity()
 export class Organisation {
@@ -137,4 +138,7 @@ export class Organisation {
 
   @OneToOne(() => Membership, membership => membership.organisation)
   membership: Membership
+
+  @OneToMany(() => Cart, cart => cart.organisation)
+  carts: Cart[]
 }
