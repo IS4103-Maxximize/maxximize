@@ -154,7 +154,7 @@ export class ChronJobsService implements OnModuleInit {
             const bulkDiscountJob = new CronJob(scheduledDate, async() => {
               await this.bulkDiscountService.update(bulkDiscount.id, {isActive: true, scheduleActivation: null})
             })
-            this.schedulerRegistry.addCronJob(`${bulkDiscount.id}-activateBulkDiscount`, job);
+            this.schedulerRegistry.addCronJob(`${bulkDiscount.id}-activateBulkDiscount`, bulkDiscountJob);
             bulkDiscountJob.start()
             break;
         }
