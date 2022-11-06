@@ -12,6 +12,7 @@ import { FollowUpLineItemsService } from '../follow-up-line-items/follow-up-line
 import { GrLineItemsService } from '../gr-line-items/gr-line-items.service';
 import { PurchaseOrderStatus } from '../purchase-orders/enums/purchaseOrderStatus.enum';
 import { PurchaseOrdersService } from '../purchase-orders/purchase-orders.service';
+import { ReservationLineItem } from '../reservation-line-items/entities/reservation-line-item.entity';
 import { UsersService } from '../users/users.service';
 import { CreateGoodsReceiptDto } from './dto/create-goods-receipt.dto';
 import { GoodsReceipt } from './entities/goods-receipt.entity';
@@ -53,6 +54,10 @@ export class GoodsReceiptsService {
         createGoodsReceiptDto.purchaseOrderId
       );
       goodsReceipt.purchaseOrder = purchaseOrder;
+
+      for (const reserveLineItem of purchaseOrder.reservationLineItems) {
+        queryRunner.manager.softDelete(ReservationLineItem, reserveLineItem);
+      }
 
       for (const dto of createGrLineDtos) {
         const createdGrLineItem =
