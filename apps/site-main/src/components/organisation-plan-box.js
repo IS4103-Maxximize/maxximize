@@ -1,19 +1,17 @@
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
-import { Box, Link, Skeleton, Typography } from "@mui/material";
+import { Box, Link, Skeleton, Stack, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import { apiHost, requestOptionsHelper } from "../helpers/constants";
+import { SeverityPill } from './severity-pill';
 
 export const OrganisationPlanBox = (props) => {
-  const {
-    user,
-    ...rest
-  } = props;
-
   const [sessionUrl, setSessionUrl] = useState();
+  const [plan, setPlan] = useState()
+  const user = JSON.parse(localStorage.getItem('user'));
 
   const getSessionUrl = async () => {
     const body = JSON.stringify({
-      customerId: 'cus_MiefpdVXlVIEwa',
+      customerId: user.organisation?.membership?.customerId,
       returnUrl: 'http://127.0.0.1:4200/'
     });
 
@@ -25,8 +23,26 @@ export const OrganisationPlanBox = (props) => {
       .catch(err => console.log(err));
   }
 
+  // Set color and text for plan
+  const getPlan = () => {
+    let plan
+    switch(user.organisation?.membership?.plan) {
+      case 'pro':
+        plan = ['pro', 'primary'];
+        break;
+      case 'basic':
+        plan = ['basic', 'draft'];
+        break;
+      default:
+        plan = ['none', 'error'];
+        break;
+    }
+    setPlan(plan);
+  }
+
   useEffect(() => {
     getSessionUrl();
+    getPlan();
   }, [])
 
   return (
@@ -37,20 +53,18 @@ export const OrganisationPlanBox = (props) => {
         // cursor: 'pointer',
         display: 'flex',
         justifyContent: 'space-between',
-        px: 3,
+        px: 2,
         py: '11px',
         borderRadius: 1,
       }}
     >
-      <div>
+      <Stack direction="row" spacing={1}>
         <Typography color="inherit" variant="subtitle1">
           {user?.organisation?.name}
         </Typography>
-        {/* Tier to be derived from Organisation TBD */}
-        <Typography color="neutral.400" variant="body2">
-          Your tier : Premium
-        </Typography>
-      </div>
+        {plan ? <SeverityPill color={plan[1]}>{plan[0]}</SeverityPill> : <Skeleton />}
+      </Stack>
+      
       {sessionUrl ? 
         <Link
           target='_blank'
