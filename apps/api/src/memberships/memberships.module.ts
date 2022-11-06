@@ -1,9 +1,9 @@
 import { forwardRef, Module } from '@nestjs/common';
-import { MembershipsService } from './memberships.service';
-import { MembershipsController } from './memberships.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Membership } from './entities/membership.entity';
 import { OrganisationsModule } from '../organisations/organisations.module';
+import { Membership } from './entities/membership.entity';
+import { MembershipsController } from './memberships.controller';
+import { MembershipsService } from './memberships.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Membership]), forwardRef(() => OrganisationsModule)],
