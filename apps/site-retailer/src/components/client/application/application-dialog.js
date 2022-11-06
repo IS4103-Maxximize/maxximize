@@ -204,7 +204,7 @@ export const ApplicationDialog = (props) => {
           onClose={onClose}
           aria-labelledby="responsive-dialog-title"
         >
-          <AppBar color="success" sx={{ position: 'relative' }}>
+          <AppBar color="primary" sx={{ position: 'relative' }}>
             <Toolbar>
               <IconButton
                 disabled={loading}
@@ -263,7 +263,7 @@ export const ApplicationDialog = (props) => {
                 </Typography>
                 <TextField
                   disabled
-                  color="success"
+                  color="primary"
                   error={Boolean(
                     formik.touched.orgName && formik.errors.orgName
                   )}
@@ -280,7 +280,7 @@ export const ApplicationDialog = (props) => {
                 />
                 <TextField
                   disabled
-                  color="success"
+                  color="primary"
                   error={Boolean(formik.touched.uen && formik.errors.uen)}
                   fullWidth
                   helperText={formik.touched.uen && formik.errors.uen}
@@ -295,7 +295,7 @@ export const ApplicationDialog = (props) => {
                 />
                 <TextField
                   disabled
-                  color="success"
+                  color="primary"
                   error={Boolean(
                     formik.touched.orgAddress && formik.errors.orgAddress
                   )}
@@ -314,7 +314,7 @@ export const ApplicationDialog = (props) => {
                 />
                 <TextField
                   disabled
-                  color="success"
+                  color="primary"
                   error={Boolean(
                     formik.touched.orgPostalCode && formik.errors.orgPostalCode
                   )}
@@ -333,7 +333,7 @@ export const ApplicationDialog = (props) => {
                 />
                 <TextField
                   disabled
-                  color="success"
+                  color="primary"
                   error={Boolean(
                     formik.touched.orgEmail && formik.errors.orgEmail
                   )}
@@ -351,7 +351,7 @@ export const ApplicationDialog = (props) => {
                 />
                 <TextField
                   disabled
-                  color="success"
+                  color="primary"
                   error={Boolean(
                     formik.touched.orgPhoneNumber &&
                       formik.errors.orgPhoneNumber
@@ -373,7 +373,7 @@ export const ApplicationDialog = (props) => {
                 {applicationDocuments.map((file) => (
                   <Button
                     variant="contained"
-                    color="success"
+                    color="primary"
                     onClick={() => handleDownload(file)}
                     sx={{ marginTop: 2, marginRight: 2 }}
                   >
@@ -398,7 +398,7 @@ export const ApplicationDialog = (props) => {
                 </Typography>
                 <TextField
                   disabled
-                  color="success"
+                  color="primary"
                   error={Boolean(
                     formik.touched.firstName && formik.errors.firstName
                   )}
@@ -417,7 +417,7 @@ export const ApplicationDialog = (props) => {
                 />
                 <TextField
                   disabled
-                  color="success"
+                  color="primary"
                   error={Boolean(
                     formik.touched.lastName && formik.errors.lastName
                   )}
@@ -435,7 +435,7 @@ export const ApplicationDialog = (props) => {
 
                 <TextField
                   disabled
-                  color="success"
+                  color="primary"
                   error={Boolean(
                     formik.touched.address && formik.errors.address
                   )}
@@ -452,7 +452,7 @@ export const ApplicationDialog = (props) => {
                 />
                 <TextField
                   disabled
-                  color="success"
+                  color="primary"
                   error={Boolean(
                     formik.touched.postalCode && formik.errors.postalCode
                   )}
@@ -471,7 +471,7 @@ export const ApplicationDialog = (props) => {
                 />
                 <TextField
                   disabled
-                  color="success"
+                  color="primary"
                   error={Boolean(formik.touched.email && formik.errors.email)}
                   fullWidth
                   helperText={formik.touched.email && formik.errors.email}
@@ -487,7 +487,7 @@ export const ApplicationDialog = (props) => {
                 />
                 <TextField
                   disabled
-                  color="success"
+                  color="primary"
                   error={Boolean(
                     formik.touched.phoneNumber && formik.errors.phoneNumber
                   )}

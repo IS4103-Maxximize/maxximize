@@ -13,6 +13,7 @@ import ProtectedRoute from './pages/protectedRoute';
 import ProtectedPublicRoute from './pages/protectedPublicRoute';
 import Application from './pages/application';
 import OrganisationManagement from './pages/organisation-management';
+import { RegisterOrganisation } from './pages/registerOrganisation';
 
 const ROLES = {
   Admin: 'admin',
@@ -24,6 +25,12 @@ const App = () => {
     <Routes>
       <Route path="/" element={<Layout />}>
         {/* Public Routes */}
+        <Route path="/register-organisation" element={<ProtectedPublicRoute />}>
+          <Route
+            path="/register-organisation"
+            element={<RegisterOrganisation />}
+          ></Route>
+        </Route>
         <Route path="/login" element={<ProtectedPublicRoute />}>
           <Route path="/login" element={<Login />}></Route>
         </Route>

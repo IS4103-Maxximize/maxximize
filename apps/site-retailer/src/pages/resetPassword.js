@@ -159,7 +159,7 @@ const ResetPassword = () => {
 
             <Box sx={{ py: 2 }}>
               <Button
-                color="success"
+                color="primary"
                 disabled={!formik.isValid || formik.isSubmitting}
                 fullWidth
                 size="large"

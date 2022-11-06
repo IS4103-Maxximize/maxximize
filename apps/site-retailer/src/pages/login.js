@@ -98,7 +98,7 @@ const Login = () => {
           <form onSubmit={formik.handleSubmit}>
             <Box sx={{ my: 3 }}>
               <Typography color="textPrimary" variant="h4">
-                MaxxiMize
+                MaxxiMize Retailer
               </Typography>
               <Typography color="textSecondary" gutterBottom variant="body2">
                 Retailer Portal Login
@@ -148,9 +148,16 @@ const Login = () => {
               >
                 Log in
               </Button>
-              <Link href={`forgotpassword`} underline="none">
-                Forgot your password?
-              </Link>
+              <Box mt={1}>
+                <Link href={'/register-organisation'} underline="none">
+                  Don't have an account? Register here
+                </Link>
+              </Box>
+              <Box mt={1}>
+                <Link href={`forgotpassword`} underline="none">
+                  Forgot your password?
+                </Link>
+              </Box>
             </Box>
           </form>
         </Container>
