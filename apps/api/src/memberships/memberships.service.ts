@@ -1,14 +1,13 @@
-import { BadRequestException, forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import Stripe from 'stripe';
 import { Repository } from 'typeorm';
 import { OrganisationsService } from '../organisations/organisations.service';
 import { CreateMembershipDto } from './dto/create-membership.dto';
 import { UpdateMembershipDto } from './dto/update-membership.dto';
 import { Membership } from './entities/membership.entity';
-import Stripe from 'stripe'
-import {CreateStripeCustomerDto } from './dto/create-stripe-customer.dto';
-import { SubscriptionPlan } from './enums/subscription-plan.enum';
 import { MembershipStatus } from './enums/membership-status.enum';
+import { SubscriptionPlan } from './enums/subscription-plan.enum';
 
 @Injectable()
 export class MembershipsService {
@@ -19,18 +18,19 @@ export class MembershipsService {
     @Inject(forwardRef(() => OrganisationsService))
     private organisationService: OrganisationsService
   ) {
-    this.stripe = new Stripe(process.env.API_SECRET_KEY, {
+    this.stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
       apiVersion: '2022-08-01'
     })
   }
+  // Called upon webhook 'customer.subscription.created' trigger
   async create(createMembershipDto: CreateMembershipDto) {
-    const {organisationId} = createMembershipDto
+    const {organisationId, customerId} = createMembershipDto
     const organisationToBeAdded = await this.organisationService.findOne(organisationId)
     const newMembership = this.membershipsRepository.create({
-      organisation: organisationToBeAdded
+      organisation: organisationToBeAdded,
+      customerId: customerId
     })
     return this.membershipsRepository.save(newMembership)
-
   }
 
   async findAll() {
@@ -62,6 +62,7 @@ export class MembershipsService {
   }
 
   async update(id: number, updateMembershipDto: UpdateMembershipDto) {
+    console.log('updating')
     const membershipToUpdate = await this.findOne(id)
     const mapping = Object.entries(updateMembershipDto)
     if (mapping.length > 0) {
@@ -91,45 +92,47 @@ export class MembershipsService {
 
   //----------------------------------Stripe Customer services---------------------------------------------------------------------
 
+  //--------------NOT IN USE--------------------------------------------------------
   //create customer mapping with organisation
-  async createMembershipAndSetCustomer(createMembershipDto: CreateMembershipDto) {
-    let membership: Membership
-    const organisation = await this.organisationService.findOne(createMembershipDto.organisationId)
-    if (!organisation.membership) {
-      const createMembershipDto: CreateMembershipDto = {
-        organisationId: organisation.id
-      }
-      membership = await this.create(createMembershipDto)
-    } else {
-      throw new BadRequestException('this organisation already has a membership')
-    }
-    const createStripeCustomerDto: CreateStripeCustomerDto = {
-      email: organisation.contact.email,
-      name: organisation.name,
-      phone: organisation.contact.phoneNumber,
-      address: organisation.contact.address,
-      membershipId: membership.id
-    }
-    return await this.createStripeCustomer(createStripeCustomerDto)
-  }
-  async createStripeCustomer(createStripeCustomerDto: CreateStripeCustomerDto) {
-    const {email, name, phone, address, membershipId} = createStripeCustomerDto
-    let membership = await this.findOne(membershipId)
-    let newCustomer: any
-    if (membership) {
-      newCustomer = await this.stripe.customers.create({
-        email,
-        name,
-        phone,
-        address: {
-          line1: address
-        }
-      })
-    }
-    //save customer into membership
-    membership = await this.update(membershipId, {customerId: newCustomer.id})
-    return membership
-  }
+  // async createMembershipAndSetCustomer(createMembershipDto: CreateMembershipDto) {
+  //   let membership: Membership
+  //   const organisation = await this.organisationService.findOne(createMembershipDto.organisationId)
+  //   if (!organisation.membership) {
+  //     const createMembershipDto: CreateMembershipDto = {
+  //       organisationId: organisation.id
+  //     }
+  //     membership = await this.create(createMembershipDto)
+  //   } else {
+  //     throw new BadRequestException('this organisation already has a membership')
+  //   }
+  //   const createStripeCustomerDto: CreateStripeCustomerDto = {
+  //     email: organisation.contact.email,
+  //     name: organisation.name,
+  //     phone: organisation.contact.phoneNumber,
+  //     address: organisation.contact.address,
+  //     membershipId: membership.id
+  //   }
+  //   return await this.createStripeCustomer(createStripeCustomerDto)
+  // }
+  // async createStripeCustomer(createStripeCustomerDto: CreateStripeCustomerDto) {
+  //   const {email, name, phone, address, membershipId} = createStripeCustomerDto
+  //   let membership = await this.findOne(membershipId)
+  //   let newCustomer: any
+  //   if (membership) {
+  //     newCustomer = await this.stripe.customers.create({
+  //       email,
+  //       name,
+  //       phone,
+  //       address: {
+  //         line1: address
+  //       }
+  //     })
+  //   }
+  //   //save customer into membership
+  //   membership = await this.update(membershipId, {customerId: newCustomer.id})
+  //   return membership
+  // }
+  //--------------END OF NOT IN USE--------------------------------------------------------
 
   //get all customers
   async getAllCustomers() {
@@ -171,7 +174,10 @@ export class MembershipsService {
 
   async getAllProducts() {
     const products = (await this.stripe.products.list({
-      limit: 3, active: true
+      // **Stripe trigger testing creates dummy products, BEWARE**
+      // set limit of 100 to prevent 404 error
+      limit: 100, 
+      active: true,
     })).data
     const parsedProducts = products.map(product => {
       return {
@@ -214,16 +220,31 @@ export class MembershipsService {
   const {type} = body
   if (type === "customer.subscription.created") {
       const subscription = body.data.object
+      console.log(subscription);
       //get the id of subscription and customer Id
-      const {id: subscriptionId, 
+      const {
+        id: subscriptionId, 
         customer: customerId, 
         cancel_at, 
         current_period_start, 
         current_period_end, 
         days_until_due, 
-        plan} = subscription
-      let membership = await this.findMembershipByCustomer(customerId)
+        plan
+      } = subscription
+      
       const customer = await this.getCustomer(customerId)
+      const organisation = await this.organisationService.findOrgByEmail(customer.email);
+
+      if (!organisation.membership) {
+        await this.create({
+          customerId: customerId,
+          organisationId: organisation.id
+        })
+      }
+      
+      let membership = await this.findMembershipByCustomer(customerId)
+      console.log(membership)
+
       const { product, amount } = plan
       const stripeProduct = await this.getProduct(product)
       const currentSubscriptionPlan = await this.getSubscriptionPlan(stripeProduct)
@@ -238,6 +259,7 @@ export class MembershipsService {
         status: MembershipStatus.ACTIVE,
         defaultPayment: customer.defaultSource as string
       })
+      console.log(membership)
       return membership
   } else if (type === 'customer.subscription.updated') {
       subscription = body.data.object
@@ -249,7 +271,7 @@ export class MembershipsService {
         current_period_start, 
         current_period_end, 
       } = subscription
-      console.log(subscription)
+      // console.log(subscription)
       const customer = await this.getCustomer(customerId)
       const {amount, product} = plan
       const stripeProduct = await this.getProduct(product)
@@ -296,6 +318,10 @@ export class MembershipsService {
         })
       }
       return membership
+  }
+  else if (type === 'customer.created') {
+    // const customer = body.data.object
+    console.log(body.data.object)
   }
  }
  //------------------------------------------------------------------------------------------------------------------
