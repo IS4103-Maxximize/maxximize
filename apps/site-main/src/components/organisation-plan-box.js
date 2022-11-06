@@ -1,41 +1,60 @@
-import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import { Box, Link, Skeleton, Stack, Tooltip, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
-import { getSessionUrl } from '../helpers/stripe';
+import { apiHost, requestOptionsHelper } from '../helpers/constants';
 import { SeverityPill } from './severity-pill';
-import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 
 
 export const OrganisationPlanBox = (props) => {
+  const {
+    user,
+    ...rest
+  } = props;
+
   const [sessionUrl, setSessionUrl] = useState();
   const [plan, setPlan] = useState()
-  const user = JSON.parse(localStorage.getItem('user'));
+  // const user = JSON.parse(localStorage.getItem('user'));
 
   // Set color and text for plan
   const getPlan = () => {
-    let plan
+    let plan = null;
     if (user.organisation?.membership?.status === 'active') {
       switch(user.organisation?.membership?.plan) {
         case 'pro':
           plan = ['pro', 'primary'];
           break;
         case 'basic':
-          plan = ['basic', 'draft'];
+          plan = ['basic', 'secondary'];
           break;
         default:
-          plan = ['none', 'error'];
+          plan = ['none', 'draft'];
           break;
       }
-    } else {
-      plan = ['none', 'error']
     }
     setPlan(plan);
   }
 
+  // Get Customer Portal Session URL
+  const getSessionUrl = async () => {
+    const body = JSON.stringify({
+      customerId: user.organisation?.membership?.customerId,
+      returnUrl: 'http://127.0.0.1:4200/'
+    });
+  
+    const requestOptions = requestOptionsHelper('POST', body);
+  
+    await fetch(`${apiHost}/stripe/create-customer-portal-session`, requestOptions)
+      .then(response => response.json())
+      .then(result => setSessionUrl(result.url))
+      .catch(err => console.log(err));
+  };
+
   useEffect(() => {
-    getSessionUrl(user, setSessionUrl);
-    getPlan();
-  }, [])
+    if (user.organisation?.membership) {
+      getPlan();
+      getSessionUrl();
+    }
+  }, [user])
 
   return (
     <Box
@@ -59,7 +78,6 @@ export const OrganisationPlanBox = (props) => {
       
       {sessionUrl ? 
         <Link
-          target='_blank'
           href={sessionUrl}
         >
           <Tooltip title="Customer Portal" placement='right'>

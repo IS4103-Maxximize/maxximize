@@ -282,11 +282,14 @@ const items = [
 ];
 
 export const DashboardSidebar = (props) => {
-  const user = JSON.parse(localStorage.getItem('user'));
+  const { 
+    user,
+    ...rest
+  } = props;
   const [active, setActive] = useState(false);
   useEffect(() => {
     setActive(user.organisation?.membership?.status === 'active')
-  }, [])
+  }, [user])
 
   const { pathname } = useLocation();
   const basepath = pathname.slice(1, pathname.lastIndexOf('/'));
@@ -519,7 +522,7 @@ export const DashboardSidebar = (props) => {
           Welcome {user.firstName}! [{user.role}]
         </Box>
         <Box sx={{ px: 2 }}>
-          <OrganisationPlanBox />
+          <OrganisationPlanBox user={user} />
         </Box>
       </div>
       <Divider
