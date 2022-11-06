@@ -441,19 +441,36 @@ export const ReceivedPurchaseOrderViewDialog = (props) => {
                 />
               </Box>
             ) : (
-              <Box mt={2}>
-                <Typography variant="h6">Follow Up Line Items</Typography>
-                <DataGrid
-                  autoHeight
-                  rows={formik.values.followUpLineItems}
-                  columns={columns}
-                  pageSize={5}
-                  rowsPerPageOptions={[5]}
-                  // onSelectionModelChange={(ids) => setSelectedRows(ids)}
-                  // processRowUpdate={handleRowUpdate}
-                  disableSelectionOnClick
-                />
-              </Box>
+              <>
+                <Box mt={2}>
+                  <Typography variant="h6">
+                    Purchase Order Line Items
+                  </Typography>
+                  <DataGrid
+                    autoHeight
+                    rows={formik.values.purchaseOrderLineItems}
+                    columns={columns}
+                    pageSize={5}
+                    rowsPerPageOptions={[5]}
+                    // onSelectionModelChange={(ids) => setSelectedRows(ids)}
+                    // processRowUpdate={handleRowUpdate}
+                    disableSelectionOnClick
+                  />
+                </Box>
+                <Box mt={2}>
+                  <Typography variant="h6">Follow Up Line Items</Typography>
+                  <DataGrid
+                    autoHeight
+                    rows={formik.values.followUpLineItems}
+                    columns={columns}
+                    pageSize={5}
+                    rowsPerPageOptions={[5]}
+                    // onSelectionModelChange={(ids) => setSelectedRows(ids)}
+                    // processRowUpdate={handleRowUpdate}
+                    disableSelectionOnClick
+                  />
+                </Box>
+              </>
             )}
             {purchaseOrder?.status === 'accepted' ||
             purchaseOrder?.status === 'productioncompleted' ||

@@ -179,9 +179,15 @@ export const CreateGoodsReceiptDialog = ({
 
           console.log(result);
 
-          if (result.status == 'partiallyfulfilled') {
+          //TOCHECK if something is wrong
+          if (result.followUpLineItems.length !== 0) {
             setLineItems(result.followUpLineItems);
-            setAcceptedProducts(result.followUpLineItems);
+            setAcceptedProducts(
+              result.followUpLineItems.map((followUpLineItem) => ({
+                ...followUpLineItem,
+                volume: 1,
+              }))
+            );
             setFollowUpProducts([]);
             setError('');
           } else if (result.status == 'fulfilled') {

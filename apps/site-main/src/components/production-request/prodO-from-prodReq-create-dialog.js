@@ -82,7 +82,6 @@ export const ProdOFromProdReqCreateDialog = (props) => {
     if (response.status === 200 || response.status === 201) {
       const result = await response.json();
       //Rerender parent data grid component
-      console.log(result);
       onClose();
       handleAlertOpen(
         `Successfully Created production order ${result.id}!`,
@@ -171,7 +170,7 @@ export const ProdOFromProdReqCreateDialog = (props) => {
   // Opening and Closing Dialog helpers
   useEffect(() => {
     // fetch when opening create dialog
-    if (open && formik.values.bomId) {
+    if (formik.values.bomId) {
       getBOMs();
       setMaximumFinalGoodOutput(0);
       setRerender(true);
@@ -182,7 +181,7 @@ export const ProdOFromProdReqCreateDialog = (props) => {
       //     formik.setFieldValue('multiplier');
       //   }
     }
-  }, [open, formik.values.bomId]);
+  }, [formik.values.bomId]);
 
   // Populate Prod Line Items
   useEffect(() => {

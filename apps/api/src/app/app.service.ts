@@ -10,6 +10,7 @@ import { FinalGoodsService } from '../final-goods/final-goods.service';
 import { GoodsReceiptsService } from '../goods-receipts/goods-receipts.service';
 import { OrganisationType } from '../organisations/enums/organisationType.enum';
 import { OrganisationsService } from '../organisations/organisations.service';
+import { ProductionLinesService } from '../production-lines/production-lines.service';
 import { MeasurementUnit } from '../products/enums/measurementUnit.enum';
 import { PurchaseOrdersService } from '../purchase-orders/purchase-orders.service';
 import { QuotationLineItemsService } from '../quotation-line-items/quotation-line-items.service';
@@ -43,7 +44,8 @@ export class AppService implements OnApplicationBootstrap {
     private batchService: BatchesService,
     private dataSource: DataSource,
     private bomService: BillOfMaterialsService,
-    private factoryMachineService: FactoryMachinesService
+    private factoryMachineService: FactoryMachinesService,
+	private productionLineService: ProductionLinesService
   ) {}
   getData(): { message: string } {
     return { message: 'Welcome to api!' };
@@ -248,6 +250,20 @@ export class AppService implements OnApplicationBootstrap {
           postalCode: '789273',
         },
         username: 'balimanager',
+        organisationId: 4,
+      });
+
+	  await this.usersService.create({
+        firstName: 'Bali',
+        lastName: 'Driver',
+        role: Role.DRIVER,
+        contact: {
+          phoneNumber: '88880000',
+          email: 'e0540315@u.nus.edu',
+          address: 'Serangoon Gardens',
+          postalCode: '789273',
+        },
+        username: 'balidriver',
         organisationId: 4,
       });
 
@@ -788,6 +804,19 @@ export class AppService implements OnApplicationBootstrap {
         remarks: 'TESTER',
         organisationId: 4,
       });
+
+	  await this.productionLineService.create({
+		"name": "PL1",
+		"description": "PL1",
+		"bomIds": [3,4],
+		"productionCostPerLot": 20,
+		"gracePeriod": 1800000,
+		"organisationId": 4,
+		"outputPerHour": 30,
+		"startTime": 9,
+		"endTime": 17,
+		"machineIds": [1]
+	})
 
       await this.factoryMachineService.create({
         serialNumber: 'TO123',

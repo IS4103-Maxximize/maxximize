@@ -55,10 +55,6 @@ export class GoodsReceiptsService {
       );
       goodsReceipt.purchaseOrder = purchaseOrder;
 
-      for (const reserveLineItem of purchaseOrder.reservationLineItems) {
-        queryRunner.manager.softDelete(ReservationLineItem, reserveLineItem);
-      }
-
       for (const dto of createGrLineDtos) {
         const createdGrLineItem =
           await this.grLineItemService.createWithExistingTransaction(
@@ -82,6 +78,11 @@ export class GoodsReceiptsService {
 
       purchaseOrder.followUpLineItems = followUpLineItems;
       
+	  for (const reserveLineItem of purchaseOrder.reservationLineItems) {
+		// console.log(reserveLineItem)
+        const a = queryRunner.manager.softDelete(ReservationLineItem, reserveLineItem.id);
+      }
+
       if (
         createFollowUpLineItemsDtos === undefined ||
         createFollowUpLineItemsDtos.length === 0
@@ -105,7 +106,7 @@ export class GoodsReceiptsService {
         new Date().toLocaleDateString().replace(/\//g, '-') +
         '-' +
         new Date().toLocaleTimeString();
-      const batch = await this.batchService.createWithExistingTransaction(
+        const batch = await this.batchService.createWithExistingTransaction(
         createBatchDto,
         goodsReceiptLineItems,
         purchaseOrder.quotation.salesInquiryId,

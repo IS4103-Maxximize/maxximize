@@ -256,13 +256,24 @@ export class PurchaseOrdersService {
   async getUnfufilledLineItems(purchaseOrderId: number) {
     const purchaseOrder = await this.findOne(purchaseOrderId);
     const list = [];
-    for (const lineItem of purchaseOrder.poLineItems) {
-      if (lineItem.fufilledQty != lineItem.quantity) {
-        list.push({
-          finalGood: lineItem.finalGood,
-          quantity: lineItem.quantity - lineItem.fufilledQty
-        })
+	if(purchaseOrder.followUpLineItems.length === 0) {
+	  for (const lineItem of purchaseOrder.poLineItems) {
+      	if (lineItem.fufilledQty != lineItem.quantity) {
+          list.push({
+            finalGood: lineItem.finalGood,
+            quantity: lineItem.quantity - lineItem.fufilledQty
+          })
+        }
       }
+ 	} else {
+	  for (const lineItem of purchaseOrder.followUpLineItems) {
+		if (lineItem.fufilledQty != lineItem.quantity) {
+		  list.push({
+		    finalGood: lineItem.finalGood,
+		    quantity: lineItem.quantity - lineItem.fufilledQty
+		  })
+	    }
+	  }
     }
     return list;
   }
@@ -338,7 +349,7 @@ export class PurchaseOrdersService {
               qty -= (batchLineItem.quantity - batchLineItem.reservedQuantity);
               await queryRunner.manager.save(batchLineItem);
               await queryRunner.manager.save(lineItem);
-              await queryRunner.manager.softDelete(BatchLineItem, batchLineItem.id);
+            //   await queryRunner.manager.softDelete(BatchLineItem, batchLineItem.id);
             }
             reservationLineItem.batchLineItem = batchLineItem;
             reservationLineItems.push(reservationLineItem);
@@ -358,7 +369,7 @@ export class PurchaseOrdersService {
             reservationLineItems.push(reservationLineItem);
             await queryRunner.manager.save(batchLineItem);
             await queryRunner.manager.save(lineItem);
-            await queryRunner.manager.softDelete(BatchLineItem, batchLineItem.id);
+            // await queryRunner.manager.softDelete(BatchLineItem, batchLineItem.id);
           }
         }
       }
