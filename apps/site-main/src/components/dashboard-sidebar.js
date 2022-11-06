@@ -11,12 +11,14 @@ import EggIcon from '@mui/icons-material/Egg';
 import EventAvailableIcon from '@mui/icons-material/EventAvailable';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import FactCheckIcon from '@mui/icons-material/FactCheck';
+import FindInPageIcon from '@mui/icons-material/FindInPage';
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered';
 import FormatQuoteIcon from '@mui/icons-material/FormatQuote';
 import Inventory2Icon from '@mui/icons-material/Inventory2';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import LiveHelpIcon from '@mui/icons-material/LiveHelp';
+import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import MarkEmailReadIcon from '@mui/icons-material/MarkEmailRead';
 import PrecisionManufacturingIcon from '@mui/icons-material/PrecisionManufacturing';
 import RawOnIcon from '@mui/icons-material/RawOn';
@@ -26,8 +28,6 @@ import RequestPageIcon from '@mui/icons-material/RequestPage';
 import RuleIcon from '@mui/icons-material/Rule';
 import TaskIcon from '@mui/icons-material/Task';
 import WarehouseIcon from '@mui/icons-material/Warehouse';
-import FindInPageIcon from '@mui/icons-material/FindInPage';
-import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import {
   Accordion,
   AccordionDetails,
@@ -37,14 +37,11 @@ import {
   Collapse,
   Divider,
   Drawer,
-  Link,
-  Typography,
-  useMediaQuery,
+  Link, useMediaQuery
 } from '@mui/material';
 import PropTypes from 'prop-types';
 import { useState } from 'react';
 import { Link as RouterLink, useLocation } from 'react-router-dom';
-import { Selector as SelectorIcon } from '../icons/selector';
 import { User as UserIcon } from '../icons/user';
 import { Logo } from './logo';
 import { OrganisationPlanBox } from './organisation-plan-box';
@@ -483,30 +480,6 @@ export const DashboardSidebar = (props) => {
                 ))}
             </AccordionDetails>
           </Accordion>
-          {/* <List>
-            <ListItemButton
-              sx={{
-                borderRadius: 1,
-                color: 'neutral.300',
-                justifyContent: 'flex-start',
-                px: 3,
-                textAlign: 'left',
-                textTransform: 'none',
-                width: '100%',
-                '&:hover': {
-                  backgroundColor: 'rgba(255,255,255, 0.08)',
-                },
-              }}
-              onClick={eval(item.handleClick)}
-            >
-              <ListItemIcon sx={{ color: 'neutral.400' }}>
-                {item.icon}
-              </ListItemIcon>
-              <ListItemText primary={item.subsystem} />
-              {eval(item.open) ? <ExpandLess /> : <ExpandMore />}
-            </ListItemButton> */}
-
-          {/* </List> */}
         </Box>
       );
     });
@@ -540,9 +513,7 @@ export const DashboardSidebar = (props) => {
           Welcome {user.firstName}! [{user.role}]
         </Box>
         <Box sx={{ px: 2 }}>
-          <OrganisationPlanBox 
-            user={user}
-          />
+          <OrganisationPlanBox />
         </Box>
       </div>
       <Divider
