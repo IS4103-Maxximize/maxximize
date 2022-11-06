@@ -10,6 +10,10 @@ import { BillOfMaterialsModule } from '../bill-of-materials/bill-of-materials.mo
 import { BillingsModule } from '../billings/billings.module';
 import { BinsModule } from '../bins/bins.module';
 import { BomLineItemsModule } from '../bom-line-items/bom-line-items.module';
+import { BulkDiscountRangesModule } from '../bulk-discount-ranges/bulk-discount-ranges.module';
+import { BulkDiscountsModule } from '../bulk-discounts/bulk-discounts.module';
+import { CartLineItemsModule } from '../cart-line-items/cart-line-items.module';
+import { CartsModule } from '../carts/carts.module';
 import { ContactsModule } from '../contacts/contacts.module';
 import { DeliveryRequestLineItemsModule } from '../delivery-request-line-items/delivery-request-line-items.module';
 import { DeliveryRequestsModule } from '../delivery-requests/delivery-requests.module';
@@ -118,6 +122,10 @@ import { AppService } from './app.service';
     ReservationLineItemsModule,
     ScheduleLineItemsModule,
     MembershipsModule,
+    CartsModule,
+    CartLineItemsModule,
+    BulkDiscountsModule,
+    BulkDiscountRangesModule,
     MulterModule.register({
       dest: '/uploads'
     }),
