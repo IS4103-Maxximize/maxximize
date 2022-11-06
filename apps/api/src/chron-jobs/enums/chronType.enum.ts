@@ -1,5 +1,6 @@
 export enum ChronType {
     SALESINQUIRY = 'salesInquiry',
     SCHEDULESTART = 'scheduleStart',
-    SCHEDULEEND = 'scheduleEnd'
+    SCHEDULEEND = 'scheduleEnd',
+    BULKDISCOUNT = 'bulkDiscount'
 }

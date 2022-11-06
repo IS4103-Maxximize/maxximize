@@ -6,9 +6,10 @@ import { ChronJob } from './entities/chron-job.entity';
 import { SchedulesModule } from '../schedules/schedules.module';
 import { SalesInquiryModule } from '../sales-inquiry/sales-inquiry.module';
 import { ProductionOrdersModule } from '../production-orders/production-orders.module';
+import { BulkDiscountsModule } from '../bulk-discounts/bulk-discounts.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([ChronJob]), forwardRef(() => SalesInquiryModule), forwardRef(() => SchedulesModule), forwardRef(() => ProductionOrdersModule)],
+  imports: [TypeOrmModule.forFeature([ChronJob]), forwardRef(() => SalesInquiryModule), forwardRef(() => SchedulesModule), forwardRef(() => ProductionOrdersModule), forwardRef(() => BulkDiscountsModule)],
   controllers: [ChronJobsController],
   providers: [ChronJobsService],
   exports: [ChronJobsService]
