@@ -20,6 +20,7 @@ import { FollowUpLineItemsModule } from '../follow-up-line-items/follow-up-line-
 import { GoodsReceiptsModule } from '../goods-receipts/goods-receipts.module';
 import { GrLineItemsModule } from '../gr-line-items/gr-line-items.module';
 import { InvoicesModule } from '../invoices/invoices.module';
+import { MembershipsModule } from '../memberships/memberships.module';
 import { OrderLineItemsModule } from '../order-line-items/order-line-items.module';
 import { OrdersModule } from '../orders/orders.module';
 import { OrganisationsModule } from '../organisations/organisations.module';
@@ -116,6 +117,7 @@ import { AppService } from './app.service';
     DeliveryRequestsModule,
     ReservationLineItemsModule,
     ScheduleLineItemsModule,
+    MembershipsModule,
     MulterModule.register({
       dest: '/uploads'
     }),
