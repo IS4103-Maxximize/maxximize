@@ -53,6 +53,10 @@ import { ScheduleLineItemsModule } from '../schedule-line-items/schedule-line-it
 import { MembershipsModule } from '../memberships/memberships.module';
 import { CartsModule } from '../carts/carts.module';
 import { CartLineItemsModule } from '../cart-line-items/cart-line-items.module';
+import { BulkDiscount } from '../bulk-discounts/entities/bulk-discount.entity';
+import { BulkDiscountRange } from '../bulk-discount-ranges/entities/bulk-discount-range.entity';
+import { BulkDiscountsModule } from '../bulk-discounts/bulk-discounts.module';
+import { BulkDiscountRangesModule } from '../bulk-discount-ranges/bulk-discount-ranges.module';
 
 @Module({
   imports: [
@@ -119,6 +123,8 @@ import { CartLineItemsModule } from '../cart-line-items/cart-line-items.module';
     MembershipsModule,
     CartsModule,
     CartLineItemsModule,
+    BulkDiscountsModule,
+    BulkDiscountRangesModule,
     MulterModule.register({
       dest: '/uploads'
     }),

@@ -9,6 +9,7 @@ import { SchedulerRegistry } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CronJob } from 'cron';
 import { Repository } from 'typeorm';
+import { BulkDiscountsService } from '../bulk-discounts/bulk-discounts.service';
 import { ProductionOrder } from '../production-orders/entities/production-order.entity';
 import { ProductionOrderStatus } from '../production-orders/enums/production-order-status.enum';
 import { ProductionOrdersService } from '../production-orders/production-orders.service';
@@ -32,7 +33,9 @@ export class ChronJobsService implements OnModuleInit {
     @Inject(forwardRef(() => SchedulesService))
     private schedulesService: SchedulesService,
     @Inject(forwardRef(() => ProductionOrdersService))
-    private productionOrdersService: ProductionOrdersService
+    private productionOrdersService: ProductionOrdersService,
+    @Inject(forwardRef(() => BulkDiscountsService))
+    private bulkDiscountService: BulkDiscountsService
   ) {}
   create(createChronJobDto: CreateChronJobDto) {
     const { scheduledDate, type, targetId } = createChronJobDto;
@@ -145,6 +148,14 @@ export class ChronJobsService implements OnModuleInit {
             });
             this.schedulerRegistry.addCronJob(`end ${schedule1.id}`, endJob);
             endJob.start();
+            break;
+          case 'bulkDiscount':
+            const bulkDiscount = await this.bulkDiscountService.findOne(targetId)
+            const bulkDiscountJob = new CronJob(scheduledDate, async() => {
+              await this.bulkDiscountService.update(bulkDiscount.id, {isActive: true, scheduleActivation: null})
+            })
+            this.schedulerRegistry.addCronJob(`${bulkDiscount.id}-activateBulkDiscount`, job);
+            bulkDiscountJob.start()
             break;
         }
       }

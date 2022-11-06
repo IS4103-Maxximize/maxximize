@@ -30,6 +30,7 @@ import { Application } from '../../applications/entities/application.entity';
 import { ProductionRequest } from '../../production-requests/entities/production-request.entity';
 import { Membership } from '../../memberships/entities/membership.entity';
 import { Cart } from '../../carts/entities/cart.entity';
+import { BulkDiscount } from '../../bulk-discounts/entities/bulk-discount.entity';
 
 @Entity()
 export class Organisation {
@@ -141,4 +142,7 @@ export class Organisation {
 
   @OneToMany(() => Cart, cart => cart.organisation)
   carts: Cart[]
+
+  @OneToMany(() => BulkDiscount, bulkDiscount => bulkDiscount.organisation)
+  bulkDiscounts: BulkDiscount[]
 }
