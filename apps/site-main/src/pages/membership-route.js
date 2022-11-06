@@ -7,6 +7,10 @@ const MembershipRoute = (props) => {
     return <Navigate to="/pricing" />;
   }
 
+  if (user.organisation.membership?.status !== 'active') {
+    return <Navigate to="/" />;
+  }
+
   return <Outlet />;
 };
 

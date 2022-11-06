@@ -40,7 +40,7 @@ import {
   Link, useMediaQuery
 } from '@mui/material';
 import PropTypes from 'prop-types';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link as RouterLink, useLocation } from 'react-router-dom';
 import { User as UserIcon } from '../icons/user';
 import { Logo } from './logo';
@@ -282,10 +282,16 @@ const items = [
 ];
 
 export const DashboardSidebar = (props) => {
+  const user = JSON.parse(localStorage.getItem('user'));
+  const [active, setActive] = useState(false);
+  useEffect(() => {
+    setActive(user.organisation?.membership?.status === 'active')
+  }, [])
+
   const { pathname } = useLocation();
   const basepath = pathname.slice(1, pathname.lastIndexOf('/'));
 
-  const { open, onClose, user } = props;
+  const { open, onClose } = props;
   const lgUp = useMediaQuery((theme) => theme.breakpoints.up('lg'), {
     defaultMatches: true,
     noSsr: false,
@@ -531,8 +537,12 @@ export const DashboardSidebar = (props) => {
           gap: '15px',
         }}
       >
-        {standaloneModules}
-        {nestedModules}
+        {active && (
+          <>
+          {standaloneModules}
+          {nestedModules}
+          </>
+        )}
       </Box>
     </Box>
   );

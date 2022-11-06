@@ -1,47 +1,39 @@
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
-import { Box, Link, Skeleton, Stack, Typography } from "@mui/material";
+import { Box, Link, Skeleton, Stack, Tooltip, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
-import { apiHost, requestOptionsHelper } from "../helpers/constants";
+import { getSessionUrl } from '../helpers/stripe';
 import { SeverityPill } from './severity-pill';
+import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
+
 
 export const OrganisationPlanBox = (props) => {
   const [sessionUrl, setSessionUrl] = useState();
   const [plan, setPlan] = useState()
   const user = JSON.parse(localStorage.getItem('user'));
 
-  const getSessionUrl = async () => {
-    const body = JSON.stringify({
-      customerId: user.organisation?.membership?.customerId,
-      returnUrl: 'http://127.0.0.1:4200/'
-    });
-
-    const requestOptions = requestOptionsHelper('POST', body);
-
-    await fetch(`${apiHost}/stripe/create-customer-portal-session`, requestOptions)
-      .then(response => response.json())
-      .then(result => setSessionUrl(result.url))
-      .catch(err => console.log(err));
-  }
-
   // Set color and text for plan
   const getPlan = () => {
     let plan
-    switch(user.organisation?.membership?.plan) {
-      case 'pro':
-        plan = ['pro', 'primary'];
-        break;
-      case 'basic':
-        plan = ['basic', 'draft'];
-        break;
-      default:
-        plan = ['none', 'error'];
-        break;
+    if (user.organisation?.membership?.status === 'active') {
+      switch(user.organisation?.membership?.plan) {
+        case 'pro':
+          plan = ['pro', 'primary'];
+          break;
+        case 'basic':
+          plan = ['basic', 'draft'];
+          break;
+        default:
+          plan = ['none', 'error'];
+          break;
+      }
+    } else {
+      plan = ['none', 'error']
     }
     setPlan(plan);
   }
 
   useEffect(() => {
-    getSessionUrl();
+    getSessionUrl(user, setSessionUrl);
     getPlan();
   }, [])
 
@@ -70,15 +62,17 @@ export const OrganisationPlanBox = (props) => {
           target='_blank'
           href={sessionUrl}
         >
-          <OpenInNewIcon
-            sx={{
-              color: 'neutral.500',
-              width: 20,
-              height: 20,
-            }}
-          />
+          <Tooltip title="Customer Portal" placement='right'>
+            <ManageAccountsIcon
+              sx={{
+                color: 'neutral.500',
+                width: 20,
+                height: 20,
+              }}
+            />
+          </Tooltip>
         </Link>
-      : <Skeleton sx={{ bgcolor: "grey.500" }} variant="circular" width={20} height={20}/>
+        : <Skeleton sx={{ bgcolor: "grey.500" }} variant="circular" width={20} height={20}/>
       }
     </Box>
   )
