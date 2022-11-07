@@ -111,7 +111,7 @@ const MachineManagement = (props) => {
 
   const updateRow = (updatedMachine) => {
     const indexOfEditMachine = rows.findIndex(
-      (currentMachine) => currentMachine.id == updatedMachine.id
+      (currentMachine) => currentMachine.id === updatedMachine.id
     );
     const newMachines = [ ...rows ];
     newMachines[indexOfEditMachine] = updatedMachine;

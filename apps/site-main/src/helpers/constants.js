@@ -139,6 +139,15 @@ const productionBreadcrumbs = (subdomain) => [
     Production Line
   </Link>,
   <Link
+    component={RouterLink}
+    underline="hover"
+    key="delivery-fleet-management"
+    color={subdomain === 'delivery-fleet-management' ? 'primary' : 'inherit'}
+    to="/production/delivery-fleet-management"
+  >
+    Delivery Fleet
+  </Link>,
+  <Link
   component={RouterLink}
   underline="hover"
   key="production-request"
@@ -325,3 +334,4 @@ export {
   deliveryRequestStatusStringMap,
   deliveryRequestStatusColorMap
 };
+

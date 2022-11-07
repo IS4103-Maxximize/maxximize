@@ -15,6 +15,8 @@ import { UpdateOrganisationDto } from './dto/update-organisation.dto';
 import { Organisation } from './entities/organisation.entity';
 import { OrganisationType } from './enums/organisationType.enum';
 import { MailService } from '../mail/mail.service';
+import { MembershipsService } from '../memberships/memberships.service';
+import { AccountInfo } from '../account-info/entities/account-info.entity';
 
 @Injectable()
 export class OrganisationsService {
@@ -26,7 +28,9 @@ export class OrganisationsService {
     @Inject(forwardRef(() => UsersService))
     private usersService: UsersService,
     private dataSource: DataSource,
-    private mailService: MailService
+    private mailService: MailService,
+    @Inject(forwardRef(() => MembershipsService))
+    private membershipService: MembershipsService
   ) {}
 
   async create(createOrganisationDto: CreateOrganisationDto): Promise<Organisation> {
@@ -51,7 +55,7 @@ export class OrganisationsService {
     let organisation: Organisation
     await this.dataSource.manager.transaction(async (transactionalEntityManager) => {
       //create the organisation
-      const {name, type, contact, uen} = createOrganisationDto
+      const {name, type, contact, uen, accountInfo} = createOrganisationDto
       const allUensOfRegisteredOrgs = await this.findAllUensOfRegisterdOrgs()
       if (allUensOfRegisteredOrgs.includes(uen)) {
         throw new NotFoundException('UEN is used by an exisiting registed organisation!')
@@ -63,11 +67,19 @@ export class OrganisationsService {
         })
         await transactionalEntityManager.save(orgContact)
       }
+      let orgAccountInfo: AccountInfo
+      if (accountInfo) {
+        orgAccountInfo = transactionalEntityManager.create(AccountInfo, {
+          ...accountInfo
+        })
+        await transactionalEntityManager.save(orgAccountInfo)
+      }
       organisation = transactionalEntityManager.create(Organisation, {
         name,
         type,
         uen,
-        contact: orgContact ?? null
+        contact: orgContact ?? null,
+        accountInfo: orgAccountInfo ?? null
       })
       await transactionalEntityManager.save(organisation)
       //create the user
@@ -137,6 +149,7 @@ export class OrganisationsService {
         shellOrganisations: true,
         contact: true,
         users: true,
+        accountInfo: true
       }
     });
   }
@@ -145,7 +158,7 @@ export class OrganisationsService {
     try {
       const organisation =  await this.organisationsRepository.findOneOrFail({
         where: {id}, 
-        relations: ["shellOrganisations", "contact", "users.contact"]
+        relations: ["shellOrganisations", "contact", "users.contact", "membership", "accountInfo"]
       });
       return organisation;
     } catch (err) {
@@ -165,7 +178,8 @@ export class OrganisationsService {
         relations: {
           contact: true,
           finalGoods: true,
-          rawMaterials: true
+          rawMaterials: true,
+          accountInfo: true
         }
       })
       if (checkOrg) organisations.push(checkOrg)
@@ -182,12 +196,10 @@ export class OrganisationsService {
       for (let i = 0; i < keyValuePairs.length; i++) {
         const [key, value] = keyValuePairs[i]
         //fields in updateOrganisationDto are optional, so check if the value is present or null
-        if (value) {
-          if (key === 'contact') {
-            organisation['contact'] = await this.updateOrganisationContact(updateOrganisationDto.contact, organisation)
-          } else {
-            organisation[key] = value
-          }
+        if (key === 'contact') {
+          organisation['contact'] = await this.updateOrganisationContact(updateOrganisationDto.contact, organisation)
+        } else {
+          organisation[key] = value
         }
       }
       return this.organisationsRepository.save(organisation)
@@ -243,4 +255,40 @@ export class OrganisationsService {
     return this.organisationsRepository.save(organisation);
   }
 
+  async banOrganisation(organisationId: number) {
+    const organisationToBan = await this.findOne(organisationId)
+    //stop the membership first
+    const membership = organisationToBan.membership
+    const {subscriptionId} = membership
+    if (subscriptionId) {
+      await this.membershipService.pauseSubscription(subscriptionId)
+    }
+    //set isActive to false
+    return this.update(organisationId, {isActive: false})
+  }
+
+  async unbanOrganisation(organisationId: number) {
+    const organisationToBan = await this.findOne(organisationId)
+    //stop the membership first
+    const membership = organisationToBan.membership
+    const {subscriptionId} = membership
+    if (subscriptionId) {
+      await this.membershipService.resumeSubscription(subscriptionId)
+    }
+    //set isActive to true
+    return this.update(organisationId, {isActive: true})
+  }
+  
+  async findOrgByEmail(email: string): Promise<Organisation> {
+    return this.organisationsRepository.findOne({
+      where: {
+        contact: {
+          email: email
+        }
+      },
+      relations: {
+        membership: true
+      }
+    })
+  }
 }

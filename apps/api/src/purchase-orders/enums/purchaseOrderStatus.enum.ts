@@ -5,5 +5,6 @@ export enum PurchaseOrderStatus {
     REJECTED = "rejected",
     ACCEPTED = "accepted",
     DELIVERY = 'delivery',
-    PRODUCTION = 'production'
+    PRODUCTION = 'production',
+    CLOSED = 'closed'
 }
