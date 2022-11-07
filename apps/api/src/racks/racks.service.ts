@@ -30,7 +30,7 @@ export class RacksService {
       
       const newRack = await queryRunner.manager.save(rack);
       await queryRunner.commitTransaction();
-      return newRack;
+      return this.findOne(newRack.id);
     } catch (err) {
       console.log(err);
       await queryRunner.rollbackTransaction();
@@ -72,20 +72,16 @@ export class RacksService {
   }
 
   async findAllByOrganisationId(id: number) {
-    try {
-      return await this.rackRepository.findOneOrFail({
-        where: {
-          warehouse: {
-            organisation: {
-              id: id
-            }
+    return await this.rackRepository.find({
+      where: {
+        warehouse: {
+          organisation: {
+            id: id
           }
-        },
-        relations: ["warehouse", "bins"]
-      });
-    } catch (err) {
-      throw new NotFoundException(`Rack with id: ${id} not found`);
-    }
+        }
+      },
+      relations: ["warehouse", "bins"]
+    });
   }
 
   async update(id: number, updateRackDto: UpdateRackDto) {

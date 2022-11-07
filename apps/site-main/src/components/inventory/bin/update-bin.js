@@ -133,7 +133,12 @@ export const UpdateBin = ({ bin, updateBin, handleAlertOpen }) => {
         >
           <Button
             color="primary"
-            disabled={formik.isSubmitting}
+            disabled={
+              formik.isSubmitting ||
+              (formik.values.name === formik.initialValues.name &&
+                formik.values.volumetricSpace ===
+                  formik.initialValues.volumetricSpace)
+            }
             size="small"
             type="submit"
             variant="contained"

@@ -181,21 +181,25 @@ export const RetailersList = ({ orgId }) => {
       field: 'id',
       headerName: 'Retailer ID',
       width: 150,
+      flex: 1,
     },
     {
       field: 'name',
       headerName: 'Name',
       width: 200,
+      flex: 2,
     },
     {
       field: 'uen',
       headerName: 'UEN',
       width: 200,
+      flex: 2,
     },
     {
       field: 'address',
       headerName: 'Address',
       width: 200,
+      flex: 3,
       editable: true,
       valueGetter: (params) => {
         if (params.row.contact.address) {
@@ -209,6 +213,7 @@ export const RetailersList = ({ orgId }) => {
       field: 'phoneNumber',
       headerName: 'Contact',
       width: 150,
+      flex: 2,
       editable: true,
       valueGetter: (params) => {
         if (params.row?.contact?.phoneNumber) {
@@ -222,6 +227,7 @@ export const RetailersList = ({ orgId }) => {
       field: 'email',
       headerName: 'Email',
       width: 200,
+      flex: 2,
       editable: true,
       valueGetter: (params) => {
         if (params.row.contact.email) {
@@ -235,6 +241,7 @@ export const RetailersList = ({ orgId }) => {
       field: 'postalCode',
       headerName: 'Postal Code',
       width: 200,
+      flex: 1,
       editable: true,
       valueGetter: (params) => {
         if (params.row.contact.postalCode) {
@@ -246,8 +253,9 @@ export const RetailersList = ({ orgId }) => {
     },
     {
       field: 'actions',
-      headerName: '',
+      headerName: 'Actions',
       width: 50,
+      flex: 1,
       sortable: false,
       renderCell: menuButton,
     },

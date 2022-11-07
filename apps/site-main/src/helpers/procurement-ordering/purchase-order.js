@@ -22,7 +22,7 @@ export const fetchPurchaseOrder = async (id) => {
 }
 
 export const fetchPurchaseOrders = async (orgId) => {
-  return await fetch(`${apiUrl}/all/${orgId}`).then((response) => response.json());
+  return await fetch(`${apiUrl}/sent/${orgId}`).then((response) => response.json());
 }
 
 export const createPurchaseOrder = async (values, lineItems) => {

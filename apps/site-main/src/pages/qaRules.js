@@ -92,22 +92,22 @@ function QARules() {
   const columns = [
     {
       field: 'id',
-      headerName: 'id',
-      flex: 0,
+      headerName: 'ID',
+      flex: 1,
     },
     {
       field: 'title',
-      headerName: 'title',
+      headerName: 'Title',
       flex: 2,
     },
     {
       field: 'description',
-      headerName: 'description',
+      headerName: 'Description',
       flex: 2,
     },
     {
       field: 'created',
-      headerName: 'created',
+      headerName: 'Created',
       flex: 1,
       valueFormatter: (params) => {
         return dayjs(params.value).format('DD/MM/YY');
@@ -115,12 +115,12 @@ function QARules() {
     },
     {
       field: 'category',
-      headerName: 'category',
+      headerName: 'Category',
       flex: 1,
     },
     {
       field: 'actions',
-      headerName: 'actions',
+      headerName: 'Actions',
       flex: 1,
       sortable: false,
       renderCell: menuButton,

@@ -4,12 +4,13 @@ import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import { useEffect, useState } from 'react';
 import SendIcon from '@mui/icons-material/Send';
 import { NotificationAlert } from '../../components/notification-alert';
-import { ReceivedSalesInquiryToolbar } from '../../components/fulfilment/received-sales-inquiry/received-si-toolbar';
 import { ReceivedSalesInquiryConfirmDialog } from '../../components/fulfilment/received-sales-inquiry/received-si-confirm-dialog';
 import { ReplyQuotationDialog } from '../../components/fulfilment/received-sales-inquiry/reply-quotation-dialog';
 import CancelIcon from '@mui/icons-material/Cancel';
+import { Toolbar } from '../../components/toolbar';
 import DayJS from 'dayjs';
-import { updateSalesInquiry } from '../../helpers/procurement-ordering';
+import { SeverityPill } from '../../components/severity-pill';
+import { salesInquiryStatusColorMap } from '../../helpers/constants';
 
 const ReceivedSalesInquiry = () => {
   const [receivedSalesInquiry, setReceivedSalesInquiry] = useState([]);
@@ -124,8 +125,6 @@ const ReceivedSalesInquiry = () => {
       method: 'PATCH',
     };
 
-    console.log(selectedRow);
-
     const response = await fetch(
       `http://localhost:3000/api/sales-inquiry/${selectedRow.id}`,
       {
@@ -197,12 +196,21 @@ const ReceivedSalesInquiry = () => {
       headerName: 'Total Price',
       width: 200,
       flex: 2,
+      valueFormatter: (params) => (params.value ? `$ ${params.value}` : ''),
     },
     {
       field: 'status',
       headerName: 'Status',
       width: 150,
       flex: 2,
+      renderCell: (params) =>
+        params.row ? (
+          <SeverityPill color={salesInquiryStatusColorMap[params.value]}>
+            {params.value}
+          </SeverityPill>
+        ) : (
+          ''
+        ),
     },
     {
       field: 'action',
@@ -254,11 +262,15 @@ const ReceivedSalesInquiry = () => {
         }}
       >
         <Container maxWidth={false}>
-          <ReceivedSalesInquiryToolbar
-            disabled={true}
-            numSalesInquiry={selectedRows.length}
-            handleConfirmDialogOpen={handleConfirmDialogOpen}
+          <Toolbar
+            key="received-sales-inquiry"
+            name={'Received Sales Inquiry'}
+            numRows={selectedRows.length}
+            deleteDisabled={null}
             handleSearch={handleSearch}
+            handleAdd={null}
+            handleFormDialogOpen={null}
+            handleConfirmDialogOpen={handleConfirmDialogOpen}
           />
           <Box sx={{ mt: 3 }}>
             <Card>

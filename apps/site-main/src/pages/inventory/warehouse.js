@@ -47,6 +47,7 @@ const Warehouse = () => {
 
     if (response.status == 200 || response.status == 201) {
       result = await response.json();
+      console.log(result);
     }
 
     setWarehouses(result);
@@ -287,7 +288,7 @@ const Warehouse = () => {
   const navigate = useNavigate();
   const handleRowClick = (rowData) => {
     navigate('rack', {
-      state: { warehouseId: rowData.id, racks: rowData.row.racks },
+      state: { warehouseId: rowData.id },
     });
   };
 
@@ -361,6 +362,9 @@ const Warehouse = () => {
                   checkboxSelection
                   onSelectionModelChange={(ids) => {
                     setSelectedRows(ids);
+                  }}
+                  isRowSelectable={(params) => {
+                    return params.row?.racks?.length === 0;
                   }}
                   onRowClick={(rowData) => handleRowClick(rowData)}
                 />

@@ -11,6 +11,7 @@ import EggIcon from '@mui/icons-material/Egg';
 import EventAvailableIcon from '@mui/icons-material/EventAvailable';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import FactCheckIcon from '@mui/icons-material/FactCheck';
+import FindInPageIcon from '@mui/icons-material/FindInPage';
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered';
 import FormatQuoteIcon from '@mui/icons-material/FormatQuote';
@@ -36,23 +37,21 @@ import {
   Collapse,
   Divider,
   Drawer,
-  Link,
-  Typography,
-  useMediaQuery
+  Link, useMediaQuery
 } from '@mui/material';
 import PropTypes from 'prop-types';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link as RouterLink, useLocation } from 'react-router-dom';
-import { Selector as SelectorIcon } from '../icons/selector';
 import { User as UserIcon } from '../icons/user';
 import { Logo } from './logo';
+import { OrganisationPlanBox } from './organisation-plan-box';
 
 const standalone = [
   {
     href: '/',
     icon: <DashboardIcon fontSize="small" />,
     title: 'Dashboard',
-    access: ['admin', 'manager', 'factoryworker', 'superadmin']
+    access: ['admin', 'manager', 'factoryworker', 'superadmin'],
   },
   {
     href: '/workermanagement',
@@ -234,6 +233,12 @@ const items = [
         access: ['manager', 'factoryworker', 'superadmin'],
       },
       {
+        href: '/production/production-request',
+        icon: <FindInPageIcon fontSize="small" />,
+        title: 'Production Request',
+        access: ['manager', 'factoryworker', 'superadmin'],
+      },
+      {
         href: '/production/production-order',
         icon: <TaskIcon fontSize="small" />,
         title: 'Production Order',
@@ -272,15 +277,30 @@ const items = [
         title: 'Received Purchase Order',
         access: ['manager', 'factoryworker', 'superadmin'],
       },
+      {
+        href: '/fulfilment/delivery-request',
+        icon: <LocalShippingIcon fontSize="small" />,
+        title: 'Delivery Request',
+        access: ['manager', 'factoryworker', 'superadmin'],
+      },
     ],
   },
 ];
 
 export const DashboardSidebar = (props) => {
+  const { 
+    user,
+    ...rest
+  } = props;
+  const [active, setActive] = useState(false);
+  useEffect(() => {
+    setActive(user.organisation?.membership?.status === 'active')
+  }, [user])
+
   const { pathname } = useLocation();
   const basepath = pathname.slice(1, pathname.lastIndexOf('/'));
 
-  const { open, onClose, user } = props;
+  const { open, onClose } = props;
   const lgUp = useMediaQuery((theme) => theme.breakpoints.up('lg'), {
     defaultMatches: true,
     noSsr: false,
@@ -475,30 +495,6 @@ export const DashboardSidebar = (props) => {
                 ))}
             </AccordionDetails>
           </Accordion>
-          {/* <List>
-            <ListItemButton
-              sx={{
-                borderRadius: 1,
-                color: 'neutral.300',
-                justifyContent: 'flex-start',
-                px: 3,
-                textAlign: 'left',
-                textTransform: 'none',
-                width: '100%',
-                '&:hover': {
-                  backgroundColor: 'rgba(255,255,255, 0.08)',
-                },
-              }}
-              onClick={eval(item.handleClick)}
-            >
-              <ListItemIcon sx={{ color: 'neutral.400' }}>
-                {item.icon}
-              </ListItemIcon>
-              <ListItemText primary={item.subsystem} />
-              {eval(item.open) ? <ExpandLess /> : <ExpandMore />}
-            </ListItemButton> */}
-
-          {/* </List> */}
         </Box>
       );
     });
@@ -532,34 +528,7 @@ export const DashboardSidebar = (props) => {
           Welcome {user.firstName}! [{user.role}]
         </Box>
         <Box sx={{ px: 2 }}>
-          <Box
-            sx={{
-              alignItems: 'center',
-              backgroundColor: 'rgba(255, 255, 255, 0.04)',
-              cursor: 'pointer',
-              display: 'flex',
-              justifyContent: 'space-between',
-              px: 3,
-              py: '11px',
-              borderRadius: 1,
-            }}
-          >
-            <div>
-              <Typography color="inherit" variant="subtitle1">
-                {user?.organisation?.name}
-              </Typography>
-              <Typography color="neutral.400" variant="body2">
-                Your tier : Premium
-              </Typography>
-            </div>
-            <SelectorIcon
-              sx={{
-                color: 'neutral.500',
-                width: 14,
-                height: 14,
-              }}
-            />
-          </Box>
+          <OrganisationPlanBox user={user} />
         </Box>
       </div>
       <Divider
@@ -577,8 +546,12 @@ export const DashboardSidebar = (props) => {
           gap: '15px',
         }}
       >
-        {standaloneModules}
-        {nestedModules}
+        {active && (
+          <>
+          {standaloneModules}
+          {nestedModules}
+          </>
+        )}
       </Box>
     </Box>
   );

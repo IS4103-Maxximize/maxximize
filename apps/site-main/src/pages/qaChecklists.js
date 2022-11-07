@@ -13,6 +13,7 @@ import { ConfirmationDialog } from '../components/quality-assurance/confirmation
 import { CreateDialogChecklist } from '../components/quality-assurance/CreateDialogChecklist';
 import { UpdateDialogChecklist } from '../components/quality-assurance/UpdateDialogChecklist';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
+import { SeverityPill } from '../components/severity-pill';
 
 const QAChecklists = () => {
   const [checklists, setChecklists] = useState([]);
@@ -102,9 +103,11 @@ const QAChecklists = () => {
       field: 'productType',
       headerName: 'Product Type',
       flex: 3,
-      valueFormatter: (params) => {
-        return params.value === 'rawmaterial' ? 'Raw Material' : 'Final Good';
-      },
+      renderCell: (params) => {
+        const value = params.value === 'rawmaterial' ? 'Raw Material' : 'Final Good';
+        const color = params.value === 'rawmaterial' ? 'primary' : 'secondary';
+        return (<SeverityPill color={color}>{value}</SeverityPill>)
+      }
     },
     {
       field: 'created',

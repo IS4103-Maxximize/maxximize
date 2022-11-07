@@ -42,7 +42,7 @@ export class WarehousesService {
     const warehouses = await this.warehouseRepository.find({
       relations: ["organisation", "racks.bins.batchLineItems.product", "racks"]
     });
-    if (warehouses.length === 0 || warehouses === undefined) {
+    if (warehouses === undefined || warehouses.length === 0) {
       throw new NotFoundException("No warehouse(s) found!");
     } else {
       return warehouses;

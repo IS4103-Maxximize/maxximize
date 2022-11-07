@@ -100,7 +100,6 @@ const Quotation = (props) => {
     return (
       <IconButton
         onClick={(event) => {
-          console.log(params.row);
           setSelectedRow(params.row);
           handleMenuClick(event);
         }}
@@ -114,7 +113,6 @@ const Quotation = (props) => {
   const addQuotation = (quotation) => {
     const updatedProducts = [...rows, quotation];
     setRows(updatedProducts);
-    console.log(quotation);
     handleAlertOpen(`Added Quotation ${quotation.id} successfully!`, 'success');
   };
 
@@ -151,10 +149,6 @@ const Quotation = (props) => {
       getQuotations();
     }
   }, [formDialogOpen]);
-
-  useEffect(() => {
-    console.log(rows);
-  }, [rows]);
 
   const columns = [
     {
@@ -194,6 +188,7 @@ const Quotation = (props) => {
       field: 'totalPrice',
       headerName: 'Quotation Total Price',
       flex: 2,
+      valueFormatter: (params) => params.value ? `$ ${params.value}` : ''
     },
     {
       field: 'Actions',
@@ -292,7 +287,6 @@ const Quotation = (props) => {
                   setSelectedRows(ids);
                 }}
                 isRowSelectable={(params) => {
-                  console.log(params.row);
                   return (
                     !params.row.purchaseOrder && params.row.shellOrganisation
                   );

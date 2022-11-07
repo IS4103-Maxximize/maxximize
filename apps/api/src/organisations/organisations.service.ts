@@ -4,8 +4,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { CreateContactDto } from '../contacts/dto/create-contact.dto';
 import { Contact } from '../contacts/entities/contact.entity';
-import { ShellOrganisation } from '../shell-organisations/entities/shell-organisation.entity';
-import { ShellOrganisationsService } from '../shell-organisations/shell-organisations.service';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { User } from '../users/entities/user.entity';
 import * as bcrypt from 'bcrypt';
@@ -17,6 +15,7 @@ import { UpdateOrganisationDto } from './dto/update-organisation.dto';
 import { Organisation } from './entities/organisation.entity';
 import { OrganisationType } from './enums/organisationType.enum';
 import { MailService } from '../mail/mail.service';
+import { MembershipsService } from '../memberships/memberships.service';
 
 @Injectable()
 export class OrganisationsService {
@@ -25,11 +24,12 @@ export class OrganisationsService {
     private readonly organisationsRepository: Repository<Organisation>,
     @InjectRepository(Contact)
     private readonly contactsRepository: Repository<Contact>,
-    private shellOrganisationSerive: ShellOrganisationsService,
     @Inject(forwardRef(() => UsersService))
     private usersService: UsersService,
     private dataSource: DataSource,
-    private mailService: MailService
+    private mailService: MailService,
+    @Inject(forwardRef(() => MembershipsService))
+    private membershipService: MembershipsService
   ) {}
 
   async create(createOrganisationDto: CreateOrganisationDto): Promise<Organisation> {
@@ -148,7 +148,7 @@ export class OrganisationsService {
     try {
       const organisation =  await this.organisationsRepository.findOneOrFail({
         where: {id}, 
-        relations: ["shellOrganisations", "contact", "users.contact"]
+        relations: ["shellOrganisations", "contact", "users.contact", "membership"]
       });
       return organisation;
     } catch (err) {
@@ -178,19 +178,17 @@ export class OrganisationsService {
 
   async update(id: number, updateOrganisationDto: UpdateOrganisationDto): Promise<Organisation> {
     try {
-      const organisation = await this.organisationsRepository.findOne({where: {
+      const organisation = await this.organisationsRepository.findOneOrFail({where: {
         id
       }})
       const keyValuePairs = Object.entries(updateOrganisationDto)
       for (let i = 0; i < keyValuePairs.length; i++) {
         const [key, value] = keyValuePairs[i]
         //fields in updateOrganisationDto are optional, so check if the value is present or null
-        if (value) {
-          if (key === 'contact') {
-            organisation['contact'] = await this.updateOrganisationContact(updateOrganisationDto.contact, organisation)
-          } else {
-            organisation[key] = value
-          }
+        if (key === 'contact') {
+          organisation['contact'] = await this.updateOrganisationContact(updateOrganisationDto.contact, organisation)
+        } else {
+          organisation[key] = value
         }
       }
       return this.organisationsRepository.save(organisation)
@@ -208,7 +206,7 @@ export class OrganisationsService {
 
   async remove(id: number): Promise<Organisation> {
     try {
-      const organisation = await this.organisationsRepository.findOneBy({id})
+      const organisation = await this.findOne(id)
       return this.organisationsRepository.remove(organisation);
     } catch (err) {
       throw new NotFoundException(`Remove failed as Organization with id: ${id} cannot be found`)
@@ -246,4 +244,40 @@ export class OrganisationsService {
     return this.organisationsRepository.save(organisation);
   }
 
+  async banOrganisation(organisationId: number) {
+    const organisationToBan = await this.findOne(organisationId)
+    //stop the membership first
+    const membership = organisationToBan.membership
+    const {subscriptionId} = membership
+    if (subscriptionId) {
+      await this.membershipService.pauseSubscription(subscriptionId)
+    }
+    //set isActive to false
+    return this.update(organisationId, {isActive: false})
+  }
+
+  async unbanOrganisation(organisationId: number) {
+    const organisationToBan = await this.findOne(organisationId)
+    //stop the membership first
+    const membership = organisationToBan.membership
+    const {subscriptionId} = membership
+    if (subscriptionId) {
+      await this.membershipService.resumeSubscription(subscriptionId)
+    }
+    //set isActive to true
+    return this.update(organisationId, {isActive: true})
+  }
+  
+  async findOrgByEmail(email: string): Promise<Organisation> {
+    return this.organisationsRepository.findOne({
+      where: {
+        contact: {
+          email: email
+        }
+      },
+      relations: {
+        membership: true
+      }
+    })
+  }
 }

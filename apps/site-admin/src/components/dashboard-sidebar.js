@@ -1,5 +1,4 @@
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import DomainAddIcon from '@mui/icons-material/DomainAdd';
 import {
   Accordion,
   AccordionDetails,
@@ -17,51 +16,47 @@ import PropTypes from 'prop-types';
 import { useState } from 'react';
 import { Link as RouterLink, useLocation } from 'react-router-dom';
 import { Selector as SelectorIcon } from '../icons/selector';
+import ContactPageIcon from '@mui/icons-material/ContactPage';
+import BusinessIcon from '@mui/icons-material/Business';
+import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import { Logo } from './logo';
 
 const standalone = [
-  {
-    href: '/onboarding',
-    icon: <DomainAddIcon fontSize="small" />,
-    title: 'Onboarding',
-    access: ['admin', 'superadmin'],
-  },
+  //   {
+  //     href: '/onboarding',
+  //     icon: <DomainAddIcon fontSize="small" />,
+  //     title: 'Onboarding',
+  //     access: ['admin', 'superadmin'],
+  //   },
 ];
 
-// When the need arises
 const items = [
-  //   {
-  //     subsystem: 'Fulfilment',
-  //     access: ['manager', 'factoryworker', 'superadmin'],
-  //     icon: (
-  //       <EventAvailableIcon
-  //         sx={{ marginTop: 0.2, color: '#9CA3AF' }}
-  //         fontSize="small"
-  //       />
-  //     ),
-  //     open: 'openFulfilment',
-  //     handleClick: 'handleFulfilmentClick',
-  //     modules: [
-  //       {
-  //         href: '/fulfilment/received-sales-inquiry',
-  //         icon: <ReplyAllIcon fontSize="small" />,
-  //         title: 'Received Sales Inquiry',
-  //         access: ['manager', 'factoryworker', 'superadmin'],
-  //       },
-  //       {
-  //         href: '/fulfilment/sent-quotation',
-  //         icon: <MarkEmailReadIcon fontSize="small" />,
-  //         title: 'Sent Quotation',
-  //         access: ['manager', 'factoryworker', 'superadmin'],
-  //       },
-  //       {
-  //         href: '/fulfilment/received-purchase-order',
-  //         icon: <DocumentScannerIcon fontSize="small" />,
-  //         title: 'Received Purchase Order',
-  //         access: ['manager', 'factoryworker', 'superadmin'],
-  //       },
-  //     ],
-  //   },
+  {
+    subsystem: 'Client',
+    access: ['admin', 'superadmin'],
+    icon: (
+      <PeopleAltIcon
+        sx={{ marginTop: 0.2, color: '#9CA3AF' }}
+        fontSize="small"
+      />
+    ),
+    open: 'openClient',
+    handleClick: 'handleClientClick',
+    modules: [
+      {
+        href: '/client/application',
+        icon: <ContactPageIcon fontSize="small" />,
+        title: 'Application',
+        access: ['admin', 'superadmin'],
+      },
+      {
+        href: '/client/organisation-management',
+        icon: <BusinessIcon fontSize="small" />,
+        title: 'Organisation Management',
+        access: ['admin', 'superadmin'],
+      },
+    ],
+  },
 ];
 
 export const DashboardSidebar = (props) => {
@@ -75,11 +70,11 @@ export const DashboardSidebar = (props) => {
   });
 
   //Nest menu for when the need arises
-  //   const [openFulfilment, setOpenFulfilment] = useState(true);
+  const [openClient, setOpenClient] = useState(true);
 
-  //   const handleFulfilmentClick = () => {
-  //     setOpenFulfilment(!openFulfilment);
-  //   };
+  const handleClientClick = () => {
+    setOpenClient(!openClient);
+  };
 
   const standaloneModules = standalone
     .filter((module) => module.access.includes(user.role))

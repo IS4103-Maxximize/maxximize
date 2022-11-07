@@ -251,8 +251,9 @@ export const SuppliersList = ({ orgId }) => {
     },
     {
       field: 'actions',
-      headerName: '',
+      headerName: 'Actions',
       width: 50,
+      flex: 1,
       sortable: false,
       renderCell: menuButton,
     },

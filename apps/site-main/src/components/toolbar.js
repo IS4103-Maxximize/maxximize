@@ -12,13 +12,16 @@ import {
   SvgIcon,
   TextField,
   Tooltip,
-  Typography
+  Typography,
 } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { procurementBreadcrumbs, productionBreadcrumbs } from '../helpers/constants';
+import {
+  procurementBreadcrumbs,
+  productionBreadcrumbs,
+  fulfilmentBreadcrumbs,
+} from '../helpers/constants';
 import { Search as SearchIcon } from '../icons/search';
-
 
 export const Toolbar = (props) => {
   const {
@@ -61,6 +64,7 @@ export const Toolbar = (props) => {
         <Breadcrumbs separator="-">
           {domain === 'procurement' && procurementBreadcrumbs(subdomain)}
           {domain === 'production' && productionBreadcrumbs(subdomain)}
+		      {domain === 'fulfilment' && fulfilmentBreadcrumbs(subdomain)}
         </Breadcrumbs>
       </Box>
       <Box sx={{ mt: 3 }}>
@@ -95,32 +99,40 @@ export const Toolbar = (props) => {
               </Stack>
 
               <Box sx={{ m: 1 }}>
-                <Tooltip title={`Add ${name}`}>
-                  <IconButton
-                    color="primary"
-                    onClick={() => {
-                      handleAdd && handleAdd();
-                      handleFormDialogOpen();
-                    }}
-                    sx={{ mr: 1 }}
-                  >
-                    <AddBoxIcon />
-                  </IconButton>
-                </Tooltip>
-
-                <Tooltip title={`Delete ${name}(s)`}>
-                  <span>
+                {handleFormDialogOpen !== null ? (
+                  <Tooltip title={`Add ${name}`}>
                     <IconButton
-                      color="error"
-                      disabled={deleteDisabled}
-                      onClick={handleConfirmDialogOpen}
+                      color="primary"
+                      onClick={() => {
+                        handleAdd && handleAdd();
+                        handleFormDialogOpen();
+                      }}
+                      sx={{ mr: 1 }}
                     >
-                      <Badge badgeContent={numRows} color="error">
-                        <DeleteIcon />
-                      </Badge>
+                      <AddBoxIcon />
                     </IconButton>
-                  </span>
-                </Tooltip>
+                  </Tooltip>
+                ) : (
+                  <></>
+                )}
+
+                {deleteDisabled !== null ? (
+                  <Tooltip title={`Delete ${name}(s)`}>
+                    <span>
+                      <IconButton
+                        color="error"
+                        disabled={deleteDisabled}
+                        onClick={handleConfirmDialogOpen}
+                      >
+                        <Badge badgeContent={numRows} color="error">
+                          <DeleteIcon />
+                        </Badge>
+                      </IconButton>
+                    </span>
+                  </Tooltip>
+                ) : (
+                  <></>
+                )}
               </Box>
             </Box>
           </CardContent>
