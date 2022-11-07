@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { PurchaseOrdersService } from './purchase-orders.service';
 import { PurchaseOrdersController } from './purchase-orders.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -16,6 +16,10 @@ import { FollowUpLineItem } from '../follow-up-line-items/entities/follow-up-lin
 import { GoodsReceipt } from '../goods-receipts/entities/goods-receipt.entity';
 import { BatchLineItemsModule } from '../batch-line-items/batch-line-items.module';
 import { ReservationLineItem } from '../reservation-line-items/entities/reservation-line-item.entity';
+import { ShellOrganisationsModule } from '../shell-organisations/shell-organisations.module';
+import { ShellOrganisation } from '../shell-organisations/entities/shell-organisation.entity';
+import { InvoicesModule } from '../invoices/invoices.module';
+import { Invoice } from '../invoices/entities/invoice.entity';
 
 @Module({
   imports: [TypeOrmModule.forFeature([
@@ -27,13 +31,17 @@ import { ReservationLineItem } from '../reservation-line-items/entities/reservat
     RawMaterial, 
     FinalGood, 
     GoodsReceipt, 
-    ReservationLineItem
+    ReservationLineItem,
+    ShellOrganisation,
+    Invoice
   ]), 
     PurchaseOrderLineItemsModule, 
     OrganisationsModule, 
     QuotationsModule, 
     MailModule,
-    BatchLineItemsModule
+    BatchLineItemsModule,
+    forwardRef(() => ShellOrganisationsModule),
+    forwardRef(() => InvoicesModule)
   ],
   controllers: [PurchaseOrdersController],
   providers: [PurchaseOrdersService],

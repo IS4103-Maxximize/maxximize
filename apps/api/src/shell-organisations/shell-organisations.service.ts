@@ -23,7 +23,7 @@ export class ShellOrganisationsService {
     private readonly rawMaterialsRepository: Repository<RawMaterial>,
   ) {}
   async create(createShellOrganisationDto: CreateShellOrganisationDto): Promise<ShellOrganisation> {
-    const {name, type, uen, contact, organisationId} = createShellOrganisationDto
+    const {name, type, uen, contact, organisationId, currentCredit, creditLimit} = createShellOrganisationDto
     let parentOrganisation: Organisation
     parentOrganisation = await this.organisationsRepository.findOneBy({id: organisationId})
 
@@ -42,7 +42,9 @@ export class ShellOrganisationsService {
       created: new Date(),
       uen,
       contact: contact ?? null,
-      parentOrganisation: parentOrganisation
+      parentOrganisation: parentOrganisation,
+      currentCredit: currentCredit ?? null,
+      creditLimit: creditLimit ?? null
     })
     
     return this.shellOrganisationRepository.save(newShellOrganisation)
@@ -83,12 +85,25 @@ export class ShellOrganisationsService {
   }
 
   async retrieveUensInParentOrg(parentOrgId: number): Promise<string[]> {
-    const  parentOrg = await this.organisationsRepository.findOne({where: {id: parentOrgId}, relations: {
+    const parentOrg = await this.organisationsRepository.findOne({where: {id: parentOrgId}, relations: {
       shellOrganisations: true
     }})
     const shellOrgs = parentOrg.shellOrganisations
     const allUENs = shellOrgs.map(org => org.uen)
     return [...allUENs, parentOrg.uen]
+  }
+
+  async retrieveShellOrgFromUen(organisationId: number, uen: string) {
+    const parentOrg = await this.organisationsRepository.findOne({where: {id: organisationId}, relations: {
+      shellOrganisations: true
+    }})
+    const shellOrgs = parentOrg.shellOrganisations
+    for (const shellOrg of shellOrgs) {
+      if (uen == shellOrg.uen) {
+        return this.findOne(shellOrg.id)
+      }
+    }
+    return null
   }
 
   async update(id: number, updateShellOrganisationDto: UpdateShellOrganisationDto) {
