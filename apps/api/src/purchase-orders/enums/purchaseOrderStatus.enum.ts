@@ -1,4 +1,5 @@
 export enum PurchaseOrderStatus {
+    CREATEDVIACSV = 'createdviacsv',
   PENDING = 'pending',
   REJECTED = 'rejected',
   ACCEPTED = 'accepted',
@@ -7,5 +8,5 @@ export enum PurchaseOrderStatus {
   DELIVERY = 'delivery',
   PARTIALLYFULFILLED = 'partiallyfulfilled',
   FULFILLED = 'fulfilled',
-  CLOSED = 'closed',
+  CLOSED = 'closed'
 }

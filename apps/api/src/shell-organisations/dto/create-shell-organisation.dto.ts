@@ -7,4 +7,7 @@ export class CreateShellOrganisationDto {
     type: OrganisationType;
     contact?: CreateContactDto;
     organisationId: number;
+    currentCredit?: number;
+    creditLimit?: number;
+    
 }
