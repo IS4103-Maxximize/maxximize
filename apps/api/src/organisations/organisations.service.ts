@@ -16,6 +16,7 @@ import { Organisation } from './entities/organisation.entity';
 import { OrganisationType } from './enums/organisationType.enum';
 import { MailService } from '../mail/mail.service';
 import { MembershipsService } from '../memberships/memberships.service';
+import { AccountInfo } from '../account-info/entities/account-info.entity';
 
 @Injectable()
 export class OrganisationsService {
@@ -54,7 +55,7 @@ export class OrganisationsService {
     let organisation: Organisation
     await this.dataSource.manager.transaction(async (transactionalEntityManager) => {
       //create the organisation
-      const {name, type, contact, uen} = createOrganisationDto
+      const {name, type, contact, uen, accountInfo} = createOrganisationDto
       const allUensOfRegisteredOrgs = await this.findAllUensOfRegisterdOrgs()
       if (allUensOfRegisteredOrgs.includes(uen)) {
         throw new NotFoundException('UEN is used by an exisiting registed organisation!')
@@ -66,11 +67,19 @@ export class OrganisationsService {
         })
         await transactionalEntityManager.save(orgContact)
       }
+      let orgAccountInfo: AccountInfo
+      if (accountInfo) {
+        orgAccountInfo = transactionalEntityManager.create(AccountInfo, {
+          ...accountInfo
+        })
+        await transactionalEntityManager.save(orgAccountInfo)
+      }
       organisation = transactionalEntityManager.create(Organisation, {
         name,
         type,
         uen,
-        contact: orgContact ?? null
+        contact: orgContact ?? null,
+        accountInfo: orgAccountInfo ?? null
       })
       await transactionalEntityManager.save(organisation)
       //create the user
@@ -140,6 +149,7 @@ export class OrganisationsService {
         shellOrganisations: true,
         contact: true,
         users: true,
+        accountInfo: true
       }
     });
   }
@@ -148,7 +158,7 @@ export class OrganisationsService {
     try {
       const organisation =  await this.organisationsRepository.findOneOrFail({
         where: {id}, 
-        relations: ["shellOrganisations", "contact", "users.contact", "membership"]
+        relations: ["shellOrganisations", "contact", "users.contact", "membership", "accountInfo"]
       });
       return organisation;
     } catch (err) {
@@ -168,7 +178,8 @@ export class OrganisationsService {
         relations: {
           contact: true,
           finalGoods: true,
-          rawMaterials: true
+          rawMaterials: true,
+          accountInfo: true
         }
       })
       if (checkOrg) organisations.push(checkOrg)
