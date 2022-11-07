@@ -1,8 +1,7 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Req } from '@nestjs/common';
-import { MembershipsService } from './memberships.service';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Req } from '@nestjs/common';
 import { CreateMembershipDto } from './dto/create-membership.dto';
 import { UpdateMembershipDto } from './dto/update-membership.dto';
-import { CreateStripeCustomerDto } from './dto/create-stripe-customer.dto';
+import { MembershipsService } from './memberships.service';
 
 @Controller('memberships')
 export class MembershipsController {
@@ -26,6 +25,11 @@ export class MembershipsController {
   @Get('orgId/:id')
   findOneByOrg(@Param('id') id: string) {
     return this.membershipsService.findOneByOrg(+id)
+  }
+
+  @Get('customer/:id')
+  findMembershipByCustomer(@Param('id') id: string) {
+    return this.membershipsService.findMembershipByCustomer(id);
   }
 
   @Patch(':id')
@@ -64,12 +68,13 @@ export class MembershipsController {
     return this.membershipsService.getCustomer(id)
   }
 
+  // NOT IN USE
   //customer, membership mapping to org
 
-  @Post('createMembershipAndSetCustomer')
-  createCustomerForStripe(@Body() createMembershipDto: CreateMembershipDto) {
-    return this.membershipsService.createMembershipAndSetCustomer(createMembershipDto)
-  }
+  // @Post('createMembershipAndSetCustomer')
+  // createCustomerForStripe(@Body() createMembershipDto: CreateMembershipDto) {
+  //   return this.membershipsService.createMembershipAndSetCustomer(createMembershipDto)
+  // }
 
 
   //invoices
@@ -88,5 +93,4 @@ export class MembershipsController {
   findPaymentMethodsOfCustomer(@Param('id') id: string) {
     return this.membershipsService.getCustomerPaymentMethods(id)
   }
-
 }

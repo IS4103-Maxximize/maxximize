@@ -1,4 +1,8 @@
-import { Box, Container, Grid } from '@mui/material';
+import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
+import { Box, Button, Container, Grid, Link, Skeleton, Typography } from '@mui/material';
+import { useEffect, useState } from 'react';
+import { Helmet, HelmetProvider } from 'react-helmet-async';
+import { Blur } from '../components/blur';
 import { Budget } from '../components/dashboard/budget';
 import { LatestOrders } from '../components/dashboard/latest-orders';
 import { LatestProducts } from '../components/dashboard/latest-products';
@@ -7,13 +11,17 @@ import { TasksProgress } from '../components/dashboard/tasks-progress';
 import { TotalCustomers } from '../components/dashboard/total-customers';
 import { TotalProfit } from '../components/dashboard/total-profit';
 import { TrafficByDevice } from '../components/dashboard/traffic-by-device';
-import { Helmet, HelmetProvider } from 'react-helmet-async';
-import { useState } from 'react';
 import { NotificationAlert } from '../components/notification-alert';
-import WorkerDashboard from './dashboards/worker-dashboard';
+import { getSessionUrl } from '../helpers/stripe';
 
 const Dashboard = () => {
   const user = JSON.parse(localStorage.getItem('user'));
+  const [active, setActive] = useState(true);
+  const [sessionUrl, setSessionUrl] = useState();
+  useEffect(() => {
+    getSessionUrl(user, setSessionUrl);
+    setActive(user.organisation?.membership?.status === 'active');
+  }, [])
 
   // Alert Helpers
   const [alertOpen, setAlertOpen] = useState(false);
@@ -77,6 +85,31 @@ const Dashboard = () => {
           py: 4
         }}
       >
+        <Blur open={!active}>
+          <Box
+            sx={{
+              textAlign: 'center',
+            }}
+          >
+            <Typography 
+              variant="h6"
+              pb={2}
+            >
+                Visit the Customer Portal to Resume or Start your Subscription
+            </Typography>
+            {sessionUrl ? 
+              <Button
+                LinkComponent={Link}
+                variant="contained" 
+                endIcon={<ManageAccountsIcon />}
+                href={sessionUrl}
+              >
+                Customer Portal
+              </Button>
+              : <Skeleton sx={{ bgcolor: "grey.700" }} variant="rectangular" width={500} height={50}/>
+            }
+          </Box>
+        </Blur>
         <NotificationAlert
           open={alertOpen}
           severity={alertSeverity}
@@ -85,15 +118,6 @@ const Dashboard = () => {
         />
         <Container maxWidth={false}>
           <Grid container spacing={3}>
-            {/* {workerDashboardPerms.includes(user?.role) && 
-              <WorkerDashboard 
-                user={user} 
-                handleAlertOpen={handleAlertOpen}
-              />
-            }
-            {!workerDashboardPerms.includes(user?.role) && 
-              <DefaultDashboardItems />
-            } */}
             <DefaultDashboardItems />
           </Grid>
         </Container>
