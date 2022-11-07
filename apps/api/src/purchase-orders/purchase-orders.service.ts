@@ -4,14 +4,14 @@ import {
   Inject,
   Injectable,
   InternalServerErrorException,
-  NotFoundException,
+  NotFoundException
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { BatchLineItemsService } from '../batch-line-items/batch-line-items.service';
-import { BatchLineItem } from '../batch-line-items/entities/batch-line-item.entity';
 import { Contact } from '../contacts/entities/contact.entity';
 import { FinalGood } from '../final-goods/entities/final-good.entity';
+import { InvoicesService } from '../invoices/invoices.service';
 import { MailService } from '../mail/mail.service';
 import { Organisation } from '../organisations/entities/organisation.entity';
 import { OrganisationsService } from '../organisations/organisations.service';
@@ -21,14 +21,13 @@ import { Quotation } from '../quotations/entities/quotation.entity';
 import { QuotationsService } from '../quotations/quotations.service';
 import { RawMaterial } from '../raw-materials/entities/raw-material.entity';
 import { ReservationLineItem } from '../reservation-line-items/entities/reservation-line-item.entity';
+import { ShellOrganisation } from '../shell-organisations/entities/shell-organisation.entity';
+import { ShellOrganisationsService } from '../shell-organisations/shell-organisations.service';
 import { CreatePurchaseOrderDto } from './dto/create-purchase-order.dto';
 import { ReserveDto } from './dto/reserve-dto';
 import { UpdatePurchaseOrderDto } from './dto/update-purchase-order.dto';
 import { PurchaseOrder } from './entities/purchase-order.entity';
 import { PurchaseOrderStatus } from './enums/purchaseOrderStatus.enum';
-import { ShellOrganisationsService } from '../shell-organisations/shell-organisations.service';
-import { ShellOrganisation } from '../shell-organisations/entities/shell-organisation.entity';
-import { InvoicesService } from '../invoices/invoices.service';
 
 @Injectable()
 export class PurchaseOrdersService {
@@ -194,7 +193,7 @@ export class PurchaseOrdersService {
 
   async createCSV(createPurchaseOrderDto: CreatePurchaseOrderDto): Promise<PurchaseOrder> {
     try {
-      const { deliveryAddress, totalPrice, deliveryDate, currentOrganisationId, date, poLineItemDtos } = createPurchaseOrderDto
+      const { deliveryAddress, totalPrice, currentOrganisationId, date, poLineItemDtos } = createPurchaseOrderDto
       let newPurchaseOrder: PurchaseOrder
       let poLineItems: PurchaseOrderLineItem[] = []
       await this.datasource.manager.transaction(async (transactionalEntityManager) => {
