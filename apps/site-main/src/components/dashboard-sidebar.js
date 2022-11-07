@@ -66,6 +66,7 @@ const standalone = [
     subsystemName: '',
     access: ['admin', 'superadmin'],
   },
+
 ];
 
 const items = [
@@ -225,6 +226,12 @@ const items = [
         icon: <AddRoadIcon fontSize="small" />,
         title: 'Production Line',
         access: ['manager', 'factoryworker', 'superadmin'],
+      },
+      {
+        href: '/production/delivery-fleet-management',
+        icon: <LocalShippingIcon fontSize="small" />,
+        title: 'Delivery Fleet',
+        access: [ 'manager', 'factoryworker', 'superadmin'],
       },
       {
         href: '/production/production-request',
