@@ -268,5 +268,16 @@ export class OrganisationsService {
     return this.update(organisationId, {isActive: true})
   }
   
-
+  async findOrgByEmail(email: string): Promise<Organisation> {
+    return this.organisationsRepository.findOne({
+      where: {
+        contact: {
+          email: email
+        }
+      },
+      relations: {
+        membership: true
+      }
+    })
+  }
 }

@@ -24,6 +24,11 @@ export class OrganisationsController {
     return this.organisationsService.findOne(+id);
   }
 
+  @Get('email/:email')
+  findOrgByEmail(@Param('email') email: string) {
+    return this.organisationsService.findOrgByEmail(email);
+  }
+
   @Post('getOrgByShellUen') 
   getOrgByShellUen(@Body() getOrgByShellDto: GetOrgByShellDto) {
     return this.organisationsService.findOrganisationsThatMatchesShellOrgUEN(getOrgByShellDto)
