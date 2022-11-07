@@ -1,6 +1,7 @@
 import {
   Column,
   Entity,
+  JoinColumn,
   JoinTable,
   ManyToMany,
   OneToMany,
@@ -29,6 +30,7 @@ import { File } from '../../files/entities/file.entity';
 import { Application } from '../../applications/entities/application.entity';
 import { ProductionRequest } from '../../production-requests/entities/production-request.entity';
 import { Membership } from '../../memberships/entities/membership.entity';
+import { AccountInfo } from '../../account-info/entities/account-info.entity';
 
 @Entity()
 export class Organisation {
@@ -137,4 +139,7 @@ export class Organisation {
 
   @OneToOne(() => Membership, membership => membership.organisation)
   membership: Membership
+
+  @OneToOne(() => AccountInfo, accountInfo => accountInfo.organisation)
+  accountInfo: AccountInfo
 }
