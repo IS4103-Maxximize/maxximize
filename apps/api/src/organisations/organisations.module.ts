@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Billing } from '../billings/entities/billing.entity';
 import { Contact } from '../contacts/entities/contact.entity';
 import { MailModule } from '../mail/mail.module';
+import { MembershipsModule } from '../memberships/memberships.module';
 import { Order } from '../orders/entities/order.entity';
 import { PurchaseOrder } from '../purchase-orders/entities/purchase-order.entity';
 import { SalesInquiry } from '../sales-inquiry/entities/sales-inquiry.entity';
@@ -17,7 +18,7 @@ import { OrganisationsController } from './organisations.controller';
 import { OrganisationsService } from './organisations.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Organisation, User, Contact, Machine, Order, Warehouse, Billing, SalesInquiry, PurchaseOrder, ShellOrganisation]), ShellOrganisationsModule, forwardRef(() => UsersModule), MailModule],
+  imports: [TypeOrmModule.forFeature([Organisation, User, Contact, Machine, Order, Warehouse, Billing, SalesInquiry, PurchaseOrder, ShellOrganisation]), ShellOrganisationsModule, forwardRef(() => UsersModule), MailModule, forwardRef(() => MembershipsModule)],
   controllers: [OrganisationsController],
   providers: [OrganisationsService],
   exports: [OrganisationsService]

@@ -118,7 +118,12 @@ export class UsersService {
     try {
       return this.usersRepository.findOne({
         where: { id },
-        relations: { contact: true, organisation: true },
+        relations: { 
+          contact: true,
+          organisation: {
+            membership: true
+          }
+        },
       });
     } catch (err) {
       throw new NotFoundException('No user with id: ' + id + ' found!');

@@ -24,6 +24,11 @@ export class OrganisationsController {
     return this.organisationsService.findOne(+id);
   }
 
+  @Get('email/:email')
+  findOrgByEmail(@Param('email') email: string) {
+    return this.organisationsService.findOrgByEmail(email);
+  }
+
   @Post('getOrgByShellUen') 
   getOrgByShellUen(@Body() getOrgByShellDto: GetOrgByShellDto) {
     return this.organisationsService.findOrganisationsThatMatchesShellOrgUEN(getOrgByShellDto)
@@ -47,5 +52,17 @@ export class OrganisationsController {
   @Get('getWorkersByOrganisation/:id')
   findOrganisationWorkers(@Param('id') id: string) {
     return this.organisationsService.findOrganisationWorkers(+id);
+  }
+  
+  //ban
+  @Patch('ban/:id')
+  banOrganisation(@Param('id') id: string) {
+    return this.organisationsService.banOrganisation(+id)
+  }
+
+  //unban
+  @Patch('unban/:id')
+  unbanOrganisation(@Param('id') id: string) {
+    return this.organisationsService.unbanOrganisation(+id)
   }
 }
