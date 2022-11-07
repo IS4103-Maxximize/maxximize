@@ -8,5 +8,5 @@ export enum PurchaseOrderStatus {
   DELIVERY = 'delivery',
   PARTIALLYFULFILLED = 'partiallyfulfilled',
   FULFILLED = 'fulfilled',
-  CLOSED = 'closed",
+  CLOSED = 'closed'
 }
