@@ -1,15 +1,23 @@
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack, TextField, Typography } from "@mui/material";
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControlLabel, Radio, RadioGroup, Stack, TextField, Typography } from "@mui/material";
 import { DateTimePicker } from '@mui/x-date-pickers';
 import { useFormik } from "formik";
 import { useEffect, useState } from "react";
 import * as Yup from "yup";
-import { createVehicle } from "../../helpers/deliveryFleet";
+import { updateVehicle } from "../../helpers/deliveryFleet";
 
-export const VehicleCreateDialog = (props) => {
+const options = ['available', 'outforservice'];
+
+const optionLabels = {
+  'available': 'Available',
+  'outforservice': 'Out For Service'
+}
+
+export const VehicleUpdateDialog = (props) => {
   const {
     open,
     handleClose,
-    addVehicle,
+    vehicle,
+	  handleRowUpdate,
     handleAlertOpen,
     handleAlertClose,
   } = props;
@@ -19,54 +27,55 @@ export const VehicleCreateDialog = (props) => {
 
   const handleOnSubmit = async (values) => {
 
-    const CreateVehicleDto = {
-      id:values.id,
+    const updateVehicleDto = {
+      id: values.id,
       description: values.description,
       make: values.make,
       model: values.model,
       year: values.year,
       lastServiced: selectedDate,
       remarks: values.remarks,
-      licensePlate: values.licensePlate,
+      licensePlate : values.licensePlate,
+      organisationId: organisationId,
       loadCapacity:values.loadCapacity,
       location: values.location,
-      organisationId: organisationId,
-      currentStatus: 'Available',
-      isOperating: values.isOperating ,
+      currentStatus: values.currentStatus,
+      isOperating: values.isOperating 
     }
 
-    createVehicle(CreateVehicleDto)
+    console.log(updateVehicleDto);
+
+    updateVehicle(vehicle.id, updateVehicleDto)
       .then(res => {
-        // console.log(res)
+		handleRowUpdate(res)
         onClose();
-        addVehicle(res)
-        handleAlertOpen(`Added Vehicle ${res.id} successfully!`, 'success');
+        handleAlertOpen(`Updated Vehicle ${res.id} successfully!`, 'success');
       })
-      .catch(err => handleAlertOpen('Failed to Create Vehicle', 'error'));
-  }
+      .catch(err => handleAlertOpen('Failed to Update Vehicle', 'error'));
+  };
 
   const formik = useFormik({
     initialValues: {
-      id: '',
-      description: '',
-      make: '',
-      model: '',
-      year: '',
-      lastServiced: '',
-      remarks: '',
-      currentStatus: 'Available',
-      licensePlate: '',
-      loadCapacity:'',
-      location: '',
-      isOperating: true ,
+      id: vehicle ? vehicle.id : '',
+      description: vehicle ? vehicle.description : '',
+      make: vehicle ? vehicle.make : '',
+      model: vehicle ? vehicle.model : '',
+      year: vehicle ? vehicle.year : '',
+      lastServiced: vehicle ? vehicle.lastServiced : '',
+      remarks: vehicle ? vehicle.remarks : '',
+      currentStatus: vehicle ? vehicle.currentStatus : 'available',
+      licensePlate: vehicle ? vehicle.licensePlate : '',
+      loadCapacity:vehicle ? vehicle.loadCapacity : '',
+      location: vehicle ? vehicle.location : '',
+      isOperating: vehicle ? vehicle.isOperating : '',
     },
     validationSchema: Yup.object({
-      description: Yup.string().required('Enter Vehicle Description'),
+      description: Yup.string().required("Description is required"),
       make: Yup.string().required("Make is required"),
       model: Yup.string().required("Model is required"),
       year: Yup.number().integer("Year must be a whole number").positive("Year must be positive").required("Year is required"),
-      remarks: Yup.string().required('Enter Remarks for Vehicle'),
-      licensePlate: Yup.string().required("License Plate Number is required"),
+      remarks: Yup.string().required("Remarks is required"),
+      licensePlate: Yup.string().required('Enter License Plate'),
       location: Yup.string().required("Location is required"),
       loadCapacity: Yup.number().integer("Load Capacity must be a whole number").positive("Load Capacity must be positive").required("Load Capacity is required"),
     }),
@@ -80,31 +89,28 @@ export const VehicleCreateDialog = (props) => {
   }
 
   const [selectedDate, handleDateChange] = useState();
-  
+
   useEffect(() => {  
-    
+    if( open) {
+      handleDateChange(vehicle.lastServiced)
+    }
     if (!open) {
       handleDateChange(null)
     }
   },[open]);
 
-  useEffect(()=>console.log(selectedDate),[selectedDate]);
-
-
   return (
     <form onSubmit={formik.handleSubmit}>
       <Dialog 
-        // fullScreen
         fullWidth
         open={open} 
         onClose={onClose}
       >
         <DialogTitle>
-          {`Create New Vehicle`}
+          {`Update Vehicle Details`}
         </DialogTitle>
         <DialogContent>
-          <TextField
-            required
+        <TextField
             error={Boolean(
               formik.touched.description && formik.errors.description
             )}
@@ -133,7 +139,6 @@ export const VehicleCreateDialog = (props) => {
               value={formik.values.make}
               variant="outlined"   
             />
-
           <TextField
               required
               error={Boolean(formik.touched.model && formik.errors.model)}
@@ -161,6 +166,7 @@ export const VehicleCreateDialog = (props) => {
               onChange={formik.handleChange}
               value={formik.values.year}
               variant="outlined"
+              
             />         
           <TextField
             required
@@ -174,23 +180,23 @@ export const VehicleCreateDialog = (props) => {
             onChange={formik.handleChange}
             value={formik.values.remarks}
             variant="outlined"
+            
           />
-          
+
           <TextField
-            required
             fullWidth
             error={Boolean(formik.touched.licensePlate && formik.errors.licensePlate)}
             helperText={formik.touched.licensePlate && formik.errors.licensePlate}
             label="License Plate"
             margin="normal"
-            name="licensePlate"
+            name="name"
             onBlur={formik.handleBlur}
             onChange={formik.handleChange}
             value={formik.values.licensePlate}
             variant="outlined"
           />
-          
-          <TextField
+
+            <TextField
               required
               error={Boolean(formik.touched.location && formik.errors.location)}
               fullWidth
@@ -231,10 +237,33 @@ export const VehicleCreateDialog = (props) => {
           />
           </Stack>
 
+          <Stack direction="row" spacing={1} alignItems="center">
+            <Typography>Status:</Typography>
+            <RadioGroup
+              label="Current Status"
+              margin="normal"
+              name="currentStatus"
+              onBlur={formik.handleBlur}
+              onChange={formik.handleChange}
+              value={formik.values.currentStatus}
+              defaultValue={options[0]}
+              row
+            >
+              {options.map((option) => (
+                <FormControlLabel
+                  key={option}
+                  value={option}
+                  control={<Radio />}
+                  label={optionLabels[option]}
+                />
+              ))}
+            </RadioGroup>
+          </Stack>
+
         </DialogContent>
         <DialogActions>
           <Button
-            disabled={!formik.isValid || formik.isSubmitting || !selectedDate }
+            disabled={!formik.isValid || formik.isSubmitting || !selectedDate}
             variant="contained"
             onClick={formik.handleSubmit}
           >

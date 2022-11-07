@@ -8,20 +8,20 @@ import {
   Typography
 } from '@mui/material';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
+import DayJS from 'dayjs';
 import { useEffect, useState } from 'react';
-import { ConfirmDialog } from '../components/deliveryFleet/confirm-dialog';
-// import { DeliveryRequestViewDialog } from '../../components/deliveryFleet/delivery-request-view-dialog';
-import { VehicleUpdateDialog } from '../components/deliveryFleet/vehicle-update-dialog';
-import { VehicleCreateDialog } from '../components/deliveryFleet/vehicle-create-dialog';
-import { VehicleManagementMenu } from '../components/deliveryFleet/vehicle-management-menu';
-import { Toolbar } from '../components/deliveryFleet/toolbar';
-import { DashboardLayout } from '../components/dashboard-layout';
-import { NotificationAlert } from '../components/notification-alert';
+import { Helmet, HelmetProvider } from 'react-helmet-async';
+import { ConfirmDialog } from '../../components/assetManagement/confirm-dialog';
+import { DeliveryRequestViewDialog } from '../../components/assetManagement/delivery-request-view-dialog';
+import { Toolbar } from '../../components/toolbar';
+import { VehicleCreateDialog } from '../../components/assetManagement/vehicle-create-dialog';
+import { VehicleManagementMenu } from '../../components/assetManagement/vehicle-management-menu';
+import { VehicleUpdateDialog } from '../../components/assetManagement/vehicle-update-dialog';
+import { DashboardLayout } from '../../components/dashboard-layout';
+import { NotificationAlert } from '../../components/notification-alert';
 import {
   deleteVehicle, fetchVehicles
-} from '../helpers/deliveryFleet';
-import DayJS from 'dayjs';
-import { Helmet, HelmetProvider } from 'react-helmet-async';
+} from '../../helpers/deliveryFleet';
 
 const DeliveryFleetManagement = (props) => {
   const user = JSON.parse(localStorage.getItem('user'));
@@ -81,14 +81,13 @@ const DeliveryFleetManagement = (props) => {
     setUpdateFormDialogOpen(false);
   }
 
-//   const [deliveryRequestDialogOpen, setDeliveryRequestDialogOpen] = useState(false);
-//   const handleDeliveryRequestDialogOpen = () => {
-//     console.log(selectedRow);
-//     setDeliveryRequestDialogOpen(true);
-//   };
-//   const handleDeliveryRequestDialogClose = () => {
-//     setDeliveryRequestDialogOpen(false);
-//   };
+    const [deliveryRequestDialogOpen, setDeliveryRequestDialogOpen] = useState(false);
+    const handleDeliveryRequestDialogOpen = () => {
+         setDeliveryRequestDialogOpen(true);
+    };
+    const handleDeliveryRequestDialogClose = () => {
+      setDeliveryRequestDialogOpen(false);
+    };
 
 
   const [anchorEl, setAnchorEl] = useState(null);
@@ -263,7 +262,7 @@ const DeliveryFleetManagement = (props) => {
             handleClickOpen={handleUpdateFormDialogOpen}
             handleMenuClose={handleMenuClose}
             handleClickViewEdit={handleClickViewEdit}
-            // handleClickViewDeliveryRequest={deliveryRequestDialogOpen}
+            handleClickViewDeliveryRequest={handleDeliveryRequestDialogOpen}
           />
 
           <ConfirmDialog
@@ -276,11 +275,11 @@ const DeliveryFleetManagement = (props) => {
             }}
           />
 
-          {/* <DeliveryRequestViewDialog
-            open={handleDeliveryRequestDialogOpen}
+          <DeliveryRequestViewDialog
+            open={deliveryRequestDialogOpen}
             selectedVehicle={selectedRow}
             handleClose={handleDeliveryRequestDialogClose}
-          /> */}
+          /> 
 
           <VehicleCreateDialog
             open={formDialogOpen}

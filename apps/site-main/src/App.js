@@ -8,7 +8,7 @@ import NotFound from './pages/404';
 import MachineManagement from './pages/assetManagement/machineManagement';
 import ProductionLineManagement from './pages/assetManagement/productionLineManagement';
 import BusinessRelations from './pages/businessRelations';
-import DeliveryFleetManagement from './pages/deliveryFleetManagement';
+import DeliveryFleetManagement from './pages/assetManagement/deliveryFleetManagement';
 import Dashboard from './pages/dashboard';
 import ForgotPassword from './pages/forgotPassword';
 import DeliveryRequest from './pages/fulfilment/delivery-request';
@@ -192,6 +192,31 @@ const routes = (
 
               {/* Asset Management */}
               {/* TBD */}
+            {/* Production */}
+            {/* Production Modules */}
+            <Route
+              path="production/bill-of-material"
+              element={<BillOfMaterial />}
+            ></Route>
+            <Route
+              path="production/machine"
+              element={<MachineManagement />}
+            ></Route>
+            <Route
+              path="production/production-line"
+              element={<ProductionLineManagement />}
+            ></Route>
+            <Route
+              path="production/production-request"
+              element={<ProductionRequest />}
+            ></Route>
+            <Route
+              path="production/production-order"
+              element={<ProductionOrder />}
+            ></Route>
+            <Route path="production/delivery-fleet-management" 
+            element={<DeliveryFleetManagement />}
+            ></Route>
 
               {/* Production */}
               {/* Production Modules */}
@@ -238,6 +263,25 @@ const routes = (
                 element={<MasterlistLineItems />}
               ></Route>
 
+
+            {/* Fulfilment */}
+            {/* Fulfilment Modules */}
+            <Route
+              path="fulfilment/received-sales-inquiry"
+              element={<ReceivedSalesInquiry />}
+            ></Route>
+            <Route
+              path="fulfilment/sent-quotation"
+              element={<SentQuotation />}
+            ></Route>
+            <Route
+              path="fulfilment/received-purchase-order"
+              element={<ReceivedPurchaseOrder />}
+            ></Route>
+            <Route
+              path="fulfilment/delivery-request"
+              element={<DeliveryRequest />}
+            ></Route>
               {/* Fulfilment */}
               {/* Fulfilment Modules */}
               <Route
