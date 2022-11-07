@@ -45,6 +45,7 @@ import { RegisterOrganisation } from './pages/registerOrganisation';
 import ResetPassword from './pages/resetpassword';
 import Unauthorized from './pages/unauthorized';
 import WorkerManagement from './pages/workermanagement';
+import B2BInvoice from './pages/finance/b2b-invoice';
 
 const ROLES = {
   Admin: 'admin',
@@ -112,10 +113,21 @@ const routes = (
             element={<RequireAuth requiredRoles={[ROLES.Admin, ROLES.Manager, ROLES.SuperAdmin]}/>}
           >
             {/* Finance Management */}
+            {/* Revenue-Costs */}
             <Route
-              path="finance"
+              path="finance/revenue-cost"
               element={<Finance />}
             ></Route>
+            {/* B2B Invoices */}
+            <Route
+              path="finance/b2b-invoice"
+              element={<B2BInvoice />}
+            ></Route>
+            {/* Subscription Invoices */}
+            {/* <Route
+              path="finance/subscription-invoice"
+              element={<SubscriptionInvoice />}
+            ></Route> */}
           </Route>
 
           {/* Protected Routes for Manager*/}

@@ -1,25 +1,25 @@
 import MoreVert from '@mui/icons-material/MoreVert';
 import {
-  Box, Card, CardContent, CardHeader,
-  Container, Divider, Grid,
+  Box,
+  Card,
+  CardContent,
+  Container,
   IconButton,
-  Skeleton,
-  Typography
+  Typography,
 } from '@mui/material';
-import { DataGrid } from '@mui/x-data-grid';
+import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import { useEffect, useState } from 'react';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
-import amex from '../../assets/images/finance/American_Express-Logo.wine.svg';
-import mastercard from '../../assets/images/finance/mc_symbol.svg';
-import visa from '../../assets/images/finance/Visa_Inc.-Logo.wine.svg';
+import { BOMCreateDialog } from '../../components/bom/bom-create-dialog';
+import { BOMUpdateDialog } from '../../components/bom/bom-update-dialog';
 import { DashboardLayout } from '../../components/dashboard-layout';
-import { FilterCard } from '../../components/finance/filter-card';
-import { FinanceToolbar } from '../../components/finance/finance-toolbar';
 import { NotificationAlert } from '../../components/notification-alert';
-import { apiHost } from '../../helpers/constants';
+import { ConfirmDialog } from '../../components/product/confirm-dialog';
+import { ProductMenu } from '../../components/product/product-menu';
+import { Toolbar } from '../../components/toolbar';
 import { deleteBOMs, fetchBOMs } from '../../helpers/production/bom';
 
-export const Finance = (props) => {
+export const B2BInvoice = (props) => {
   const user = JSON.parse(localStorage.getItem('user'));
   const organisationId = user ? user.organisation.id : null;
 
@@ -40,8 +40,8 @@ export const Finance = (props) => {
 
   useEffect(() => {
     // get BOMs
-    setLoading(true);
-    getBOMs();
+    // setLoading(true);
+    // getBOMs();
   }, []);
 
   useEffect(() => {
@@ -207,123 +207,12 @@ export const Finance = (props) => {
     },
   ];
 
-  // Revenue Helpers
-  const [revenueType, setRevenueType] = useState('month');
-  const [fromRevenueDate, setFromRevenueDate] = useState(null);
-  const [toRevenueDate, setToRevenueDate] = useState(new Date());
-
-  const handleRevenueType = (event, newType) => {
-    if (newType !== null) {
-      setRevenueType(newType);
-    }
-  }
-
-  const resetRevenueDates = () => {
-    setFromRevenueDate(null);
-    setToRevenueDate(new Date());
-  }
-
-  useEffect(() => {
-    resetRevenueDates();
-  }, [revenueType]) 
-
-
-  // Costs Helpers
-  const [costsType, setCostsType] = useState('month');
-  const [fromCostsDate, setFromCostsDate] = useState(null);
-  const [toCostsDate, setToCostsDate] = useState(new Date());
-
-  const handleCostsType = (event, newType) => {
-    if (newType !== null) {
-      setCostsType(newType);
-    }
-  }
-
-  const resetCostsDates = () => {
-    setFromCostsDate(null);
-    setToCostsDate(new Date());
-  }
-
-  useEffect(() => {
-    resetCostsDates();
-  }, [costsType])
-  
-
-  // Commission Card Helpers
-  const [cardsError, setCardsError] = useState();
-  const [cards, setCards] = useState([]);
-  
-  const getCards = async () => {
-    const customerId = user.organisation?.membership?.customerId;
-
-    if (customerId) {
-      const url = `${apiHost}/memberships/stripe/paymentMethods/customers/${customerId}`;
-      await fetch(url)
-        .then(res => res.json())
-        .then(result => {
-          setCards(result)
-          setCardsError(null);
-        })
-        .catch(err => setCardsError('Unable to fetch payment methods from Stripe'))
-    } else {
-      setCardsError('Unable to fetch payment methods from Stripe')
-    }
-  }
-
-  useEffect(() => {
-    getCards();
-  }, [])
-
-  const brandSrcMap = {
-    visa: visa,
-    mastercard: mastercard,
-    amex: amex,
-  }
-
-  const cardColumns = [
-    {
-      field: 'card',
-      headerName: 'Card',
-      flex: 3,
-      renderCell: (params) => {
-        return params.row ? 
-        (
-          <>
-            <img
-              alt="card brand"
-              src={brandSrcMap[params.row.card.brand]}
-              width={50}
-              height={50}
-            />
-            {`•••• ${params.row.card.last4}`}
-          </>
-        ) : ''
-      }
-    },
-    {
-      field: 'expiry',
-      headerName: 'Expiry',
-      flex: 1,
-      valueGetter: (params) => {
-        return params.row ? 
-          `${params.row.card.exp_month} / ${params.row.card.exp_year%100}` 
-          : ''
-      }
-    },
-    {
-      field: 'default',
-      headerName: 'Default',
-      flex: 1,
-      // renderCell: (params) => ()
-    },
-  ]
-
   return (
     <>
       <HelmetProvider>
         <Helmet>
           <title>
-            Finance
+            BOM
             {user && ` | ${user?.organisation?.name}`}
           </title>
         </Helmet>
@@ -344,9 +233,15 @@ export const Finance = (props) => {
             text={alertText}
             handleClose={handleAlertClose}
           />
-          <FinanceToolbar
+          <Toolbar
             key="toolbar"
-            name={'Finance Management'}
+            name={'Invoices'}
+            numRows={selectedRows.length}
+            deleteDisabled={deleteDisabled}
+            handleSearch={handleSearch}
+            handleAdd={handleAddClick}
+            handleFormDialogOpen={handleCreateDialogOpen}
+            handleConfirmDialogOpen={handleConfirmDialogOpen}
           />
           {/* <BOMCreateDialog
             key="bom-create-dialog"
@@ -385,92 +280,41 @@ export const Finance = (props) => {
               mt: 3,
             }}
           >
-            <Grid container spacing={2}>
-              <Grid item md={7} xs={12}>
-                <Card
-                  sx={{ height: '100%'}}
-                >
-                  <CardHeader 
-                    title="Commission for the Month"
-                    sx={{ m: - 1 }}
-                  />
-                  <Divider />
-                  <CardContent>
-                    COMMISSION GRAPH
-                  </CardContent>
-                </Card>
-              </Grid>
-              <Grid item md={5} xs={12}>
-                <Card
-                  sx={{ height: '100%' }}
-                >
-                  <CardHeader 
-                    title="Commission Payment Method" 
-                    sx={{ m: - 1 }}
-                  />
-                  <Divider />
-                  <CardContent>
-                    <Box 
-                      sx={{ 
-                        mx: -2,
-                        my: -3,
-                        textAlign: 'center'
-                      }}
-                    >
-                      {cards.length > 0 && 
-                      <DataGrid
-                        autoHeight
-                        columns={cardColumns}
-                        rows={cards}
-                        pageSize={3}
-                        rowsPerPageOptions={[3]}
-                        hideFooterSelectedRowCount={true}
-                      />}
-                      {(cards.length === 0 && !cardsError) && <Skeleton width={600} height={200} />}
-                      {cardsError && <Typography sx={{ mt: 1 }}>{cardsError}</Typography>}
-                    </Box>
-                  </CardContent>
-                </Card>
-              </Grid>
-
-              <Grid item md={6} xs={12}>
-                <FilterCard 
-                  title='Revenue Filter'
-                  from={fromRevenueDate}
-                  to={toRevenueDate}
-                  setFrom={setFromRevenueDate}
-                  setTo={setToRevenueDate}
-                  type={revenueType}
-                  handleType={handleRevenueType}
-                  reset={resetRevenueDates}
-                />
-              </Grid>
-              <Grid item md={6} xs={12}>
-                <FilterCard 
-                  title='Costs Filter'
-                  from={fromCostsDate}
-                  to={toCostsDate}
-                  setFrom={setFromCostsDate}
-                  setTo={setToCostsDate}
-                  type={costsType}
-                  handleType={handleCostsType}
-                  reset={resetCostsDates}
-                />
-              </Grid>
-
-              <Grid item lg={6} md={12} xl={6} xs={12}>
-                <Card>
-                  <CardHeader title="Revenue Stuff" />
-                </Card>
-              </Grid>
-
-              <Grid item lg={6} md={12} xl={6} xs={12}>
-                <Card>
-                  <CardHeader title="Costs Stuff" />
-                </Card>
-              </Grid>
-
-            </Grid>
+            {rows.length > 0 ? (
+              <DataGrid
+                autoHeight
+                rows={rows.filter((row) => {
+                  return row.id.toString().includes(search);
+                })}
+                columns={columns}
+                pageSize={10}
+                rowsPerPageOptions={[10]}
+                checkboxSelection
+                disableSelectionOnClick
+                components={{
+                  Toolbar: GridToolbar,
+                }}
+                onSelectionModelChange={(ids) => {
+                  setSelectedRows(ids);
+                }}
+                experimentalFeatures={{ newEditingApi: true }}
+                isRowSelectable={(params) => {
+                  return params.row.productionOrders.length === 0 && 
+                    params.row.productionLines.length === 0
+                }}
+              />
+            ) : (
+              <Card
+                variant="outlined"
+                sx={{
+                  textAlign: 'center',
+                }}
+              >
+                <CardContent>
+                  <Typography>{`No Bill Of Materials Found`}</Typography>
+                </CardContent>
+              </Card>
+            )}
           </Box>
         </Container>
       </Box>
@@ -478,6 +322,6 @@ export const Finance = (props) => {
   );
 };
 
-Finance.getLayout = (page) => <DashboardLayout>{page}</DashboardLayout>;
+B2BInvoice.getLayout = (page) => <DashboardLayout>{page}</DashboardLayout>;
 
-export default Finance;
+export default B2BInvoice;
