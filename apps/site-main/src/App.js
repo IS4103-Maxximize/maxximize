@@ -192,8 +192,6 @@ const routes = (
 
               {/* Asset Management */}
               {/* TBD */}
-
-<<<<<<< HEAD
             {/* Production */}
             {/* Production Modules */}
             <Route
@@ -219,7 +217,7 @@ const routes = (
             <Route path="production/delivery-fleet-management" 
             element={<DeliveryFleetManagement />}
             ></Route>
-=======
+
               {/* Production */}
               {/* Production Modules */}
               <Route
@@ -242,7 +240,6 @@ const routes = (
                 path="production/production-order"
                 element={<ProductionOrder />}
               ></Route>
->>>>>>> 3ebac7eee5356dd425585fd0be5dc2bc7c482e65
 
               {/* Inventory */}
               {/* Inventory Modules */}
@@ -262,7 +259,6 @@ const routes = (
                 element={<MasterlistLineItems />}
               ></Route>
 
-<<<<<<< HEAD
 
             {/* Fulfilment */}
             {/* Fulfilment Modules */}
@@ -282,7 +278,6 @@ const routes = (
               path="fulfilment/delivery-request"
               element={<DeliveryRequest />}
             ></Route>
-=======
               {/* Fulfilment */}
               {/* Fulfilment Modules */}
               <Route
@@ -302,7 +297,6 @@ const routes = (
                 element={<DeliveryRequest />}
               ></Route>
             </Route>
->>>>>>> 3ebac7eee5356dd425585fd0be5dc2bc7c482e65
           </Route>
         </Route>
       </Route>
