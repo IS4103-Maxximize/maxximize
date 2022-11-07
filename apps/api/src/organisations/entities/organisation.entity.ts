@@ -1,6 +1,7 @@
 import {
   Column,
   Entity,
+  JoinColumn,
   JoinTable,
   ManyToMany,
   OneToMany,
@@ -29,6 +30,7 @@ import { File } from '../../files/entities/file.entity';
 import { Application } from '../../applications/entities/application.entity';
 import { ProductionRequest } from '../../production-requests/entities/production-request.entity';
 import { Membership } from '../../memberships/entities/membership.entity';
+import { AccountInfo } from '../../account-info/entities/account-info.entity';
 import { Cart } from '../../carts/entities/cart.entity';
 import { BulkDiscount } from '../../bulk-discounts/entities/bulk-discount.entity';
 
@@ -140,6 +142,8 @@ export class Organisation {
   @OneToOne(() => Membership, membership => membership.organisation)
   membership: Membership
 
+  @OneToOne(() => AccountInfo, accountInfo => accountInfo.organisation)
+  accountInfo: AccountInfo
   @OneToMany(() => Cart, cart => cart.organisation)
   carts: Cart[]
 

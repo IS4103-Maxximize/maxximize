@@ -1,5 +1,3 @@
-import CancelIcon from '@mui/icons-material/Cancel';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import MoreVert from '@mui/icons-material/MoreVert';
 import {
   Box,
@@ -14,16 +12,19 @@ import DayJS from 'dayjs';
 import { useEffect, useState } from 'react';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { ConfirmDialog } from '../../components/assetManagement/confirm-dialog';
-import { MachineDialog } from '../../components/assetManagement/machine-dialog';
-import { MachineMenu } from '../../components/assetManagement/machine-menu';
+import { DeliveryRequestViewDialog } from '../../components/assetManagement/delivery-request-view-dialog';
+import { Toolbar } from '../../components/toolbar';
+import { VehicleCreateDialog } from '../../components/assetManagement/vehicle-create-dialog';
+import { VehicleManagementMenu } from '../../components/assetManagement/vehicle-management-menu';
+import { VehicleUpdateDialog } from '../../components/assetManagement/vehicle-update-dialog';
 import { DashboardLayout } from '../../components/dashboard-layout';
 import { NotificationAlert } from '../../components/notification-alert';
-import { Toolbar } from '../../components/toolbar';
-import { deleteMachine, fetchMachines } from '../../helpers/assetManagement';
+import {
+  deleteVehicle, fetchVehicles
+} from '../../helpers/deliveryFleet';
 
-const MachineManagement = (props) => {
+const DeliveryFleetManagement = (props) => {
   const user = JSON.parse(localStorage.getItem('user'));
-  const organisationId = user.organisation.id;
 
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertText, setAlertText] = useState();
@@ -40,18 +41,30 @@ const MachineManagement = (props) => {
   };
 
   const [search, setSearch] = useState('');
-
   const handleSearch = (event) => {
     setSearch(event.target.value.toLowerCase().trim());
   };
 
-  // FormDialog Helpers
+  // DataGrid Row and Toolbar helpers
+  const [selectedRowId, setSelectedRowId] = useState(null);
+  const [selectedRow, setSelectedRow] = useState(null);
+  const [deleteDisabled, setDeleteDisabled] = useState();
+
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+
+  const handleConfirmDialogOpen = () => {
+    setConfirmDialogOpen(true);
+  };
+  const handleConfirmDialogClose = () => {
+    setConfirmDialogOpen(false);
+  };
+
   const [action, setAction] = useState();
   const [formDialogOpen, setFormDialogOpen] = useState(false);
 
   const handleAdd = () => {
     setAction('POST');
-	setSelectedRow(null);
+    setSelectedRow(null);
   };
   const handleFormDialogOpen = () => {
     setFormDialogOpen(true);
@@ -60,16 +73,26 @@ const MachineManagement = (props) => {
     setFormDialogOpen(false);
   };
 
-  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
-  const handleConfirmDialogOpen = () => {
-    setConfirmDialogOpen(true);
-  };
-  const handleConfirmDialogClose = () => {
-    setConfirmDialogOpen(false);
-  };
+  const [updateFormDialogOpen, setUpdateFormDialogOpen] = useState(false);
+  const handleUpdateFormDialogOpen = () => {
+    setUpdateFormDialogOpen(true);
+  }
+  const handleUpdateFormDialogClose = () => {
+    setUpdateFormDialogOpen(false);
+  }
+
+    const [deliveryRequestDialogOpen, setDeliveryRequestDialogOpen] = useState(false);
+    const handleDeliveryRequestDialogOpen = () => {
+         setDeliveryRequestDialogOpen(true);
+    };
+    const handleDeliveryRequestDialogClose = () => {
+      setDeliveryRequestDialogOpen(false);
+    };
+
 
   const [anchorEl, setAnchorEl] = useState(null);
   const menuOpen = Boolean(anchorEl);
+
   const handleMenuClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -85,6 +108,7 @@ const MachineManagement = (props) => {
       <IconButton
         onClick={(event) => {
           setSelectedRow(params.row);
+          console.log(params.row);
           handleMenuClick(event);
         }}
       >
@@ -94,68 +118,65 @@ const MachineManagement = (props) => {
   };
 
   const [rows, setRows] = useState([]);
-  const [selectedRow, setSelectedRow] = useState();
-  const [selectedRowId, setSelectedRowId] = useState();
 
-  const getMachines = async () => {
-    fetchMachines(organisationId)
-      .then((result) => setRows(result))
-      .catch((err) => handleAlertOpen(`Failed to fetch any Machines`, 'error'));
+  const getVehicles= async () => {
+    const response = await fetchVehicles(user.organisation.id)
+
+	if (response.status === 200 || response.status === 201) {
+		const result = await response.json();
+		console.log(result)
+		setRows(result);
+	} else {
+		setRows([])
+	}         
   };
 
-  const addMachine = (machine) => {
-    const updatedMachines = [...rows, machine];
-    setRows(updatedMachines);
-    handleAlertOpen(`Added Machine ${machine.id} successfully!`, 'success');
-  };
-
-  const updateRow = (updatedMachine) => {
-    const indexOfEditMachine = rows.findIndex(
-      (currentMachine) => currentMachine.id === updatedMachine.id
-    );
-    const newMachines = [ ...rows ];
-    newMachines[indexOfEditMachine] = updatedMachine;
-    setRows(newMachines);
-
+  const addVehicle = (vehicle) => {
+    const updatedVehicle = [...rows, vehicle];
+    console.log(updatedVehicle);
+    setRows(updatedVehicle);
+    console.log(vehicle);
     handleAlertOpen(
-      `Updated Machine ${updatedMachine.id} successfully!`,
+      `Added Vehicle ${vehicle.id} successfully!`,
       'success'
     );
   };
 
-  useEffect(() => {
-    getMachines();
-  }, []);
+  const handleRowUpdate = async (newRow) => {
 
-  const handleDelete = async (id) => {
-    deleteMachine(id)
-      .then(() => {
-        handleAlertOpen(`Successfully deleted Machine`, 'success');
-      })
-      .then(() => getMachines());
+    await getVehicles();
+    handleAlertOpen(
+      `Updated Vehicle ${newRow.id} successfully!`,
+      'success'
+    );
   };
 
-  const [deleteDisabled, setDeleteDisabled] = useState();
+  const handleDelete = (id) => {
+    deleteVehicle(id)
+      .then(() => {
+        handleAlertOpen(`Successfully deleted Vehicle`, 'success');
+      })
+      .then(() => getVehicles());
+  };
 
   useEffect(() => {
-    setDeleteDisabled(!selectedRowId);
-  }, [selectedRowId]);
+    getVehicles();
+  }, []);
 
-  let columns = [
-    // {
-    //   field: 'id',
-    //   headerName: 'ID',
-    //   flex: 1,
-    // },
+  useEffect(() => {
+    setDeleteDisabled(!selectedRowId)
+  }, [selectedRowId])
+
+  const columns = [
     {
-      field: 'serialNumber',
-      headerName: 'Serial Number',
+      field: 'id',
+      headerName: 'ID',
       flex: 1,
     },
     {
       field: 'description',
       headerName: 'Description',
-      flex: 2,
+      flex: 1,
     },
     {
       field: 'make',
@@ -179,40 +200,32 @@ const MachineManagement = (props) => {
       valueFormatter: (params) =>
         DayJS(params?.value).format('DD MMM YYYY hh:mm a'),
     },
+    
     {
-      field: 'isOperating',
-      headerName: 'Operating',
+      field: 'currentStatus',
+      headerName: 'Current Status',
       flex: 1,
-      renderCell: (params) => {
-        return params.value ? (
-          <CheckCircleIcon color="success" />
-        ) : (
-          <CancelIcon color="error" />
-        );
-      },
     },
     {
-      field: 'remarks',
-      headerName: 'Remarks',
-      flex: 2,
+      field: 'licensePlate',
+      headerName: 'License Plate',
+      flex: 1,
     },
     {
-      field: 'productionLineId',
-      headerName: 'PL Id',
+      field: 'location',
+      headerName: 'Location',
       flex: 1,
-      valueGetter: (params) => {
-        if (params.row) {
-          return params.row.productionLineId ? params.row.productionLineId : 'NA';
-        } else {
-          return '';
-        }
-      },
+    },
+    {
+      field: 'loadCapacity',
+      headerName: 'Load Capacity',
+      flex: 1,
     },
 
     {
       field: 'actions',
       headerName: 'Actions',
-      width: 100,
+      flex: 1,
       sortable: false,
       renderCell: menuButton,
     },
@@ -223,7 +236,7 @@ const MachineManagement = (props) => {
       <HelmetProvider>
         <Helmet>
           <title>
-            Machine Management Module
+            Delivery Fleet Management Module
             {user && ` | ${user?.organisation?.name}`}
           </title>
         </Helmet>
@@ -243,33 +256,50 @@ const MachineManagement = (props) => {
             text={alertText}
             handleClose={handleAlertClose}
           />
-          <MachineMenu
+          <VehicleManagementMenu
             anchorEl={anchorEl}
             menuOpen={menuOpen}
-            handleClickOpen={handleFormDialogOpen}
+            handleClickOpen={handleUpdateFormDialogOpen}
             handleMenuClose={handleMenuClose}
             handleClickViewEdit={handleClickViewEdit}
+            handleClickViewDeliveryRequest={handleDeliveryRequestDialogOpen}
           />
+
           <ConfirmDialog
             open={confirmDialogOpen}
             handleClose={handleConfirmDialogClose}
-            dialogTitle={`Delete Machine`}
-            dialogContent={`Confirm deletion of Machine?`}
+            dialogTitle={`Delete Vehicle`}
+            dialogContent={`Confirm deletion of Vehicle?`}
             dialogAction={() => {
-              handleDelete(selectedRowId);
+            handleDelete(selectedRowId);
             }}
           />
-          <MachineDialog
-            action={action}
+
+          <DeliveryRequestViewDialog
+            open={deliveryRequestDialogOpen}
+            selectedVehicle={selectedRow}
+            handleClose={handleDeliveryRequestDialogClose}
+          /> 
+
+          <VehicleCreateDialog
             open={formDialogOpen}
-            machine={selectedRow}
-            addMachine={addMachine}
-            updateMachine={updateRow}
             handleClose={handleFormDialogClose}
+            addVehicle={addVehicle}
             handleAlertOpen={handleAlertOpen}
+            handleAlertClose={handleAlertClose}
           />
+          
+          <VehicleUpdateDialog
+            open={updateFormDialogOpen}
+            handleClose={handleUpdateFormDialogClose}
+            vehicle={selectedRow}
+			      handleRowUpdate={handleRowUpdate}
+            handleAlertOpen={handleAlertOpen}
+            handleAlertClose={handleAlertClose}
+          />
+
           <Toolbar
-            name="Machines"
+            name="Delivery Fleet"
             deleteDisabled={deleteDisabled}
             handleSearch={handleSearch}
             handleAdd={handleAdd}
@@ -289,7 +319,7 @@ const MachineManagement = (props) => {
                     return row;
                   } else {
                     return (
-                      row.serialNumber.includes(search) ||
+                      row.make.toLowerCase().includes(search) ||row.model.toLowerCase().includes(search) ||
                       row.description.toLowerCase().includes(search)
                     );
                   }
@@ -297,13 +327,16 @@ const MachineManagement = (props) => {
                 columns={columns}
                 pageSize={10}
                 rowsPerPageOptions={[10]}
+                checkboxSelection
+                isRowSelectable={(params) =>
+                  params.row.currentStatus === 'available' 
+                }
                 components={{
                   Toolbar: GridToolbar,
                 }}
                 onSelectionModelChange={(ids) => {
                   setSelectedRowId(ids[0]);
                 }}
-                isRowSelectable={(params) => !params.row.productionLineId}
               />
             ) : (
               <Card
@@ -313,7 +346,7 @@ const MachineManagement = (props) => {
                 }}
               >
                 <CardContent>
-                  <Typography>{`No Machine Found`}</Typography>
+                  <Typography>{`No Vehicles Found`}</Typography>
                 </CardContent>
               </Card>
             )}
@@ -324,8 +357,8 @@ const MachineManagement = (props) => {
   );
 };
 
-MachineManagement.getLayout = (page) => (
+DeliveryFleetManagement.getLayout = (page) => (
   <DashboardLayout>{page}</DashboardLayout>
 );
 
-export default MachineManagement;
+export default DeliveryFleetManagement;

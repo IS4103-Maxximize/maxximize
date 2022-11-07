@@ -12,8 +12,8 @@ export const PricingPage = () => {
 
   const checkMembership = async () => {
     const updatedUser = await fetch(`${apiHost}/users/finduser/${user.id}`).then(res => res.json());
-    // If Organisation has membership, go to dashboard
-    if (updatedUser.organisation.membership) {
+    // If Organisation has ACTIVE membership, go to dashboard
+    if (updatedUser.organisation.membership || updatedUser.organisation.membership?.status === 'active') {
       localStorage.setItem('user', JSON.stringify(updatedUser));
       navigate('/');
     }
