@@ -149,7 +149,8 @@ export class PurchaseOrdersService {
         orgContact: true,
         userContact: true,
         supplierContact: true,
-        supplier: true
+        supplier: true,
+        invoice: true
       }
     })
   }
@@ -167,7 +168,8 @@ export class PurchaseOrdersService {
         'supplierContact',
         'poLineItems.rawMaterial',
         'followUpLineItems.rawMaterial',
-        'goodsReceipts.goodsReceiptLineItems.product'
+        'goodsReceipts.goodsReceiptLineItems.product',
+        'invoice'
       ]
     })
   }
@@ -198,7 +200,8 @@ export class PurchaseOrdersService {
           goodsReceiptLineItems: {
             product: true
           }
-        }
+        },
+        invoice: true
       }
     })
   }
@@ -229,7 +232,8 @@ export class PurchaseOrdersService {
           goodsReceiptLineItems: {
             product: true
           }
-        }
+        },
+        invoice: true
       }
     })
   }
@@ -248,7 +252,8 @@ export class PurchaseOrdersService {
       'poLineItems.finalGood',
       'followUpLineItems.rawMaterial',
       'goodsReceipts.goodsReceiptLineItems.product',
-      'reservationLineItems'
+      'reservationLineItems',
+      'invoice'
     ]})
   }
 

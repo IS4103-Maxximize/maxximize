@@ -10,6 +10,8 @@ import { BatchesService } from '../batches/batches.service';
 import { CreateBatchDto } from '../batches/dto/create-batch.dto';
 import { FollowUpLineItemsService } from '../follow-up-line-items/follow-up-line-items.service';
 import { GrLineItemsService } from '../gr-line-items/gr-line-items.service';
+import { Invoice } from '../invoices/entities/invoice.entity';
+import { InvoiceStatus } from '../invoices/enums/invoiceStatus.enum';
 import { PurchaseOrderStatus } from '../purchase-orders/enums/purchaseOrderStatus.enum';
 import { PurchaseOrdersService } from '../purchase-orders/purchase-orders.service';
 import { UsersService } from '../users/users.service';
@@ -82,6 +84,12 @@ export class GoodsReceiptsService {
         createFollowUpLineItemsDtos.length === 0
       ) {
         purchaseOrder.status = PurchaseOrderStatus.FULFILLED;
+        const invoice = new Invoice();
+        invoice.date = new Date()
+        invoice.amount = purchaseOrder.totalPrice
+        invoice.status = InvoiceStatus.PENDING
+        invoice.po = purchaseOrder
+        queryRunner.manager.save(invoice)
       } else {
         purchaseOrder.status = PurchaseOrderStatus.PARTIALLYFULFILLED;
       }

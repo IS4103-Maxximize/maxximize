@@ -57,6 +57,17 @@ import { VehiclesModule } from '../vehicles/vehicles.module';
 import { WarehousesModule } from '../warehouses/warehouses.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { ScheduleModule } from '@nestjs/schedule';
+import { PurchaseRequisitionsModule } from '../purchase-requisitions/purchase-requisitions.module';
+import { RacksModule } from '../racks/racks.module';
+import { MulterModule } from '@nestjs/platform-express';
+import { FilesModule } from '../files/files.module';
+import { ProductionRequestsModule } from '../production-requests/production-requests.module';
+import { DeliveryRequestLineItemsModule } from '../delivery-request-line-items/delivery-request-line-items.module';
+import { ReservationLineItemsModule } from '../reservation-line-items/reservation-line-items.module';
+import { ScheduleLineItemsModule } from '../schedule-line-items/schedule-line-items.module';
+import { MembershipsModule } from '../memberships/memberships.module';
+import { AccountInfoModule } from '../account-info/account-info.module';
 
 @Module({
   imports: [
@@ -122,6 +133,7 @@ import { AppService } from './app.service';
     ReservationLineItemsModule,
     ScheduleLineItemsModule,
     MembershipsModule,
+    AccountInfoModule,
     CartsModule,
     CartLineItemsModule,
     BulkDiscountsModule,
