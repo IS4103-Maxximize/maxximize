@@ -1,5 +1,7 @@
 import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Order } from "../../orders/entities/order.entity";
+import { PurchaseOrder } from "../../purchase-orders/entities/purchase-order.entity";
+import { InvoiceStatus } from "../enums/invoiceStatus.enum";
 
 @Entity()
 export class Invoice {
@@ -7,18 +9,19 @@ export class Invoice {
     id: number
 
     @Column()
-    billingDate: Date
-
-    @Column()
-    fulfillmentDate: Date
+    date: Date
     
     @Column()
     amount: number
 
-    @Column()
-    billingAddress: string
+    @Column({
+        type: 'enum',
+        enum: InvoiceStatus,
+        default: InvoiceStatus.PENDING
+    })
+    status: InvoiceStatus
 
-    @OneToOne(() => Order, order => order.invoice)
+    @OneToOne(() => PurchaseOrder, po => po.invoice)
     @JoinColumn()
-    order: Order
+    po: PurchaseOrder
 }

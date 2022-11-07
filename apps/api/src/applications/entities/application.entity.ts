@@ -68,6 +68,14 @@ export class Application {
     @OneToMany(() => File, file => file.application)
     documents: File[]
 
+    @Column()
+    bankCode: string
+
+    @Column()
+    bankName: string
+
+    @Column()
+    accountNumber: string
 
     //organisation here refers to only Maxximize org
     @Column()
