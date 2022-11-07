@@ -1,9 +1,9 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFiles, Res, UsePipes, ValidationPipe, Query, StreamableFile  } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFiles, Res, UsePipes, ValidationPipe, Query, StreamableFile, UploadedFile  } from '@nestjs/common';
 import { FilesService } from './files.service';
 import { CreateFileDto } from './dto/create-file.dto';
 import { UpdateFileDto } from './dto/update-file.dto';
 import { diskStorage } from 'multer'
-import { FilesInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { v4 as uuidv4 } from 'uuid';
 import { extname, join } from 'path';
 import { UploadFileDto } from './dto/upload-file.dto';
@@ -16,6 +16,12 @@ export class FilesController {
   @Post()
   create(@Body() createFileDto: CreateFileDto) {
     return this.filesService.create(createFileDto);
+  }
+
+  @Post('/uploadPurchaseOrders')
+  @UseInterceptors(FileInterceptor('file'))
+  uploadPurchaseCSV(@UploadedFile() file: Express.Multer.File, @Body() body) {
+    return this.filesService.uploadPurchaseCSV(file, Number(body.organisationId));
   }
 
   @Post('/upload')
@@ -35,6 +41,7 @@ export class FilesController {
   uploadFile(@UploadedFiles() files: Express.Multer.File[], @Query() dto: UploadFileDto) {
     return this.filesService.uploadAndCreateFiles(files, dto.type, dto.organisationId, dto.applicationId)
   }
+
 
   @Get('download/:id')
   	  async downloadUploadedFile(@Param('id') id: string, @Res({passthrough: true}) res) {
