@@ -23,8 +23,15 @@ import { ProcessPurchaseOrderDialog } from './process-po-dialog';
 
 export const ReceivedPurchaseOrderViewDialog = (props) => {
   const user = JSON.parse(localStorage.getItem('user'));
+  const organisationId = user.organisation.id;
 
-  const { open, handleClose, purchaseOrder, handleAlertOpen } = props;
+  const {
+    open,
+    handleClose,
+    purchaseOrder,
+    handleAlertOpen,
+    retrieveAllReceivedPurchaseOrders,
+  } = props;
 
   // Formik Helpers
   const initialValues = {
@@ -35,6 +42,7 @@ export const ReceivedPurchaseOrderViewDialog = (props) => {
     leadTime: purchaseOrder ? purchaseOrder.quotation.leadTime : '',
     purchaseOrderId: purchaseOrder ? purchaseOrder.id : '',
     purchaseOrderLineItems: purchaseOrder ? purchaseOrder.poLineItems : [],
+    followUpLineItems: purchaseOrder ? purchaseOrder.followUpLineItems : [],
   };
 
   // Handle on submit may be more of a redirecting function to another dialog
@@ -64,14 +72,100 @@ export const ReceivedPurchaseOrderViewDialog = (props) => {
   // }
   //   };
 
-  // TODO Accept a purchase order (Status change)
+  // Accept a purchase order (Status change)
   const handleAccept = async () => {
-    return;
+    const response = await fetch(
+      `http://localhost:3000/api/purchase-orders/${purchaseOrder.id}`,
+      {
+        method: 'PATCH',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          status: 'accepted',
+        }),
+      }
+    );
+
+    if (response.status === 200 || response.status === 201) {
+      const result = await response.json();
+
+      handleAlertOpen(`Accepted Purchase Order ${result.id}`);
+      handleClose();
+      retrieveAllReceivedPurchaseOrders();
+    } else {
+      const result = await response.json();
+      handleAlertOpen(
+        `Error accepting Purchase Order ${result.id}. ${result.message}`,
+        'error'
+      );
+    }
   };
 
-  // TODO Reject a purchase order (Status change)
+  // Reject a purchase order (Status change)
   const handleReject = async () => {
-    return;
+    const response = await fetch(
+      `http://localhost:3000/api/purchase-orders/${purchaseOrder.id}`,
+      {
+        method: 'PATCH',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          status: 'rejected',
+        }),
+      }
+    );
+
+    if (response.status === 200 || response.status === 201) {
+      const result = await response.json();
+
+      handleAlertOpen(`Rejected Purchase Order ${result.id}`);
+      handleClose();
+      retrieveAllReceivedPurchaseOrders();
+    } else {
+      const result = await response.json();
+      handleAlertOpen(
+        `Error rejecting Purchase Order ${result.id}. ${result.message}`,
+        'error'
+      );
+    }
+  };
+
+  // Reserve final goods for purchase order
+  const [processedPurchaseOrder, setProcessedPurchaseOrder] = useState('');
+
+  const handleReservation = async () => {
+    const response = await fetch(
+      `http://localhost:3000/api/purchase-orders/reserve`,
+      {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          purchaseOrderId: purchaseOrder.id,
+          organisationId: organisationId,
+        }),
+      }
+    );
+
+    if (response.status === 200 || response.status === 201) {
+      const result = await response.json();
+
+      setProcessedPurchaseOrder(result);
+
+      handleProcessPODialogOpen();
+    } else {
+      const result = await response.json();
+      handleAlertOpen(
+        `Error reserving for Purchase Order ${result.id}. ${result.message}`,
+        'error'
+      );
+    }
   };
 
   // Processing of Purchase Order
@@ -85,6 +179,7 @@ export const ReceivedPurchaseOrderViewDialog = (props) => {
 
   const onClose = () => {
     formik.setFieldValue('poLineItems', []);
+    formik.setFieldValue('followUpLineItems', []);
     formik.resetForm();
     handleClose();
   };
@@ -97,6 +192,7 @@ export const ReceivedPurchaseOrderViewDialog = (props) => {
   });
 
   useEffect(() => {
+    console.log(purchaseOrder);
     formik.setFieldValue(
       'purchaseOrderLineItems',
       purchaseOrder
@@ -111,6 +207,23 @@ export const ReceivedPurchaseOrderViewDialog = (props) => {
           })
         : []
     );
+
+    if (purchaseOrder?.followUpLineItems.length !== 0) {
+      formik.setFieldValue(
+        'followUpLineItems',
+        purchaseOrder
+          ? purchaseOrder.followUpLineItems?.map((item) => {
+              return {
+                id: item.id,
+                price: item.subTotal,
+                quantity: item.quantity,
+                rawMaterial: item.rawMaterial,
+                finalGood: item.finalGood,
+              };
+            })
+          : []
+      );
+    }
   }, [open]);
 
   // Delete Confirm dialog
@@ -188,8 +301,10 @@ export const ReceivedPurchaseOrderViewDialog = (props) => {
       <ProcessPurchaseOrderDialog
         open={processPODialogOpen}
         handleClose={handleProcessPODialogClose}
-        purchaseOrder={purchaseOrder}
+        processedPurchaseOrder={processedPurchaseOrder}
         handleAlertOpen={handleAlertOpen}
+        retrieveAllReceivedPurchaseOrders={retrieveAllReceivedPurchaseOrders}
+        closeReceivedPODialog={onClose}
       />
       <form onSubmit={formik.handleSubmit}>
         <Dialog fullScreen open={open} onClose={onClose}>
@@ -312,22 +427,57 @@ export const ReceivedPurchaseOrderViewDialog = (props) => {
               />
             </Box>
 
-            <DataGrid
-              autoHeight
-              rows={formik.values.purchaseOrderLineItems}
-              columns={columns}
-              pageSize={5}
-              rowsPerPageOptions={[5]}
-              // onSelectionModelChange={(ids) => setSelectedRows(ids)}
-              // processRowUpdate={handleRowUpdate}
-              disableSelectionOnClick
-            />
+            {purchaseOrder?.followUpLineItems.length === 0 ? (
+              <Box mt={2}>
+                <Typography variant="h6">Purchase Order Line Items</Typography>
+                <DataGrid
+                  autoHeight
+                  rows={formik.values.purchaseOrderLineItems}
+                  columns={poColumns}
+                  pageSize={5}
+                  rowsPerPageOptions={[5]}
+                  // onSelectionModelChange={(ids) => setSelectedRows(ids)}
+                  // processRowUpdate={handleRowUpdate}
+                  disableSelectionOnClick
+                />
+              </Box>
+            ) : (
+              <>
+                <Box mt={2}>
+                  <Typography variant="h6">
+                    Purchase Order Line Items
+                  </Typography>
+                  <DataGrid
+                    autoHeight
+                    rows={formik.values.purchaseOrderLineItems}
+                    columns={columns}
+                    pageSize={5}
+                    rowsPerPageOptions={[5]}
+                    // onSelectionModelChange={(ids) => setSelectedRows(ids)}
+                    // processRowUpdate={handleRowUpdate}
+                    disableSelectionOnClick
+                  />
+                </Box>
+                <Box mt={2}>
+                  <Typography variant="h6">Follow Up Line Items</Typography>
+                  <DataGrid
+                    autoHeight
+                    rows={formik.values.followUpLineItems}
+                    columns={columns}
+                    pageSize={5}
+                    rowsPerPageOptions={[5]}
+                    // onSelectionModelChange={(ids) => setSelectedRows(ids)}
+                    // processRowUpdate={handleRowUpdate}
+                    disableSelectionOnClick
+                  />
+                </Box>
+              </>
+            )}
             {purchaseOrder?.status === 'accepted' ||
-            purchaseOrder?.status === 'partiallyFulfilled' ? (
+            purchaseOrder?.status === 'productioncompleted' ||
+            purchaseOrder?.status === 'partiallyfulfilled' ? (
               <Box mt={2} display="flex" justifyContent="flex-end">
-                <Button variant="contained" onClick={handleProcessPODialogOpen}>
-                  {' '}
-                  {/*onClick={formik.handleSubmit}>*/}
+                <Button variant="contained" onClick={handleReservation}>
                   Process
                 </Button>
               </Box>

@@ -33,6 +33,8 @@ export const ProductionOrder = (props) => {
   const [selectedRows, setSelectedRows] = useState([]); // Selected Row IDs
   const [selectedRow, setSelectedRow] = useState();
 
+  useEffect(()=> console.log(selectedRow), [selectedRow])
+
   const getProductionOrders = async () => {
     const response = await fetch(
       `http://localhost:3000/api/production-orders/all/${organisationId}`

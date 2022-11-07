@@ -66,6 +66,15 @@ const procurementBreadcrumbs = (subdomain) => [
   <Link
     component={RouterLink}
     underline="hover"
+    key="demand-forecast"
+    color={subdomain === 'forecast' ? 'primary' : 'inherit'}
+    to="/procurement/forecast"
+  >
+    Demand Forecast
+  </Link>,
+  <Link
+    component={RouterLink}
+    underline="hover"
     key="purchase-requisition"
     color={subdomain === 'purchase-requisition' ? 'primary' : 'inherit'}
     to="/procurement/purchase-requisition"

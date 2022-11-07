@@ -42,7 +42,7 @@ export class GrLineItemsService {
     const rawMaterial = await this.rawMaterialService.findOne(createGrLineItemsDto.rawMaterialId);
     grLineItem.product = rawMaterial;
 
-    return await queryRunner.manager.save(grLineItem);
+    return queryRunner.manager.save(grLineItem);
   }
 
   findAll() {

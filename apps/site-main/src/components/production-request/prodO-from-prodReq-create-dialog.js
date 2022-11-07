@@ -12,6 +12,7 @@ import {
   Dialog,
   DialogContent,
   FormControlLabel,
+  formGroupClasses,
   IconButton,
   InputAdornment,
   Skeleton,
@@ -38,13 +39,13 @@ import SyncIcon from '@mui/icons-material/Sync';
 import DayJS from 'dayjs';
 import { Container } from '@mui/system';
 
-export const ProductionOrderCreateDialog = (props) => {
+export const ProdOFromProdReqCreateDialog = (props) => {
   const {
     open,
     handleClose,
-    string,
-    addProductionOrder,
+    productionRequest,
     handleAlertOpen,
+    retrieveAllReceivedProductionRequests,
     ...rest
   } = props;
 
@@ -59,17 +60,6 @@ export const ProductionOrderCreateDialog = (props) => {
   const [maximumFinalGoodOutput, setMaximumFinalGoodOutput] = useState(0);
 
   const handleOnSubmit = async () => {
-    console.log(
-      JSON.stringify({
-        plannedQuantity: formik.values.multiplier,
-        bomId: selectedBom.id,
-        daily: formik.values.daily,
-        organisationId: organisationId,
-        duration: formik.values.noOfDays,
-        prodRequestId: null,
-      })
-    );
-
     const response = await fetch(
       'http://localhost:3000/api/production-orders',
       {
@@ -84,7 +74,7 @@ export const ProductionOrderCreateDialog = (props) => {
           daily: formik.values.daily,
           organisationId: organisationId,
           duration: formik.values.noOfDays,
-          prodRequestId: null,
+          prodRequestId: productionRequest.id,
         }),
       }
     );
@@ -92,10 +82,9 @@ export const ProductionOrderCreateDialog = (props) => {
     if (response.status === 200 || response.status === 201) {
       const result = await response.json();
       //Rerender parent data grid component
-      addProductionOrder(result);
       onClose();
       handleAlertOpen(
-        `Successfully Created ${string} ${result.id}!`,
+        `Successfully Created production order ${result.id}!`,
         'success'
       );
       setError('');
@@ -106,33 +95,53 @@ export const ProductionOrderCreateDialog = (props) => {
   };
 
   const [boms, setBoms] = useState([]);
-  const [bomOptions, setBomOptions] = useState([]);
   const [selectedBom, setSelectedBom] = useState();
 
   // Fetch BOMs
   const getBOMs = async () => {
     const boms = await fetchBOMs(organisationId);
     setBoms([...boms]);
-    setBomOptions([...boms]);
   };
 
-  // Handle when daily change from True/False, set the no. of days
-  const handleDailyChange = () => {
-    formik.setFieldValue('daily', !formik.values.daily);
+  const retrieveBOM = async () => {
+    const response = await fetch(
+      `http://localhost:3000/api/bill-of-materials/${formik.values.bomId}`
+    );
 
-    if (formik.values.daily) {
-      formik.setFieldValue('noOfDays', 0);
-      formik.setFieldTouched('noOfDays', false, false);
-    } else {
-      formik.setFieldValue('noOfDays', 1);
+    if (response.status == 200 || response.status == 201) {
+      const result = await response.json();
+
+      setSelectedBom(result);
     }
   };
 
+  // Handle when daily change from True/False, set the no. of days
+  //   const handleDailyChange = () => {
+  //     formik.setFieldValue('daily', !formik.values.daily);
+
+  //     if (formik.values.daily) {
+  //       formik.setFieldValue('noOfDays', 0);
+  //       formik.setFieldTouched('noOfDays', false, false);
+  //     } else {
+  //       formik.setFieldValue('noOfDays', 1);
+  //     }
+  //   };
+
   const formik = useFormik({
     initialValues: {
-      multiplier: 1,
-      quantity: 0,
-      bomId: null,
+      multiplier: productionRequest
+        ? Math.ceil(
+            productionRequest.quantity / productionRequest.finalGood.lotQuantity
+          )
+        : 1,
+      quantity: productionRequest ? productionRequest?.quantity : 1,
+      bomId: productionRequest
+        ? boms
+            .filter(
+              (bom) => bom.finalGood.id === productionRequest?.finalGood.id
+            )
+            .map((bom) => bom.id)
+        : '',
       daily: false,
       noOfDays: 0,
       prodLineItems: [],
@@ -158,42 +167,49 @@ export const ProductionOrderCreateDialog = (props) => {
     onSubmit: handleOnSubmit,
   });
 
-  // Populate Prod Line Items
-  useEffect(() => {
-    if (selectedBom) {
-      setFinalGoodUnit(selectedBom.finalGood.unit);
-      formik.setFieldValue('multiplier', 1);
-      formik.setFieldValue('quantity', selectedBom.finalGood.lotQuantity);
-    }
-    // Clear Prod Line Items if BOM selector is cleared
-    if (!selectedBom) {
-      formik.resetForm();
-      formik.setFieldTouched('noOfDays', false, false);
-      setMaximumFinalGoodOutput(0);
-    }
-  }, [selectedBom]);
-
-  // Calculate whenever multiplier changes
-  useEffect(() => {
-    if (selectedBom && formik.values.multiplier > 0) {
-      formik.setFieldValue(
-        'quantity',
-        Math.ceil(selectedBom?.finalGood.lotQuantity * formik.values.multiplier)
-      );
-    }
-  }, [formik.values.multiplier]);
-
   // Opening and Closing Dialog helpers
   useEffect(() => {
     // fetch when opening create dialog
-    if (open) {
+    if (formik.values.bomId) {
       getBOMs();
       setMaximumFinalGoodOutput(0);
       setRerender(true);
+
+      retrieveBOM();
+
+      //   if (productionRequest) {
+      //     formik.setFieldValue('multiplier');
+      //   }
     }
-  }, [open]);
+  }, [formik.values.bomId]);
+
+  // Populate Prod Line Items
+  useEffect(() => {
+    if (selectedBom) {
+      setFinalGoodUnit(selectedBom?.finalGood?.unit);
+    }
+    // Clear Prod Line Items if BOM selector is cleared
+    // if (!selectedBom) {
+    //   formik.resetForm();
+    //   formik.setFieldTouched('noOfDays', false, false);
+    //   setMaximumFinalGoodOutput(0);
+    // }
+  }, [selectedBom]);
+
+  // Calculate whenever multiplier changes
+  //   useEffect(() => {
+  //     if (selectedBom && formik.values.multiplier > 0) {
+  //       formik.setFieldValue(
+  //         'quantity',
+  //         Math.ceil(
+  //           selectedBom?.finalGood?.lotQuantity * formik.values.multiplier
+  //         )
+  //       );
+  //     }
+  //   }, [formik.values.multiplier]);
 
   const onClose = () => {
+    retrieveAllReceivedProductionRequests();
     formik.resetForm();
     setFirstSchedules([]);
     setFinalGoodUnit('');
@@ -571,8 +587,7 @@ export const ProductionOrderCreateDialog = (props) => {
               <CloseIcon />
             </IconButton>
             <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
-              {'New '}
-              {string}
+              New Production Order
             </Typography>
             <Button
               variant="contained"
@@ -597,23 +612,14 @@ export const ProductionOrderCreateDialog = (props) => {
                 <Box margin={2}>
                   {/* Bill of Material */}
                   <Stack direction="row" spacing={1}>
-                    <Autocomplete
-                      id="bom-selector"
+                    <TextField
+                      label="Bill Of Material"
                       sx={{ width: '100%', mb: 1 }}
-                      options={bomOptions}
-                      getOptionLabel={(option) =>
-                        `BOM ${option.id} - ${option.finalGood.name} [${option.finalGood.skuCode}]`
-                      }
-                      isOptionEqualToValue={(option, value) =>
-                        option.id === value.id
-                      }
-                      onChange={(e, value) => {
-                        formik.setFieldValue('bomId', value ? value.id : null);
-                        setSelectedBom(value);
-                      }}
-                      renderInput={(params) => (
-                        <TextField {...params} label="Bill Of Material" />
-                      )}
+                      margin="normal"
+                      name="bill-of-material"
+                      value={formik.values.bomId}
+                      variant="outlined"
+                      disabled
                       size="small"
                     />
                   </Stack>
@@ -631,7 +637,7 @@ export const ProductionOrderCreateDialog = (props) => {
                       margin="normal"
                       name="final-good-lotQuantity"
                       value={
-                        selectedBom ? selectedBom.finalGood.lotQuantity : 0
+                        selectedBom ? selectedBom?.finalGood?.lotQuantity : 0
                       }
                       variant="outlined"
                       disabled
@@ -645,6 +651,7 @@ export const ProductionOrderCreateDialog = (props) => {
                       size="small"
                     />
                     <TextField
+                      disabled
                       sx={{ width: '49%', mb: 1 }}
                       error={Boolean(
                         formik.touched.multiplier && formik.errors.multiplier
@@ -672,7 +679,7 @@ export const ProductionOrderCreateDialog = (props) => {
                     justifyContent="flex-end"
                   >
                     <TextField
-                      sx={{ width: '100%', mb: 1 }}
+                      sx={{ width: '100%', mb: 2 }}
                       error={Boolean(
                         formik.touched.quantity && formik.errors.quantity
                       )}
@@ -693,7 +700,7 @@ export const ProductionOrderCreateDialog = (props) => {
                   </Stack>
 
                   {/* Daily or not, number of days */}
-                  <Stack
+                  {/* <Stack
                     direction="row"
                     alignItems="baseline"
                     justifyContent="space-between"
@@ -730,7 +737,7 @@ export const ProductionOrderCreateDialog = (props) => {
                         size="small"
                       />
                     </Box>
-                  </Stack>
+                  </Stack> */}
                   {/* Button to recalculate respective quantities */}
                   {loading ? (
                     <LoadingButton

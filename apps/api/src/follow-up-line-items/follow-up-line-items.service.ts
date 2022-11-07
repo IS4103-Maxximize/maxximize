@@ -49,7 +49,13 @@ export class FollowUpLineItemsService {
   async createWithExistingTransaction(createFollowUpLineItemDto: CreateFollowUpLineItemDto, queryRunner: QueryRunner) {
     const followUpLineItem = new FollowUpLineItem();
     followUpLineItem.quantity = createFollowUpLineItemDto.quantity;
-    followUpLineItem.rawMaterial = await this.rawMaterialsRepository.findOneByOrFail({id: createFollowUpLineItemDto.rawMaterialId});
+    followUpLineItem.subTotal = createFollowUpLineItemDto.unitPrice;
+    if (createFollowUpLineItemDto.rawMaterialId) {
+      followUpLineItem.rawMaterial = await this.rawMaterialsRepository.findOneByOrFail({id: createFollowUpLineItemDto.rawMaterialId});
+    }
+    if (createFollowUpLineItemDto.finalGoodId) {
+      followUpLineItem.finalGood = await this.finalGoodsRepository.findOneByOrFail({id: createFollowUpLineItemDto.finalGoodId});
+    }
     followUpLineItem.purchaseOrder = await this.purchaseOrdersService.findOne(createFollowUpLineItemDto.purchaseOrderId);
     return queryRunner.manager.save(followUpLineItem);
   }

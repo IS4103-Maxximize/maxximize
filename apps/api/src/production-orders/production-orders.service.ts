@@ -76,7 +76,6 @@ export class ProductionOrdersService {
       daily,
       organisationId,
       duration,
-      purchaseOrderId,
       prodRequestId,
     } = createProductionOrderDto;
     let bomToBeAdded: BillOfMaterial;
@@ -99,6 +98,21 @@ export class ProductionOrdersService {
             { status: ProdRequestStatus.PROCESSING }
           );
         }
+		
+		console.log(prodRequest)
+		
+		prodRequest = await transactionalEntityManager.findOne(ProductionRequest, {
+			where: {
+			  id: prodRequestId
+			}, relations: {
+			  purchaseOrder: true,
+			  finalGood: true,
+			  prodOrders: true
+			}
+		})
+
+		console.log(prodRequest)
+
         if (daily) {
           scheduleDtos =
             await this.productionLinesService.retrieveSchedulesForProductionOrder(
@@ -704,6 +718,7 @@ export class ProductionOrdersService {
             }
           }
         }
+		console.log(prodRequest)
         return null;
       }
     );
@@ -784,7 +799,9 @@ export class ProductionOrdersService {
           rawMaterial: true,
           purchaseRequisition: true,
         },
-        prodRequest: true,
+        prodRequest: {
+			purchaseOrder: true,
+		},
         organisation: true,
       },
     });
@@ -803,6 +820,7 @@ export class ProductionOrdersService {
         }
       }
     }
+
     return await this.productionOrdersRepository.find({
       where: {
         organisationId,
@@ -825,7 +843,9 @@ export class ProductionOrdersService {
           rawMaterial: true,
           purchaseRequisition: true,
         },
-        prodRequest: true,
+        prodRequest: {
+			purchaseOrder: true,
+		},
         organisation: true,
       },
       withDeleted: true,

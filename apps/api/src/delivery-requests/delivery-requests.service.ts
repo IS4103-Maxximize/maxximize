@@ -4,6 +4,7 @@ import { DataSource, Repository } from 'typeorm';
 import { BatchLineItemsService } from '../batch-line-items/batch-line-items.service';
 import { DeliveryRequestLineItem } from '../delivery-request-line-items/entities/delivery-request-line-item.entity';
 import { OrganisationsService } from '../organisations/organisations.service';
+import { PurchaseOrderStatus } from '../purchase-orders/enums/purchaseOrderStatus.enum';
 import { PurchaseOrdersService } from '../purchase-orders/purchase-orders.service';
 import { UsersService } from '../users/users.service';
 import { VehicleStatus } from '../vehicles/enums/vehicleStatus.enum';
@@ -45,7 +46,9 @@ export class DeliveryRequestsService {
       await this.allocateDriverToRequest(organisationId, deliveryRequest);
       await this.allocateVehicleToRequest(organisationId, deliveryRequest);
 
-      
+	  purchaseOrder.status = PurchaseOrderStatus.DELIVERY
+	  await queryRunner.manager.save(purchaseOrder);
+
       const deliveryLineItems = [];
 
       for (const lineItem of purchaseOrder.poLineItems) {
@@ -164,10 +167,17 @@ export class DeliveryRequestsService {
     return await this.deliveryRequestRepository.find({
       where: {
         purchaseOrder: {
-          currentOrganisationId: orgId
+          supplierId: orgId
         }
       },
-      relations: ["vehicle", "purchaseOrder", "user", "deliveryRequestLineItems"]
+      relations: {
+        vehicle: true,
+        purchaseOrder: true,
+        user: true,
+        deliveryRequestLineItems: {
+          product: true,
+        },
+      }
     });
   } 
 
