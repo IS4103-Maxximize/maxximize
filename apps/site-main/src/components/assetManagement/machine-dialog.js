@@ -140,7 +140,6 @@ export const MachineDialog = (props) => {
     }
   },[open]);
 
-
   return (
     <form onSubmit={formik.handleSubmit}>
       <Dialog open={open} onClose={onClose}>
