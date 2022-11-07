@@ -49,6 +49,7 @@ export class FollowUpLineItemsService {
   async createWithExistingTransaction(createFollowUpLineItemDto: CreateFollowUpLineItemDto, queryRunner: QueryRunner) {
     const followUpLineItem = new FollowUpLineItem();
     followUpLineItem.quantity = createFollowUpLineItemDto.quantity;
+    followUpLineItem.subTotal = createFollowUpLineItemDto.subTotal;
     if (createFollowUpLineItemDto.rawMaterialId) {
       followUpLineItem.rawMaterial = await this.rawMaterialsRepository.findOneByOrFail({id: createFollowUpLineItemDto.rawMaterialId});
     }

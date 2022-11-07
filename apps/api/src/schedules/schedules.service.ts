@@ -190,9 +190,17 @@ export class SchedulesService {
             reservationLineItem.batchLineItem = lineItem;
             await transactionalEntityManager.save(reservationLineItem);
             purchaseOrder.reservationLineItems.push(reservationLineItem);
-            for (const lineItem of purchaseOrder.poLineItems) {
-              if (lineItem.finalGood.id === newBatch.batchLineItems[0].product.id) {
-                lineItem.fufilledQty += productionOrder.prodRequest.quantity;
+            if (purchaseOrder.followUpLineItems.length === 0) {
+              for (const lineItem of purchaseOrder.poLineItems) {
+                if (lineItem.finalGood.id === newBatch.batchLineItems[0].product.id) {
+                  lineItem.fufilledQty += productionOrder.prodRequest.quantity;
+                }
+              }
+            } else {
+              for (const lineItem of purchaseOrder.followUpLineItems) {
+                if (lineItem.finalGood.id === newBatch.batchLineItems[0].product.id) {
+                  lineItem.fufilledQty += productionOrder.prodRequest.quantity;
+                }
               }
             }
           }

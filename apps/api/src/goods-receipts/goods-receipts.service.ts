@@ -78,9 +78,8 @@ export class GoodsReceiptsService {
 
       purchaseOrder.followUpLineItems = followUpLineItems;
       
-	  for (const reserveLineItem of purchaseOrder.reservationLineItems) {
-		// console.log(reserveLineItem)
-        const a = queryRunner.manager.softDelete(ReservationLineItem, reserveLineItem.id);
+      for (const reserveLineItem of purchaseOrder.reservationLineItems) {
+        queryRunner.manager.softDelete(ReservationLineItem, reserveLineItem.id);
       }
 
       if (
