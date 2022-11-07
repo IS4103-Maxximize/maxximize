@@ -1,7 +1,7 @@
 import { BusinessType } from "../enums/businessType.enum"
 
 export class UploadFileDto {
-    type: BusinessType
+    type?: BusinessType
     organisationId?: number
     applicationId?: number
 }

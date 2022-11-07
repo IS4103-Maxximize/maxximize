@@ -28,6 +28,7 @@ import RequestPageIcon from '@mui/icons-material/RequestPage';
 import RuleIcon from '@mui/icons-material/Rule';
 import TaskIcon from '@mui/icons-material/Task';
 import WarehouseIcon from '@mui/icons-material/Warehouse';
+import QueryStatsIcon from '@mui/icons-material/QueryStats';
 import {
   Accordion,
   AccordionDetails,
@@ -37,7 +38,8 @@ import {
   Collapse,
   Divider,
   Drawer,
-  Link, useMediaQuery
+  Link,
+  useMediaQuery,
 } from '@mui/material';
 import PropTypes from 'prop-types';
 import { useEffect, useState } from 'react';
@@ -66,6 +68,7 @@ const standalone = [
     subsystemName: '',
     access: ['admin', 'superadmin'],
   },
+
 ];
 
 const items = [
@@ -164,6 +167,12 @@ const items = [
     handleClick: 'handleProcurementClick',
     modules: [
       {
+        href: '/procurement/forecast',
+        icon: <QueryStatsIcon fontSize="small" />,
+        title: 'Demand Forecast',
+        access: ['manager', 'superadmin'],
+      },
+      {
         href: '/procurement/purchase-requisition',
         icon: <RequestPageIcon fontSize="small" />,
         title: 'Purchase Requisition',
@@ -227,6 +236,12 @@ const items = [
         access: ['manager', 'factoryworker', 'superadmin'],
       },
       {
+        href: '/production/delivery-fleet-management',
+        icon: <LocalShippingIcon fontSize="small" />,
+        title: 'Delivery Fleet',
+        access: [ 'manager', 'factoryworker', 'superadmin'],
+      },
+      {
         href: '/production/production-request',
         icon: <FindInPageIcon fontSize="small" />,
         title: 'Production Request',
@@ -282,14 +297,11 @@ const items = [
 ];
 
 export const DashboardSidebar = (props) => {
-  const { 
-    user,
-    ...rest
-  } = props;
+  const { user, ...rest } = props;
   const [active, setActive] = useState(false);
   useEffect(() => {
-    setActive(user.organisation?.membership?.status === 'active')
-  }, [user])
+    setActive(user.organisation?.membership?.status === 'active');
+  }, [user]);
 
   const { pathname } = useLocation();
   const basepath = pathname.slice(1, pathname.lastIndexOf('/'));
@@ -542,8 +554,8 @@ export const DashboardSidebar = (props) => {
       >
         {active && (
           <>
-          {standaloneModules}
-          {nestedModules}
+            {standaloneModules}
+            {nestedModules}
           </>
         )}
       </Box>

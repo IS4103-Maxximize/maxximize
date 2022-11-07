@@ -6,6 +6,11 @@ import { RawMaterial } from "../../raw-materials/entities/raw-material.entity";
 
 @Entity()
 export class FollowUpLineItem extends LineItem {
+    @Column({
+        default: 0
+    })
+    fufilledQty: number;
+
     @ManyToOne(() => RawMaterial)
     rawMaterial: RawMaterial
 

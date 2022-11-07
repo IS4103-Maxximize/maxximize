@@ -3,4 +3,5 @@ export class CreateFollowUpLineItemDto {
     rawMaterialId: number;
     finalGoodId?: number;
     purchaseOrderId: number;
+    unitPrice: number;
 }

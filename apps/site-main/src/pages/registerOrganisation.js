@@ -15,7 +15,11 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import Dropzone, { useDropzone } from 'react-dropzone';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 
-const steps = ['Register Your Organisation', 'Create an admin account'];
+const steps = [
+  'Register Your Organisation',
+  'Account Information',
+  'Create an admin account',
+];
 
 export const RegisterOrganisation = () => {
   const [activeStep, setActiveStep] = useState(0);
@@ -80,6 +84,11 @@ export const RegisterOrganisation = () => {
             postalCode: values.postalCode,
           },
           username: username,
+        },
+        createAccountInfoDto: {
+          bankCode: values.bankCode,
+          bankName: values.bankName,
+          accountNumber: values.accountNumber,
         },
       }),
     });
@@ -210,6 +219,21 @@ export const RegisterOrganisation = () => {
   });
 
   const stepTwoValidation = Yup.object({
+    bankCode: Yup.string()
+      .min(1, 'Bank Code must be at least be 1 character long')
+      .max(50, 'Bank Code can at most be 50 characters long')
+      .required('Bank Code is required'),
+    bankName: Yup.string()
+      .min(1, 'Bank Name must be at least be 1 character long')
+      .max(50, 'Bank Name can at most be 50 characters long')
+      .required('Bank Name is required'),
+    accountNumber: Yup.string()
+      .min(3, 'Account Number must be at least be 16 characters long')
+      .max(95, 'Account Number can at most be 16 characters long')
+      .required('Account Number is required'),
+  });
+
+  const stepThreeValidation = Yup.object({
     firstName: Yup.string()
       .min(1, 'First Name must be at least be 1 character long')
       .max(50, 'First Name can at most be 50 characters long')
@@ -247,6 +271,9 @@ export const RegisterOrganisation = () => {
       orgAddress: '',
       orgPostalCode: '',
       orgPhoneNumber: '',
+      bankCode: '',
+      bankName: '',
+      accountNumber: '',
       firstName: '',
       lastName: '',
       username: '',
@@ -257,7 +284,12 @@ export const RegisterOrganisation = () => {
       file: '',
     },
     onSubmit: handleOnSubmit,
-    validationSchema: activeStep === 0 ? stepOneValidation : stepTwoValidation,
+    validationSchema:
+      activeStep === 0
+        ? stepOneValidation
+        : activeStep === 1
+        ? stepTwoValidation
+        : stepThreeValidation,
   });
 
   const {
@@ -580,6 +612,79 @@ export const RegisterOrganisation = () => {
                           </aside>
                         </Box>
                       </Box>
+                    </Card>
+                  </Box>
+                ) : activeStep === 1 ? (
+                  <Box
+                    mx="auto"
+                    my={3}
+                    flex={1}
+                    width={'50%'}
+                    display="flex"
+                    justifyContent="flex-end"
+                    alignItems="center"
+                  >
+                    <Card sx={{ padding: 4, height: '100vh' }}>
+                      <Typography variant="h6" component="div">
+                        Account Information
+                      </Typography>
+                      <TextField
+                        error={Boolean(
+                          formik.touched.bankCode && formik.errors.bankCode
+                        )}
+                        fullWidth
+                        helperText={
+                          formik.touched.bankCode && formik.errors.bankCode
+                        }
+                        label="Bank Code"
+                        margin="normal"
+                        name="bankCode"
+                        onBlur={formik.handleBlur}
+                        onChange={formik.handleChange}
+                        value={formik.values.bankCode}
+                        variant="outlined"
+                        size="small"
+                      />
+                      <TextField
+                        error={Boolean(
+                          formik.touched.bankName && formik.errors.bankName
+                        )}
+                        fullWidth
+                        helperText={
+                          formik.touched.bankName && formik.errors.bankName
+                        }
+                        label="Bank Name"
+                        margin="normal"
+                        name="bankName"
+                        onBlur={formik.handleBlur}
+                        onChange={formik.handleChange}
+                        value={formik.values.bankName}
+                        variant="outlined"
+                        size="small"
+                      />
+
+                      <TextField
+                        error={Boolean(
+                          formik.touched.accountNumber &&
+                            formik.errors.accountNumber
+                        )}
+                        fullWidth
+                        helperText={
+                          formik.touched.accountNumber &&
+                          formik.errors.accountNumber
+                        }
+                        label="Account Number"
+                        margin="normal"
+                        name="accountNumber"
+                        onBlur={formik.handleBlur}
+                        onChange={formik.handleChange}
+                        value={formik.values.accountNumber}
+                        variant="outlined"
+                        size="small"
+                      />
+                      <Typography variant="body1" color="red">
+                        {error}
+                      </Typography>
                     </Card>
                   </Box>
                 ) : (

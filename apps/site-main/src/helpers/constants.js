@@ -66,6 +66,15 @@ const procurementBreadcrumbs = (subdomain) => [
   <Link
     component={RouterLink}
     underline="hover"
+    key="demand-forecast"
+    color={subdomain === 'forecast' ? 'primary' : 'inherit'}
+    to="/procurement/forecast"
+  >
+    Demand Forecast
+  </Link>,
+  <Link
+    component={RouterLink}
+    underline="hover"
     key="purchase-requisition"
     color={subdomain === 'purchase-requisition' ? 'primary' : 'inherit'}
     to="/procurement/purchase-requisition"
@@ -121,15 +130,6 @@ const productionBreadcrumbs = (subdomain) => [
     Bill Of Material
   </Link>,
   <Link
-  component={RouterLink}
-  underline="hover"
-  key="delivery-request-management"
-  color={subdomain === 'delivery-request-management' ? 'primary' : 'inherit'}
-  to="/production/delivery-request-management"
->
-  Delivery Fleet
-</Link>,
-  <Link
     component={RouterLink}
     underline="hover"
     key="machine"
@@ -146,6 +146,15 @@ const productionBreadcrumbs = (subdomain) => [
     to="/production/production-line"
   >
     Production Line
+  </Link>,
+  <Link
+    component={RouterLink}
+    underline="hover"
+    key="delivery-fleet-management"
+    color={subdomain === 'delivery-fleet-management' ? 'primary' : 'inherit'}
+    to="/production/delivery-fleet-management"
+  >
+    Delivery Fleet
   </Link>,
   <Link
   component={RouterLink}

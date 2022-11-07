@@ -56,8 +56,8 @@ export class Order {
     @ManyToOne(() => Organisation, organisation => organisation.purchaseOrders)
     customer: Organisation
 
-    @OneToOne(() => Invoice, invoice => invoice.order)
-    invoice: Invoice
+    // @OneToOne(() => Invoice, invoice => invoice.order)
+    // invoice: Invoice
 
     @OneToMany(() => OrderLineItem, orderLineItem => orderLineItem.order)
     orderLineItems: OrderLineItem[]

@@ -271,7 +271,7 @@ export class MembershipsService {
         current_period_start, 
         current_period_end, 
       } = subscription
-      // console.log(subscription)
+      console.log(subscription)
       const customer = await this.getCustomer(customerId)
       const {amount, product} = plan
       const stripeProduct = await this.getProduct(product)
@@ -339,7 +339,7 @@ export class MembershipsService {
       id,
       total: total / 100,
       description,
-      created,
+      created: new Date(created * 1000),
       status,
       billingReason: billing_reason as string === 'subscription_create' ? 'Subscription' : 'Others',
       subscriptionId: subscription
@@ -359,7 +359,7 @@ export class MembershipsService {
       id,
       total: total/ 100,
       description,
-      created,
+      created: new Date(created * 1000),
       status
     }
   })
@@ -410,8 +410,50 @@ export class MembershipsService {
   })
  }
 
+ //---------------------------------------------------------------------------------------------------------------------------
 
+ //-------------------------------------Stripe Subscriptions------------------------------------------------------------------
 
+ async getCustomerSubscriptions(customerId: string) {
+  const subscriptionsObject = await this.stripe.subscriptions.list({
+    limit: 100,
+    status: 'all',
+    customer: customerId
+  })
+  const subscriptions = subscriptionsObject.data
+  const parsedSubscriptionsPromises = subscriptions.map(async subscription => {
+    const plan = subscription['plan']
+    const {product} = plan
+    const stripeProduct = await this.getProduct(product)
 
+    const {id, created, currency, current_period_start, current_period_end, ended_at, status, cancel_at} = subscription
 
+    return {
+      id,
+      created: new Date(created * 1000),
+      currency,
+      currentPeriodStart: current_period_start ? new Date(current_period_start * 1000): null,
+      currentPeriodEnd: current_period_end ? new Date(current_period_end * 1000) : null,
+      endedAt: ended_at ? new Date(ended_at * 1000): null,
+      status,
+      cancelAt: cancel_at ? new Date(cancel_at * 1000): null,
+      plan: stripeProduct.name
+    }
+  })
+  const parsedSubscriptions = await Promise.all(parsedSubscriptionsPromises)
+  const sortedSubscriptions = parsedSubscriptions.sort((a, b) => {
+    if (a.status === 'active' && b.status !== 'active') {
+      return -1
+    } else if (a.status !== 'active' && b.status === 'active') {
+      return 1
+    } else {
+      if (a.created.getTime() > b.created.getTime()) {
+        return -1
+      } else {
+        return 1
+      }
+    }
+  })
+  return sortedSubscriptions
+ }
 }

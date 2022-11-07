@@ -59,6 +59,17 @@ export const ProductionOrderCreateDialog = (props) => {
   const [maximumFinalGoodOutput, setMaximumFinalGoodOutput] = useState(0);
 
   const handleOnSubmit = async () => {
+    console.log(
+      JSON.stringify({
+        plannedQuantity: formik.values.multiplier,
+        bomId: selectedBom.id,
+        daily: formik.values.daily,
+        organisationId: organisationId,
+        duration: formik.values.noOfDays,
+        prodRequestId: null,
+      })
+    );
+
     const response = await fetch(
       'http://localhost:3000/api/production-orders',
       {
@@ -73,13 +84,14 @@ export const ProductionOrderCreateDialog = (props) => {
           daily: formik.values.daily,
           organisationId: organisationId,
           duration: formik.values.noOfDays,
+          prodRequestId: null,
         }),
       }
     );
 
     if (response.status === 200 || response.status === 201) {
       const result = await response.json();
-      //Rerender parent data grid compoennt
+      //Rerender parent data grid component
       addProductionOrder(result);
       onClose();
       handleAlertOpen(
@@ -337,9 +349,9 @@ export const ProductionOrderCreateDialog = (props) => {
   // Stop loading upon error
   useEffect(() => {
     if (error !== '') {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [error])
+  }, [error]);
 
   const refreshInformation = () => {
     if (selectedBom) {
@@ -832,7 +844,7 @@ export const ProductionOrderCreateDialog = (props) => {
                   rows={formik.values.prodLineItems}
                   columns={productionOrderColumns}
                   pageSize={10}
-                  rowsPerPageOptions={[5]}
+                  rowsPerPageOptions={[10]}
                   disableSelectionOnClick
                   // experimentalFeatures={{ newEditingApi: true }}
                   // processRowUpdate={handleRowUpdate}

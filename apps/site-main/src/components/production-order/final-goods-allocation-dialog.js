@@ -29,12 +29,24 @@ export const FinalGoodsAllocationDialog = (props) => {
     // quantity: number;
     // volumetricSpace: number
 
-    const allocateScheduleDto = {
-      orgId: organisationId,
-      scheduleId: schedule?.id,
-      quantity: formik.values.quantity,
-      volumetricSpace: formik.values.volumetricSpace
-    }
+	let allocateScheduleDto = {}
+
+	if(productionOrder.prodRequest?.purchaseOrder) {
+		allocateScheduleDto = {
+			orgId: organisationId,
+			scheduleId: schedule?.id,
+			quantity: formik.values.quantity,
+			volumetricSpace: formik.values.volumetricSpace,
+			purchaseOrderId: productionOrder.prodRequest.purchaseOrder.id,
+		}
+	} else {
+		allocateScheduleDto = {
+			orgId: organisationId,
+			scheduleId: schedule?.id,
+			quantity: formik.values.quantity,
+			volumetricSpace: formik.values.volumetricSpace
+		}
+	}
 
     console.log(allocateScheduleDto);
 

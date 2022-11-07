@@ -1,7 +1,7 @@
 import {
   Injectable,
   InternalServerErrorException,
-  NotFoundException
+  NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { randomUUID } from 'crypto';
@@ -10,8 +10,11 @@ import { BatchesService } from '../batches/batches.service';
 import { CreateBatchDto } from '../batches/dto/create-batch.dto';
 import { FollowUpLineItemsService } from '../follow-up-line-items/follow-up-line-items.service';
 import { GrLineItemsService } from '../gr-line-items/gr-line-items.service';
+import { Invoice } from '../invoices/entities/invoice.entity';
+import { InvoiceStatus } from '../invoices/enums/invoiceStatus.enum';
 import { PurchaseOrderStatus } from '../purchase-orders/enums/purchaseOrderStatus.enum';
 import { PurchaseOrdersService } from '../purchase-orders/purchase-orders.service';
+import { ReservationLineItem } from '../reservation-line-items/entities/reservation-line-item.entity';
 import { UsersService } from '../users/users.service';
 import { CreateGoodsReceiptDto } from './dto/create-goods-receipt.dto';
 import { GoodsReceipt } from './entities/goods-receipt.entity';
@@ -76,12 +79,23 @@ export class GoodsReceiptsService {
       }
 
       purchaseOrder.followUpLineItems = followUpLineItems;
-      
+
+      for (const reserveLineItem of purchaseOrder.reservationLineItems) {
+        queryRunner.manager.softDelete(ReservationLineItem, reserveLineItem.id);
+      }
+
       if (
         createFollowUpLineItemsDtos === undefined ||
         createFollowUpLineItemsDtos.length === 0
       ) {
         purchaseOrder.status = PurchaseOrderStatus.FULFILLED;
+        const invoice = new Invoice();
+        invoice.date = new Date();
+        invoice.amount = purchaseOrder.totalPrice;
+        invoice.status = InvoiceStatus.PENDING;
+        invoice.po = purchaseOrder;
+        queryRunner.manager.save(invoice);
+        purchaseOrder.followUpLineItems = [];
       } else {
         purchaseOrder.status = PurchaseOrderStatus.PARTIALLYFULFILLED;
       }
@@ -90,7 +104,8 @@ export class GoodsReceiptsService {
       const recipient = await this.userService.findOne(
         createGoodsReceiptDto.recipientId
       );
-      goodsReceipt.recipientName = recipient.firstName + ' ' + recipient.lastName;
+      goodsReceipt.recipientName =
+        recipient.firstName + ' ' + recipient.lastName;
 
       createBatchDto.batchNumber =
         'B-' +

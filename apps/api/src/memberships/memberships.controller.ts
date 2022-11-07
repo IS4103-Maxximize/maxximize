@@ -93,4 +93,10 @@ export class MembershipsController {
   findPaymentMethodsOfCustomer(@Param('id') id: string) {
     return this.membershipsService.getCustomerPaymentMethods(id)
   }
+
+  //subscriptions
+  @Get('stripe/subscriptions/customers/:id')
+  findSubscriptionsOfCustomer(@Param('id') id: string) {
+    return this.membershipsService.getCustomerSubscriptions(id)
+  }
 }

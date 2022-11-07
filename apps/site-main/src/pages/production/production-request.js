@@ -7,6 +7,8 @@ import { NotificationAlert } from '../../components/notification-alert';
 import CancelIcon from '@mui/icons-material/Cancel';
 import DayJS from 'dayjs';
 import { Toolbar } from '../../components/toolbar';
+import { ProductionOrderCreateDialog } from '../../components/production-order/production-order-create-dialog';
+import { ProdOFromProdReqCreateDialog } from '../../components/production-request/prodO-from-prodReq-create-dialog';
 
 const ProductionRequest = () => {
   const [receivedProductionRequest, setReceivedProductionRequest] = useState(
@@ -21,7 +23,7 @@ const ProductionRequest = () => {
 
   //Load in list of sales inquiries, initial
   useEffect(() => {
-    retrieveAllReceivedProductionRequest();
+    retrieveAllReceivedProductionRequests();
   }, []);
 
   //Keep track of selectedRows for deletion
@@ -30,15 +32,16 @@ const ProductionRequest = () => {
   }, [selectedRows]);
 
   //Retrieve all incoming sales inquiries
-  const retrieveAllReceivedProductionRequest = async () => {
+  const retrieveAllReceivedProductionRequests = async () => {
     const response = await fetch(
-      `http://localhost:3000/api/sales-inquiry/received/${organisationId}`
+      `http://localhost:3000/api/production-requests/all/${organisationId}`
     );
     let result = [];
     if (response.status == 200 || response.status == 201) {
       result = await response.json();
     }
     setReceivedProductionRequest(result);
+    console.log(result);
   };
 
   //Search Function
@@ -52,25 +55,15 @@ const ProductionRequest = () => {
   const actionButtons = (params) => {
     return (
       <>
-        {params.row.status === 'sent' ? (
-          <>
-            <IconButton
-              onClick={(event) => {
-                setSelectedRow(params.row);
-                handleConfirmDialogOpen();
-              }}
-            >
-              <CancelIcon color="error" />
-            </IconButton>
-            <IconButton
-              onClick={(event) => {
-                setSelectedRow(params.row);
-                handleCreateOpen();
-              }}
-            >
-              <SendIcon color="primary" />
-            </IconButton>
-          </>
+        {params.row.status === 'pending' ? (
+          <IconButton
+            onClick={(event) => {
+              setSelectedRow(params.row);
+              handleCreateOpen();
+            }}
+          >
+            <SendIcon color="primary" />
+          </IconButton>
         ) : (
           <></>
         )}
@@ -107,50 +100,12 @@ const ProductionRequest = () => {
   };
 
   //Delete Confirm dialog
-  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
-  const handleConfirmDialogOpen = () => {
-    setConfirmDialogOpen(true);
-  };
-  const handleConfirmDialogClose = () => {
-    setConfirmDialogOpen(false);
-  };
-
-  //Handle Delete
-  //Rejecting a sales inquiry
-  //Also alerts user of ourcome
-  //   const handleReject = async (selectedRow) => {
-  //     const requestOptions = {
-  //       method: 'PATCH',
-  //     };
-
-  //     console.log(selectedRow);
-
-  //     const response = await fetch(
-  //       `http://localhost:3000/api/sales-inquiry/${selectedRow.id}`,
-  //       {
-  //         method: 'PATCH',
-  //         headers: {
-  //           Accept: 'application/json',
-  //           'Content-Type': 'application/json',
-  //         },
-  //         body: JSON.stringify({
-  //           status: 'rejected',
-  //         }),
-  //       }
-  //     );
-
-  //     if (response.status === 200 || response.status === 201) {
-  //       const result = await response.json();
-
-  //       handleAlertOpen(`Rejected Sales Inquiry ${result.id}`);
-  //       retrieveAllReceivedProductionRequest();
-  //     } else {
-  //       const result = await response.json();
-  //       handleAlertOpen(
-  //         `Error rejecting Sales Inquiry ${result.id}. ${result.message}`,
-  //         'error'
-  //       );
-  //     }
+  //   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  //   const handleConfirmDialogOpen = () => {
+  //     setConfirmDialogOpen(true);
+  //   };
+  //   const handleConfirmDialogClose = () => {
+  //     setConfirmDialogOpen(false);
   //   };
 
   //Columns for datagrid, column headers & specs
@@ -162,38 +117,45 @@ const ProductionRequest = () => {
       flex: 1,
     },
     {
-      field: 'created',
-      headerName: 'Date Received',
+      field: 'purchaseOrderId',
+      headerName: 'PO ID',
+      width: 70,
+      flex: 1,
+      valueGetter: (params) => {
+        return params.row ? params.row.purchaseOrder?.id : '';
+      },
+    },
+    {
+      field: 'createdDateTime',
+      headerName: 'Prod Req Created On',
       width: 70,
       flex: 3,
       valueFormatter: (params) =>
         DayJS(params?.value).format('DD MMM YYYY hh:mm a'),
     },
     {
-      field: 'expiringOn',
-      headerName: 'Expiring On',
+      field: 'deliveryDate',
+      headerName: 'Needed By',
       width: 70,
       flex: 3,
-      valueGetter: (params) =>
-        `${new Date(
-          new Date(params.row.created).getTime() + params.row.expiryDuration
-        )}`,
+      valueGetter: (params) => {
+        return params.row ? params.row.purchaseOrder?.deliveryDate : '';
+      },
       valueFormatter: (params) =>
-        DayJS(params.value).format('DD MMM YYYY hh:mm a'),
+        DayJS(params?.value).format('DD MMM YYYY hh:mm a'),
     },
     {
-      field: 'inquirer',
-      headerName: 'Inquirer',
+      field: 'finalGoodName',
+      headerName: 'Final Good',
       width: 200,
       flex: 4,
-      //TODO
       valueGetter: (params) => {
-        return params.row ? params.row.currentOrganisation?.name : '';
+        return params.row ? params.row.finalGood?.name : '';
       },
     },
     {
-      field: 'totalPrice',
-      headerName: 'Total Price',
+      field: 'quantity',
+      headerName: 'Quantity',
       width: 200,
       flex: 2,
     },
@@ -221,7 +183,7 @@ const ProductionRequest = () => {
     <>
       <HelmetProvider>
         <Helmet>
-          <title>{`Received Sales Inquiry | ${user?.organisation?.name}`}</title>
+          <title>{`Production Request | ${user?.organisation?.name}`}</title>
         </Helmet>
       </HelmetProvider>
       <NotificationAlert
@@ -229,6 +191,16 @@ const ProductionRequest = () => {
         severity={alertSeverity}
         text={alertText}
         handleClose={handleAlertClose}
+      />
+      <ProdOFromProdReqCreateDialog
+        key="prod-order-create-dialog"
+        open={productionOrderDialogOpen}
+        handleClose={handleCreateDialogClose}
+        productionRequest={selectedRow}
+        handleAlertOpen={handleAlertOpen}
+        retrieveAllReceivedProductionRequests={
+          retrieveAllReceivedProductionRequests
+        }
       />
       <Box
         component="main"
@@ -258,7 +230,11 @@ const ProductionRequest = () => {
                     if (search === '') {
                       return row;
                     } else {
-                      return row.id.toString().includes(search);
+                      return (
+                        row.id.toString().includes(search) ||
+                        row.purchaseOrder.id.toString().includes(search) ||
+                        row.finalGood.name.toLowerCase().includes(search)
+                      );
                     }
                   })}
                   columns={columns}
