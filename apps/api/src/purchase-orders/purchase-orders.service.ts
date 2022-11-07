@@ -1,5 +1,7 @@
 /* eslint-disable prefer-const */
 import {
+  forwardRef,
+  Inject,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -24,6 +26,9 @@ import { BatchLineItemsService } from '../batch-line-items/batch-line-items.serv
 import { BatchLineItem } from '../batch-line-items/entities/batch-line-item.entity';
 import { ReservationLineItem } from '../reservation-line-items/entities/reservation-line-item.entity';
 import { ReserveDto } from './dto/reserve-dto';
+import { ShellOrganisationsService } from '../shell-organisations/shell-organisations.service';
+import { ShellOrganisation } from '../shell-organisations/entities/shell-organisation.entity';
+import { InvoicesService } from '../invoices/invoices.service';
 
 @Injectable()
 export class PurchaseOrdersService {
@@ -36,12 +41,17 @@ export class PurchaseOrdersService {
     private readonly purchaseOrdersRepository: Repository<PurchaseOrder>,
     @InjectRepository(PurchaseOrderLineItem)
     private readonly purchaseOrderLineItemsRepository: Repository<PurchaseOrderLineItem>,
+    @InjectRepository(ShellOrganisation)
+    private readonly shellOrganisationsRepository: Repository<ShellOrganisation>,
     private datasource: DataSource,
     private organisationsService: OrganisationsService,
     private purchaseOrderLineItemsService: PurchaseOrderLineItemsService,
     private quotationsService: QuotationsService,
     private batchLineItemService: BatchLineItemsService,
     private mailService: MailService,
+    private shellOrganisationsService: ShellOrganisationsService,
+    @Inject(forwardRef(() => InvoicesService))
+    private invoicesService: InvoicesService,
     private dataSource: DataSource
   ) {}
   async create(
@@ -56,6 +66,7 @@ export class PurchaseOrdersService {
         quotationId,
         userContactId,
         poLineItemDtos,
+        supplierId
       } = createPurchaseOrderDto;
       let quotationToBeAdded: Quotation;
       let orgContact: Contact;
@@ -93,14 +104,20 @@ export class PurchaseOrdersService {
             );
           }
           //check Quotation if its a shell or a registered organisation
-          const { shellOrganisation, currentOrganisation } = quotationToBeAdded;
-          if (shellOrganisation) {
-            supplierContact = shellOrganisation.contact;
-          } else {
-            //quotation is sent to a registered Entity
-            supplierOnboarded = currentOrganisation;
-            supplierContact = currentOrganisation.contact;
+          if (quotationToBeAdded) {
+            console.log('theres a quotation!')
+            const { shellOrganisation, currentOrganisation } = quotationToBeAdded;
+            if (shellOrganisation) {
+              supplierContact = shellOrganisation.contact;
+            } else {
+              //quotation is sent to a registered Entity
+              supplierOnboarded = currentOrganisation;
+              supplierContact = currentOrganisation.contact;
+            }
+          } else if (supplierId) {
+            supplierOnboarded = await this.organisationsService.findOne(supplierId)
           }
+          
 
           for (const dto of poLineItemDtos) {
             const { quantity, price, rawMaterialId, finalGoodId } = dto;
@@ -139,7 +156,7 @@ export class PurchaseOrdersService {
             created: new Date(),
             deliveryDate: deliveryDate,
             currentOrganisationId: currentOrganisationId,
-            quotation: quotationToBeAdded,
+            quotation: quotationToBeAdded ?? null,
             supplier: supplierOnboarded ?? null,
             orgContact,
             userContact,
@@ -197,7 +214,7 @@ export class PurchaseOrdersService {
         currentOrganisationId: organisationId,
       },
       relations: [
-        'quotation',
+        'quotation.shellOrganisation',
         'currentOrganisation',
         'supplier',
         'orgContact',
@@ -283,7 +300,7 @@ export class PurchaseOrdersService {
         id,
       },
       relations: [
-        'quotation',
+        'quotation.shellOrganisation',
         'currentOrganisation',
         'supplier',
         'orgContact',
@@ -329,12 +346,24 @@ export class PurchaseOrdersService {
     id: number,
     updatePurchaseOrderDto: UpdatePurchaseOrderDto
   ): Promise<PurchaseOrder> {
-    const purchaseOrderToUpdate = await this.purchaseOrdersRepository.findOneBy(
-      { id }
-    );
+    const purchaseOrderToUpdate = await this.findOne(id)
     const arrayOfKeyValues = Object.entries(updatePurchaseOrderDto);
-    arrayOfKeyValues.forEach(([key, value]) => {
+    arrayOfKeyValues.forEach(async ([key, value]) => {
       purchaseOrderToUpdate[key] = value;
+      if (key == 'status' && value == PurchaseOrderStatus.ACCEPTED) {
+        const shellOrg = await this.shellOrganisationsService.retrieveShellOrgFromUen(purchaseOrderToUpdate.supplier.id, purchaseOrderToUpdate.currentOrganisation.uen)
+        shellOrg.currentCredit += purchaseOrderToUpdate.totalPrice
+        await this.shellOrganisationsRepository.save(shellOrg)
+      } else if (key == 'status' && value == PurchaseOrderStatus.CLOSED){
+        const shellOrg = await this.shellOrganisationsService.retrieveShellOrgFromUen(purchaseOrderToUpdate.supplier.id, purchaseOrderToUpdate.currentOrganisation.uen)
+        shellOrg.currentCredit -= purchaseOrderToUpdate.totalPrice
+        await this.shellOrganisationsRepository.save(shellOrg)
+      } else if (key == 'status' && value == PurchaseOrderStatus.FULFILLED) {       
+        purchaseOrderToUpdate.invoice = await this.invoicesService.create({
+          amount: purchaseOrderToUpdate.totalPrice,
+          poId: id
+        })
+      }
     });
     await this.purchaseOrdersRepository.save(purchaseOrderToUpdate);
     return this.findOne(id);
