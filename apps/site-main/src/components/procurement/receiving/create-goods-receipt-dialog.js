@@ -71,7 +71,6 @@ export const CreateGoodsReceiptDialog = ({
 
   //Create goods receipt, handle Formik submission
   const handleOnSubmit = async () => {
-    console.log(acceptedProducts);
     const processedAcceptedProducts = acceptedProducts.map(
       (acceptedProduct) => ({
         quantity: Number(acceptedProduct.quantity),
@@ -80,10 +79,28 @@ export const CreateGoodsReceiptDialog = ({
       })
     );
 
+    console.log(followUpProducts);
+
     const processedFollowUpProducts = followUpProducts.map(
       (followUpProduct) => ({
         quantity: Number(followUpProduct.quantity),
         rawMaterialId: followUpProduct.rawMaterial.id,
+        finalGoodId: followUpProduct.finalGood.id,
+        unitPrice: Number(followUpProduct.price),
+      })
+    );
+
+    console.log(processedFollowUpProducts);
+
+    console.log(
+      JSON.stringify({
+        organisationId: organisationId,
+        purchaseOrderId: formik.values.purchaseOrderId,
+        recipientId: userId,
+        createdDateTime: formik.values.dateReceived,
+        goodsReceiptLineItemsDtos: processedAcceptedProducts,
+        followUpLineItemsDtos: processedFollowUpProducts,
+        description: formik.values.description,
       })
     );
 
@@ -148,7 +165,6 @@ export const CreateGoodsReceiptDialog = ({
 
   //Retrieve all PO Line Items
   const retrievePOLineItems = async () => {
-    console.log(formik.values.purchaseOrderId);
     if (
       purchaseOrders
         .map((purchaseOrder) => purchaseOrder.id.toString())
@@ -162,9 +178,17 @@ export const CreateGoodsReceiptDialog = ({
         if (response.status === 200 || response.status === 201) {
           const result = await response.json();
 
-          if (result.status == 'partiallyfulfilled') {
+          console.log(result);
+
+          //TOCHECK if something is wrong
+          if (result.followUpLineItems.length !== 0) {
             setLineItems(result.followUpLineItems);
-            setAcceptedProducts(result.followUpLineItems);
+            setAcceptedProducts(
+              result.followUpLineItems.map((followUpLineItem) => ({
+                ...followUpLineItem,
+                volume: 1,
+              }))
+            );
             setFollowUpProducts([]);
             setError('');
           } else if (result.status == 'fulfilled') {
@@ -410,8 +434,6 @@ export const CreateGoodsReceiptDialog = ({
 
           const newLineItemToAdd = { ...lineItemToAdd, volume: 1 };
 
-          console.log(newLineItemToAdd);
-
           const index = acceptedProducts.findIndex(
             (lineItem) => lineItem.rawMaterial.name === productName
           );
@@ -457,6 +479,14 @@ export const CreateGoodsReceiptDialog = ({
     retrieveQAChecklists();
     retrievePurchaseOrders();
   }, [open]);
+
+  useEffect(() => {
+    console.log(acceptedProducts);
+  }, [acceptedProducts]);
+
+  useEffect(() => {
+    console.log(followUpProducts);
+  }, [followUpProducts]);
 
   //Current Checklist
   const [currentChecklist, setCurrentChecklist] = useState();

@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { MulterModule } from '@nestjs/platform-express';
 import { ScheduleModule } from '@nestjs/schedule';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AccountInfoModule } from '../account-info/account-info.module';
 import { AuthModule } from '../auth/auth.module';
 import { BatchLineItemsModule } from '../batch-line-items/batch-line-items.module';
 import { BatchesModule } from '../batches/batches.module';
@@ -122,6 +123,7 @@ import { AppService } from './app.service';
     ReservationLineItemsModule,
     ScheduleLineItemsModule,
     MembershipsModule,
+    AccountInfoModule,
     CartsModule,
     CartLineItemsModule,
     BulkDiscountsModule,

@@ -25,7 +25,7 @@ const ReceivedPurchaseOrder = () => {
 
   //Load in list of purchase orders, initial
   useEffect(() => {
-    retrieveAllReceivedPurchaseOrder();
+    retrieveAllReceivedPurchaseOrders();
   }, []);
 
   //Keep track of selectedRows for deletion
@@ -34,7 +34,7 @@ const ReceivedPurchaseOrder = () => {
   }, [selectedRows]);
 
   //Retrieve all incoming purchase orders
-  const retrieveAllReceivedPurchaseOrder = async () => {
+  const retrieveAllReceivedPurchaseOrders = async () => {
     const response = await fetch(
       `http://localhost:3000/api/purchase-orders/received/${organisationId}`
     );
@@ -221,6 +221,7 @@ const ReceivedPurchaseOrder = () => {
         handleClose={handleClickClose}
         purchaseOrder={selectedRow}
         handleAlertOpen={handleAlertOpen}
+        retrieveAllReceivedPurchaseOrders={retrieveAllReceivedPurchaseOrders}
       />
       <Box
         component="main"

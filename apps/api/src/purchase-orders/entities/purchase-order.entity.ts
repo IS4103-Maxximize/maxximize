@@ -3,6 +3,7 @@ import { Contact } from "../../contacts/entities/contact.entity";
 import { DeliveryRequest } from "../../delivery-requests/entities/delivery-request.entity";
 import { FollowUpLineItem } from "../../follow-up-line-items/entities/follow-up-line-item.entity";
 import { GoodsReceipt } from "../../goods-receipts/entities/goods-receipt.entity";
+import { Invoice } from "../../invoices/entities/invoice.entity";
 import { Organisation } from "../../organisations/entities/organisation.entity";
 import { ProductionRequest } from "../../production-requests/entities/production-request.entity";
 import { PurchaseOrderLineItem } from "../../purchase-order-line-items/entities/purchase-order-line-item.entity";
@@ -82,4 +83,7 @@ export class PurchaseOrder {
     })
     @JoinColumn()
     reservationLineItems: ReservationLineItem[];
+
+    @OneToOne(() => Invoice, invoice => invoice.po)
+    invoice: Invoice
 }

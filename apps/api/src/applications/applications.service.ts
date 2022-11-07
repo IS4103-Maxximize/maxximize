@@ -1,6 +1,7 @@
 import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { CreateAccountInfoDto } from '../account-info/dto/create-account-info.dto';
 import { MailService } from '../mail/mail.service';
 import { CreateOrganisationDto } from '../organisations/dto/create-organisation.dto';
 import { OrganisationsService } from '../organisations/organisations.service';
@@ -22,9 +23,10 @@ export class ApplicationsService {
     private mailService: MailService
   ){}
   async create(createApplicationDto: CreateApplicationDto) {
-    const {createOrganisationDto, createUserDto} = createApplicationDto
+    const {createOrganisationDto, createUserDto, createAccountInfoDto} = createApplicationDto
     const {name, type, uen, contact} = createOrganisationDto
     const {firstName, lastName, username, role, contact: userContact} = createUserDto
+    const {bankCode, bankName, accountNumber} = createAccountInfoDto
     const organisations = await this.organisationService.findAll()
     if (organisations.map(org => org.uen).includes(uen)) {
       throw new NotFoundException('The organisation you are applying for is already registered!')
@@ -59,7 +61,11 @@ export class ApplicationsService {
       applicantPhoneNumber: userContact.phoneNumber,
       applicantPostalCode: userContact.postalCode,
       organisationId: 1,
-      status: ApplicationStatus.PENDING
+      status: ApplicationStatus.PENDING,
+      bankCode,
+      bankName,
+      accountNumber
+      //add accountinfo attributes
     })
     return this.applicationRepository.save(newApplication)
   }
@@ -103,7 +109,10 @@ export class ApplicationsService {
       applicantAddress,
       applicantPhoneNumber,
       applicantPostalCode, 
-      applicantEmail } = application
+      applicantEmail,
+      bankCode,
+      bankName,
+      accountNumber } = application
     //update status
     const { status } = updateApplicationDto
     // Approved
@@ -118,6 +127,11 @@ export class ApplicationsService {
           email: orgEmail,
           postalCode: orgPostalCode,
           address: orgAddress
+        },
+        accountInfo: {
+          bankCode,
+          bankName,
+          accountNumber
         }
       }
       const createUserDto: CreateUserDto = {

@@ -28,6 +28,12 @@ export class ShellOrganisation {
     @Column({unique: true})
     uen: string
 
+    @Column({default: 0, nullable: true})
+    currentCredit: number
+
+    @Column({default: 0, nullable: true})
+    creditLimit: number
+
     @OneToOne(() => Contact, contact => contact.shellOrganisation)
     contact: Contact
 

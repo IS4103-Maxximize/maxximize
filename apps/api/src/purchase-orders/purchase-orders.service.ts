@@ -1,5 +1,11 @@
 /* eslint-disable prefer-const */
-import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { BatchLineItemsService } from '../batch-line-items/batch-line-items.service';
@@ -20,7 +26,9 @@ import { ReserveDto } from './dto/reserve-dto';
 import { UpdatePurchaseOrderDto } from './dto/update-purchase-order.dto';
 import { PurchaseOrder } from './entities/purchase-order.entity';
 import { PurchaseOrderStatus } from './enums/purchaseOrderStatus.enum';
-
+import { ShellOrganisationsService } from '../shell-organisations/shell-organisations.service';
+import { ShellOrganisation } from '../shell-organisations/entities/shell-organisation.entity';
+import { InvoicesService } from '../invoices/invoices.service';
 
 @Injectable()
 export class PurchaseOrdersService {
@@ -33,109 +41,154 @@ export class PurchaseOrdersService {
     private readonly purchaseOrdersRepository: Repository<PurchaseOrder>,
     @InjectRepository(PurchaseOrderLineItem)
     private readonly purchaseOrderLineItemsRepository: Repository<PurchaseOrderLineItem>,
+    @InjectRepository(ShellOrganisation)
+    private readonly shellOrganisationsRepository: Repository<ShellOrganisation>,
     private datasource: DataSource,
     private organisationsService: OrganisationsService,
     private purchaseOrderLineItemsService: PurchaseOrderLineItemsService,
     private quotationsService: QuotationsService,
     private batchLineItemService: BatchLineItemsService,
     private mailService: MailService,
+    private shellOrganisationsService: ShellOrganisationsService,
+    @Inject(forwardRef(() => InvoicesService))
+    private invoicesService: InvoicesService,
     private dataSource: DataSource
   ) {}
-  async create(createPurchaseOrderDto: CreatePurchaseOrderDto): Promise<PurchaseOrder> {
+  async create(
+    createPurchaseOrderDto: CreatePurchaseOrderDto
+  ): Promise<PurchaseOrder> {
     try {
-      const { deliveryAddress, totalPrice, deliveryDate, currentOrganisationId, quotationId, userContactId, poLineItemDtos} = createPurchaseOrderDto
-      let quotationToBeAdded: Quotation
-      let orgContact: Contact
-      let userContact: Contact
-      let supplierContact: Contact
-      let newPurchaseOrder: PurchaseOrder
-      let poLineItems: PurchaseOrderLineItem[] = []
-      let supplierOnboarded: Organisation
-      await this.datasource.manager.transaction(async (transactionalEntityManager) => {
-        if (quotationId) {
-          quotationToBeAdded = await transactionalEntityManager.findOneOrFail(Quotation, {
-            where: {
-              id: quotationId
-            }, relations: {
-              shellOrganisation: {
-                contact: true
-              },
-              currentOrganisation: {
-                contact: true
+      const {
+        deliveryAddress,
+        totalPrice,
+        deliveryDate,
+        currentOrganisationId,
+        quotationId,
+        userContactId,
+        poLineItemDtos,
+        supplierId
+      } = createPurchaseOrderDto;
+      let quotationToBeAdded: Quotation;
+      let orgContact: Contact;
+      let userContact: Contact;
+      let supplierContact: Contact;
+      let newPurchaseOrder: PurchaseOrder;
+      let poLineItems: PurchaseOrderLineItem[] = [];
+      let supplierOnboarded: Organisation;
+      await this.datasource.manager.transaction(
+        async (transactionalEntityManager) => {
+          if (quotationId) {
+            quotationToBeAdded = await transactionalEntityManager.findOneOrFail(
+              Quotation,
+              {
+                where: {
+                  id: quotationId,
+                },
+                relations: {
+                  shellOrganisation: {
+                    contact: true,
+                  },
+                  currentOrganisation: {
+                    contact: true,
+                  },
+                },
               }
+            );
+          }
+          if (userContactId) {
+            userContact = await transactionalEntityManager.findOneByOrFail(
+              Contact,
+              {
+                id: userContactId,
+              }
+            );
+          }
+          //check Quotation if its a shell or a registered organisation
+          if (quotationToBeAdded) {
+            console.log('theres a quotation!')
+            const { shellOrganisation, currentOrganisation } = quotationToBeAdded;
+            if (shellOrganisation) {
+              supplierContact = shellOrganisation.contact;
+            } else {
+              //quotation is sent to a registered Entity
+              supplierOnboarded = currentOrganisation;
+              supplierContact = currentOrganisation.contact;
             }
-          })
-        }
-        if (userContactId) {
-          userContact = await transactionalEntityManager.findOneByOrFail(Contact, {
-            id: userContactId
-          })
-        }
-        //check Quotation if its a shell or a registered organisation
-        const {shellOrganisation, currentOrganisation} = quotationToBeAdded
-        if (shellOrganisation) {
-          supplierContact = shellOrganisation.contact
-        } else {
-          //quotation is sent to a registered Entity
-          supplierOnboarded = currentOrganisation
-          supplierContact = currentOrganisation.contact
-        }
-       
-        for (const dto of poLineItemDtos) {
-          const { quantity, price, rawMaterialId, finalGoodId} = dto
-          let rawMaterialToBeAdded: RawMaterial
-          let finalGoodToBeAdded: FinalGood
-          let newPurchaseOrderLineItem: PurchaseOrderLineItem
-          if (rawMaterialId) {
-            rawMaterialToBeAdded = await transactionalEntityManager.findOneByOrFail(RawMaterial, {
-              id: rawMaterialId
-            })
+          } else if (supplierId) {
+            supplierOnboarded = await this.organisationsService.findOne(supplierId)
           }
-          if (finalGoodId) {
-            finalGoodToBeAdded = await transactionalEntityManager.findOneByOrFail(FinalGood, {
-              id: finalGoodId
-            })
-          } else {
-            finalGoodToBeAdded = null
+          
+
+          for (const dto of poLineItemDtos) {
+            const { quantity, price, rawMaterialId, finalGoodId } = dto;
+            let rawMaterialToBeAdded: RawMaterial;
+            let finalGoodToBeAdded: FinalGood;
+            let newPurchaseOrderLineItem: PurchaseOrderLineItem;
+            if (rawMaterialId) {
+              rawMaterialToBeAdded =
+                await transactionalEntityManager.findOneByOrFail(RawMaterial, {
+                  id: rawMaterialId,
+                });
+            }
+            if (finalGoodId) {
+              finalGoodToBeAdded =
+                await transactionalEntityManager.findOneByOrFail(FinalGood, {
+                  id: finalGoodId,
+                });
+            } else {
+              finalGoodToBeAdded = null;
+            }
+            newPurchaseOrderLineItem = transactionalEntityManager.create(
+              PurchaseOrderLineItem,
+              {
+                quantity,
+                price,
+                rawMaterial: rawMaterialToBeAdded,
+                finalGood: finalGoodToBeAdded,
+              }
+            );
+            poLineItems.push(newPurchaseOrderLineItem);
           }
-          newPurchaseOrderLineItem = transactionalEntityManager.create(PurchaseOrderLineItem, {
-            quantity,
-            price,
-            rawMaterial: rawMaterialToBeAdded,
-            finalGood: finalGoodToBeAdded
-          }) 
-          poLineItems.push(newPurchaseOrderLineItem)
+          newPurchaseOrder = transactionalEntityManager.create(PurchaseOrder, {
+            status: PurchaseOrderStatus.PENDING,
+            deliveryAddress,
+            totalPrice,
+            created: new Date(),
+            deliveryDate: deliveryDate,
+            currentOrganisationId: currentOrganisationId,
+            quotation: quotationToBeAdded ?? null,
+            supplier: supplierOnboarded ?? null,
+            orgContact,
+            userContact,
+            supplierContact,
+            poLineItems,
+            followUpLineItems: [],
+          });
+          return transactionalEntityManager.save(newPurchaseOrder);
         }
-        newPurchaseOrder = transactionalEntityManager.create(PurchaseOrder, {
-          status: PurchaseOrderStatus.PENDING,
-          deliveryAddress,
-          totalPrice,
-          created: new Date(),
-          deliveryDate: deliveryDate,
-          currentOrganisationId: currentOrganisationId,
-          quotation: quotationToBeAdded,
-          supplier: supplierOnboarded ?? null,
-          orgContact,
-          userContact,
-          supplierContact,
-          poLineItems,
-          followUpLineItems: []
-        })
-        return transactionalEntityManager.save(newPurchaseOrder)
-        
-      })
+      );
 
       if (supplierOnboarded) {
         return this.findOne(newPurchaseOrder.id);
       } else {
-        const organisation = await this.organisationsService.findOne(currentOrganisationId)
-        const supplier = (await this.quotationsService.findOne(quotationId)).shellOrganisation
-        this.mailService.sendPurchaseOrderEmail(supplierContact.email, organisation.name, supplier.name, poLineItems, newPurchaseOrder, newPurchaseOrder.deliveryDate)
+        const organisation = await this.organisationsService.findOne(
+          currentOrganisationId
+        );
+        const supplier = (await this.quotationsService.findOne(quotationId))
+          .shellOrganisation;
+        this.mailService.sendPurchaseOrderEmail(
+          supplierContact.email,
+          organisation.name,
+          supplier.name,
+          poLineItems,
+          newPurchaseOrder,
+          newPurchaseOrder.deliveryDate
+        );
       }
-      
+
       return this.findOne(newPurchaseOrder.id);
     } catch (error) {
-      throw new NotFoundException(error)
+      throw new NotFoundException(error);
     }
   }
 
@@ -196,17 +249,19 @@ export class PurchaseOrdersService {
         orgContact: true,
         userContact: true,
         supplierContact: true,
-        supplier: true
-      }
-    })
+        supplier: true,
+        invoice: true,
+      },
+    });
   }
 
   findAllByOrgId(organisationId: number): Promise<PurchaseOrder[]> {
     return this.purchaseOrdersRepository.find({
       where: {
-        currentOrganisationId: organisationId
-      }, relations: [
-        'quotation',
+        currentOrganisationId: organisationId,
+      },
+      relations: [
+        'quotation.shellOrganisation',
         'currentOrganisation',
         'supplier',
         'orgContact',
@@ -214,19 +269,21 @@ export class PurchaseOrdersService {
         'supplierContact',
         'poLineItems.rawMaterial',
         'followUpLineItems.rawMaterial',
-        'goodsReceipts.goodsReceiptLineItems.product'
-      ]
-    })
+        'goodsReceipts.goodsReceiptLineItems.product',
+        'invoice',
+      ],
+    });
   }
 
   async findSentPurchaseOrderByOrg(id: number) {
     return await this.purchaseOrdersRepository.find({
       where: {
-        currentOrganisationId: id
-      }, relations: {
+        currentOrganisationId: id,
+      },
+      relations: {
         quotation: {
           shellOrganisation: true,
-          receivingOrganisation: true
+          receivingOrganisation: true,
         },
         currentOrganisation: true,
         supplier: true,
@@ -235,29 +292,31 @@ export class PurchaseOrdersService {
         supplierContact: true,
         poLineItems: {
           rawMaterial: true,
-          finalGood: true
+          finalGood: true,
         },
         followUpLineItems: {
           rawMaterial: true,
-          finalGood: true
+          finalGood: true,
         },
         goodsReceipts: {
           goodsReceiptLineItems: {
-            product: true
-          }
-        }
-      }
-    })
+            product: true,
+          },
+        },
+        invoice: true,
+      },
+    });
   }
 
   async findReceivedPurchaseOrderByOrg(id: number) {
     return await this.purchaseOrdersRepository.find({
       where: {
-        supplierId : id
-      }, relations: {
+        supplierId: id,
+      },
+      relations: {
         quotation: {
           shellOrganisation: true,
-          receivingOrganisation: true
+          receivingOrganisation: true,
         },
         currentOrganisation: true,
         supplier: true,
@@ -266,66 +325,102 @@ export class PurchaseOrdersService {
         supplierContact: true,
         poLineItems: {
           rawMaterial: true,
-          finalGood: true
+          finalGood: true,
         },
         followUpLineItems: {
           rawMaterial: true,
-          finalGood: true
+          finalGood: true,
         },
         goodsReceipts: {
           goodsReceiptLineItems: {
-            product: true
-          }
-        }
-      }
-    })
+            product: true,
+          },
+        },
+        invoice: true,
+      },
+    });
   }
 
   findOne(id: number): Promise<PurchaseOrder> {
-    return this.purchaseOrdersRepository.findOne({where: {
-      id
-    }, relations: [
-      'quotation',
-      'currentOrganisation',
-      'supplier',
-      'orgContact',
-      'userContact',
-      'supplierContact',
-      'poLineItems.rawMaterial',
-      'poLineItems.finalGood',
-      'followUpLineItems.rawMaterial',
-      'goodsReceipts.goodsReceiptLineItems.product',
-      'reservationLineItems'
-    ]})
+    return this.purchaseOrdersRepository.findOne({
+      where: {
+        id,
+      },
+      relations: [
+        'quotation.shellOrganisation',
+        'currentOrganisation',
+        'supplier',
+        'orgContact',
+        'userContact',
+        'supplierContact',
+        'poLineItems.rawMaterial',
+        'poLineItems.finalGood',
+        'followUpLineItems.rawMaterial',
+        'followUpLineItems.finalGood',
+        'goodsReceipts.goodsReceiptLineItems.product',
+        'reservationLineItems.batchLineItem.product',
+        'invoice',
+      ],
+    });
   }
 
   async getUnfufilledLineItems(purchaseOrderId: number) {
     const purchaseOrder = await this.findOne(purchaseOrderId);
     const list = [];
-    for (const lineItem of purchaseOrder.poLineItems) {
-      if (lineItem.fufilledQty != lineItem.quantity) {
-        list.push({
-          finalGood: lineItem.finalGood,
-          quantity: lineItem.quantity - lineItem.fufilledQty
-        })
+    if (purchaseOrder.followUpLineItems.length === 0) {
+      for (const lineItem of purchaseOrder.poLineItems) {
+        if (lineItem.fufilledQty != lineItem.quantity) {
+          list.push({
+            finalGood: lineItem.finalGood,
+            quantity: lineItem.quantity - lineItem.fufilledQty,
+          });
+        }
+      }
+    } else {
+      for (const lineItem of purchaseOrder.followUpLineItems) {
+        if (lineItem.fufilledQty != lineItem.quantity) {
+          list.push({
+            finalGood: lineItem.finalGood,
+            quantity: lineItem.quantity - lineItem.fufilledQty,
+          });
+        }
       }
     }
     return list;
   }
 
-  async update(id: number, updatePurchaseOrderDto: UpdatePurchaseOrderDto): Promise<PurchaseOrder> {
-    const purchaseOrderToUpdate = await this.purchaseOrdersRepository.findOneBy({id})
-    const arrayOfKeyValues = Object.entries(updatePurchaseOrderDto)
-    arrayOfKeyValues.forEach(([key, value]) => {
-      purchaseOrderToUpdate[key] = value
-    })
-    await this.purchaseOrdersRepository.save(purchaseOrderToUpdate)
+  async update(
+    id: number,
+    updatePurchaseOrderDto: UpdatePurchaseOrderDto
+  ): Promise<PurchaseOrder> {
+    const purchaseOrderToUpdate = await this.findOne(id)
+    const arrayOfKeyValues = Object.entries(updatePurchaseOrderDto);
+    arrayOfKeyValues.forEach(async ([key, value]) => {
+      purchaseOrderToUpdate[key] = value;
+      if (key == 'status' && value == PurchaseOrderStatus.ACCEPTED) {
+        const shellOrg = await this.shellOrganisationsService.retrieveShellOrgFromUen(purchaseOrderToUpdate.supplier.id, purchaseOrderToUpdate.currentOrganisation.uen)
+        shellOrg.currentCredit += purchaseOrderToUpdate.totalPrice
+        await this.shellOrganisationsRepository.save(shellOrg)
+      } else if (key == 'status' && value == PurchaseOrderStatus.CLOSED){
+        const shellOrg = await this.shellOrganisationsService.retrieveShellOrgFromUen(purchaseOrderToUpdate.supplier.id, purchaseOrderToUpdate.currentOrganisation.uen)
+        shellOrg.currentCredit -= purchaseOrderToUpdate.totalPrice
+        await this.shellOrganisationsRepository.save(shellOrg)
+      } else if (key == 'status' && value == PurchaseOrderStatus.FULFILLED) {       
+        purchaseOrderToUpdate.invoice = await this.invoicesService.create({
+          amount: purchaseOrderToUpdate.totalPrice,
+          poId: id
+        })
+      }
+    });
+    await this.purchaseOrdersRepository.save(purchaseOrderToUpdate);
     return this.findOne(id);
   }
 
   async remove(id: number): Promise<PurchaseOrder> {
-    const purchaseOrderToRemove = await this.purchaseOrdersRepository.findOneBy({id})
-    return this.purchaseOrdersRepository.remove(purchaseOrderToRemove)
+    const purchaseOrderToRemove = await this.purchaseOrdersRepository.findOneBy(
+      { id }
+    );
+    return this.purchaseOrdersRepository.remove(purchaseOrderToRemove);
   }
 
   async reserve(reserveDto: ReserveDto) {
@@ -338,13 +433,22 @@ export class PurchaseOrdersService {
       const organisationId = reserveDto.organisationId;
 
       const purchaseOrder = await this.findOne(purchaseOrderId);
-      const finalGoodsStock = await this.batchLineItemService.getAggregatedFinalGoods(organisationId, purchaseOrder.deliveryDate);
-      console.log(finalGoodsStock);
+      const finalGoodsStock =
+        await this.batchLineItemService.getAggregatedFinalGoods(
+          organisationId,
+          purchaseOrder.deliveryDate
+        );
 
       const reservationLineItems = [];
+      let lineItems = [];
+      if (purchaseOrder.followUpLineItems.length === 0) {
+        lineItems = purchaseOrder.poLineItems;
+      } else {
+        lineItems = purchaseOrder.followUpLineItems;
+      }
 
-      for (const purchaseLineItem of purchaseOrder.poLineItems) {
-        const productId = purchaseLineItem.finalGood.id;
+      for (const lineItem of lineItems) {
+        const productId = lineItem.finalGood.id;
         let totalQty = 0;
         if (finalGoodsStock.has(productId)) {
           totalQty = finalGoodsStock.get(productId).reduce((seed, lineItem) => {
@@ -353,7 +457,7 @@ export class PurchaseOrdersService {
         } else {
           continue;
         }
-        let qty = purchaseLineItem.quantity - purchaseLineItem.fufilledQty;
+        let qty = lineItem.quantity - lineItem.fufilledQty;
         if (qty <= 0) {
           continue;
         }
@@ -361,25 +465,28 @@ export class PurchaseOrdersService {
           const batchLineItems = finalGoodsStock.get(productId);
           batchLineItems.sort(
             (lineItemOne, lineItemTwo) =>
-              lineItemOne.expiryDate.getTime() - lineItemTwo.expiryDate.getTime()
+              lineItemOne.expiryDate.getTime() -
+              lineItemTwo.expiryDate.getTime()
           );
           for (const batchLineItem of batchLineItems) {
             const reservationLineItem = new ReservationLineItem();
-            if ((batchLineItem.quantity - batchLineItem.reservedQuantity) > qty) {
-              purchaseLineItem.fufilledQty += qty;
+            if (batchLineItem.quantity - batchLineItem.reservedQuantity > qty) {
+              lineItem.fufilledQty += qty;
               batchLineItem.reservedQuantity += qty;
               reservationLineItem.quantity = qty;
               await queryRunner.manager.save(batchLineItem);
-              await queryRunner.manager.save(purchaseLineItem);
+              await queryRunner.manager.save(lineItem);
               qty = 0;
             } else {
-              purchaseLineItem.fufilledQty += (batchLineItem.quantity - batchLineItem.reservedQuantity);
+              lineItem.fufilledQty +=
+                batchLineItem.quantity - batchLineItem.reservedQuantity;
               batchLineItem.reservedQuantity = batchLineItem.quantity;
-              reservationLineItem.quantity = (batchLineItem.quantity - batchLineItem.reservedQuantity);
-              qty -= (batchLineItem.quantity - batchLineItem.reservedQuantity);
+              reservationLineItem.quantity =
+                batchLineItem.quantity - batchLineItem.reservedQuantity;
+              qty -= batchLineItem.quantity - batchLineItem.reservedQuantity;
               await queryRunner.manager.save(batchLineItem);
-              await queryRunner.manager.save(purchaseLineItem);
-              await queryRunner.manager.softDelete(BatchLineItem, batchLineItem.id);
+              await queryRunner.manager.save(lineItem);
+              //   await queryRunner.manager.softDelete(BatchLineItem, batchLineItem.id);
             }
             reservationLineItem.batchLineItem = batchLineItem;
             reservationLineItems.push(reservationLineItem);
@@ -387,29 +494,32 @@ export class PurchaseOrdersService {
               break;
             }
           }
-          purchaseLineItem.fufilledQty = purchaseLineItem.quantity;
-          await queryRunner.manager.save(purchaseLineItem);
+          lineItem.fufilledQty = lineItem.quantity;
+          await queryRunner.manager.save(lineItem);
         } else {
           for (const batchLineItem of finalGoodsStock.get(productId)) {
             const reservationLineItem = new ReservationLineItem();
             reservationLineItem.batchLineItem = batchLineItem;
-            reservationLineItem.quantity = (batchLineItem.quantity - batchLineItem.reservedQuantity);
-            purchaseLineItem.fufilledQty += (batchLineItem.quantity - batchLineItem.reservedQuantity);
+            reservationLineItem.quantity =
+              batchLineItem.quantity - batchLineItem.reservedQuantity;
+            lineItem.fufilledQty +=
+              batchLineItem.quantity - batchLineItem.reservedQuantity;
             batchLineItem.reservedQuantity = batchLineItem.quantity;
             reservationLineItems.push(reservationLineItem);
             await queryRunner.manager.save(batchLineItem);
-            await queryRunner.manager.save(purchaseLineItem);
-            await queryRunner.manager.softDelete(BatchLineItem, batchLineItem.id);
+            await queryRunner.manager.save(lineItem);
+            // await queryRunner.manager.softDelete(BatchLineItem, batchLineItem.id);
           }
         }
       }
 
-      purchaseOrder.reservationLineItems = purchaseOrder.reservationLineItems.concat(reservationLineItems);
+      purchaseOrder.reservationLineItems =
+        purchaseOrder.reservationLineItems.concat(reservationLineItems);
 
       const purchaseO = await queryRunner.manager.save(purchaseOrder);
       await queryRunner.commitTransaction();
 
-      return purchaseO;
+      return this.findOne(purchaseO.id);
     } catch (err) {
       console.log(err);
       await queryRunner.rollbackTransaction();

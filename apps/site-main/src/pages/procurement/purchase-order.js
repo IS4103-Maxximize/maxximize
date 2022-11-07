@@ -195,7 +195,7 @@ export const PurchaseOrder = (props) => {
     {
       field: 'status',
       headerName: 'Status',
-      flex: 1,
+      flex: 1.5,
       renderCell: (params) => {
         // Extract out the supplier side purchase order statuses
         // If there is follow up line items, the default status is partially fulfilled

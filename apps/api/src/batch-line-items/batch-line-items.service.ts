@@ -401,7 +401,7 @@ export class BatchLineItemsService {
 
     // Retrieve all batch line items and add to map only if batch line item does not expire before end of production
     for (const batchLineItem of batchLineItems) {
-      if (batchLineItem.expiryDate <= deliveryDate) {
+      if (batchLineItem.expiryDate <= deliveryDate || (batchLineItem.quantity - batchLineItem.reservedQuantity <= 0)) {
         continue;
       }
       const product = batchLineItem.product;
