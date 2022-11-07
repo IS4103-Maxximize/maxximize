@@ -271,7 +271,7 @@ export class MembershipsService {
         current_period_start, 
         current_period_end, 
       } = subscription
-      // console.log(subscription)
+      console.log(subscription)
       const customer = await this.getCustomer(customerId)
       const {amount, product} = plan
       const stripeProduct = await this.getProduct(product)
@@ -339,7 +339,7 @@ export class MembershipsService {
       id,
       total: total / 100,
       description,
-      created,
+      created: new Date(created * 1000),
       status,
       billingReason: billing_reason as string === 'subscription_create' ? 'Subscription' : 'Others',
       subscriptionId: subscription
@@ -359,7 +359,7 @@ export class MembershipsService {
       id,
       total: total/ 100,
       description,
-      created,
+      created: new Date(created * 1000),
       status
     }
   })

@@ -149,7 +149,8 @@ export class OrganisationsService {
         shellOrganisations: true,
         contact: true,
         users: true,
-        accountInfo: true
+        accountInfo: true,
+		membership: true
       }
     });
   }
