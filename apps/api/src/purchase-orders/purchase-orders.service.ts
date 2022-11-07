@@ -1,25 +1,25 @@
 /* eslint-disable prefer-const */
 import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
-import { Organisation } from '../organisations/entities/organisation.entity';
-import { PurchaseOrderLineItem } from '../purchase-order-line-items/entities/purchase-order-line-item.entity';
-import { CreatePurchaseOrderDto } from './dto/create-purchase-order.dto';
-import { UpdatePurchaseOrderDto } from './dto/update-purchase-order.dto';
-import { DataSource, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { PurchaseOrder } from './entities/purchase-order.entity';
-import { Quotation } from '../quotations/entities/quotation.entity';
-import { Contact } from '../contacts/entities/contact.entity';
-import { OrganisationsService } from '../organisations/organisations.service';
-import { QuotationsService } from '../quotations/quotations.service';
-import { PurchaseOrderLineItemsService } from '../purchase-order-line-items/purchase-order-line-items.service';
-import { RawMaterial } from '../raw-materials/entities/raw-material.entity';
-import { FinalGood } from '../final-goods/entities/final-good.entity';
-import { PurchaseOrderStatus } from './enums/purchaseOrderStatus.enum';
-import { MailService } from '../mail/mail.service';
+import { DataSource, Repository } from 'typeorm';
 import { BatchLineItemsService } from '../batch-line-items/batch-line-items.service';
 import { BatchLineItem } from '../batch-line-items/entities/batch-line-item.entity';
+import { Contact } from '../contacts/entities/contact.entity';
+import { FinalGood } from '../final-goods/entities/final-good.entity';
+import { MailService } from '../mail/mail.service';
+import { Organisation } from '../organisations/entities/organisation.entity';
+import { OrganisationsService } from '../organisations/organisations.service';
+import { PurchaseOrderLineItem } from '../purchase-order-line-items/entities/purchase-order-line-item.entity';
+import { PurchaseOrderLineItemsService } from '../purchase-order-line-items/purchase-order-line-items.service';
+import { Quotation } from '../quotations/entities/quotation.entity';
+import { QuotationsService } from '../quotations/quotations.service';
+import { RawMaterial } from '../raw-materials/entities/raw-material.entity';
 import { ReservationLineItem } from '../reservation-line-items/entities/reservation-line-item.entity';
+import { CreatePurchaseOrderDto } from './dto/create-purchase-order.dto';
 import { ReserveDto } from './dto/reserve-dto';
+import { UpdatePurchaseOrderDto } from './dto/update-purchase-order.dto';
+import { PurchaseOrder } from './entities/purchase-order.entity';
+import { PurchaseOrderStatus } from './enums/purchaseOrderStatus.enum';
 
 
 @Injectable()
@@ -137,7 +137,54 @@ export class PurchaseOrdersService {
     } catch (error) {
       throw new NotFoundException(error)
     }
-   }
+  }
+
+  async createCSV(createPurchaseOrderDto: CreatePurchaseOrderDto): Promise<PurchaseOrder> {
+    try {
+      const { deliveryAddress, totalPrice, deliveryDate, currentOrganisationId, date, poLineItemDtos } = createPurchaseOrderDto
+      let newPurchaseOrder: PurchaseOrder
+      let poLineItems: PurchaseOrderLineItem[] = []
+      await this.datasource.manager.transaction(async (transactionalEntityManager) => {
+        for (const dto of poLineItemDtos) {
+          const { quantity, price, finalGoodId } = dto
+          let finalGoodToBeAdded: FinalGood
+          let newPurchaseOrderLineItem: PurchaseOrderLineItem
+          if (finalGoodId) {
+            finalGoodToBeAdded = await transactionalEntityManager.findOneByOrFail(FinalGood, {
+              id: finalGoodId
+            })
+          }
+          newPurchaseOrderLineItem = transactionalEntityManager.create(PurchaseOrderLineItem, {
+            quantity,
+            price,
+            finalGood: finalGoodToBeAdded
+          }) 
+          poLineItems.push(newPurchaseOrderLineItem)
+        }
+        newPurchaseOrder = transactionalEntityManager.create(PurchaseOrder, {
+          status: PurchaseOrderStatus.CREATEDVIACSV,
+          deliveryAddress,
+          totalPrice,
+          created: date,
+          deliveryDate: null,
+          currentOrganisationId: currentOrganisationId,
+          quotation: null,
+          supplier: null,
+          orgContact: null,
+          userContact: null,
+          supplierContact: null,
+          poLineItems,
+          followUpLineItems: []
+        })
+        return transactionalEntityManager.save(newPurchaseOrder)
+        
+      })
+      
+      return this.findOne(newPurchaseOrder.id);
+    } catch (error) {
+      throw new NotFoundException(error)
+    }
+  }
 
   findAll(): Promise<PurchaseOrder[]> {
     return this.purchaseOrdersRepository.find({

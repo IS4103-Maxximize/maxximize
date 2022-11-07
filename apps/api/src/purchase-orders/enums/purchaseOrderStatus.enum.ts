@@ -1,4 +1,5 @@
 export enum PurchaseOrderStatus {
+    CREATEDVIACSV = 'createdviacsv',
     PENDING = 'pending',
     PARTIALLYFULFILLED = 'partiallyfulfilled',
     FULFILLED = "fulfilled",

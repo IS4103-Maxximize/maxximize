@@ -1,5 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
-import { BatchLineItem } from "../../batch-line-items/entities/batch-line-item.entity";
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Contact } from "../../contacts/entities/contact.entity";
 import { DeliveryRequest } from "../../delivery-requests/entities/delivery-request.entity";
 import { FollowUpLineItem } from "../../follow-up-line-items/entities/follow-up-line-item.entity";
@@ -31,7 +30,9 @@ export class PurchaseOrder {
     @Column()
     created: Date
 
-    @Column()
+    @Column({
+        nullable: true
+    })
     deliveryDate: Date
 
     @Column()
