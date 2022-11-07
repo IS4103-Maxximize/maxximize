@@ -81,7 +81,10 @@ export const ApplicationDialog = (props) => {
 
       // Clean up and remove the link
       link.parentNode.removeChild(link);
-    }
+    } else {
+		const result = await response.json();
+		setError(result.message);
+	}
   };
 
   // Accept the application

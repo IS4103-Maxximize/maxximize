@@ -5,8 +5,11 @@ import { useEffect, useState } from 'react';
 import SendIcon from '@mui/icons-material/Send';
 import { NotificationAlert } from '../../components/notification-alert';
 import CancelIcon from '@mui/icons-material/Cancel';
+import MoreVert from '@mui/icons-material/MoreVert';
 import DayJS from 'dayjs';
 import { Toolbar } from '../../components/toolbar';
+import { DeliveryRequestMenu } from '../../components/fulfilment/delivery-request/delivery-request-menu';
+import { DeliveryRequestDialog } from '../../components/fulfilment/delivery-request/delivery-request-dialog';
 import { deliveryRequestStatusColorMap } from '../../helpers/constants';
 import { SeverityPill } from '../../components/severity-pill';
 
@@ -21,7 +24,7 @@ const DeliveryRequest = () => {
 
   //Load in list of sales inquiries, initial
   useEffect(() => {
-    retrieveAllDeliveryRequest();
+    retrieveAllDeliveryRequests();
   }, []);
 
   //Keep track of selectedRows for deletion
@@ -30,13 +33,14 @@ const DeliveryRequest = () => {
   }, [selectedRows]);
 
   //Retrieve all incoming sales inquiries
-  const retrieveAllDeliveryRequest = async () => {
+  const retrieveAllDeliveryRequests = async () => {
     const response = await fetch(
-      `http://localhost:3000/api/sales-inquiry/received/${organisationId}`
+      `http://localhost:3000/api/delivery-requests/findAllByOrganisationId/${organisationId}`
     );
     let result = [];
     if (response.status == 200 || response.status == 201) {
       result = await response.json();
+      console.log(result);
     }
     setDeliveryRequest(result);
   };
@@ -48,33 +52,27 @@ const DeliveryRequest = () => {
     setSearch(event.target.value.toLowerCase().trim());
   };
 
-  // Action buttons
-  const actionButtons = (params) => {
+  // Menu Helpers
+  const [anchorEl, setAnchorEl] = useState(null);
+  const menuOpen = Boolean(anchorEl);
+
+  const handleMenuClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const menuButton = (params) => {
     return (
-      <>
-        {params.row.status === 'sent' ? (
-          <>
-            <IconButton
-              onClick={(event) => {
-                setSelectedRow(params.row);
-                handleConfirmDialogOpen();
-              }}
-            >
-              <CancelIcon color="error" />
-            </IconButton>
-            <IconButton
-              onClick={(event) => {
-                setSelectedRow(params.row);
-                handleCreateOpen();
-              }}
-            >
-              <SendIcon color="primary" />
-            </IconButton>
-          </>
-        ) : (
-          <></>
-        )}
-      </>
+      <IconButton
+        onClick={(event) => {
+          setSelectedRow(params.row);
+          handleMenuClick(event);
+        }}
+      >
+        <MoreVert />
+      </IconButton>
     );
   };
 
@@ -95,25 +93,23 @@ const DeliveryRequest = () => {
   };
 
   // Dialog helpers
-  const [productionOrderDialogOpen, setProductionOrderDialogOpen] =
-    useState(false);
+  const [formDialogOpen, setFormDialogOpen] = useState(false);
 
-  const handleCreateOpen = () => {
-    setProductionOrderDialogOpen(true);
+  const handleFormDialogOpen = () => {
+    setFormDialogOpen(true);
   };
-
-  const handleCreateDialogClose = () => {
-    setProductionOrderDialogOpen(false);
+  const handleFormDialogClose = () => {
+    setFormDialogOpen(false);
   };
 
   //Delete Confirm dialog
-  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
-  const handleConfirmDialogOpen = () => {
-    setConfirmDialogOpen(true);
-  };
-  const handleConfirmDialogClose = () => {
-    setConfirmDialogOpen(false);
-  };
+  //   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  //   const handleConfirmDialogOpen = () => {
+  //     setConfirmDialogOpen(true);
+  //   };
+  //   const handleConfirmDialogClose = () => {
+  //     setConfirmDialogOpen(false);
+  //   };
 
   //Handle Delete
   //Rejecting a sales inquiry
@@ -162,40 +158,51 @@ const DeliveryRequest = () => {
       flex: 1,
     },
     {
-      field: 'created',
-      headerName: 'Date Received',
+      field: 'purchaseOrderId',
+      headerName: 'PO ID',
+      width: 200,
+      flex: 1,
+      valueGetter: (params) => {
+        return params.row ? params.row.purchaseOrder?.id : '';
+      },
+    },
+    {
+      field: 'dateCreated',
+      headerName: 'Date Created',
       width: 70,
       flex: 3,
       valueFormatter: (params) =>
         DayJS(params?.value).format('DD MMM YYYY hh:mm a'),
     },
     {
-      field: 'expiringOn',
-      headerName: 'Expiring On',
+      field: 'driver',
+      headerName: 'Driver',
       width: 70,
       flex: 3,
-      valueGetter: (params) =>
-        `${new Date(
-          new Date(params.row.created).getTime() + params.row.expiryDuration
-        )}`,
-      valueFormatter: (params) =>
-        DayJS(params.value).format('DD MMM YYYY hh:mm a'),
-    },
-    {
-      field: 'inquirer',
-      headerName: 'Inquirer',
-      width: 200,
-      flex: 4,
-      //TODO
       valueGetter: (params) => {
-        return params.row ? params.row.currentOrganisation?.name : '';
+        return params.row ? params.row.user?.username : '';
       },
     },
     {
-      field: 'totalPrice',
-      headerName: 'Total Price',
+      field: 'vehicle',
+      headerName: 'Vehicle',
       width: 200,
-      flex: 2,
+      flex: 3,
+      valueGetter: (params) => {
+        return params.row ? params.row.vehicle.licensePlate : '';
+      },
+    },
+    {
+      field: 'addressFrom',
+      headerName: 'Deliver From',
+      width: 70,
+      flex: 3,
+    },
+    {
+      field: 'addressTo',
+      headerName: 'Deliver To',
+      width: 70,
+      flex: 3,
     },
     {
       field: 'status',
@@ -215,9 +222,9 @@ const DeliveryRequest = () => {
     {
       field: 'action',
       headerName: 'Action',
-      width: 200,
-      flex: 1.5,
-      renderCell: actionButtons,
+      width: 150,
+      flex: 1,
+      renderCell: menuButton,
     },
   ];
 
@@ -258,6 +265,17 @@ const DeliveryRequest = () => {
             handleFormDialogOpen={null}
             handleConfirmDialogOpen={null}
           />
+          <DeliveryRequestMenu
+            anchorEl={anchorEl}
+            menuOpen={menuOpen}
+            handleMenuClose={handleMenuClose}
+            handleFormDialogOpen={handleFormDialogOpen}
+          />
+          <DeliveryRequestDialog
+            open={formDialogOpen}
+            handleClose={handleFormDialogClose}
+            deliveryRequest={selectedRow}
+          />
           <Box sx={{ mt: 3 }}>
             <Card>
               <Box sx={{ minWidth: 1050 }}>
@@ -267,7 +285,16 @@ const DeliveryRequest = () => {
                     if (search === '') {
                       return row;
                     } else {
-                      return row.id.toString().includes(search);
+                      return (
+                        row.id.toString().includes(search) ||
+                        row.purchaseOrder.id.toString().includes(search) ||
+                        row.user.username.toLowerCase().includes(search) ||
+                        row.vehicle.licensePlate
+                          .toLowerCase()
+                          .includes(search) ||
+                        row.addressTo.toLowerCase().includes(search) ||
+                        row.addressFrom.toLowerCase().includes(search)
+                      );
                     }
                   })}
                   columns={columns}

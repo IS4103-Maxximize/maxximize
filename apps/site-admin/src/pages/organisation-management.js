@@ -13,6 +13,9 @@ import MoreVert from '@mui/icons-material/MoreVert';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import { Toolbar } from '../components/toolbar';
 import { OrganisationManagementMenu } from '../components/client/organisation-management/organisation-management-menu';
+import { OrganisationDetailsDialog } from '../components/client/organisation-management/organisation-details-dialog';
+import { SubscriptionDialog } from '../components/client/organisation-management/subscription-dialog';
+import { InvoiceDialog } from '../components/client/organisation-management/invoice-dialog';
 
 const OrganisationManagement = () => {
   const user = JSON.parse(localStorage.getItem('user'));
@@ -83,7 +86,7 @@ const OrganisationManagement = () => {
     setAlertSeverity('success');
   };
 
-  // Dialog helpers
+  // Org Details Dialog helpers
   const [organisationDialogOpen, setOrganisationDialogOpen] = useState(false);
 
   const handleDialogOpen = () => {
@@ -92,6 +95,28 @@ const OrganisationManagement = () => {
 
   const handleDialogClose = () => {
     setOrganisationDialogOpen(false);
+  };
+
+  // Subscription Dialog helpers
+  const [subscriptionDialogOpen, setSubscriptionDialogOpen] = useState(false);
+
+  const handleSubscriptionDialogOpen = () => {
+    setSubscriptionDialogOpen(true);
+  };
+
+  const handleSubscriptionDialogClose = () => {
+    setSubscriptionDialogOpen(false);
+  };
+
+  // Invoice Dialog helpers
+  const [invoiceDialogOpen, setInvoiceDialogOpen] = useState(false);
+
+  const handleInvoiceDialogOpen = () => {
+    setInvoiceDialogOpen(true);
+  };
+
+  const handleInvoiceDialogClose = () => {
+    setInvoiceDialogOpen(false);
   };
 
   //Delete Confirm dialog
@@ -104,8 +129,6 @@ const OrganisationManagement = () => {
   };
 
   //Handle Delete
-  //Rejecting a sales inquiry
-  //Also alerts user of ourcome
   const handleReject = async (selectedRow) => {
     const requestOptions = {
       method: 'PATCH',
@@ -214,14 +237,26 @@ const OrganisationManagement = () => {
         menuOpen={menuOpen}
         handleMenuClose={handleMenuClose}
         handleDialogOpen={handleDialogOpen}
+        handleSubscriptionDialogOpen={handleSubscriptionDialogOpen}
+        handleInvoiceDialogOpen={handleInvoiceDialogOpen}
       />
-      {/*<OnboardClientDialog
+      <OrganisationDetailsDialog
         open={organisationDialogOpen}
         handleClose={handleDialogClose}
         organisation={selectedRow}
         handleAlertOpen={handleAlertOpen}
         retrieveAllOrganisations={retrieveAllOrganisations}
-      /> */}
+      />
+      <SubscriptionDialog
+        open={subscriptionDialogOpen}
+        handleClose={handleSubscriptionDialogClose}
+        organisation={selectedRow}
+      />
+      <InvoiceDialog
+        open={invoiceDialogOpen}
+        handleClose={handleInvoiceDialogClose}
+        organisation={selectedRow}
+      />
       <Box
         component="main"
         sx={{

@@ -3,4 +3,5 @@ export class AllocateScheduleDto{
     scheduleId: number;
     quantity: number;
     volumetricSpace: number
+    purchaseOrderId?: number;
 }

@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { PurchaseOrder } from '../purchase-orders/entities/purchase-order.entity';
@@ -14,6 +14,7 @@ export class InvoicesService {
   constructor(
     @InjectRepository(Invoice)
     private readonly invoicesRepository: Repository<Invoice>,
+    @Inject(forwardRef(() => PurchaseOrdersService))
     private purchaseOrdersService: PurchaseOrdersService
   ) {}
   async create(createInvoiceDto: CreateInvoiceDto) {
