@@ -5,14 +5,6 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
-  FormControl,
-  FormControlLabel,
-  InputLabel,
-  MenuItem,
-  OutlinedInput,
-  Radio,
-  RadioGroup,
-  Select,
   TextField,
   Typography,
 } from '@mui/material';
@@ -32,7 +24,6 @@ export const MachineDialog = (props) => {
     addMachine,
     handleAlertOpen,
     machine,
-    ...rest
   } = props;
 
   const user = JSON.parse(localStorage.getItem('user'));
@@ -60,7 +51,6 @@ export const MachineDialog = (props) => {
     model: Yup.string().required("Model is required"),
     year: Yup.number().integer("Year must be a whole number").positive("Year must be positive").required("Year is required"),
     remarks: Yup.string().required("Remarks is required"),
-	// lastServiced: Yup.date().required("Last Serviced is required")
   };
 
   const handleOnSubmit = async () => {
@@ -149,7 +139,6 @@ export const MachineDialog = (props) => {
       handleDateChange(null)
     }
   },[open]);
-
 
   return (
     <form onSubmit={formik.handleSubmit}>

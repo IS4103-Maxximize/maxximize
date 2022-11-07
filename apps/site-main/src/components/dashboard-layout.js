@@ -3,7 +3,8 @@ import { Box } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { DashboardNavbar } from './dashboard-navbar';
 import { DashboardSidebar } from './dashboard-sidebar';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
+import { apiHost } from '../helpers/constants';
 
 const DashboardLayoutRoot = styled('div')(({ theme }) => ({
   display: 'flex',
@@ -16,11 +17,25 @@ const DashboardLayoutRoot = styled('div')(({ theme }) => ({
 }));
 
 export const DashboardLayout = () => {
+  const { pathname } = useLocation();
   const [isSidebarOpen, setSidebarOpen] = useState(true);
   const [user, setUser] = useState({});
 
+  const updateUser = async (userId) => {
+    const user = await fetch(`${apiHost}/users/finduser/${userId}`).then(res => res.json());
+    localStorage.setItem('user', JSON.stringify(user));
+    setUser(user);
+  }
+
   useEffect(() => {
-    setUser(JSON.parse(localStorage.getItem('user')));
+    const storedUser = JSON.parse(localStorage.getItem('user'));
+    // Update when returning to dashboard
+    // also the default redirect from customer portal
+    if (pathname === '/') { 
+      updateUser(storedUser.id);
+    } else {
+      setUser(storedUser);
+    }
   }, []);
 
   return (

@@ -1,10 +1,10 @@
 import { Box, Button, Container, TextField, Typography } from '@mui/material';
+import Link from '@mui/material/Link';
 import { useFormik } from 'formik';
 import { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import Link from '@mui/material/Link';
-import * as Yup from 'yup';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
+import { useLocation, useNavigate } from 'react-router-dom';
+import * as Yup from 'yup';
 
 async function loginUser(credentials) {
   const res = await fetch('http://localhost:3000/api/auth/login', {
