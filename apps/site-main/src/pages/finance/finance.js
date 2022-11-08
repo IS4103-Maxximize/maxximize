@@ -1,6 +1,6 @@
 import MoreVert from '@mui/icons-material/MoreVert';
 import {
-  Box, Card, CardContent, CardHeader,
+  Box, Button, Card, CardContent, CardHeader,
   Container, Divider, Grid,
   IconButton,
   Skeleton,
@@ -17,7 +17,6 @@ import { FilterCard } from '../../components/finance/filter-card';
 import { FinanceToolbar } from '../../components/finance/finance-toolbar';
 import { NotificationAlert } from '../../components/notification-alert';
 import { apiHost } from '../../helpers/constants';
-import { deleteBOMs, fetchBOMs } from '../../helpers/production/bom';
 
 export const Finance = (props) => {
   const user = JSON.parse(localStorage.getItem('user'));
@@ -30,18 +29,8 @@ export const Finance = (props) => {
   const [selectedRows, setSelectedRows] = useState([]); // Selected Row IDs
   const [selectedRow, setSelectedRow] = useState();
 
-  const getBOMs = async () => {
-    fetchBOMs(organisationId)
-      .then((res) => setRows(res))
-      .catch((err) =>
-        handleAlertOpen('Failed to fetch Bill Of Materials', 'error')
-      );
-  };
-
   useEffect(() => {
-    // get BOMs
     setLoading(true);
-    getBOMs();
   }, []);
 
   useEffect(() => {
@@ -107,65 +96,6 @@ export const Finance = (props) => {
     );
   };
 
-  // Create Dialog Helpers
-  const [createDialogOpen, setCreateDialogOpen] = useState(false);
-  const handleCreateDialogOpen = () => {
-    setCreateDialogOpen(true);
-  };
-  const handleCreateDialogClose = () => {
-    setCreateDialogOpen(false);
-  };
-
-  useEffect(() => {
-    console.log(createDialogOpen);
-    if (!createDialogOpen) {
-      setLoading(true);
-      getBOMs();
-    }
-    if (createDialogOpen) {
-      console.log(selectedRow);
-    }
-  }, [createDialogOpen]);
-
-  // Update Dialog Helpers
-  const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
-  const handleUpdateDialogOpen = () => {
-    setUpdateDialogOpen(true);
-  };
-  const handleUpdateDialogClose = () => {
-    setUpdateDialogOpen(false);
-  };
-
-  useEffect(() => {
-    console.log(updateDialogOpen);
-    if (!updateDialogOpen) {
-      setLoading(true);
-      getBOMs();
-    }
-    if (updateDialogOpen) {
-      console.log(selectedRow);
-    }
-  }, [updateDialogOpen]);
-
-  // ConfirmDialog Helpers
-  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
-  const handleConfirmDialogOpen = () => {
-    setConfirmDialogOpen(true);
-  };
-  const handleConfirmDialogClose = () => {
-    setConfirmDialogOpen(false);
-  };
-
-  // CRUD handlerss
-  const handleDelete = async (ids) => {
-    setSelectedRows([]);
-    deleteBOMs(ids)
-      .then(() =>
-        handleAlertOpen('Successfully deleted Bill Of Material(s)!', 'success')
-      )
-      .then(() => getBOMs());
-  };
-
   // DataGrid Columns
   const columns = [
     {
@@ -208,9 +138,15 @@ export const Finance = (props) => {
   ];
 
   // Revenue Helpers
+  const [revenueRange, setRevenueRange] = useState(false);
   const [revenueType, setRevenueType] = useState('month');
+  const [inRevenueDate, setInRevenueDate] = useState(new Date());
   const [fromRevenueDate, setFromRevenueDate] = useState(null);
   const [toRevenueDate, setToRevenueDate] = useState(new Date());
+
+  const toggleRevenueRange = () => {
+    setRevenueRange(!revenueRange);
+  }
 
   const handleRevenueType = (event, newType) => {
     if (newType !== null) {
@@ -219,19 +155,26 @@ export const Finance = (props) => {
   }
 
   const resetRevenueDates = () => {
+    setInRevenueDate(new Date());
     setFromRevenueDate(null);
     setToRevenueDate(new Date());
   }
 
   useEffect(() => {
     resetRevenueDates();
-  }, [revenueType]) 
+  }, [revenueRange, revenueType]) 
 
 
   // Costs Helpers
+  const [costsRange, setCostsRange] = useState(false);
   const [costsType, setCostsType] = useState('month');
+  const [inCostsDate, setInCostsDate] = useState(new Date());
   const [fromCostsDate, setFromCostsDate] = useState(null);
   const [toCostsDate, setToCostsDate] = useState(new Date());
+
+  const toggleCostsRange = () => {
+    setCostsRange(!costsRange);
+  }
 
   const handleCostsType = (event, newType) => {
     if (newType !== null) {
@@ -240,18 +183,20 @@ export const Finance = (props) => {
   }
 
   const resetCostsDates = () => {
+    setInCostsDate(new Date());
     setFromCostsDate(null);
     setToCostsDate(new Date());
   }
 
   useEffect(() => {
     resetCostsDates();
-  }, [costsType])
+  }, [costsRange, costsType])
   
 
   // Commission Card Helpers
   const [cardsError, setCardsError] = useState();
   const [cards, setCards] = useState([]);
+  const [selectedCard, setSelectedCard] = useState();
   
   const getCards = async () => {
     const customerId = user.organisation?.membership?.customerId;
@@ -262,6 +207,7 @@ export const Finance = (props) => {
         .then(res => res.json())
         .then(result => {
           setCards(result)
+          setSelectedCard(null)
           setCardsError(null);
         })
         .catch(err => setCardsError('Unable to fetch payment methods from Stripe'))
@@ -348,38 +294,6 @@ export const Finance = (props) => {
             key="toolbar"
             name={'Finance Management'}
           />
-          {/* <BOMCreateDialog
-            key="bom-create-dialog"
-            open={createDialogOpen}
-            handleClose={handleCreateDialogClose}
-            string={'Bill Of Material'}
-            handleAlertOpen={handleAlertOpen}
-          /> */}
-          {/* <BOMUpdateDialog
-            key="bom-update-dialog"
-            open={updateDialogOpen}
-            handleClose={handleUpdateDialogClose}
-            string={'Bill Of Material'}
-            bom={selectedRow}
-            handleAlertOpen={handleAlertOpen}
-          /> */}
-          {/* <ProductMenu
-            key="bom-menu"
-            anchorEl={anchorEl}
-            menuOpen={menuOpen}
-            handleClickOpen={handleUpdateDialogOpen}
-            handleMenuClose={handleMenuClose}
-            handleClickViewEdit={handleClickViewEdit}
-          /> */}
-          {/* <ConfirmDialog
-            open={confirmDialogOpen}
-            handleClose={handleConfirmDialogClose}
-            dialogTitle={`Delete Bill Of Material(s)`}
-            dialogContent={`Confirm deletion of Bill Of Material(s)?`}
-            dialogAction={() => {
-              handleDelete(selectedRows);
-            }}
-          /> */}
           <Box
             sx={{
               mt: 3,
@@ -407,6 +321,14 @@ export const Finance = (props) => {
                   <CardHeader 
                     title="Commission Payment Method" 
                     sx={{ m: - 1 }}
+                    action={
+                    <Button
+                      variant="contained"
+                      disabled={!selectedCard}
+                    >
+                      Set Default
+                    </Button>
+                    }
                   />
                   <Divider />
                   <CardContent>
@@ -425,6 +347,7 @@ export const Finance = (props) => {
                         pageSize={3}
                         rowsPerPageOptions={[3]}
                         hideFooterSelectedRowCount={true}
+                        onSelectionModelChange={(selectionModel) => setSelectedCard(...selectionModel)}
                       />}
                       {(cards.length === 0 && !cardsError) && <Skeleton width={600} height={200} />}
                       {cardsError && <Typography sx={{ mt: 1 }}>{cardsError}</Typography>}
@@ -436,6 +359,10 @@ export const Finance = (props) => {
               <Grid item md={6} xs={12}>
                 <FilterCard 
                   title='Revenue Filter'
+                  range={revenueRange}
+                  toggleRange={toggleRevenueRange}
+                  inDate={inRevenueDate}
+                  setIn={setInRevenueDate}
                   from={fromRevenueDate}
                   to={toRevenueDate}
                   setFrom={setFromRevenueDate}
@@ -448,6 +375,10 @@ export const Finance = (props) => {
               <Grid item md={6} xs={12}>
                 <FilterCard 
                   title='Costs Filter'
+                  range={costsRange}
+                  toggleRange={toggleCostsRange}
+                  inDate={inCostsDate}
+                  setIn={setInCostsDate}
                   from={fromCostsDate}
                   to={toCostsDate}
                   setFrom={setFromCostsDate}
@@ -459,13 +390,17 @@ export const Finance = (props) => {
               </Grid>
 
               <Grid item lg={6} md={12} xl={6} xs={12}>
-                <Card>
+                <Card
+                  sx={{ height: '100%' }}
+                >
                   <CardHeader title="Revenue Stuff" />
                 </Card>
               </Grid>
 
               <Grid item lg={6} md={12} xl={6} xs={12}>
-                <Card>
+                <Card
+                  sx={{ height: '100%' }}
+                >
                   <CardHeader title="Costs Stuff" />
                 </Card>
               </Grid>

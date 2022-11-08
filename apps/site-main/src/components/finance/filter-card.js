@@ -7,6 +7,10 @@ import DayJS from 'dayjs';
 export const FilterCard = (props) => {
   const {
     title,
+    range,
+    toggleRange,
+    inDate,
+    setIn,
     from,
     to,
     setFrom,
@@ -25,18 +29,23 @@ export const FilterCard = (props) => {
         action={(
           <Stack direction="row" spacing={2}>
             <IconButton
-                disabled={DayJS(from).startOf(type) > DayJS(to).endOf(type)}
-                color='primary'
-              >
-                <SearchIcon />
-              </IconButton>
-            <Button
-              variant='contained'
-              onClick={reset}
+              disabled={
+                DayJS(from).startOf(type) > DayJS(to).endOf(type) 
+                || !inDate 
+                || (!from && !to)
+              }
+              color='primary'
             >
-              Reset
+              <SearchIcon />
+            </IconButton>
+            <Button
+              color={range ? 'secondary' : 'primary'}
+              onClick={toggleRange}
+              variant='contained'
+            >
+              {!range && 'Single'}
+              {range && 'Range'}
             </Button>
-          
             <ToggleButtonGroup
               value={type}
               exclusive
@@ -50,6 +59,13 @@ export const FilterCard = (props) => {
                 Year
               </ToggleButton>
             </ToggleButtonGroup>
+            <Button
+              color='draft'
+              variant='contained'
+              onClick={reset}
+            >
+              Reset
+            </Button>
           </Stack>
         )}
       />
@@ -62,7 +78,17 @@ export const FilterCard = (props) => {
           alignItems='center'
           justifyContent='space-between'
         >
-          <Box>
+          {!range && <Box>
+            <DatePicker
+              views={type === 'month' ? ['year', 'month'] : ['year']}
+              label="IN"
+              value={inDate}
+              onChange={setIn}
+              renderInput={(params) => <TextField {...params} sx={{ m: 1, width: 250 }}/>}
+              disableFuture
+            />
+          </Box>}
+          {range && <Box>
             <DatePicker
               views={type === 'month' ? ['year', 'month'] : ['year']}
               label="FROM"
@@ -103,8 +129,7 @@ export const FilterCard = (props) => {
                 )
               }}
             />
-          </Box>
-          
+          </Box>}
         </Box>
       </CardContent>
     </Card>
