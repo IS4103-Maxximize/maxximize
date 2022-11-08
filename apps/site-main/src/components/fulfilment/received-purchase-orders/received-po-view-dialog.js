@@ -433,7 +433,7 @@ export const ReceivedPurchaseOrderViewDialog = (props) => {
                 <DataGrid
                   autoHeight
                   rows={formik.values.purchaseOrderLineItems}
-                  columns={poColumns}
+                  columns={columns}
                   pageSize={5}
                   rowsPerPageOptions={[5]}
                   // onSelectionModelChange={(ids) => setSelectedRows(ids)}

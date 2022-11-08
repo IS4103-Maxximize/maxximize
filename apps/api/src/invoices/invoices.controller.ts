@@ -22,6 +22,16 @@ export class InvoicesController {
     return this.invoicesService.findOne(+id);
   }
 
+  @Get('sent/:id')
+  findSentInvoicesByOrg(@Param('id') id: string) {
+    return this.invoicesService.findSentInvoicesByOrg(+id)
+  }
+
+  @Get('incoming/:id')
+  findIncomingInvoicesByOrg(@Param('id') id: string) {
+    return this.invoicesService.findIncomingInvoicesByOrg(+id)
+  }
+
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateInvoiceDto: UpdateInvoiceDto) {
     return this.invoicesService.update(+id, updateInvoiceDto);
