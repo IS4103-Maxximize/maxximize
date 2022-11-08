@@ -179,6 +179,7 @@ export const ReceivedPurchaseOrderViewDialog = (props) => {
 
   const onClose = () => {
     formik.setFieldValue('poLineItems', []);
+    formik.setFieldValue('followUpLineItems', []);
     formik.resetForm();
     handleClose();
   };
@@ -214,7 +215,7 @@ export const ReceivedPurchaseOrderViewDialog = (props) => {
           ? purchaseOrder.followUpLineItems?.map((item) => {
               return {
                 id: item.id,
-                price: item.price,
+                price: item.subTotal,
                 quantity: item.quantity,
                 rawMaterial: item.rawMaterial,
                 finalGood: item.finalGood,
@@ -432,7 +433,7 @@ export const ReceivedPurchaseOrderViewDialog = (props) => {
                 <DataGrid
                   autoHeight
                   rows={formik.values.purchaseOrderLineItems}
-                  columns={columns}
+                  columns={poColumns}
                   pageSize={5}
                   rowsPerPageOptions={[5]}
                   // onSelectionModelChange={(ids) => setSelectedRows(ids)}

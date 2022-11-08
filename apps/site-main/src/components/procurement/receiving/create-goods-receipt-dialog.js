@@ -86,6 +86,7 @@ export const CreateGoodsReceiptDialog = ({
         quantity: Number(followUpProduct.quantity),
         rawMaterialId: followUpProduct.rawMaterial.id,
         finalGoodId: followUpProduct.finalGood.id,
+        unitPrice: Number(followUpProduct.price),
       })
     );
 
