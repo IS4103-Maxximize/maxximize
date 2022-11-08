@@ -347,7 +347,7 @@ export class MembershipsService {
   return parsedInvoices
  }
 
- async getInvoicesOfSubsciption(subscriptionId: string) {
+ async getInvoicesOfSubscription(subscriptionId: string) {
   const allInvoicesObject = await this.stripe.invoices.list({
     subscription: subscriptionId
   })
