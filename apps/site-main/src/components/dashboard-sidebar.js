@@ -69,7 +69,7 @@ const standalone = [
     icon: <CorporateFareIcon fontSize="small" />,
     title: 'Business Relations',
     subsystemName: '',
-    access: ['admin', 'superadmin'],
+    access: ['admin', 'manager', 'superadmin'],
   },
 ];
 

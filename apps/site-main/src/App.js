@@ -109,9 +109,15 @@ const routes = (
             {/* Placeholder Dashboard */}
             <Route path="/" element={<Dashboard />}></Route>
 
+          {/* Routes for Manager and Admin */}
           <Route 
             element={<RequireAuth requiredRoles={[ROLES.Admin, ROLES.Manager, ROLES.SuperAdmin]}/>}
           >
+            {/* Business Relations */}
+            <Route
+              path="businessrelations"
+              element={<BusinessRelations />}
+            ></Route>
             {/* Finance Management */}
             {/* Revenue-Costs */}
             <Route
@@ -130,30 +136,19 @@ const routes = (
             ></Route> */}
           </Route>
 
-          {/* Protected Routes for Manager*/}
+          {/* Product Management */}
+          {/* Protected Routes for Admin Specifically */}
           <Route
             element={
-              <RequireAuth requiredRoles={[ROLES.Manager, ROLES.SuperAdmin]} />
+              <RequireAuth requiredRoles={[ROLES.Admin, ROLES.SuperAdmin]} />
             }
           >
-            {/* Product Management */}
-            {/* Protected Routes for Admin Specifically */}
+            {/* Worker Management */}
             <Route
-              element={
-                <RequireAuth requiredRoles={[ROLES.Admin, ROLES.SuperAdmin]} />
-              }
-            >
-              {/* Worker Management */}
-              <Route
-                path="workermanagement"
-                element={<WorkerManagement />}
-              ></Route>
-              {/* Business Relations */}
-              <Route
-                path="businessrelations"
-                element={<BusinessRelations />}
-              ></Route>
-            </Route>
+              path="workermanagement"
+              element={<WorkerManagement />}
+            ></Route>
+          </Route>
 
             {/* Protected Routes for Manager*/}
             <Route
@@ -248,50 +243,50 @@ const routes = (
             element={<DeliveryFleetManagement />}
             ></Route>
 
-              {/* Production */}
-              {/* Production Modules */}
-              <Route
-                path="production/bill-of-material"
-                element={<BillOfMaterial />}
-              ></Route>
-              <Route
-                path="production/machine"
-                element={<MachineManagement />}
-              ></Route>
-              <Route
-                path="production/production-line"
-                element={<ProductionLineManagement />}
-              ></Route>
-              <Route
-                path="production/production-request"
-                element={<ProductionRequest />}
-              ></Route>
-              <Route
-                path="production/production-order"
-                element={<ProductionOrder />}
-              ></Route>
+            {/* Production */}
+            {/* Production Modules */}
+            <Route
+              path="production/bill-of-material"
+              element={<BillOfMaterial />}
+            ></Route>
+            <Route
+              path="production/machine"
+              element={<MachineManagement />}
+            ></Route>
+            <Route
+              path="production/production-line"
+              element={<ProductionLineManagement />}
+            ></Route>
+            <Route
+              path="production/production-request"
+              element={<ProductionRequest />}
+            ></Route>
+            <Route
+              path="production/production-order"
+              element={<ProductionOrder />}
+            ></Route>
 
-              {/* Delivery Fleet */}
-              {/* Delivery Fleet Module */}
-              <Route path="deliveryFleetManagement" element={<DeliveryFleetManagement />}></Route>
+            {/* Delivery Fleet */}
+            {/* Delivery Fleet Module */}
+            <Route path="deliveryFleetManagement" element={<DeliveryFleetManagement />}></Route>
 
-              {/* Inventory */}
-              {/* Inventory Modules */}
-              <Route path="inventory/warehouse" element={<Warehouse />}></Route>
-              <Route path="inventory/warehouse/rack" element={<Rack />}></Route>
-              <Route
-                path="inventory/warehouse/rack/bin"
-                element={<Bin />}
-              ></Route>
-              <Route
-                path="inventory/warehouse/rack/bin/details"
-                element={<BinDetails />}
-              ></Route>
-              <Route path="inventory/masterlist" element={<Masterlist />}></Route>
-              <Route
-                path="inventory/masterlist/lineItems"
-                element={<MasterlistLineItems />}
-              ></Route>
+            {/* Inventory */}
+            {/* Inventory Modules */}
+            <Route path="inventory/warehouse" element={<Warehouse />}></Route>
+            <Route path="inventory/warehouse/rack" element={<Rack />}></Route>
+            <Route
+              path="inventory/warehouse/rack/bin"
+              element={<Bin />}
+            ></Route>
+            <Route
+              path="inventory/warehouse/rack/bin/details"
+              element={<BinDetails />}
+            ></Route>
+            <Route path="inventory/masterlist" element={<Masterlist />}></Route>
+            <Route
+              path="inventory/masterlist/lineItems"
+              element={<MasterlistLineItems />}
+            ></Route>
 
 
             {/* Fulfilment */}
@@ -337,7 +332,6 @@ const routes = (
 
       {/* catch all */}
       <Route path="*" element={<NotFound />}></Route>
-      </Route>
     </Route>
   </Routes>
 );
