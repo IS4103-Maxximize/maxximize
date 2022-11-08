@@ -8,5 +8,6 @@ export class CreatePurchaseOrderDto {
     supplierId?: number
     quotationId?: number;
     userContactId: number;
+    date?: Date;
     poLineItemDtos: CreatePurchaseOrderLineItemDto[];
 }

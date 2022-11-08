@@ -25,8 +25,16 @@ export default function OrganisationSelection() {
       if (response.status === 200 || response.status === 201) {
         //if organisation is found
         const result = await response.json();
-        //navigate to the login page with id of the organisation
-        navigate(`/login/${result.id}`);
+
+        if (!result.isActive) {
+          formik.values.authenticationError = 'Organisation is suspended';
+        } else if (result.type !== 'manufacturer') {
+          formik.values.authenticationError =
+            'Organisation is not a manufacturer';
+        } else {
+          //navigate to the login page with id of the organisation
+          navigate(`/login/${result.id}`);
+        }
       } else {
         formik.values.authenticationError = 'Organisation Code is invalid';
       }
