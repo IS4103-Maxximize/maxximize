@@ -11,18 +11,17 @@ import { useFormik } from 'formik';
 import CloseIcon from '@mui/icons-material/Close';
 import { useEffect, useState } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
-import DayJS from 'dayjs';
 
-export const InvoiceDialog = (props) => {
-  const { open, handleClose, organisation } = props;
+export const SubscriptionInvoiceDialog = (props) => {
+  const { open, handleClose, subscription } = props;
 
   const [error, setError] = useState('');
   const [invoices, setInvoices] = useState([]);
 
-  // Retrieve all invoices
-  const retrieveAllInvoicesOfCustomer = async () => {
+  // Retrieve all subscriptions invoices
+  const retrieveAllInvoiceOfSubscriptions = async () => {
     const response = await fetch(
-      `http://localhost:3000/api/memberships/stripe/invoices/customers/${organisation?.membership?.customerId}`
+      `http://localhost:3000/api/memberships/stripe/invoices/subscriptions/${subscription.id}`
     );
     let result = [];
 
@@ -33,35 +32,7 @@ export const InvoiceDialog = (props) => {
     setInvoices(result);
   };
 
-  // Retrieve membership details
-  //   const retrieveMembership = async () => {
-  //     const response = await fetch(
-  //       `http://localhost:3000/api/memberships/orgId/${organisation.id}`
-  //     );
-
-  //     if (response.status == 200 || response.status == 201) {
-  //       const result = await response.json();
-  //       return result;
-  //     } else {
-  //       const result = await response.json();
-  //       setError(result.message);
-  //     }
-  //   };
-
-  useEffect(() => {
-    if (organisation) {
-      retrieveAllInvoicesOfCustomer();
-    }
-  }, [open]);
-
-  // Delete Confirm dialog
-  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
-  const handleConfirmDialogOpen = () => {
-    setConfirmDialogOpen(true);
-  };
-  const handleConfirmDialogClose = () => {
-    setConfirmDialogOpen(false);
-  };
+  useEffect(() => retrieveAllInvoiceOfSubscriptions, [open]);
 
   // Close dialog
   const onClose = () => {
@@ -69,12 +40,12 @@ export const InvoiceDialog = (props) => {
     setError('');
   };
 
-  // Columns for invoices datagrid
+  // Columns for subscription datagrid
   const invoiceColumns = [
     {
       field: 'id',
       headerName: 'ID',
-      flex: 3,
+      flex: 1,
     },
     {
       field: 'created',
@@ -83,8 +54,6 @@ export const InvoiceDialog = (props) => {
       valueGetter: (params) => {
         return params.row ? params.row.created : '';
       },
-      valueFormatter: (params) =>
-        DayJS(params?.value).format('DD MMM YYYY hh:mm a'),
     },
     {
       field: 'total',
@@ -123,7 +92,7 @@ export const InvoiceDialog = (props) => {
               <CloseIcon />
             </IconButton>
             <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
-              Invoices
+              Subscription Invoices
             </Typography>
           </Toolbar>
         </AppBar>

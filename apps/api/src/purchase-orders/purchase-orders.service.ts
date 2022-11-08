@@ -401,7 +401,7 @@ export class PurchaseOrdersService {
         const shellOrg = await this.shellOrganisationsService.retrieveShellOrgFromUen(purchaseOrderToUpdate.supplier.id, purchaseOrderToUpdate.currentOrganisation.uen)
         shellOrg.currentCredit += purchaseOrderToUpdate.totalPrice
         await this.shellOrganisationsRepository.save(shellOrg)
-      } else if (key == 'status' && value == PurchaseOrderStatus.CLOSED){
+      } else if (key == 'status' && purchaseOrderToUpdate.invoice && value == PurchaseOrderStatus.CLOSED){
         const shellOrg = await this.shellOrganisationsService.retrieveShellOrgFromUen(purchaseOrderToUpdate.supplier.id, purchaseOrderToUpdate.currentOrganisation.uen)
         shellOrg.currentCredit -= purchaseOrderToUpdate.totalPrice
         await this.shellOrganisationsRepository.save(shellOrg)
