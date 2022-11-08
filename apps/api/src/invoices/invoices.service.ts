@@ -56,25 +56,41 @@ export class InvoicesService {
   }
 
   async findSentInvoicesByOrg(id: number) {
-    const purchaseOrders = await this.purchaseOrdersService.findReceivedPurchaseOrderByOrg(id)
-    let invoices : Invoice[] = []
-    for (const purchaseOrder of purchaseOrders) {
-      if (purchaseOrder.invoice) {
-        invoices.push(purchaseOrder.invoice)
+    return this.invoicesRepository.find({
+      where: {
+        po: {
+          supplierId: id
+        }
+      }, relations: {
+        po: {
+          currentOrganisation: {
+            accountInfo: true
+          },
+          supplier: {
+            accountInfo: true
+          }
+        }
       }
-    }
-    return invoices
+    });
   }
 
   async findIncomingInvoicesByOrg(id: number) {
-    const purchaseOrders = await this.purchaseOrdersService.findSentPurchaseOrderByOrg(id)
-    let invoices : Invoice[] = []
-    for (const purchaseOrder of purchaseOrders) {
-      if (purchaseOrder.invoice) {
-        invoices.push(purchaseOrder.invoice)
+    return this.invoicesRepository.find({
+      where: {
+        po: {
+          currentOrganisationId: id
+        }
+      }, relations: {
+        po: {
+          currentOrganisation: {
+            accountInfo: true
+          },
+          supplier: {
+            accountInfo: true
+          }
+        }
       }
-    }
-    return invoices
+    });
   }
 
   async update(id: number, updateInvoiceDto: UpdateInvoiceDto) {

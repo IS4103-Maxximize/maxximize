@@ -13,4 +13,5 @@ export class UpdateMembershipDto extends PartialType(CreateMembershipDto) {
     planAmount?: number
     status?: MembershipStatus
     defaultPayment?: string
+    commisionPayment?: string
 }
