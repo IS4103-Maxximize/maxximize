@@ -245,13 +245,26 @@ const salesInquiryStatusColorMap = {
   'expired': 'expired'
 }
 const purchaseOrderStatusColorMap = {
-  'pending': 'draft',
-  'partiallyfulfilled': 'expired',
-  'fulfilled': 'primary',
+  // CREATEDVIACSV = 'createdviacsv',
+  // PENDING = 'pending',
+  // REJECTED = 'rejected',
+  // ACCEPTED = 'accepted',
+  // PRODUCTION = 'production',
+  // PRODUCTIONCOMPLETED = 'productioncompleted',
+  // DELIVERY = 'delivery',
+  // PARTIALLYFULFILLED = 'partiallyfulfilled',
+  // FULFILLED = 'fulfilled',
+  // CLOSED = 'closed'
+  'createdviacsv': 'draft',
+  'pending': 'warning',
   'rejected': 'error',
   'accepted': 'success',
+  'production': 'warning',
+  'productioncompleted': 'success',
   'delivery': 'warning',
-  'production': 'expired'
+  'partiallyfulfilled': 'expired',
+  'fulfilled': 'primary',
+  'closed': 'draft'
 }
 
 const prodOrderStatusColorMap = {
@@ -323,6 +336,11 @@ const deliveryRequestStatusColorMap = {
   'completed': 'success'
 }
 
+const invoiceStatusColorMap = {
+  'pending': 'primary',
+  'paid': 'success',
+  'closed': 'draft'
+}
 
 export {
   apiHost,
@@ -341,6 +359,7 @@ export {
   prodOrderStatusStringMap,
   prodOrderScheduleStatusColorMap,
   deliveryRequestStatusStringMap,
-  deliveryRequestStatusColorMap
+  deliveryRequestStatusColorMap,
+  invoiceStatusColorMap
 };
 
