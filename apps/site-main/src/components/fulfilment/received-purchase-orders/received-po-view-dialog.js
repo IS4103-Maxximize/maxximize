@@ -1,25 +1,22 @@
 import CloseIcon from '@mui/icons-material/Close';
 import {
-  AppBar,
-  Autocomplete,
-  Button,
+  AppBar, Button,
   Dialog,
   DialogContent,
   IconButton,
-  InputAdornment,
-  Stack,
-  TextField,
+  InputAdornment, TextField,
   Toolbar,
-  Typography,
+  Typography
 } from '@mui/material';
+import { Box } from '@mui/system';
 import { DataGrid } from '@mui/x-data-grid';
+import { apiHost } from '../../../helpers/constants';
+import DayJS from 'dayjs';
 import { useFormik } from 'formik';
 import { useEffect, useState } from 'react';
-import * as Yup from 'yup';
-import DayJS from 'dayjs';
-import { Box } from '@mui/system';
-import { ReceivedPurchaseOrderConfirmDialog } from './received-po-confirm-dialog';
+import { UpdateCreditDialog } from '../../finance/update-retailer-credit-dialog';
 import { ProcessPurchaseOrderDialog } from './process-po-dialog';
+import { ReceivedPurchaseOrderConfirmDialog } from './received-po-confirm-dialog';
 
 export const ReceivedPurchaseOrderViewDialog = (props) => {
   const user = JSON.parse(localStorage.getItem('user'));
@@ -31,7 +28,11 @@ export const ReceivedPurchaseOrderViewDialog = (props) => {
     purchaseOrder,
     handleAlertOpen,
     retrieveAllReceivedPurchaseOrders,
+    retailer
   } = props;
+
+  const [ret, setRet] = useState(retailer);
+  const [creditRequired, setCreditRequired] = useState(0)
 
   // Formik Helpers
   const initialValues = {
@@ -44,33 +45,6 @@ export const ReceivedPurchaseOrderViewDialog = (props) => {
     purchaseOrderLineItems: purchaseOrder ? purchaseOrder.poLineItems : [],
     followUpLineItems: purchaseOrder ? purchaseOrder.followUpLineItems : [],
   };
-
-  // Handle on submit may be more of a redirecting function to another dialog
-  // The next dialog will handle reserve, creation of Prod R and DR
-  //   const handleOnSubmit = async (values) => {
-  // const response = await fetch('http://localhost:3000/api/quotations', {
-  //   method: 'POST',
-  //   headers: {
-  //     Accept: 'application/json',
-  //     'Content-Type': 'application/json',
-  //   },
-  //   body: JSON.stringify({
-  //     organisationId: organisationId,
-  //     name: formik.values.name,
-  //     address: formik.values.address,
-  //     description: formik.values.description,
-  //   }),
-  // });
-  // if (response.status === 200 || response.status === 201) {
-  //   const result = await response.json();
-  //   handleAlertOpen(`Sent Quotation ${result.id} successfully`);
-  //   setError('');
-  //   handleClose();
-  // } else {
-  //   const result = await response.json();
-  //   setError(result.message);
-  // }
-  //   };
 
   // Accept a purchase order (Status change)
   const handleAccept = async () => {
@@ -192,6 +166,11 @@ export const ReceivedPurchaseOrderViewDialog = (props) => {
   });
 
   useEffect(() => {
+    if (open) {
+      setRet(retailer);
+      setCreditRequired(Math.max(0, purchaseOrder.totalPrice - (retailer.creditLimit - retailer.currentCredit)))
+    }
+
     console.log(purchaseOrder);
     formik.setFieldValue(
       'purchaseOrderLineItems',
@@ -234,6 +213,33 @@ export const ReceivedPurchaseOrderViewDialog = (props) => {
   const handleConfirmDialogClose = () => {
     setConfirmDialogOpen(false);
   };
+
+  // Update Credit Dialog Helpers
+  const [creditDialogOpen, setCreditDialogOpen] = useState(false);
+  const handleCreditDialogOpen = () => {
+    setCreditDialogOpen(true);
+  };
+  const handlecreditDialogClose = () => {
+    setCreditDialogOpen(false);
+  };
+
+  const getUpdatedRetailer = async () => {
+    const url = `${apiHost}/shell-organisations/${retailer?.id}`;
+    await fetch(url)
+      .then(res => res.json())
+      .then(result => {
+        console.log(result)
+        setRet(result)
+        setCreditRequired(Math.max(0, formik.values.totalPrice - (result.creditLimit - result.currentCredit)))
+      })
+      .catch(err => console.log(err));
+  }
+
+  useEffect(() => {
+    if (!creditDialogOpen) {
+      getUpdatedRetailer();
+    }
+  }, [creditDialogOpen])
 
   // DataGrid Helpers
   const columns = [
@@ -306,6 +312,13 @@ export const ReceivedPurchaseOrderViewDialog = (props) => {
         retrieveAllReceivedPurchaseOrders={retrieveAllReceivedPurchaseOrders}
         closeReceivedPODialog={onClose}
       />
+      <UpdateCreditDialog
+        open={creditDialogOpen}
+        handleClose={handlecreditDialogClose}
+        retailer={ret}
+        creditRequired={creditRequired}
+        handleAlertOpen={handleAlertOpen}
+      />
       <form onSubmit={formik.handleSubmit}>
         <Dialog fullScreen open={open} onClose={onClose}>
           <AppBar sx={{ position: 'relative' }}>
@@ -321,19 +334,9 @@ export const ReceivedPurchaseOrderViewDialog = (props) => {
               <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
                 View Purchase Order
               </Typography>
-              {purchaseOrder?.status === 'pending' ? (
+              {(ret && purchaseOrder?.status === 'pending') ? (
                 <>
-                  <Button
-                    autoFocus
-                    color="error"
-                    size="medium"
-                    type="submit"
-                    variant="contained"
-                    onClick={handleConfirmDialogOpen}
-                    sx={{ marginRight: 2 }}
-                  >
-                    Reject
-                  </Button>
+                  {(ret && creditRequired <= 0) &&
                   <Button
                     autoFocus
                     color="inherit"
@@ -343,6 +346,29 @@ export const ReceivedPurchaseOrderViewDialog = (props) => {
                     onClick={handleAccept}
                   >
                     Accept
+                  </Button>}
+                  {creditRequired > 0 && 
+                  <>
+                  <Typography>{`Credit Required: $${creditRequired}`}</Typography>
+                  <Button
+                    variant="contained"
+                    color="warning"
+                    onClick={handleCreditDialogOpen}
+                    sx={{ ml: 1 }}
+                  >
+                    Update Credit Limit
+                  </Button>
+                  </>}
+                  <Button
+                    autoFocus
+                    color="error"
+                    size="medium"
+                    type="submit"
+                    variant="contained"
+                    onClick={handleConfirmDialogOpen}
+                    sx={{ ml: 2 }}
+                  >
+                    Reject
                   </Button>
                 </>
               ) : (
