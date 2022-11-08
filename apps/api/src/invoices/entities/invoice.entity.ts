@@ -10,6 +10,9 @@ export class Invoice {
 
     @Column()
     date: Date
+
+    @Column({nullable: true})
+    paymentReceived: Date
     
     @Column()
     amount: number
