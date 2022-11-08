@@ -22,7 +22,7 @@ export const PricingPage = () => {
 
   useEffect(() => {
     checkMembership();
-  }, [])
+  })
 
   return (
     <>
