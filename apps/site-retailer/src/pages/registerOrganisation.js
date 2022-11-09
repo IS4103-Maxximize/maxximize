@@ -240,7 +240,7 @@ export const RegisterOrganisation = () => {
   const formik = useFormik({
     initialValues: {
       orgName: '',
-      orgType: 'manufacturer',
+      orgType: 'retailer',
       uen: '',
       orgEmail: '',
       orgAddress: '',

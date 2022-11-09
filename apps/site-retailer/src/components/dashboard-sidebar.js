@@ -22,41 +22,41 @@ import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import { Logo } from './logo';
 
 const standalone = [
-  //   {
-  //     href: '/onboarding',
-  //     icon: <DomainAddIcon fontSize="small" />,
-  //     title: 'Onboarding',
-  //     access: ['admin', 'superadmin'],
-  //   },
+  {
+    href: '/suppliers',
+    icon: <BusinessIcon fontSize="small" />,
+    title: 'View Suppliers',
+    access: ['admin', 'superadmin'],
+  },
 ];
 
 const items = [
-  {
-    subsystem: 'Client',
-    access: ['admin', 'superadmin'],
-    icon: (
-      <PeopleAltIcon
-        sx={{ marginTop: 0.2, color: '#9CA3AF' }}
-        fontSize="small"
-      />
-    ),
-    open: 'openClient',
-    handleClick: 'handleClientClick',
-    modules: [
-      {
-        href: '/client/application',
-        icon: <ContactPageIcon fontSize="small" />,
-        title: 'Application',
-        access: ['admin', 'superadmin'],
-      },
-      {
-        href: '/client/organisation-management',
-        icon: <BusinessIcon fontSize="small" />,
-        title: 'Organisation Management',
-        access: ['admin', 'superadmin'],
-      },
-    ],
-  },
+  //   {
+  //     subsystem: 'Client',
+  //     access: ['admin', 'superadmin'],
+  //     icon: (
+  //       <PeopleAltIcon
+  //         sx={{ marginTop: 0.2, color: '#9CA3AF' }}
+  //         fontSize="small"
+  //       />
+  //     ),
+  //     open: 'openClient',
+  //     handleClick: 'handleClientClick',
+  //     modules: [
+  //       {
+  //         href: '/client/application',
+  //         icon: <ContactPageIcon fontSize="small" />,
+  //         title: 'Application',
+  //         access: ['admin', 'superadmin'],
+  //       },
+  //       {
+  //         href: '/client/organisation-management',
+  //         icon: <BusinessIcon fontSize="small" />,
+  //         title: 'Organisation Management',
+  //         access: ['admin', 'superadmin'],
+  //       },
+  //     ],
+  //   },
 ];
 
 export const DashboardSidebar = (props) => {
@@ -93,11 +93,16 @@ export const DashboardSidebar = (props) => {
             disableRipple
             sx={{
               backgroundColor:
-                module.href === pathname && 'rgba(255,255,255, 0.08)',
+                module.href === '/' + pathname.split('/')[1] &&
+                'rgba(255,255,255, 0.08)',
               borderRadius: 1,
               color:
-                module.href === pathname ? 'secondary.main' : 'neutral.300',
-              fontWeight: module.href === pathname && 'fontWeightBold',
+                module.href === '/' + pathname.split('/')[1]
+                  ? '#FE2472'
+                  : 'neutral.300',
+              fontWeight:
+                module.href === '/' + pathname.split('/')[1] &&
+                'fontWeightBold',
               justifyContent: 'flex-start',
               px: 3,
               textAlign: 'left',
@@ -105,7 +110,9 @@ export const DashboardSidebar = (props) => {
               width: '100%',
               '& .MuiButton-startIcon': {
                 color:
-                  module.href === pathname ? 'secondary.main' : 'neutral.400',
+                  module.href === '/' + pathname.split('/')[1]
+                    ? '#FE2472'
+                    : 'neutral.400',
               },
               '&:hover': {
                 backgroundColor: 'rgba(255,255,255, 0.08)',

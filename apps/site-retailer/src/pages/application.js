@@ -1,18 +1,11 @@
-import {
-  Box,
-  Button,
-  Card,
-  Container,
-  IconButton,
-  Typography,
-} from '@mui/material';
+import MoreVert from '@mui/icons-material/MoreVert';
+import { Box, Card, Container, IconButton } from '@mui/material';
+import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import { useEffect, useState } from 'react';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
-import { NotificationAlert } from '../components/notification-alert';
-import { ApplicationMenu } from '../components/client/application/application-menu';
-import MoreVert from '@mui/icons-material/MoreVert';
-import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import { ApplicationDialog } from '../components/client/application/application-dialog';
+import { ApplicationMenu } from '../components/client/application/application-menu';
+import { NotificationAlert } from '../components/notification-alert';
 import { Toolbar } from '../components/toolbar';
 
 const Application = () => {
