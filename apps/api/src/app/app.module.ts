@@ -29,6 +29,7 @@ import { MembershipsModule } from '../memberships/memberships.module';
 import { OrderLineItemsModule } from '../order-line-items/order-line-items.module';
 import { OrdersModule } from '../orders/orders.module';
 import { OrganisationsModule } from '../organisations/organisations.module';
+import { OutletsModule } from '../outlets/outlets.module';
 import { ProductionLineItemsModule } from '../production-line-items/production-line-items.module';
 import { ProductionLinesModule } from '../production-lines/production-lines.module';
 import { ProductionOrdersModule } from '../production-orders/production-orders.module';
@@ -135,7 +136,8 @@ import { AppService } from './app.service';
     }),
     StripeModule,
     RevenueModule,
-    RevenueBracketsModule
+    RevenueBracketsModule,
+    OutletsModule
   ],
   controllers: [AppController],
   providers: [AppService],

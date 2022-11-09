@@ -22,6 +22,11 @@ export class CartsController {
     return this.cartsService.findOne(+id);
   }
 
+  @Get('/orgId/:id')
+  findCartsByOrg(@Param('id') id: string) {
+    return this.cartsService.findByOrg(+id)
+  }
+
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateCartDto: UpdateCartDto) {
     return this.cartsService.update(+id, updateCartDto);
