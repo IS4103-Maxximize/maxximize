@@ -20,16 +20,18 @@ export const SubscriptionInvoiceDialog = (props) => {
 
   // Retrieve all subscriptions invoices
   const retrieveAllInvoiceOfSubscriptions = async () => {
-    const response = await fetch(
-      `http://localhost:3000/api/memberships/stripe/invoices/subscriptions/${subscription.id}`
-    );
-    let result = [];
+    if (subscription) {
+      const response = await fetch(
+        `http://localhost:3000/api/memberships/stripe/invoices/subscriptions/${subscription?.id}`
+      );
+      let result = [];
 
-    if (response.status == 200 || response.status == 201) {
-      result = await response.json();
+      if (response.status == 200 || response.status == 201) {
+        result = await response.json();
+      }
+
+      setInvoices(result);
     }
-
-    setInvoices(result);
   };
 
   useEffect(() => retrieveAllInvoiceOfSubscriptions, [open]);
