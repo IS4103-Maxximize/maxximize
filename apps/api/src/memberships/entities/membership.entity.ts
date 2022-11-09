@@ -52,6 +52,9 @@ export class Membership {
     @JoinColumn()
     organisation: Organisation
 
+    @Column({nullable: true})
+    commisionPayment: string
+
 
 
 }

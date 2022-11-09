@@ -52,18 +52,13 @@ export class CartsService {
   }
 
   async findByOrg(orgId: number) {
-    try {
-      return await this.cartsRepository.findOneOrFail({
-        where: {
-          organisationId: orgId
-        }, relations: {
-          organisation: true,
-          cartLineItems: true
-        }
-      })
-    } catch (error) {
-      throw new NotFoundException(`no cart associated with this organisation`)
-    }
+    return this.cartsRepository.find({
+      where: {
+        organisationId: orgId
+      }, relations: {
+        cartLineItems: true
+      }
+    })
   }
 
   async update(id: number, updateCartDto: UpdateCartDto) {
