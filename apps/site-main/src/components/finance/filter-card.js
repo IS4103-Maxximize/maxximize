@@ -18,6 +18,7 @@ export const FilterCard = (props) => {
     type,
     handleType,
     reset,
+    handleSearch,
     ...rest
   } = props;
 
@@ -35,6 +36,7 @@ export const FilterCard = (props) => {
                 || (!from && !to)
               }
               color='primary'
+              onClick={handleSearch}
             >
               <SearchIcon />
             </IconButton>
@@ -96,18 +98,6 @@ export const FilterCard = (props) => {
               onChange={setFrom}
               renderInput={(params) => <TextField {...params} sx={{ m: 1, width: 250 }}/>}
               disableFuture
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start" sx={{ ml: -1 }}>
-                    <IconButton
-                      onClick={() => setFrom(null)}
-                      disabled={!from}
-                    >
-                      <ClearIcon />
-                    </IconButton>
-                  </InputAdornment>
-                )
-              }}
             />
             <DatePicker
               views={type === 'month' ? ['year', 'month'] : ['year']}
@@ -116,18 +106,6 @@ export const FilterCard = (props) => {
               onChange={setTo}
               renderInput={(params) => <TextField {...params} sx={{ m: 1, width: 250 }} />}
               disableFuture
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start" sx={{ ml: -1 }}>
-                  <IconButton
-                    onClick={() => setTo(null)}
-                    disabled={!to}
-                  >
-                    <ClearIcon />
-                  </IconButton>
-                  </InputAdornment>
-                )
-              }}
             />
           </Box>}
         </Box>
