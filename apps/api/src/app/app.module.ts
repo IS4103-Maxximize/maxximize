@@ -16,6 +16,7 @@ import { BulkDiscountsModule } from '../bulk-discounts/bulk-discounts.module';
 import { CartLineItemsModule } from '../cart-line-items/cart-line-items.module';
 import { CartsModule } from '../carts/carts.module';
 import { ContactsModule } from '../contacts/contacts.module';
+import { CostModule } from '../cost/cost.module';
 import { DeliveryRequestLineItemsModule } from '../delivery-request-line-items/delivery-request-line-items.module';
 import { DeliveryRequestsModule } from '../delivery-requests/delivery-requests.module';
 import { FactoryMachinesModule } from '../factory-machines/factory-machines.module';
@@ -137,7 +138,8 @@ import { AppService } from './app.service';
     StripeModule,
     RevenueModule,
     RevenueBracketsModule,
-    OutletsModule
+    OutletsModule,
+    CostModule
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -88,6 +88,18 @@ export class SchedulesService {
     });
   }
 
+  findAllByOrg(orgId: number) {
+    return this.scheduleRepository.find({
+      where: {
+        productionOrder: {
+          organisationId: orgId
+        }
+      }, relations: {
+        productionLine: true
+      }
+    })
+  }
+
   async findOne(id: number) {
     try {
       const schedule = await this.scheduleRepository.findOne({where: {
