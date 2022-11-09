@@ -21,8 +21,10 @@ export const RevenueDialog = (props) => {
   const [rows, setRows] = useState([]);
   useEffect(() => {
     if (open && revenue) {
-      setRows(revenue.lineItems.sort(
-        (a, b) => DayJS(a.paymentReceived) - DayJS(b.paymentReceived)))
+      // slice to prevent frozen array error
+      const lineItems = revenue.lineItems.slice() 
+        .sort((a, b) => DayJS(a.paymentReceived) - DayJS(b.paymentReceived))
+      setRows(lineItems)
     }
   }, [open])
 
