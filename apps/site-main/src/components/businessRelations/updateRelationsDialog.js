@@ -1,18 +1,11 @@
 import {
-    Button,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    TextField,
-    useTheme,
-    Box,
-    Typography,
-    responsiveFontSizes,
-  } from '@mui/material';
-  import useMediaQuery from '@mui/material/useMediaQuery';
-  import { useFormik } from 'formik';
+  Box, Button,
+  Dialog, DialogContent, DialogTitle, TextField, Typography, useTheme
+} from '@mui/material';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { useFormik } from 'formik';
 import { useState } from 'react';
-  import * as Yup from 'yup';
+import * as Yup from 'yup';
 
 export const UpdateRelationsDialog = ({
     openUpdateDialog,
@@ -26,6 +19,7 @@ export const UpdateRelationsDialog = ({
         postalCode: rowData ? rowData.contact.postalCode : null,
         phoneNumber: rowData ? rowData.contact.phoneNumber : null,
         email: rowData ? rowData.contact.email : null,
+        creditLimit: rowData ? rowData.creditLimit : 1,
         error: ''
     }
     const theme = useTheme();
@@ -46,6 +40,7 @@ export const UpdateRelationsDialog = ({
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          creditLimit: formik.values.creditLimit,
           contact: {
             address: formik.values.address,
             email: formik.values.email,
@@ -64,7 +59,7 @@ export const UpdateRelationsDialog = ({
           const result = await response.json()
           setError(result.message)
         }
-  };
+    };
   
     const formik = useFormik({
       initialValues: initialValues,
@@ -88,6 +83,10 @@ export const UpdateRelationsDialog = ({
         .max(16, 'Phone number can at most be 16 digits')
         .matches(new RegExp('[0-9]'), 'Phone number should only contain digits')
         .required('Phone Number is required'),
+        creditLimit: Yup.number()
+        .min(rowData ? rowData.currentCredit : 1, 
+          `Credit Limit must be more than Current Credit: ${rowData ? rowData.currentCredit : 1}`)
+        .required('Credit Limit is required'),
       }),
       onSubmit: handleOnSubmit
     });
@@ -104,6 +103,20 @@ export const UpdateRelationsDialog = ({
         </DialogTitle>
         <DialogContent>
           <form onSubmit={formik.handleSubmit}>
+          <TextField
+            error={Boolean(formik.touched.creditLimit && formik.errors.creditLimit)}
+            fullWidth
+            helperText={formik.touched.creditLimit && formik.errors.creditLimit}
+            label="Credit Limit"
+            margin="normal"
+            name="creditLimit"
+            onBlur={formik.handleBlur}
+            onChange={formik.handleChange}
+            value={formik.values.creditLimit}
+            variant="outlined"
+            type="number"
+            size="small"
+          />
           <TextField
             error={Boolean(formik.touched.address && formik.errors.address)}
             fullWidth
