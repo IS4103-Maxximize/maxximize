@@ -21,16 +21,18 @@ export const InvoiceDialog = (props) => {
 
   // Retrieve all invoices
   const retrieveAllInvoicesOfCustomer = async () => {
-    const response = await fetch(
-      `http://localhost:3000/api/memberships/stripe/invoices/customers/${organisation?.membership?.customerId}`
-    );
-    let result = [];
+    if (organisation.membership) {
+      const response = await fetch(
+        `http://localhost:3000/api/memberships/stripe/invoices/customers/${organisation?.membership?.customerId}`
+      );
+      let result = [];
 
-    if (response.status == 200 || response.status == 201) {
-      result = await response.json();
+      if (response.status == 200 || response.status == 201) {
+        result = await response.json();
+      }
+
+      setInvoices(result);
     }
-
-    setInvoices(result);
   };
 
   // Retrieve membership details

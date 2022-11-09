@@ -35,7 +35,7 @@ const NotFound = () => (
           <Box sx={{ textAlign: 'center' }}>
             <img
               alt="Under development"
-              src="/static/images/undraw_page_not_found_su7k.svg"
+              src="/assets/images/undraw_page_not_found_su7k.svg"
               style={{
                 marginTop: 50,
                 display: 'inline-block',
@@ -46,6 +46,7 @@ const NotFound = () => (
           </Box>
           <Link href="/" passHref underline="none">
             <Button
+              color="success"
               component="a"
               startIcon={<ArrowBackIcon fontSize="small" />}
               sx={{ mt: 3 }}
