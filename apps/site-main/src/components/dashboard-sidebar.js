@@ -1,8 +1,10 @@
+import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import AddRoadIcon from '@mui/icons-material/AddRoad';
 import ArchiveIcon from '@mui/icons-material/Archive';
 import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import CardMembershipIcon from '@mui/icons-material/CardMembership';
 import CorporateFareIcon from '@mui/icons-material/CorporateFare';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import DocumentScannerIcon from '@mui/icons-material/DocumentScanner';
@@ -15,6 +17,7 @@ import FindInPageIcon from '@mui/icons-material/FindInPage';
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered';
 import FormatQuoteIcon from '@mui/icons-material/FormatQuote';
+import InsightsIcon from '@mui/icons-material/Insights';
 import Inventory2Icon from '@mui/icons-material/Inventory2';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import LiveHelpIcon from '@mui/icons-material/LiveHelp';
@@ -66,12 +69,44 @@ const standalone = [
     icon: <CorporateFareIcon fontSize="small" />,
     title: 'Business Relations',
     subsystemName: '',
-    access: ['admin', 'superadmin'],
+    access: ['admin', 'manager', 'superadmin'],
   },
-
 ];
 
 const items = [
+  {
+    subsystem: 'Finance',
+    basepath: 'finance',
+    access: ['manager', 'admin', 'superadmin'],
+    icon: (
+      <AccountBalanceIcon 
+        sx={{ marginTop: 0.2, color: '#9CA3AF' }}
+        fontSize="small" 
+      />
+    ),
+    open: 'openFinance',
+    handleClick: 'handleFinanceClick',
+    modules: [
+      {
+        href: '/finance/revenue-cost',
+        icon: <InsightsIcon fontSize="small" />,
+        title: 'Revenue & Cost',
+        access: ['manager', 'admin', 'superadmin'],
+      },
+      {
+        href: '/finance/b2b-invoice',
+        icon: <ReceiptIcon fontSize="small" />,
+        title: 'B2B Invoice',
+        access: ['manager', 'admin', 'superadmin'],
+      },
+      {
+        href: '/finance/subscription-invoice',
+        icon: <CardMembershipIcon fontSize="small" />,
+        title: 'Subscription Invoice',
+        access: ['manager', 'admin', 'superadmin'],
+      },
+    ]
+  },
   {
     subsystem: 'Quality Assurance',
     basepath: 'quality-assurance',
@@ -352,6 +387,13 @@ export const DashboardSidebar = (props) => {
 
   const handleFulfilmentClick = () => {
     setOpenFulfilment(!openFulfilment);
+  };
+
+  // handle finance nested menu
+  const [openFinance, setOpenFinance] = useState(true);
+
+  const handleFinanceClick = () => {
+    setOpenFinance(!openFinance);
   };
 
   const standaloneModules = standalone

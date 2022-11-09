@@ -1,17 +1,19 @@
-import { Box, Card, Container, IconButton } from '@mui/material';
-import { Helmet, HelmetProvider } from 'react-helmet-async';
-import { DataGrid, GridToolbar } from '@mui/x-data-grid';
-import { useEffect, useState } from 'react';
-import SendIcon from '@mui/icons-material/Send';
-import { NotificationAlert } from '../../components/notification-alert';
-import DayJS from 'dayjs';
-import { ReceivedPurchaseOrderConfirmDialog } from '../../components/fulfilment/received-purchase-orders/received-po-confirm-dialog';
+import DomainAddIcon from '@mui/icons-material/DomainAdd';
 import MoreVert from '@mui/icons-material/MoreVert';
+import { Box, Card, Container, IconButton } from '@mui/material';
+import { Stack } from '@mui/system';
+import { DataGrid, GridToolbar } from '@mui/x-data-grid';
+import DayJS from 'dayjs';
+import { useEffect, useState } from 'react';
+import { Helmet, HelmetProvider } from 'react-helmet-async';
+import { RelationsDialog } from '../../components/businessRelations/RelationsDialog';
+import { ReceivedPurchaseOrderConfirmDialog } from '../../components/fulfilment/received-purchase-orders/received-po-confirm-dialog';
 import { ReceivedPurchaseOrderMenu } from '../../components/fulfilment/received-purchase-orders/received-po-menu';
 import { ReceivedPurchaseOrderViewDialog } from '../../components/fulfilment/received-purchase-orders/received-po-view-dialog';
-import { Toolbar } from '../../components/toolbar';
+import { NotificationAlert } from '../../components/notification-alert';
 import { SeverityPill } from '../../components/severity-pill';
-import { purchaseOrderStatusColorMap } from '../../helpers/constants';
+import { Toolbar } from '../../components/toolbar';
+import { apiHost, purchaseOrderStatusColorMap } from '../../helpers/constants';
 
 const ReceivedPurchaseOrder = () => {
   //TODO remove
@@ -23,8 +25,20 @@ const ReceivedPurchaseOrder = () => {
   const user = JSON.parse(localStorage.getItem('user'));
   const organisationId = user.organisation.id;
 
-  //Load in list of purchase orders, initial
+  // Get List of Retailers
+  const [retailers, setRetailers] = useState([]);
+  const getShellOrgs = async () => {
+    await fetch(`${apiHost}/shell-organisations/orgId/${organisationId}`)
+      .then(res => res.json())
+      .then(result => result.filter(org => org.type === 'retailer'))
+      .then(filtered => setRetailers(filtered))
+      .catch(err => console.log(err));
+  }
+
+  // Load in list of purchase orders
+  // and retailer list
   useEffect(() => {
+    getShellOrgs();
     retrieveAllReceivedPurchaseOrders();
   }, []);
 
@@ -63,16 +77,42 @@ const ReceivedPurchaseOrder = () => {
   };
 
   const menuButton = (params) => {
+    const retailer = retailers.find(retailer => retailer.uen === params.row.currentOrganisation.uen);
     return (
-      <IconButton
-        // disabled={params.row.bins?.length == 0}
-        onClick={(event) => {
-          setSelectedRow(params.row);
-          handleMenuClick(event);
-        }}
-      >
-        <MoreVert />
-      </IconButton>
+      <Stack direction="row">
+        {!retailer && 
+        <IconButton
+          color="primary"
+          onClick={() => {
+            setSelectedRow(params.row);
+            const po = params.row;
+            const fields = {
+              name: po.currentOrganisation?.name,
+              uen: po.currentOrganisation?.uen,
+              address: po.currentOrganisation?.orgContact?.address,
+              postalCode: po.currentOrganisation?.orgContact?.postalCode,
+              email: po.currentOrganisation?.orgContact?.email,
+              phoneNumber: po.currentOrganisation?.orgContact?.phoneNumber,
+            }
+            setFields(fields)
+            setOpenRetailerDialog(true)
+          }}
+        >
+          <DomainAddIcon />
+        </IconButton>}
+        <IconButton
+          // disabled={params.row.bins?.length == 0}
+          onClick={(event) => {
+            setSelectedRow(params.row);
+            setFields({
+              retailer: retailer
+            });
+            handleMenuClick(event);
+          }}
+        >
+          <MoreVert />
+        </IconButton>
+      </Stack>
     );
   };
 
@@ -102,6 +142,13 @@ const ReceivedPurchaseOrder = () => {
   const handleClickClose = () => {
     setPurchaseOrderDialogOpen(false);
   };
+
+  useEffect(() => {
+    if (!purchaseOrderDialogOpen) {
+      getShellOrgs();
+      retrieveAllReceivedPurchaseOrders();
+    }
+  }, [purchaseOrderDialogOpen])
 
   //Delete Confirm dialog
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
@@ -183,8 +230,8 @@ const ReceivedPurchaseOrder = () => {
         ),
     },
     {
-      field: 'action',
-      headerName: 'Action',
+      field: 'actions',
+      headerName: 'Actions',
       width: 150,
       flex: 1,
       renderCell: menuButton,
@@ -193,6 +240,10 @@ const ReceivedPurchaseOrder = () => {
 
   //Row for datagrid, set the list returned from API
   const rows = receivedPurchaseOrder;
+
+  // Create Retailer Dialog Helper
+  const [openRetailerDialog, setOpenRetailerDialog] = useState(false);
+  const [fields, setFields] = useState();
 
   return (
     <>
@@ -222,6 +273,15 @@ const ReceivedPurchaseOrder = () => {
         purchaseOrder={selectedRow}
         handleAlertOpen={handleAlertOpen}
         retrieveAllReceivedPurchaseOrders={retrieveAllReceivedPurchaseOrders}
+        retailer={fields?.retailer}
+      />
+      <RelationsDialog
+        fields={fields}
+        openDialog={openRetailerDialog}
+        setOpenDialog={setOpenRetailerDialog}
+        addOrganisation={() => null}
+        type='retailer'
+        orgId={organisationId}
       />
       <Box
         component="main"

@@ -9,5 +9,4 @@ export class CreateShellOrganisationDto {
     organisationId: number;
     currentCredit?: number;
     creditLimit?: number;
-    
 }
