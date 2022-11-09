@@ -1,29 +1,23 @@
-import AddBoxIcon from '@mui/icons-material/AddBox';
 import {
+  Autocomplete,
   Box,
   Breadcrumbs,
   Button,
   Card,
-  CardContent,
-  InputAdornment,
-  Stack,
-  SvgIcon,
-  TextField,
-  Tooltip,
-  Typography,
+  CardContent, TextField, Typography
 } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { procurementBreadcrumbs } from '../../helpers/constants';
-import { Search as SearchIcon } from '../../icons/search';
 
 export const DemandForecastToolbar = (props) => {
-  const { name, ...rest } = props;
+  const { name, finalGoods, setSelectedFinalGood, setPeriod, handleSubmit } = props;
 
   // Get current pathname
   const location = useLocation();
   const [domain, setDomain] = useState('');
   const [subdomain, setSubDomain] = useState('');
+
   useEffect(() => {
     const pathname = location.pathname;
     const domain = pathname.substring(1, pathname.lastIndexOf('/'));
@@ -60,8 +54,28 @@ export const DemandForecastToolbar = (props) => {
                 justifyContent: 'space-between',
                 flexWrap: 'wrap',
                 m: -1,
+                width: '60%',
               }}
-            ></Box>
+            >
+              <Autocomplete
+                sx={{ width: 300 }}
+                options={finalGoods}
+                renderInput={(params) => (
+                  <TextField {...params} label="Final Good" />
+                )}
+                getOptionLabel={(option) =>
+                  `${option.name} - ${option.skuCode}`
+                }
+                onChange={(event, newInputValue) => {
+                  setSelectedFinalGood(newInputValue);
+                }}
+              />
+              <TextField
+                label="Number of periods"
+                onChange={(event) => setPeriod(event.target.value)}
+              />
+              <Button variant="contained" onClick={handleSubmit}>Forecast</Button>
+            </Box>
           </CardContent>
         </Card>
       </Box>

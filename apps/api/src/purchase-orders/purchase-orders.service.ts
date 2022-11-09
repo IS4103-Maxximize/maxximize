@@ -104,7 +104,6 @@ export class PurchaseOrdersService {
           }
           //check Quotation if its a shell or a registered organisation
           if (quotationToBeAdded) {
-            console.log('theres a quotation!')
             const { shellOrganisation, currentOrganisation } = quotationToBeAdded;
             if (shellOrganisation) {
               supplierContact = shellOrganisation.contact;
@@ -115,6 +114,7 @@ export class PurchaseOrdersService {
             }
           } else if (supplierId) {
             supplierOnboarded = await this.organisationsService.findOne(supplierId)
+            supplierContact = supplierOnboarded.contact
           }
           
 
@@ -168,6 +168,7 @@ export class PurchaseOrdersService {
       );
 
       if (supplierOnboarded) {
+        console.log(supplierOnboarded)
         return this.findOne(newPurchaseOrder.id);
       } else {
         const organisation = await this.organisationsService.findOne(
@@ -400,7 +401,7 @@ export class PurchaseOrdersService {
         const shellOrg = await this.shellOrganisationsService.retrieveShellOrgFromUen(purchaseOrderToUpdate.supplier.id, purchaseOrderToUpdate.currentOrganisation.uen)
         shellOrg.currentCredit += purchaseOrderToUpdate.totalPrice
         await this.shellOrganisationsRepository.save(shellOrg)
-      } else if (key == 'status' && value == PurchaseOrderStatus.CLOSED){
+      } else if (key == 'status' && purchaseOrderToUpdate.invoice && value == PurchaseOrderStatus.CLOSED){
         const shellOrg = await this.shellOrganisationsService.retrieveShellOrgFromUen(purchaseOrderToUpdate.supplier.id, purchaseOrderToUpdate.currentOrganisation.uen)
         shellOrg.currentCredit -= purchaseOrderToUpdate.totalPrice
         await this.shellOrganisationsRepository.save(shellOrg)

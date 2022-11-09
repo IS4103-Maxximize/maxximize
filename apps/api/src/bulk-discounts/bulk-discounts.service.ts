@@ -8,6 +8,7 @@ import { ChronJobsService } from '../chron-jobs/chron-jobs.service';
 import { ChronType } from '../chron-jobs/enums/chronType.enum';
 import { OrganisationsService } from '../organisations/organisations.service';
 import { CreateBulkDiscountDto } from './dto/create-bulk-discount.dto';
+import { GetDiscountDto } from './dto/get-discount.dto';
 import { UpdateBulkDiscountDto } from './dto/update-bulk-discount.dto';
 import { BulkDiscount } from './entities/bulk-discount.entity';
 
@@ -75,6 +76,42 @@ export class BulkDiscountsService {
     } catch (error) {
       throw new NotFoundException(`bulk discount with this id: ${id} cannot be found!`)
     }
+  }
+
+  async findActiveBulkDiscount(orgId: number) {
+    const bulkDiscountsAvailable = await this.findAllByOrg(orgId)
+    const active = bulkDiscountsAvailable.find(discount => discount.isActive)
+    let sortedRanges: any
+    if (active) {
+      sortedRanges = active.bulkDiscountRanges.sort((a, b) => {
+        if (a.start > b.start) {
+          return 1
+        } else {
+          return -1
+        }
+      })
+      active.bulkDiscountRanges = sortedRanges
+    }
+    return active
+  }
+
+  async getDiscount(getDiscountDto: GetDiscountDto) {
+    const {organisationId, totalPrice, totalWeight} = getDiscountDto
+    const activeBulkDiscount = await this.findActiveBulkDiscount(organisationId)
+    if (activeBulkDiscount) {
+      const ranges = activeBulkDiscount.bulkDiscountRanges
+      const selectedRange = ranges.find(range => {
+        const type = activeBulkDiscount.bulkType
+        const quantity = type === 'weight' ? totalWeight : totalPrice
+        return (quantity > range.start && quantity <= range.end)
+      })
+      if (selectedRange) {
+        const discountRate = selectedRange.discountRate
+        const discount = Math.round((discountRate / 100) * totalPrice)
+        return discount
+      }
+    }
+    return 0
   }
 
   async findAllByOrg(orgId: number) {

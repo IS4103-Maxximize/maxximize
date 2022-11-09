@@ -257,7 +257,8 @@ export class MembershipsService {
         planAmount: amount / 100,
         plan: currentSubscriptionPlan,
         status: MembershipStatus.ACTIVE,
-        defaultPayment: customer.defaultSource as string
+        defaultPayment: customer.defaultSource as string,
+        commisionPayment: customer.defaultSource as string
       })
       console.log(membership)
       return membership
@@ -330,7 +331,8 @@ export class MembershipsService {
 
  async getInvoicesOfCustomer(customerId: string) {
   const allInvoicesObject = await this.stripe.invoices.list({
-    customer: customerId
+    customer: customerId,
+    limit: 100
   })
   const allInvoices = allInvoicesObject.data
   const parsedInvoices = allInvoices.map(invoice => {

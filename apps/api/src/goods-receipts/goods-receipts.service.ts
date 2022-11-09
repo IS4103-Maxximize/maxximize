@@ -89,13 +89,16 @@ export class GoodsReceiptsService {
         createFollowUpLineItemsDtos.length === 0
       ) {
         purchaseOrder.status = PurchaseOrderStatus.FULFILLED;
-        const invoice = new Invoice();
-        invoice.date = new Date();
-        invoice.amount = purchaseOrder.totalPrice;
-        invoice.status = InvoiceStatus.PENDING;
-        invoice.po = purchaseOrder;
-        queryRunner.manager.save(invoice);
-        purchaseOrder.followUpLineItems = [];
+        if (purchaseOrder.supplier) {
+          const invoice = new Invoice();
+          invoice.date = new Date();
+          invoice.amount = purchaseOrder.totalPrice;
+          invoice.status = InvoiceStatus.PENDING;
+          invoice.po = purchaseOrder;
+          queryRunner.manager.save(invoice);
+          purchaseOrder.followUpLineItems = [];
+        }
+        
       } else {
         purchaseOrder.status = PurchaseOrderStatus.PARTIALLYFULFILLED;
       }

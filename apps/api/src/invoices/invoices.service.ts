@@ -36,7 +36,9 @@ export class InvoicesService {
   findAll() {
     return this.invoicesRepository.find({
       relations: {
-        po: true
+        po: {
+          supplier: true
+        }
       }
     })
   }
@@ -46,9 +48,49 @@ export class InvoicesService {
       where: {
         id
       }, relations: {
-        po: true
+        po: {
+          supplier: true
+        }
       }
     })
+  }
+
+  async findSentInvoicesByOrg(id: number) {
+    return this.invoicesRepository.find({
+      where: {
+        po: {
+          supplierId: id
+        }
+      }, relations: {
+        po: {
+          currentOrganisation: {
+            accountInfo: true
+          },
+          supplier: {
+            accountInfo: true
+          }
+        }
+      }
+    });
+  }
+
+  async findIncomingInvoicesByOrg(id: number) {
+    return this.invoicesRepository.find({
+      where: {
+        po: {
+          currentOrganisationId: id
+        }
+      }, relations: {
+        po: {
+          currentOrganisation: {
+            accountInfo: true
+          },
+          supplier: {
+            accountInfo: true
+          }
+        }
+      }
+    });
   }
 
   async update(id: number, updateInvoiceDto: UpdateInvoiceDto) {
@@ -58,6 +100,7 @@ export class InvoicesService {
       invoiceToUpdate[key] = value
       if (key == 'status' && value == InvoiceStatus.CLOSED) {
         this.purchaseOrdersService.update(invoiceToUpdate.po.id, {status: PurchaseOrderStatus.CLOSED})
+        invoiceToUpdate['paymentReceived'] = new Date()
       }
     })
     return this.invoicesRepository.save(invoiceToUpdate)
