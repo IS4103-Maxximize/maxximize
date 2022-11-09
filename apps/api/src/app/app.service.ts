@@ -232,7 +232,7 @@ export class AppService implements OnApplicationBootstrap {
       await this.organisationsService.create({
         name: 'Tomato Farm Bali',
         uen: '123TOM123',
-        type: OrganisationType.SUPPLIER,
+        type: OrganisationType.MANUFACTURER,
         contact: {
           phoneNumber: '123123123',
           email: 'maxximizetest@gmail.com',

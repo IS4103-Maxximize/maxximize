@@ -13,7 +13,8 @@ export const RelationsDialog = ({
     setOpenDialog,
     addOrganisation,
     type,
-    orgId
+    orgId,
+    handleAlertOpen
   }) => {
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
@@ -48,6 +49,10 @@ export const RelationsDialog = ({
 
       if (response.status === 200 || response.status === 201) {
         const result = await response.json();
+
+        if (handleAlertOpen) {
+          handleAlertOpen('Successfully onboarded Retailer!', 'success');
+        }
 
         addOrganisation(result);
         setError('')
