@@ -9,7 +9,7 @@ export const CostDialog = (props) => {
   const {
     open,
     handleClose,
-    revenue,
+    cost,
     handleAlertOpen,
     handleAlertClose,
     ...rest
@@ -20,9 +20,18 @@ export const CostDialog = (props) => {
 
   const [rows, setRows] = useState([]);
   useEffect(() => {
-    if (open && revenue) {
-      setRows(revenue.lineItems.sort(
-        (a, b) => DayJS(a.paymentReceived) - DayJS(b.paymentReceived)))
+    if (open && cost) {
+      const lineItems = cost.lineItems
+        .map((item) => {
+          if (item.type === 'maxximizeInvoice') {
+            return { ...item, type: "maxximize" };
+          }
+          if (item.type === 'schedule') {
+            return { ...item, type: 'production' };
+          }
+          return item;
+        })
+      setRows(lineItems)
     }
   }, [open])
 
@@ -37,9 +46,11 @@ export const CostDialog = (props) => {
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('lg'));
 
-  const revenueTypeColorMap = {
+  const costTypeColorMap = {
     invoice: 'primary',
-    // more choices
+    maxximize: 'secondary',
+    production: 'warning',
+    // more in future
   }
 
   const columns = [
@@ -48,19 +59,29 @@ export const CostDialog = (props) => {
       headerName: 'Type',
       flex: 2,
       renderCell: (params) => (
-        <SeverityPill color={revenueTypeColorMap[params.value]}>
+        <SeverityPill color={costTypeColorMap[params.value]}>
           {params.value}
         </SeverityPill>
       )
     },
     {
+      field: 'created',
+      headerName: 'Created',
+      flex: 3,
+      valueFormatter: (params) => 
+        params.value ? DayJS(params.value).format('DD MMM YYYY hh:mm a')
+        : 'NA'
+    },
+    {
       field: 'paymentReceived',
       headerName: 'Payment Received Date',
       flex: 3,
-      valueFormatter: (params) => DayJS(params.value).format('DD MMM YYYY hh:mm a')
+      valueFormatter: (params) => 
+        params.value ? DayJS(params.value).format('DD MMM YYYY hh:mm a')
+        : 'NA'
     },
     {
-      field: 'amount',
+      field: 'costAmount',
       headerName: 'Amount',
       flex: 2,
       valueFormatter: (params) => `$ ${params.value}`
@@ -69,6 +90,7 @@ export const CostDialog = (props) => {
 
   return (
     <Dialog
+      maxWidth="md"
       fullWidth
       // fullScreen={fullScreen}
       open={open}
@@ -85,7 +107,7 @@ export const CostDialog = (props) => {
             <CloseIcon />
           </IconButton>
           <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
-          {`View Revenue Item ${revenue ? `(${revenue.dateKey})` : ''}`}
+          {`View Cost Item ${cost ? `(${cost.dateKey})` : ''}`}
           </Typography>
         </Toolbar>
       </AppBar>

@@ -1,4 +1,3 @@
-import MoreVert from '@mui/icons-material/MoreVert';
 import ListIcon from '@mui/icons-material/List';
 import {
   Box, Button, Card, CardContent, CardHeader,
@@ -20,11 +19,12 @@ import amex from '../../assets/images/finance/American_Express-Logo.wine.svg';
 import mastercard from '../../assets/images/finance/mc_symbol.svg';
 import visa from '../../assets/images/finance/Visa_Inc.-Logo.wine.svg';
 import { DashboardLayout } from '../../components/dashboard-layout';
+import { CostDialog } from '../../components/finance/cost-dialog';
 import { FilterCard } from '../../components/finance/filter-card';
 import { FinanceToolbar } from '../../components/finance/finance-toolbar';
+import { RevenueDialog } from '../../components/finance/revenue-dialog';
 import { NotificationAlert } from '../../components/notification-alert';
 import { apiHost, requestOptionsHelper } from '../../helpers/constants';
-import { RevenueDialog } from '../../components/finance/revenue-dialog';
 
 export const Finance = (props) => {
   const user = JSON.parse(localStorage.getItem('user'));
@@ -164,9 +164,73 @@ export const Finance = (props) => {
     resetCostsDates();
   }, [costsRange, costsType])
 
-  // Costs Search
-  // const getCosts = async () => {
-  // }
+  // Costs Datagrid Helpers
+  const [costs, setCosts] = useState([]);
+  const [selectedCost, setSelectedCost] = useState();
+
+  const getCosts = async () => {
+    const url = `${apiHost}/cost`;
+    const body = JSON.stringify({
+      inDate: !costsRange ? inCostsDate : null, // null if range
+      start: costsRange ? fromCostsDate : null, // null if single
+      end: costsRange ? toCostsDate : null, // null if single
+      range: costsRange, // true false
+      type: costsType, // month OR year
+      organisationId: organisationId
+    })
+    const requestOptions = requestOptionsHelper('POST', body);
+
+    await fetch(url, requestOptions).then(res => res.json())
+      .then(result => {
+        const mapped = result.map((item, index) => { return {id: index, ...item} })
+        setCosts(mapped)
+      })
+  }
+
+  const costsColumns = [
+    {
+      field: 'dateKey',
+      headerName: 'Time',
+      flex: 2,
+    },
+    {
+      field: 'cost',
+      headerName: 'Cost',
+      flex: 2,
+      valueFormatter: (params) => `$ ${params.value}`
+    },
+    {
+      field: 'actions',
+      headerName: 'Actions',
+      flex: 1,
+      renderCell: (params) => (
+        <IconButton
+          onClick={() => {
+            setSelectedCost(params.row);
+            handleCostDialogOpen();
+          }}
+        >
+          <ListIcon />
+        </IconButton>
+      )
+    },
+  ]
+
+  // Costs Dialog Helpers
+  const [costDialogOpen, setCostDialogOpen] = useState(false);
+  const handleCostDialogOpen = () => {
+    setCostDialogOpen(true);
+  }
+  const handleCostDialogClose = () => {
+    setCostDialogOpen(false);
+  }
+
+  useEffect(() => {
+    if (!costDialogOpen) {
+      setSelectedCost(null);   
+    }
+  }, [costDialogOpen])
+
 
   // Commission Card Helpers
   const [cardsError, setCardsError] = useState();
@@ -326,6 +390,13 @@ export const Finance = (props) => {
             handleAlertOpen={handleAlertOpen}
             handleAlertClose={handleAlertClose}
           />
+          <CostDialog
+            open={costDialogOpen}
+            handleClose={handleCostDialogClose}
+            cost={selectedCost}
+            handleAlertOpen={handleAlertOpen}
+            handleAlertClose={handleAlertClose}
+          />
           <Box
             sx={{
               mt: 3,
@@ -456,6 +527,7 @@ export const Finance = (props) => {
                   type={costsType}
                   handleType={handleCostsType}
                   reset={resetCostsDates}
+                  handleSearch={getCosts}
                 />
               </Grid>
 
@@ -488,8 +560,8 @@ export const Finance = (props) => {
                       <Typography variant="h6">Costs Data</Typography>
                       <DataGrid
                         autoHeight
-                        rows={[]}
-                        columns={[]}
+                        rows={costs}
+                        columns={costsColumns}
                         pageSize={6}
                         rowsPerPageOptions={[6]}
                         disableSelectionOnClick
