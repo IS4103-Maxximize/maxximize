@@ -34,6 +34,7 @@ import { AccountInfo } from '../../account-info/entities/account-info.entity';
 import { Cart } from '../../carts/entities/cart.entity';
 import { BulkDiscount } from '../../bulk-discounts/entities/bulk-discount.entity';
 import { RevenueBracket } from '../../revenue-brackets/entities/revenue-bracket.entity';
+import { Outlet } from '../../outlets/entities/outlet.entity';
 
 @Entity()
 export class Organisation {
@@ -153,4 +154,7 @@ export class Organisation {
 
   @OneToMany(() => RevenueBracket, revenueBracket => revenueBracket.organisation)
   revenueBrackets: RevenueBracket[]
+
+  @OneToMany(() => Outlet, outlet => outlet.organisation)
+  outlets: Outlet[]
 }
