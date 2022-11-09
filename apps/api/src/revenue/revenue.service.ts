@@ -13,6 +13,12 @@ import { RevenueBracketsService } from '../revenue-brackets/revenue-brackets.ser
 @Injectable()
 export class RevenueService implements OnModuleInit {
   private readonly logger = new Logger(RevenueService.name);
+  private months = [
+    "January", "February", "March", 
+    "April", "May", "June", 
+    "July", "August", "September", 
+    "October", "November", "December"
+  ]
   private stripe: Stripe
   constructor(
     private invoicesService: InvoicesService,
@@ -25,7 +31,6 @@ export class RevenueService implements OnModuleInit {
     })
   }
   async getRevenueByDate(getRevenueDto: GetRevenueDto) {
-    const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"]
     const {inDate, start, end, type, range, organisationId} = getRevenueDto
     
     let inDateValue = inDate ? {
@@ -83,7 +88,7 @@ export class RevenueService implements OnModuleInit {
       for (const invoice of filteredInvoices) {
         const monthOfPayment = new Date(invoice.paymentReceived).getMonth()
         const yearOfPayment = new Date(invoice.paymentReceived).getFullYear()
-        const key = `${months[monthOfPayment]}/${yearOfPayment}`
+        const key = `${this.months[monthOfPayment]}/${yearOfPayment}`
         if (map.has(key)) {
           let {revenue, lineItems} = map.get(key)
           lineItems.push({...invoice, type: 'invoice'})

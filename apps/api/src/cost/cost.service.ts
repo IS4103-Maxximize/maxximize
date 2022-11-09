@@ -10,6 +10,12 @@ import { GetCostDto } from './dto/get-cost.dto';
 
 @Injectable()
 export class CostService {
+  private months = [
+    "January", "February", "March", 
+    "April", "May", "June", 
+    "July", "August", "September", 
+    "October", "November", "December"
+  ]
   constructor(
       private invoicesService: InvoicesService,
       private schedulesService: SchedulesService,
@@ -17,7 +23,6 @@ export class CostService {
   ) {}
 
   async getCostByDate(getCostDto: GetCostDto) {
-    const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"]
     const {inDate, start, end, type, range, organisationId} = getCostDto
 
     let inDateValue = inDate ? {
@@ -96,7 +101,6 @@ export class CostService {
 
   setMapping(map: Map<string, any>, lineItems: any[], objectType: string, type: string) {
     let dateProperty: string
-    const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"]
     if (objectType === 'invoice') {
       dateProperty = 'paymentReceived'
     } else if (objectType === 'schedule') {
@@ -108,7 +112,7 @@ export class CostService {
     for (const lineItem of lineItems) {
       const monthOfPayment = new Date(lineItem[dateProperty]).getMonth()
       const yearOfPayment = new Date(lineItem[dateProperty]).getFullYear()
-      const key = type === 'month' ? `${months[monthOfPayment]}/${yearOfPayment}` : `${yearOfPayment}`
+      const key = type === 'month' ? `${this.months[monthOfPayment]}/${yearOfPayment}` : `${yearOfPayment}`
       if (map.has(key)) {
         let {cost, lineItems} = map.get(key)
         lineItems.push({...lineItem, type: objectType, costAmount: this.getCostAmount(objectType, lineItem)})
