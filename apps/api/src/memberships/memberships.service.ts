@@ -62,7 +62,6 @@ export class MembershipsService {
   }
 
   async update(id: number, updateMembershipDto: UpdateMembershipDto) {
-    console.log('updating')
     const membershipToUpdate = await this.findOne(id)
     const mapping = Object.entries(updateMembershipDto)
     if (mapping.length > 0) {
@@ -350,7 +349,7 @@ export class MembershipsService {
   return parsedInvoices
  }
 
- async getInvoicesOfSubsciption(subscriptionId: string) {
+ async getInvoicesOfSubscription(subscriptionId: string) {
   const allInvoicesObject = await this.stripe.invoices.list({
     subscription: subscriptionId
   })

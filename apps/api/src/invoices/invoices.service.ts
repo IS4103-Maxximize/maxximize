@@ -37,7 +37,9 @@ export class InvoicesService {
     return this.invoicesRepository.find({
       relations: {
         po: {
-          supplier: true
+          supplier: {
+            accountInfo: true
+          }
         }
       }
     })
@@ -49,7 +51,9 @@ export class InvoicesService {
         id
       }, relations: {
         po: {
-          supplier: true
+          supplier: {
+            accountInfo: true
+          }
         }
       }
     })

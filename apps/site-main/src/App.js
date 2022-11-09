@@ -10,6 +10,7 @@ import ProductionLineManagement from './pages/assetManagement/productionLineMana
 import BusinessRelations from './pages/businessRelations';
 import DeliveryFleetManagement from './pages/assetManagement/deliveryFleetManagement';
 import Dashboard from './pages/dashboard';
+import Finance from './pages/finance/finance';
 import ForgotPassword from './pages/forgotPassword';
 import DeliveryRequest from './pages/fulfilment/delivery-request';
 import ReceivedPurchaseOrder from './pages/fulfilment/received-purchase-order';
@@ -44,6 +45,7 @@ import { RegisterOrganisation } from './pages/registerOrganisation';
 import ResetPassword from './pages/resetpassword';
 import Unauthorized from './pages/unauthorized';
 import WorkerManagement from './pages/workermanagement';
+import B2BInvoice from './pages/finance/b2b-invoice';
 
 const ROLES = {
   Admin: 'admin',
@@ -107,23 +109,46 @@ const routes = (
             {/* Placeholder Dashboard */}
             <Route path="/" element={<Dashboard />}></Route>
 
-            {/* Protected Routes for Admin Specifically */}
+          {/* Routes for Manager and Admin */}
+          <Route 
+            element={<RequireAuth requiredRoles={[ROLES.Admin, ROLES.Manager, ROLES.SuperAdmin]}/>}
+          >
+            {/* Business Relations */}
             <Route
-              element={
-                <RequireAuth requiredRoles={[ROLES.Admin, ROLES.SuperAdmin]} />
-              }
-            >
-              {/* Worker Management */}
-              <Route
-                path="workermanagement"
-                element={<WorkerManagement />}
-              ></Route>
-              {/* Business Relations */}
-              <Route
-                path="businessrelations"
-                element={<BusinessRelations />}
-              ></Route>
-            </Route>
+              path="businessrelations"
+              element={<BusinessRelations />}
+            ></Route>
+            {/* Finance Management */}
+            {/* Revenue-Costs */}
+            <Route
+              path="finance/revenue-cost"
+              element={<Finance />}
+            ></Route>
+            {/* B2B Invoices */}
+            <Route
+              path="finance/b2b-invoice"
+              element={<B2BInvoice />}
+            ></Route>
+            {/* Subscription Invoices */}
+            {/* <Route
+              path="finance/subscription-invoice"
+              element={<SubscriptionInvoice />}
+            ></Route> */}
+          </Route>
+
+          {/* Product Management */}
+          {/* Protected Routes for Admin Specifically */}
+          <Route
+            element={
+              <RequireAuth requiredRoles={[ROLES.Admin, ROLES.SuperAdmin]} />
+            }
+          >
+            {/* Worker Management */}
+            <Route
+              path="workermanagement"
+              element={<WorkerManagement />}
+            ></Route>
+          </Route>
 
             {/* Protected Routes for Manager*/}
             <Route
@@ -218,50 +243,50 @@ const routes = (
             element={<DeliveryFleetManagement />}
             ></Route>
 
-              {/* Production */}
-              {/* Production Modules */}
-              <Route
-                path="production/bill-of-material"
-                element={<BillOfMaterial />}
-              ></Route>
-              <Route
-                path="production/machine"
-                element={<MachineManagement />}
-              ></Route>
-              <Route
-                path="production/production-line"
-                element={<ProductionLineManagement />}
-              ></Route>
-              <Route
-                path="production/production-request"
-                element={<ProductionRequest />}
-              ></Route>
-              <Route
-                path="production/production-order"
-                element={<ProductionOrder />}
-              ></Route>
+            {/* Production */}
+            {/* Production Modules */}
+            <Route
+              path="production/bill-of-material"
+              element={<BillOfMaterial />}
+            ></Route>
+            <Route
+              path="production/machine"
+              element={<MachineManagement />}
+            ></Route>
+            <Route
+              path="production/production-line"
+              element={<ProductionLineManagement />}
+            ></Route>
+            <Route
+              path="production/production-request"
+              element={<ProductionRequest />}
+            ></Route>
+            <Route
+              path="production/production-order"
+              element={<ProductionOrder />}
+            ></Route>
 
-              {/* Delivery Fleet */}
-              {/* Delivery Fleet Module */}
-              <Route path="deliveryFleetManagement" element={<DeliveryFleetManagement />}></Route>
+            {/* Delivery Fleet */}
+            {/* Delivery Fleet Module */}
+            <Route path="deliveryFleetManagement" element={<DeliveryFleetManagement />}></Route>
 
-              {/* Inventory */}
-              {/* Inventory Modules */}
-              <Route path="inventory/warehouse" element={<Warehouse />}></Route>
-              <Route path="inventory/warehouse/rack" element={<Rack />}></Route>
-              <Route
-                path="inventory/warehouse/rack/bin"
-                element={<Bin />}
-              ></Route>
-              <Route
-                path="inventory/warehouse/rack/bin/details"
-                element={<BinDetails />}
-              ></Route>
-              <Route path="inventory/masterlist" element={<Masterlist />}></Route>
-              <Route
-                path="inventory/masterlist/lineItems"
-                element={<MasterlistLineItems />}
-              ></Route>
+            {/* Inventory */}
+            {/* Inventory Modules */}
+            <Route path="inventory/warehouse" element={<Warehouse />}></Route>
+            <Route path="inventory/warehouse/rack" element={<Rack />}></Route>
+            <Route
+              path="inventory/warehouse/rack/bin"
+              element={<Bin />}
+            ></Route>
+            <Route
+              path="inventory/warehouse/rack/bin/details"
+              element={<BinDetails />}
+            ></Route>
+            <Route path="inventory/masterlist" element={<Masterlist />}></Route>
+            <Route
+              path="inventory/masterlist/lineItems"
+              element={<MasterlistLineItems />}
+            ></Route>
 
 
             {/* Fulfilment */}
