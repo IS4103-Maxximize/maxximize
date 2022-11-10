@@ -1,24 +1,17 @@
 import { Doughnut } from 'react-chartjs-2';
 import { Box, Card, CardContent, CardHeader, Divider, Typography, useTheme } from '@mui/material';
-import LaptopMacIcon from '@mui/icons-material/LaptopMac';
-import PhoneIcon from '@mui/icons-material/Phone';
-import TabletIcon from '@mui/icons-material/Tablet';
+import PrecisionManufacturingIcon from '@mui/icons-material/PrecisionManufacturing';
+import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
+import RestaurantIcon from '@mui/icons-material/Restaurant';
+import { fetchCostBreakdown } from '../../helpers/dashboard';
 
-export const TrafficByDevice = (props) => {
+export const CostBreakdown = (props) => {
+  const {
+    type,
+  } = props;
   const theme = useTheme();
-
-  const data = {
-    datasets: [
-      {
-        data: [63, 15, 22],
-        backgroundColor: ['#3F51B5', '#e53935', '#FB8C00'],
-        borderWidth: 8,
-        borderColor: '#FFFFFF',
-        hoverBorderColor: '#FFFFFF'
-      }
-    ],
-    labels: ['Desktop', 'Tablet', 'Mobile']
-  };
+  const user = JSON.parse(localStorage.getItem('user'));
+  const organisationId = user.organisation.id;
 
   const options = {
     animation: false,
@@ -42,30 +35,46 @@ export const TrafficByDevice = (props) => {
     }
   };
 
-  const devices = [
+  const getCostBreakdown = async () => {
+    const response = await fetchCostBreakdown();
+    return response;
+  };
+
+  const data = {
+    datasets: [
+      {
+        data: [getCostBreakdown(organisationId,type==='supplies'),getCostBreakdown(organisationId,type==='operations'),getCostBreakdown(organisationId,type==='subscriptions')],
+        backgroundColor: ['#3F51B5', '#e53935', '#FB8C00'],
+        borderWidth: 8,
+        borderColor: '#FFFFFF',
+        hoverBorderColor: '#FFFFFF'
+      }
+    ],
+    labels: ['Supplies', 'Operations', 'Subscriptions']
+  };
+
+  const costs = [
+    
     {
-      title: 'Desktop',
-      value: 63,
-      icon: LaptopMacIcon,
+      title: 'Supplies',
+      icon: RestaurantIcon,
       color: '#3F51B5'
     },
     {
-      title: 'Tablet',
-      value: 15,
-      icon: TabletIcon,
+      title: 'Operations',
+      icon: PrecisionManufacturingIcon,
       color: '#E53935'
     },
     {
-      title: 'Mobile',
-      value: 23,
-      icon: PhoneIcon,
+      title: 'Subscriptions',
+      icon: ReceiptLongIcon,
       color: '#FB8C00'
     }
   ];
 
   return (
     <Card {...props}>
-      <CardHeader title="Traffic by Device" />
+      <CardHeader title="Costs Breakdown" />
       <Divider />
       <CardContent>
         <Box
@@ -86,7 +95,7 @@ export const TrafficByDevice = (props) => {
             pt: 2
           }}
         >
-          {devices.map(({
+          {costs.map(({
             color,
             icon: Icon,
             title,
@@ -105,13 +114,6 @@ export const TrafficByDevice = (props) => {
                 variant="body1"
               >
                 {title}
-              </Typography>
-              <Typography
-                style={{ color }}
-                variant="h4"
-              >
-                {value}
-                %
               </Typography>
             </Box>
           ))}

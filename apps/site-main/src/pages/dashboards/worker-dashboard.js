@@ -1,9 +1,9 @@
 import { Grid } from '@mui/material';
-import { Budget } from '../../components/dashboard/budget';
-import { TasksProgress } from '../../components/dashboard/tasks-progress';
-import { TotalCustomers } from '../../components/dashboard/total-customers';
-import { TotalProfit } from '../../components/dashboard/total-profit';
-import { TrafficByDevice } from '../../components/dashboard/traffic-by-device';
+import { Budget } from '../../components/financeDashboard/throughput';
+import { TasksProgress } from '../../components/financeDashboard/tasks-progress';
+import { TotalCustomers } from '../../components/financeDashboard/yield';
+import { TotalProfit } from '../../components/financeDashboard/total-profit';
+import { TrafficByDevice } from '../../components/financeDashboard/traffic-by-device';
 import { BatchItemsDay } from '../../components/dashboards/batch-items-day';
 
 const WorkerDashboard = (props) => {

@@ -1,12 +1,28 @@
 import { Avatar, Box, Card, CardContent, Grid, Typography } from '@mui/material';
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
-import MoneyIcon from '@mui/icons-material/Money';
+import AssignmentOutlinedIcon from '@mui/icons-material/AssignmentOutlined';
+import {useEffect, useState } from 'react';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import PeopleIcon from '@mui/icons-material/PeopleOutlined';
+import { fetchCustomers } from '../../helpers/dashboard';
 
-export const Budget = (props) => (
-  <Card
-    sx={{ height: '100%' }}
-    {...props}
-  >
+export const TotalCustomers = (props) => {
+
+  const [customers, setCustomers] = useState([]);
+  const [change, setChange] = useState([]);
+  const getCustomers = async () => {
+    const response = await fetchCustomers();
+    setCustomers(response);
+    setChange(response.change);
+  };
+
+  useEffect(() => {
+    getCustomers();
+}, []);
+
+
+
+return(
+  <Card {...props}>
     <CardContent>
       <Grid
         container
@@ -19,43 +35,42 @@ export const Budget = (props) => (
             gutterBottom
             variant="overline"
           >
-            BUDGET
+            TOTAL CUSTOMERS
           </Typography>
           <Typography
             color="textPrimary"
             variant="h4"
           >
-            $24k
+          {customers}
           </Typography>
         </Grid>
         <Grid item>
           <Avatar
             sx={{
-              backgroundColor: 'error.main',
+              backgroundColor: 'warning.main',
               height: 56,
               width: 56
             }}
           >
-            <MoneyIcon />
+            <AssignmentOutlinedIcon />
           </Avatar>
         </Grid>
       </Grid>
       <Box
         sx={{
-          pt: 2,
+          alignItems: 'center',
           display: 'flex',
-          alignItems: 'center'
+          pt: 2
         }}
       >
-        <ArrowDownwardIcon color="error" />
+        <ArrowUpwardIcon color="success" />
         <Typography
-          color="error"
+          variant="body2"
           sx={{
             mr: 1
           }}
-          variant="body2"
         >
-          12%
+          {change}
         </Typography>
         <Typography
           color="textSecondary"
@@ -67,3 +82,4 @@ export const Budget = (props) => (
     </CardContent>
   </Card>
 );
+};

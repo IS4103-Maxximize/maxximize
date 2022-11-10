@@ -1,11 +1,22 @@
-import { Avatar, Box, Card, CardContent, Grid, LinearProgress, Typography } from '@mui/material';
-import InsertChartIcon from '@mui/icons-material/InsertChartOutlined';
+import { Avatar, Card, CardContent, Grid, Typography } from '@mui/material';
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+import {useEffect, useState } from 'react';
+import { fetchProfits } from '../../helpers/dashboard';
 
-export const TasksProgress = (props) => (
-  <Card
-    sx={{ height: '100%' }}
-    {...props}
-  >
+export const TotalProfit = (props) => {
+
+  const [profits, setProfits] = useState([]);
+  const getProfits = async () => {
+    const response = await fetchProfits();
+    setProfits(response);
+  };
+
+  useEffect(() => {
+    getProfits();
+}, []);
+
+return(
+  <Card {...props}>
     <CardContent>
       <Grid
         container
@@ -18,33 +29,28 @@ export const TasksProgress = (props) => (
             gutterBottom
             variant="overline"
           >
-            TASKS PROGRESS
+            TOTAL PROFIT
           </Typography>
           <Typography
             color="textPrimary"
             variant="h4"
           >
-            75.5%
+            {profits}
           </Typography>
         </Grid>
         <Grid item>
           <Avatar
             sx={{
-              backgroundColor: 'warning.main',
+              backgroundColor: 'primary.main',
               height: 56,
               width: 56
             }}
           >
-            <InsertChartIcon />
+            <AttachMoneyIcon />
           </Avatar>
         </Grid>
       </Grid>
-      <Box sx={{ pt: 3 }}>
-        <LinearProgress
-          value={75.5}
-          variant="determinate"
-        />
-      </Box>
     </CardContent>
   </Card>
 );
+};

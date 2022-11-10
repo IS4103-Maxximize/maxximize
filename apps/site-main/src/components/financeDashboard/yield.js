@@ -1,7 +1,22 @@
 import { Avatar, Card, CardContent, Grid, Typography } from '@mui/material';
-import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+import InsertChartIcon from '@mui/icons-material/InsertChartIcon';
+import {useEffect, useState } from 'react';
 
-export const TotalProfit = (props) => (
+export const Yield = (props) => {
+
+
+  const [productionYield, setProductionYields] = useState([]);
+  const getYields = async () => {
+    const response = await fetch('');
+    setProductionYields(response);
+  };
+
+  useEffect(() => {
+    getYields();
+}, []);
+
+
+  return (
   <Card {...props}>
     <CardContent>
       <Grid
@@ -15,27 +30,29 @@ export const TotalProfit = (props) => (
             gutterBottom
             variant="overline"
           >
-            TOTAL PROFIT
+            Yield
           </Typography>
           <Typography
             color="textPrimary"
             variant="h4"
           >
-            $23k
+            {productionYield}
           </Typography>
         </Grid>
         <Grid item>
           <Avatar
             sx={{
-              backgroundColor: 'primary.main',
+              backgroundColor: 'error.main',
               height: 56,
               width: 56
             }}
           >
-            <AttachMoneyIcon />
+            <InsertChartIcon />
           </Avatar>
         </Grid>
       </Grid>
+    
     </CardContent>
   </Card>
 );
+};
