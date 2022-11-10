@@ -1,4 +1,5 @@
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import StoreIcon from '@mui/icons-material/Store';
 import {
   Accordion,
   AccordionDetails,
@@ -16,15 +17,12 @@ import PropTypes from 'prop-types';
 import { useState } from 'react';
 import { Link as RouterLink, useLocation } from 'react-router-dom';
 import { Selector as SelectorIcon } from '../icons/selector';
-import ContactPageIcon from '@mui/icons-material/ContactPage';
-import BusinessIcon from '@mui/icons-material/Business';
-import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import { Logo } from './logo';
 
 const standalone = [
   {
     href: '/suppliers',
-    icon: <BusinessIcon fontSize="small" />,
+    icon: <StoreIcon fontSize="small" />,
     title: 'View Suppliers',
     access: ['admin', 'superadmin'],
   },

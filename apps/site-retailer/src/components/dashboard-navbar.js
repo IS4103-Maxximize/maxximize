@@ -12,7 +12,7 @@ import {
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import { UserCircle as UserCircleIcon } from '../icons/user-circle';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import SettingsIcon from '@mui/icons-material/Settings';
@@ -36,10 +36,10 @@ export const DashboardNavbar = (props) => {
     switch (type) {
       case 'logout':
         localStorage.removeItem('user');
-        navigate('/login', { replace: true });
+        navigate('/organisationselection', { replace: true });
         break;
-      case 'profile':
-        //do nothing yet
+      case 'outlets':
+        navigate('/outlets');
         break;
     }
   };
@@ -81,18 +81,26 @@ export const DashboardNavbar = (props) => {
           <Box sx={{ flexGrow: 1 }} />
           <Badge badgeContent={cartsQuantity} color="primary">
             <Tooltip title="Shopping Carts">
-              <IconButton onClick={() => navigate('/shopping-cart')}>
+              <IconButton
+                sx={{ border: 1, borderColor: '#FE2472' }}
+                onClick={() => navigate('/shopping-cart')}
+              >
                 <ShoppingCartIcon color="primary" fontSize="small" />
               </IconButton>
             </Tooltip>
           </Badge>
           <Tooltip title="Settings">
-            <IconButton onClick={toggleMenu} sx={{ marginLeft: 1 }}>
+            <IconButton
+              sx={{ marginLeft: 1, border: 1, borderColor: '#FE2472' }}
+              onClick={toggleMenu}
+            >
               <SettingsIcon color="primary" fontSize="small" />
             </IconButton>
           </Tooltip>
           <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
-            <MenuItem onClick={() => handleClose('profile')}>Profile</MenuItem>
+            <MenuItem onClick={() => handleClose('outlets')}>
+              Manage Outlets
+            </MenuItem>
             <MenuItem onClick={() => handleClose('logout')}>Logout</MenuItem>
           </Menu>
         </Toolbar>

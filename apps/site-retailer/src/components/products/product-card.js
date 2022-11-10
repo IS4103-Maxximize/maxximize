@@ -3,6 +3,7 @@ import {
   IconButton,
   ImageListItem,
   ImageListItemBar,
+  Tooltip,
 } from '@mui/material';
 import React, { useEffect } from 'react';
 import { useShoppingCart } from '../context/shopping-cart-context';
@@ -32,11 +33,22 @@ export const ProductCard = (props) => {
       />
       <ImageListItem
         style={{ transition: '0.5s' }}
-        sx={{
-          '&:hover': { transform: 'scale3d(1.005, 1.005, 1)' },
-        }}
+        sx={
+          isItemInCart(supplier.id, product.id)
+            ? {
+                borderLeft: 4,
+                borderRadius: '1%',
+                borderColor: 'primary.main',
+                '&:hover': { transform: 'scale3d(1.005, 1.005, 1)' },
+              }
+            : {
+                borderLeft: 0,
+                '&:hover': { transform: 'scale3d(1.005, 1.005, 1)' },
+              }
+        }
       >
         <img
+          style={{ border: '50%' }}
           src={`${'../../assets/img/apples.png'}?w=248&fit=crop&auto=format`}
           srcSet={`${'../../assets/img/apples.png'}?w=248&fit=crop&auto=format&dpr=2 2x`}
           alt={product.name}
@@ -51,44 +63,48 @@ export const ProductCard = (props) => {
             isItemInCart(supplier.id, product.id) ? (
               <TransitionGroup>
                 <Collapse>
-                  <IconButton
-                    sx={{ color: 'rgba(255, 255, 255, 0.54)' }}
-                    aria-label={`info about ${product.name}`}
-                    onClick={() => {
-                      removeFromCart(supplier.id, product.id);
-                      handleAlertOpen('Removed product from cart', 'success');
-                    }}
-                  >
-                    <RemoveCircleOutlineIcon
-                      style={{ transition: '0.2s' }}
-                      sx={{
-                        '&:hover': {
-                          color: 'primary.light',
-                          transform: 'scale(1.2)',
-                        },
+                  <Tooltip title="Remove">
+                    <IconButton
+                      sx={{ color: 'rgba(255, 255, 255, 0.54)' }}
+                      aria-label={`info about ${product.name}`}
+                      onClick={() => {
+                        removeFromCart(supplier.id, product.id);
+                        handleAlertOpen('Removed product from cart', 'success');
                       }}
-                      color="primary"
-                    />
-                  </IconButton>
+                    >
+                      <RemoveCircleOutlineIcon
+                        style={{ transition: '0.2s' }}
+                        sx={{
+                          '&:hover': {
+                            color: 'primary.light',
+                            transform: 'scale(1.2)',
+                          },
+                        }}
+                        color="primary"
+                      />
+                    </IconButton>
+                  </Tooltip>
                 </Collapse>
               </TransitionGroup>
             ) : (
-              <IconButton
-                sx={{ color: 'rgba(255, 255, 255, 0.54)' }}
-                aria-label={`info about ${product.name}`}
-                onClick={handleModalOpen}
-              >
-                <AddCircleOutlineRoundedIcon
-                  style={{ transition: '0.2s' }}
-                  sx={{
-                    '&:hover': {
-                      color: 'secondary.light',
-                      transform: 'scale(1.2)',
-                    },
-                  }}
-                  color="secondary"
-                />
-              </IconButton>
+              <Tooltip title="Add to cart">
+                <IconButton
+                  sx={{ color: 'rgba(255, 255, 255, 0.54)' }}
+                  aria-label={`info about ${product.name}`}
+                  onClick={handleModalOpen}
+                >
+                  <AddCircleOutlineRoundedIcon
+                    style={{ transition: '0.2s' }}
+                    sx={{
+                      '&:hover': {
+                        color: 'secondary.light',
+                        transform: 'scale(1.2)',
+                      },
+                    }}
+                    color="secondary"
+                  />
+                </IconButton>
+              </Tooltip>
             )
           }
         />

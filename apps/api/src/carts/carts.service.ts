@@ -56,7 +56,9 @@ export class CartsService {
       where: {
         organisationId: orgId
       }, relations: {
-        cartLineItems: true
+        cartLineItems: {
+          finalGood: true
+        }
       }
     })
   }

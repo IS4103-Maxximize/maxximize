@@ -1,6 +1,6 @@
 import DomainAddIcon from '@mui/icons-material/DomainAdd';
 import MoreVert from '@mui/icons-material/MoreVert';
-import { Box, Card, Container, IconButton } from '@mui/material';
+import { Box, Card, Container, IconButton, Tooltip } from '@mui/material';
 import { Stack } from '@mui/system';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import DayJS from 'dayjs';
@@ -82,7 +82,7 @@ const ReceivedPurchaseOrder = () => {
       <Stack direction="row">
         {!retailer && 
         <IconButton
-          color="primary"
+          color="error"
           onClick={() => {
             setSelectedRow(params.row);
             const po = params.row;
@@ -98,8 +98,11 @@ const ReceivedPurchaseOrder = () => {
             setOpenRetailerDialog(true)
           }}
         >
-          <DomainAddIcon />
+          <Tooltip title='Create Retailer'>
+            <DomainAddIcon />
+          </Tooltip>
         </IconButton>}
+        {retailer && 
         <IconButton
           // disabled={params.row.bins?.length == 0}
           onClick={(event) => {
@@ -111,7 +114,7 @@ const ReceivedPurchaseOrder = () => {
           }}
         >
           <MoreVert />
-        </IconButton>
+        </IconButton>}
       </Stack>
     );
   };
@@ -143,12 +146,15 @@ const ReceivedPurchaseOrder = () => {
     setPurchaseOrderDialogOpen(false);
   };
 
+  const [openRetailerDialog, setOpenRetailerDialog] = useState(false);
+  const [fields, setFields] = useState();
+
   useEffect(() => {
-    if (!purchaseOrderDialogOpen) {
+    if (!purchaseOrderDialogOpen || !openRetailerDialog) {
       getShellOrgs();
       retrieveAllReceivedPurchaseOrders();
     }
-  }, [purchaseOrderDialogOpen])
+  }, [purchaseOrderDialogOpen, openRetailerDialog])
 
   //Delete Confirm dialog
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
@@ -241,9 +247,7 @@ const ReceivedPurchaseOrder = () => {
   //Row for datagrid, set the list returned from API
   const rows = receivedPurchaseOrder;
 
-  // Create Retailer Dialog Helper
-  const [openRetailerDialog, setOpenRetailerDialog] = useState(false);
-  const [fields, setFields] = useState();
+  
 
   return (
     <>
@@ -282,6 +286,7 @@ const ReceivedPurchaseOrder = () => {
         addOrganisation={() => null}
         type='retailer'
         orgId={organisationId}
+        handleAlertOpen={handleAlertOpen}
       />
       <Box
         component="main"

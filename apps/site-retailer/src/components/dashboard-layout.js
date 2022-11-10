@@ -3,7 +3,7 @@ import { Box } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { DashboardNavbar } from './dashboard-navbar';
 import { DashboardSidebar } from './dashboard-sidebar';
-import { Outlet } from 'react-router-dom'
+import { Outlet } from 'react-router-dom';
 
 const DashboardLayoutRoot = styled('div')(({ theme }) => ({
   display: 'flex',
@@ -11,18 +11,17 @@ const DashboardLayoutRoot = styled('div')(({ theme }) => ({
   maxWidth: '100%',
   paddingTop: 64,
   [theme.breakpoints.up('lg')]: {
-    paddingLeft: 280
-  }
+    paddingLeft: 280,
+  },
 }));
 
 export const DashboardLayout = () => {
   const [isSidebarOpen, setSidebarOpen] = useState(true);
-  const [user, setUser] = useState({})
+  const [user, setUser] = useState({});
 
   useEffect(() => {
-    setUser(JSON.parse(localStorage.getItem('user')))
-  }, [])
-  
+    setUser(JSON.parse(localStorage.getItem('user')));
+  }, []);
 
   return (
     <>
@@ -32,7 +31,7 @@ export const DashboardLayout = () => {
             display: 'flex',
             flex: '1 1 auto',
             flexDirection: 'column',
-            width: '100%'
+            width: '100%',
           }}
         >
           <Outlet />
@@ -41,7 +40,8 @@ export const DashboardLayout = () => {
       <DashboardNavbar onSidebarOpen={() => setSidebarOpen(true)} />
       <DashboardSidebar
         onClose={() => setSidebarOpen(false)}
-        open={isSidebarOpen} user={user}
+        open={isSidebarOpen}
+        user={user}
       />
     </>
   );

@@ -17,6 +17,7 @@ import Suppliers from './pages/suppliers';
 import Products from './pages/products';
 import { ShoppingCartProvider } from './components/context/shopping-cart-context';
 import ShoppingCart from './pages/shoppingCart';
+import Outlets from './pages/outlets';
 
 const ROLES = {
   Admin: 'admin',
@@ -85,6 +86,7 @@ const App = () => {
                   element={<Products />}
                 ></Route>
                 <Route path="shopping-cart" element={<ShoppingCart />}></Route>
+                <Route path="outlets" element={<Outlets />}></Route>
               </Route>
 
               {/* Protected Routes for Manager Specifically*/}

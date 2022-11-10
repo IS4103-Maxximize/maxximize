@@ -82,9 +82,9 @@ export const ApplicationDialog = (props) => {
       // Clean up and remove the link
       link.parentNode.removeChild(link);
     } else {
-		const result = await response.json();
-		setError(result.message);
-	}
+      const result = await response.json();
+      setError(result.message);
+    }
   };
 
   // Accept the application
@@ -223,7 +223,6 @@ export const ApplicationDialog = (props) => {
               </Typography>
               {loading ? (
                 <LoadingButton
-                  fullWidth
                   loading={loading}
                   loadingPosition="start"
                   size="medium"

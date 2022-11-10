@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { useLocation, useNavigate } from 'react-router-dom';
 import * as Yup from 'yup';
+import { useShoppingCart } from '../components/context/shopping-cart-context';
 
 async function loginUser(credentials) {
   const res = await fetch('http://localhost:3000/api/auth/login', {
@@ -27,6 +28,8 @@ const Login = () => {
   const navigate = useNavigate();
   const currentOrgId = location.pathname.split('/')[2];
   const [organisation, setOrganisation] = useState({});
+
+  const { retrieveUserCarts } = useShoppingCart();
 
   useEffect(() => {
     const retrieveOrganisation = async () => {
@@ -90,6 +93,8 @@ const Login = () => {
       `http://localhost:3000/api/users/findUser/${id}`
     );
     const user = await userRes.json();
+    console.log(user);
+    retrieveUserCarts(user.organisation.id);
     return user;
   };
 
