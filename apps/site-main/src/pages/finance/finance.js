@@ -413,6 +413,21 @@ export const Finance = (props) => {
                   />
                   <Divider />
                   <CardContent>
+                  {activeStep !== undefined ? 
+                  <Stepper activeStep={activeStep}>
+                    {revenueBrackets.map((bracket, index) => (
+                      <Step key={index}>
+                        <StepLabel>
+                          {`≥ $${bracket.start}`}
+                        </StepLabel>
+                        <StepContent>
+                          <Typography variant="h6">
+                            {`${bracket.commisionRate}%`}
+                          </Typography>
+                        </StepContent>
+                      </Step>
+                    ))}
+                  </Stepper> : <Skeleton />}
                   {(revenueBrackets && commission !== undefined) &&
                     <Box
                       sx={{
@@ -420,24 +435,10 @@ export const Finance = (props) => {
                         display: 'flex',
                         justifyContent: 'space-evenly',
                         flexWrap: 'wrap',
-                        m: -1,
+                        mt: 4,
+                        mb: -1,
                       }}
                     >
-                      {activeStep !== undefined ? 
-                      <Stepper activeStep={activeStep} orientation="vertical">
-                        {revenueBrackets.map((bracket, index) => (
-                          <Step key={index}>
-                            <StepLabel>
-                              {`≥ $${bracket.start}`}
-                            </StepLabel>
-                            <StepContent>
-                              <Typography variant="h6">
-                                {`${bracket.commisionRate}%`}
-                              </Typography>
-                            </StepContent>
-                          </Step>
-                        ))}
-                      </Stepper> : <Skeleton height={250} width={20}/>}
                       <Stack alignItems="center">
                         <Typography variant="h5">Commission</Typography>
                         <Typography variant="h5">
