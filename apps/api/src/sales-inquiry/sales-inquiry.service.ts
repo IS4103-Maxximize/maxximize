@@ -44,6 +44,7 @@ export class SalesInquiryService {
     @Inject(forwardRef(() => PurchaseRequisitionsService))
     private purchaseRequisitionSevice: PurchaseRequisitionsService,
     private organisationService: OrganisationsService,
+    @Inject(forwardRef(() => FinalGoodsService))
     private finalGoodService: FinalGoodsService,
     private schedulerRegistry: SchedulerRegistry,
     @Inject(forwardRef(() => ChronJobsService))

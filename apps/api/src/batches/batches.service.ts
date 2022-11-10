@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { randomUUID } from 'crypto';
 import { DataSource, QueryRunner, Repository } from 'typeorm';
@@ -22,8 +22,11 @@ export class BatchesService {
   constructor(@InjectRepository(Batch)
   private readonly batchRepository: Repository<Batch>,
   private binService: BinsService,
+  @Inject(forwardRef(() => SalesInquiryService))
   private salesInquiryService: SalesInquiryService,
+  @Inject(forwardRef(() => PurchaseRequisitionsService))
   private purchaseRequisitionService: PurchaseRequisitionsService,
+  @Inject(forwardRef(() => FinalGoodsService))
   private finalGoodService: FinalGoodsService,
   private dataSource: DataSource) {}
 
