@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { CartLineItem } from "../../cart-line-items/entities/cart-line-item.entity";
 import { Organisation } from "../../organisations/entities/organisation.entity";
 
@@ -20,6 +20,9 @@ export class Cart {
 
     @Column()
     supplierId: number
+    @ManyToOne(() => Organisation, organisation => organisation.placeholderCarts)
+    @JoinColumn({name: 'supplierId'})
+    supplier: Organisation
 
     @OneToMany(() => CartLineItem, cartLineItem => cartLineItem.cart)
     cartLineItems: CartLineItem[]
