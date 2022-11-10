@@ -149,6 +149,9 @@ export class Organisation {
   @OneToMany(() => Cart, cart => cart.organisation)
   carts: Cart[]
 
+  @OneToMany(() => Cart, cart => cart.supplier)
+  placeholderCarts: Cart[]
+
   @OneToMany(() => BulkDiscount, bulkDiscount => bulkDiscount.organisation)
   bulkDiscounts: BulkDiscount[]
 
