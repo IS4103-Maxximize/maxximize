@@ -17,10 +17,16 @@ export class CartsService {
     const {organisationId, supplierId } = createCartDto
     const organisationToBeAdded = await this.organisationService.findOne(organisationId)
     const checkSupplier = await this.organisationService.findOne(supplierId)
+    const checkUniqueCart = await this.checkUniqueCart(organisationId, supplierId)
+    if (!checkUniqueCart) {
+      //not unique
+      throw new NotFoundException('Cart`s supplier Id must be unique!')
+    }
+    //need to check theres already a cart with the same supplier
     //call the create method of cart line item service
     const newCart = this.cartsRepository.create({
       organisation: organisationToBeAdded,
-      supplierId: checkSupplier.id
+      supplier: checkSupplier
     })
     return this.cartsRepository.save(newCart)
   }
@@ -32,6 +38,12 @@ export class CartsService {
         cartLineItems: true
       }
     })
+  }
+
+  async checkUniqueCart(organisationId: number, supplierId: number) {
+    const carts = await this.findByOrg(organisationId)
+    const isUnique = carts.every(cart => cart.supplierId !== supplierId)
+    return isUnique
   }
 
   async findOne(id: number) {
