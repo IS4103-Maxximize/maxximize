@@ -30,25 +30,6 @@ export const InvoiceDialog = (props) => {
 
   const [copied, setCopied] = useState(false);
 
-  const columns = [
-    {
-      field: 'code',
-      headerName: 'Batch Item Code',
-      flex: 3,
-      valueGetter: (params) => {
-        return params.value === '' ? 'STAGING' : params.value;
-      }
-    },
-    {
-      field: 'expiryDate',
-      headerName: 'Expiry',
-      flex: 2,
-      valueFormatter: (params) => {
-        return DayJS(params.value).format('DD MMM YYYY');
-      }
-    },
-  ]
-
   const formik = useFormik({
     initialValues: {
       type: invoice?.type,

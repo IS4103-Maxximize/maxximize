@@ -19,8 +19,8 @@ export class PurchaseOrderLineItem {
     @Column()
     price: number
 
-    @ManyToOne(() => RawMaterial)
-    rawMaterial: RawMaterial
+    @ManyToOne(() => RawMaterial, { nullable: true })
+    rawMaterial?: RawMaterial
 
     @ManyToOne(() => FinalGood, { nullable: true })
     finalGood?: FinalGood

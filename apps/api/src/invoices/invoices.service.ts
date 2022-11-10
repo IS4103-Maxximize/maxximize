@@ -53,6 +53,9 @@ export class InvoicesService {
         po: {
           supplier: {
             accountInfo: true
+          },
+          poLineItems: {
+            finalGood: true
           }
         }
       }

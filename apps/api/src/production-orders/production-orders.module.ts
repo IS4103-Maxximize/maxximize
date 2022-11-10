@@ -22,7 +22,7 @@ import { ChronJobsModule } from '../chron-jobs/chron-jobs.module';
 import { ProductionRequestsModule } from '../production-requests/production-requests.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([ProductionOrder, Schedule, ProductionLineItem, Organisation, PurchaseOrder, Batch, BatchLineItem, BillOfMaterial]), BillOfMaterialsModule, OrganisationsModule, RawMaterialsModule, FinalGoodsModule, ScheduleModule.forRoot(), SchedulesModule, ProductionLinesModule, BatchLineItemsModule, forwardRef(() => ChronJobsModule), forwardRef(() => ProductionRequestsModule)],
+  imports: [TypeOrmModule.forFeature([ProductionOrder, Schedule, ProductionLineItem, Organisation, PurchaseOrder, Batch, BatchLineItem, BillOfMaterial]), BillOfMaterialsModule, OrganisationsModule, RawMaterialsModule, forwardRef(() => FinalGoodsModule), ScheduleModule.forRoot(), SchedulesModule, ProductionLinesModule, BatchLineItemsModule, forwardRef(() => ChronJobsModule), forwardRef(() => ProductionRequestsModule)],
   controllers: [ProductionOrdersController],
   providers: [ProductionOrdersService],
   exports: [ProductionOrdersService]

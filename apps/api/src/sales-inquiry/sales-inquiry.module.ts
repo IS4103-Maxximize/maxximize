@@ -18,7 +18,7 @@ import { ChronJobsModule } from '../chron-jobs/chron-jobs.module';
 @Module({
   imports: [
     TypeOrmModule.forFeature([SalesInquiry, SalesInquiryLineItem, ShellOrganisation, Quotation, Organisation, RawMaterial, PurchaseRequisition]), 
-    MailModule, FinalGoodsModule,
+    MailModule, forwardRef(() => FinalGoodsModule),
     forwardRef(() => PurchaseRequisitionsModule),
     OrganisationsModule,
     forwardRef(() => ChronJobsModule),

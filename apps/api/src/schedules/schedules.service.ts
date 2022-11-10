@@ -33,6 +33,7 @@ export class SchedulesService {
     private readonly scheduleRepository: Repository<Schedule>,
     @Inject(forwardRef(() => ProductionLinesService))
     private productionLineService: ProductionLinesService,
+    @Inject(forwardRef(() => PurchaseOrdersService))
     private purchaseOrderService: PurchaseOrdersService,
     private datasource: DataSource,
     @Inject(forwardRef(() => BatchesService))
@@ -86,6 +87,18 @@ export class SchedulesService {
         },
       },
     });
+  }
+
+  findAllByOrg(orgId: number) {
+    return this.scheduleRepository.find({
+      where: {
+        productionOrder: {
+          organisationId: orgId
+        }
+      }, relations: {
+        productionLine: true
+      }
+    })
   }
 
   async findOne(id: number) {
