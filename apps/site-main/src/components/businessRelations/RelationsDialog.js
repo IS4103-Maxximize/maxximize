@@ -1,25 +1,20 @@
 import {
-    Button,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    TextField,
-    useTheme,
-    Box,
-    Typography,
-    responsiveFontSizes,
-  } from '@mui/material';
-  import useMediaQuery from '@mui/material/useMediaQuery';
-  import { useFormik } from 'formik';
+  Box, Button,
+  Dialog, DialogContent, DialogTitle, TextField, Typography, useTheme
+} from '@mui/material';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { useFormik } from 'formik';
 import { useState } from 'react';
-  import * as Yup from 'yup';
+import * as Yup from 'yup';
 
 export const RelationsDialog = ({
+    fields,
     openDialog,
     setOpenDialog,
     addOrganisation,
     type,
-    orgId
+    orgId,
+    handleAlertOpen
   }) => {
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
@@ -32,8 +27,7 @@ export const RelationsDialog = ({
     const user = JSON.parse(localStorage.getItem('user'));
 
     const handleOnSubmit = async () => {
-
-        const response = await fetch('http://localhost:3000/api/shell-organisations', {
+      const response = await fetch('http://localhost:3000/api/shell-organisations', {
         method: 'POST',
         headers: {
           Accept: 'application/json',
@@ -52,30 +46,32 @@ export const RelationsDialog = ({
           type: type === 'supplier' ? "SUPPLIER" : "RETAILER"
         }),
       });
-        if (response.status === 200 || response.status === 201) {
-          const result = await response.json();
-  
-          addOrganisation(result);
-          setError('')
-          handleDialogClose();
-        } else {
-          const result = await response.json()
-          setError(result.message)
+
+      if (response.status === 200 || response.status === 201) {
+        const result = await response.json();
+
+        if (handleAlertOpen) {
+          handleAlertOpen('Successfully onboarded Retailer!', 'success');
         }
-        
-    
-      
-  };
+
+        addOrganisation(result);
+        setError('')
+        handleDialogClose();
+      } else {
+        const result = await response.json()
+        setError(result.message)
+      }
+    };
   
     const formik = useFormik({
       initialValues: {
-        name: '',
-        organisationId:'',
-        uen: '',
-        address: '',
-        postalCode: '',
-        email: '',
-        phoneNumber: '',
+        name: fields ? fields.name : '',
+        uen: fields ? fields.uen : '',
+        address: fields ? fields.address : '',
+        postalCode: fields ? fields.postalCode : '',
+        email: fields ? fields.email : '',
+        phoneNumber: fields ? fields.phoneNumber : '',
+        creditLimit: 1,
         error: ''
       },
       validationSchema: Yup.object({
@@ -102,7 +98,11 @@ export const RelationsDialog = ({
         .max(16, 'Phone number can at most be 16 digits')
         .matches(new RegExp('[0-9]'), 'Phone number should only contain digits')
         .required('Phone Number is required'),
+        creditLimit: Yup.number()
+        .min(1, 'Credit Limit must be a positive number')
+        .required('Credit Limit is required'),
       }),
+      enableReinitialize: true,
       onSubmit: handleOnSubmit
     });
     
@@ -204,6 +204,22 @@ export const RelationsDialog = ({
             variant="outlined"
             size="small"
             inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+          />
+          <TextField
+            error={Boolean(
+              formik.touched.creditLimit && formik.errors.creditLimit
+            )}
+            fullWidth
+            helperText={formik.touched.creditLimit && formik.errors.creditLimit}
+            label="Credit Limit"
+            margin="normal"
+            name="creditLimit"
+            type="number"
+            onBlur={formik.handleBlur}
+            onChange={formik.handleChange}
+            value={formik.values.creditLimit}
+            variant="outlined"
+            size="small"
           />
             <Typography variant="caption" color="red">
               {error}

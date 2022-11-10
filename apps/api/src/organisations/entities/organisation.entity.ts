@@ -33,6 +33,8 @@ import { Membership } from '../../memberships/entities/membership.entity';
 import { AccountInfo } from '../../account-info/entities/account-info.entity';
 import { Cart } from '../../carts/entities/cart.entity';
 import { BulkDiscount } from '../../bulk-discounts/entities/bulk-discount.entity';
+import { RevenueBracket } from '../../revenue-brackets/entities/revenue-bracket.entity';
+import { Outlet } from '../../outlets/entities/outlet.entity';
 
 @Entity()
 export class Organisation {
@@ -149,4 +151,10 @@ export class Organisation {
 
   @OneToMany(() => BulkDiscount, bulkDiscount => bulkDiscount.organisation)
   bulkDiscounts: BulkDiscount[]
+
+  @OneToMany(() => RevenueBracket, revenueBracket => revenueBracket.organisation)
+  revenueBrackets: RevenueBracket[]
+
+  @OneToMany(() => Outlet, outlet => outlet.organisation)
+  outlets: Outlet[]
 }

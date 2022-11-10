@@ -85,7 +85,7 @@ export class MembershipsController {
 
   @Get('stripe/invoices/subscriptions/:id')
   findInvoicesOfSubscription(@Param('id') id: string) {
-    return this.membershipsService.getInvoicesOfSubsciption(id)
+    return this.membershipsService.getInvoicesOfSubscription(id)
   }
 
   //payment methods

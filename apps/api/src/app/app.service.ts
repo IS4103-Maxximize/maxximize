@@ -17,6 +17,7 @@ import { QuotationLineItemsService } from '../quotation-line-items/quotation-lin
 import { QuotationsService } from '../quotations/quotations.service';
 import { RacksService } from '../racks/racks.service';
 import { RawMaterialsService } from '../raw-materials/raw-materials.service';
+import { RevenueBracketsService } from '../revenue-brackets/revenue-brackets.service';
 import { SalesInquiryService } from '../sales-inquiry/sales-inquiry.service';
 import { ShellOrganisationsService } from '../shell-organisations/shell-organisations.service';
 import { User } from '../users/entities/user.entity';
@@ -45,7 +46,8 @@ export class AppService implements OnApplicationBootstrap {
     private dataSource: DataSource,
     private bomService: BillOfMaterialsService,
     private factoryMachineService: FactoryMachinesService,
-	private productionLineService: ProductionLinesService
+    private productionLineService: ProductionLinesService,
+    private revenueBracketsService: RevenueBracketsService
   ) {}
   getData(): { message: string } {
     return { message: 'Welcome to api!' };
@@ -230,7 +232,7 @@ export class AppService implements OnApplicationBootstrap {
       await this.organisationsService.create({
         name: 'Tomato Farm Bali',
         uen: '123TOM123',
-        type: OrganisationType.SUPPLIER,
+        type: OrganisationType.MANUFACTURER,
         contact: {
           phoneNumber: '123123123',
           email: 'maxximizetest@gmail.com',
@@ -841,6 +843,22 @@ export class AppService implements OnApplicationBootstrap {
         remarks: 'TESTER2',
         organisationId: 2,
       });
+
+      await this.revenueBracketsService.create({
+        start: 15000,
+        end: 25000,
+        commisionRate: 3
+      })
+      await this.revenueBracketsService.create({
+        start: 25000,
+        end: 30000,
+        commisionRate: 4
+      })
+      await this.revenueBracketsService.create({
+        start: 30000,
+        end: null,
+        commisionRate: 5
+      })
     }
   }
 }

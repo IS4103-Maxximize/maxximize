@@ -1,6 +1,7 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { BulkDiscountsService } from './bulk-discounts.service';
 import { CreateBulkDiscountDto } from './dto/create-bulk-discount.dto';
+import { GetDiscountDto } from './dto/get-discount.dto';
 import { UpdateBulkDiscountDto } from './dto/update-bulk-discount.dto';
 
 @Controller('bulk-discounts')
@@ -27,6 +28,16 @@ export class BulkDiscountsController {
     return this.bulkDiscountsService.findOne(+id);
   }
 
+  @Get('/active/orgId/:orgId') 
+  findActiveByOrg(@Param('orgId') id: string) {
+    return this.bulkDiscountsService.findActiveBulkDiscount(+id)
+  }
+
+  @Post('discount')
+  getDiscount(@Body() getDiscountDto: GetDiscountDto) {
+    return this.bulkDiscountsService.getDiscount(getDiscountDto)
+  }
+  
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateBulkDiscountDto: UpdateBulkDiscountDto) {
     return this.bulkDiscountsService.update(+id, updateBulkDiscountDto);

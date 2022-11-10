@@ -73,9 +73,10 @@ export class FinalGoodsService {
     }
   }
 
-  async findTopSellingGoods(orgId: number, date: Date){
+  async findTopSellingGoods(orgId: number){
     const invoices = await this.invoicesService.findSentInvoicesByOrg(orgId)
     const goodsSales = new Map<number, number>()
+    const date = new Date()
     for (const invoice of invoices) {
       if (invoice.status == InvoiceStatus.CLOSED){
         const po = (await this.invoicesService.findOne(invoice.id)).po
@@ -94,6 +95,11 @@ export class FinalGoodsService {
     const mapSort1 = new Map([...goodsSales.entries()].sort((a, b) => b[1] - a[1]))
     const finalGoods = [...mapSort1.keys()]
     const arr = [finalGoods[0],finalGoods[1],finalGoods[2],finalGoods[3],finalGoods[4]]
+    console.log(goodsSales)
+    console.log('===========================================================')
+    console.log(mapSort1)
+    console.log('++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++')
+    console.log(arr)
     return arr
   }
 

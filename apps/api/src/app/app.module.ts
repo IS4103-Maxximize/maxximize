@@ -16,6 +16,7 @@ import { BulkDiscountsModule } from '../bulk-discounts/bulk-discounts.module';
 import { CartLineItemsModule } from '../cart-line-items/cart-line-items.module';
 import { CartsModule } from '../carts/carts.module';
 import { ContactsModule } from '../contacts/contacts.module';
+import { CostModule } from '../cost/cost.module';
 import { DeliveryRequestLineItemsModule } from '../delivery-request-line-items/delivery-request-line-items.module';
 import { DeliveryRequestsModule } from '../delivery-requests/delivery-requests.module';
 import { FactoryMachinesModule } from '../factory-machines/factory-machines.module';
@@ -29,6 +30,7 @@ import { MembershipsModule } from '../memberships/memberships.module';
 import { OrderLineItemsModule } from '../order-line-items/order-line-items.module';
 import { OrdersModule } from '../orders/orders.module';
 import { OrganisationsModule } from '../organisations/organisations.module';
+import { OutletsModule } from '../outlets/outlets.module';
 import { ProductionLineItemsModule } from '../production-line-items/production-line-items.module';
 import { ProductionLinesModule } from '../production-lines/production-lines.module';
 import { ProductionOrdersModule } from '../production-orders/production-orders.module';
@@ -46,6 +48,8 @@ import { RacksModule } from '../racks/racks.module';
 import { RawMaterialsModule } from '../raw-materials/raw-materials.module';
 import { RecipesModule } from '../recipes/recipes.module';
 import { ReservationLineItemsModule } from '../reservation-line-items/reservation-line-items.module';
+import { RevenueBracketsModule } from '../revenue-brackets/revenue-brackets.module';
+import { RevenueModule } from '../revenue/revenue.module';
 import { SalesInquiryLineItemsModule } from '../sales-inquiry-line-items/sales-inquiry-line-items.module';
 import { SalesInquiryModule } from '../sales-inquiry/sales-inquiry.module';
 import { ScheduleLineItemsModule } from '../schedule-line-items/schedule-line-items.module';
@@ -132,6 +136,10 @@ import { AppService } from './app.service';
       dest: '/uploads'
     }),
     StripeModule,
+    RevenueModule,
+    RevenueBracketsModule,
+    OutletsModule,
+    CostModule
   ],
   controllers: [AppController],
   providers: [AppService],

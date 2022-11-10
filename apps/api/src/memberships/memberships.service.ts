@@ -62,7 +62,6 @@ export class MembershipsService {
   }
 
   async update(id: number, updateMembershipDto: UpdateMembershipDto) {
-    console.log('updating')
     const membershipToUpdate = await this.findOne(id)
     const mapping = Object.entries(updateMembershipDto)
     if (mapping.length > 0) {
@@ -257,7 +256,8 @@ export class MembershipsService {
         planAmount: amount / 100,
         plan: currentSubscriptionPlan,
         status: MembershipStatus.ACTIVE,
-        defaultPayment: customer.defaultSource as string
+        defaultPayment: customer.defaultSource as string,
+        commisionPayment: customer.defaultSource as string
       })
       console.log(membership)
       return membership
@@ -330,7 +330,8 @@ export class MembershipsService {
 
  async getInvoicesOfCustomer(customerId: string) {
   const allInvoicesObject = await this.stripe.invoices.list({
-    customer: customerId
+    customer: customerId,
+    limit: 100
   })
   const allInvoices = allInvoicesObject.data
   const parsedInvoices = allInvoices.map(invoice => {
@@ -348,7 +349,7 @@ export class MembershipsService {
   return parsedInvoices
  }
 
- async getInvoicesOfSubsciption(subscriptionId: string) {
+ async getInvoicesOfSubscription(subscriptionId: string) {
   const allInvoicesObject = await this.stripe.invoices.list({
     subscription: subscriptionId
   })
