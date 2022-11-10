@@ -80,7 +80,7 @@ export class FinalGoodsService {
     for (const invoice of invoices) {
       if (invoice.status == InvoiceStatus.CLOSED){
         const po = (await this.invoicesService.findOne(invoice.id)).po
-        if (po.deliveryDate.getMonth() == date.getMonth() && po.deliveryDate.getFullYear() == date.getFullYear()){
+        if (invoice.paymentReceived.getMonth() == date.getMonth() && invoice.paymentReceived.getFullYear() == date.getFullYear()){
           for (const poLineItem of po.poLineItems) {
             if(goodsSales.has(poLineItem.finalGood.id)) {
               const quantity = goodsSales.get(poLineItem.finalGood.id) + poLineItem.quantity
@@ -94,12 +94,14 @@ export class FinalGoodsService {
     }
     const mapSort1 = new Map([...goodsSales.entries()].sort((a, b) => b[1] - a[1]))
     const finalGoods = [...mapSort1.keys()]
-    const arr = [await this.findOne(finalGoods[0]),await this.findOne(finalGoods[1]),await this.findOne(finalGoods[2]),await this.findOne(finalGoods[3]),await this.findOne(finalGoods[4])]
-    console.log(goodsSales)
-    console.log('===========================================================')
-    console.log(mapSort1)
-    console.log('++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++')
-    console.log(arr)
+    const arr = [
+      {name: (await this.findOne(finalGoods[0])).name, quantity: mapSort1.get(finalGoods[0])},
+      {name: (await this.findOne(finalGoods[1])).name, quantity: mapSort1.get(finalGoods[1])},
+      {name: (await this.findOne(finalGoods[2])).name, quantity: mapSort1.get(finalGoods[2])},
+      {name: (await this.findOne(finalGoods[3])).name, quantity: mapSort1.get(finalGoods[3])},
+      {name: (await this.findOne(finalGoods[4])).name, quantity: mapSort1.get(finalGoods[4])}
+    ]
+
     return arr
   }
 
