@@ -94,7 +94,7 @@ export class FinalGoodsService {
     }
     const mapSort1 = new Map([...goodsSales.entries()].sort((a, b) => b[1] - a[1]))
     const finalGoods = [...mapSort1.keys()]
-    const arr = [finalGoods[0],finalGoods[1],finalGoods[2],finalGoods[3],finalGoods[4]]
+    const arr = [await this.findOne(finalGoods[0]),await this.findOne(finalGoods[1]),await this.findOne(finalGoods[2]),await this.findOne(finalGoods[3]),await this.findOne(finalGoods[4])]
     console.log(goodsSales)
     console.log('===========================================================')
     console.log(mapSort1)
