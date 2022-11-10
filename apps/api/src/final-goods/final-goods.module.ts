@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { FinalGoodsService } from './final-goods.service';
 import { FinalGoodsController } from './final-goods.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -7,9 +7,10 @@ import { Product } from '../products/entities/product.entity';
 import { Recipe } from '../recipes/entities/recipe.entity';
 import { BillOfMaterial } from '../bill-of-materials/entities/bill-of-material.entity';
 import { Organisation } from '../organisations/entities/organisation.entity';
+import { InvoicesModule } from '../invoices/invoices.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([FinalGood, Product, BillOfMaterial, Organisation])],
+  imports: [TypeOrmModule.forFeature([FinalGood, Product, BillOfMaterial, Organisation]), forwardRef(() => InvoicesModule)],
   controllers: [FinalGoodsController],
   providers: [FinalGoodsService],
   exports: [FinalGoodsService]

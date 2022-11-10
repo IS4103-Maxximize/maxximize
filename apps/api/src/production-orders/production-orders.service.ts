@@ -57,6 +57,7 @@ export class ProductionOrdersService {
     private billOfMaterialsService: BillOfMaterialsService,
     private organisationsService: OrganisationsService,
     private rawMaterialsService: RawMaterialsService,
+    @Inject(forwardRef(() => FinalGoodsService))
     private finalGoodsService: FinalGoodsService,
     private schedulesService: SchedulesService,
     private productionLinesService: ProductionLinesService,

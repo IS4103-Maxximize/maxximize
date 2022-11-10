@@ -1,7 +1,9 @@
 /* eslint-disable prefer-const */
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { InvoiceStatus } from '../invoices/enums/invoiceStatus.enum';
+import { InvoicesService } from '../invoices/invoices.service';
 import { Organisation } from '../organisations/entities/organisation.entity';
 import { CreateFinalGoodDto } from './dto/create-final-good.dto';
 import { UpdateFinalGoodDto } from './dto/update-final-good.dto';
@@ -13,7 +15,9 @@ export class FinalGoodsService {
     @InjectRepository(FinalGood)
     private readonly finalGoodRepository: Repository<FinalGood>,
     @InjectRepository(Organisation)
-    private readonly organisationsRepository: Repository<Organisation>
+    private readonly organisationsRepository: Repository<Organisation>,
+    @Inject(forwardRef(() => InvoicesService))
+    private invoicesService: InvoicesService
   ){}
 
   async create(createFinalGoodDto: CreateFinalGoodDto): Promise<FinalGood> {
@@ -67,6 +71,36 @@ export class FinalGoodsService {
     } catch (err) {
       throw new NotFoundException(`findOne failed as Final Good with id: ${id} cannot be found`)
     }
+  }
+
+  async findTopSellingGoods(orgId: number){
+    const invoices = await this.invoicesService.findSentInvoicesByOrg(orgId)
+    const goodsSales = new Map<number, number>()
+    const date = new Date()
+    for (const invoice of invoices) {
+      if (invoice.status == InvoiceStatus.CLOSED){
+        const po = (await this.invoicesService.findOne(invoice.id)).po
+        if (po.deliveryDate.getMonth() == date.getMonth() && po.deliveryDate.getFullYear() == date.getFullYear()){
+          for (const poLineItem of po.poLineItems) {
+            if(goodsSales.has(poLineItem.finalGood.id)) {
+              const quantity = goodsSales.get(poLineItem.finalGood.id) + poLineItem.quantity
+              goodsSales.set(poLineItem.finalGood.id, quantity)
+            } else {
+              goodsSales.set(poLineItem.finalGood.id, poLineItem.quantity)
+            }
+          }
+        }
+      }
+    }
+    const mapSort1 = new Map([...goodsSales.entries()].sort((a, b) => b[1] - a[1]))
+    const finalGoods = [...mapSort1.keys()]
+    const arr = [finalGoods[0],finalGoods[1],finalGoods[2],finalGoods[3],finalGoods[4]]
+    console.log(goodsSales)
+    console.log('===========================================================')
+    console.log(mapSort1)
+    console.log('++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++')
+    console.log(arr)
+    return arr
   }
 
   async update(id: number, updateFinalGoodDto: UpdateFinalGoodDto): Promise<FinalGood> {

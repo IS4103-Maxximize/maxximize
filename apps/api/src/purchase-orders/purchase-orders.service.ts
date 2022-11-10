@@ -128,6 +128,8 @@ export class PurchaseOrdersService {
                 await transactionalEntityManager.findOneByOrFail(RawMaterial, {
                   id: rawMaterialId,
                 });
+            } else {
+              rawMaterialToBeAdded = null
             }
             if (finalGoodId) {
               finalGoodToBeAdded =

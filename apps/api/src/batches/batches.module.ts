@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BatchLineItem } from '../batch-line-items/entities/batch-line-item.entity';
 import { BinsModule } from '../bins/bins.module';
@@ -20,10 +20,11 @@ import { Batch } from './entities/batch.entity';
     WarehousesModule, 
     BinsModule, 
     PurchaseOrder, 
-    SalesInquiryModule, 
-    PurchaseRequisitionsModule, 
+    
+   forwardRef(() => SalesInquiryModule) , 
+   forwardRef(() => PurchaseRequisitionsModule), 
     ProductionOrdersModule, 
-    FinalGoodsModule],
+    forwardRef(() => FinalGoodsModule)],
   controllers: [BatchesController],
   providers: [BatchesService],
   exports: [BatchesService]
