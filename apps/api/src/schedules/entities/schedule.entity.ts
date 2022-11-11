@@ -19,6 +19,12 @@ export class Schedule {
     @Column()
     end: Date;
 
+    @Column({nullable: true})
+    actualQuantity: number;
+
+    @Column({nullable: true})
+    expectedQuantity: number;
+
     @Column({
         type: 'enum',
         enum: ScheduleType
