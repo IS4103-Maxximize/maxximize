@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Post } from '@nestjs/common';
-import { GetProfitDto } from './enums/get-profit.enum';
+import { GetProfitDto } from './dto/get-profit.dto';
 import { ProfitService } from './profit.service';
 
 @Controller('profit')
