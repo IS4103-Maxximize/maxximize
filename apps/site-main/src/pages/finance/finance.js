@@ -417,14 +417,10 @@ export const Finance = (props) => {
                   <Stepper activeStep={activeStep}>
                     {revenueBrackets.map((bracket, index) => (
                       <Step key={index}>
-                        <StepLabel>
-                          {`≥ $${bracket.start}`}
+                        <StepLabel sx={{ textAlign: "center"}}>
+                          <Typography>{`${bracket.commisionRate} %`}</Typography>
+                          <Typography>{`≥ $${bracket.start}`}</Typography>
                         </StepLabel>
-                        <StepContent>
-                          <Typography variant="h6">
-                            {`${bracket.commisionRate}%`}
-                          </Typography>
-                        </StepContent>
                       </Step>
                     ))}
                   </Stepper> : <Skeleton />}
