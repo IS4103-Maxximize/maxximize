@@ -3,7 +3,7 @@ import { CostService } from '../cost/cost.service';
 import { GetCostDto } from '../cost/dto/get-cost.dto';
 import { GetRevenueDto } from '../revenue/dto/get-revenue.dto';
 import { RevenueService } from '../revenue/revenue.service';
-import { GetProfitDto } from './enums/get-profit.enum';
+import { GetProfitDto } from './dto/get-profit.dto';
 
 @Injectable()
 export class ProfitService {

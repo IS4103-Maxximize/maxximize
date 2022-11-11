@@ -6,6 +6,7 @@ import { MembershipsService } from '../memberships/memberships.service';
 import { Schedule } from '../schedules/entities/schedule.entity';
 import { ScheduleType } from '../schedules/enums/scheduleType.enum';
 import { SchedulesService } from '../schedules/schedules.service';
+import { GetCostBreakdownDto } from './dto/get-cost-breakdown.dto';
 import { GetCostDto } from './dto/get-cost.dto';
 
 @Injectable()
@@ -190,5 +191,35 @@ export class CostService {
       }
     }
     return filteredObjects
+  }
+
+  async getCostBreakdown(getCostBreakdownDto: GetCostBreakdownDto) {
+    const getCostRevenueDto = {
+      ...getCostBreakdownDto
+    }
+    const costArray = await this.getCostByDate(getCostRevenueDto)
+    if (costArray.length === 0) {
+      return []
+    } else {
+      const {lineItems} = costArray[0]
+      const map = new Map()
+      for (const lineItem of lineItems) {
+        const {type, costAmount} = lineItem
+        if (!map.has(type)) {
+          map.set(type, {
+            name: type,
+            costAmount: Math.round(costAmount * 100) / 100
+          })
+        } else {
+          const currentValue = map.get(type)
+          const newCostAmount = currentValue.costAmount + costAmount
+          map.set(type, {
+            ...currentValue,
+            costAmount: Math.round(newCostAmount * 100) / 100
+          })
+        }
+      }
+      return Array.from(map.values())
+    }
   }
 }
