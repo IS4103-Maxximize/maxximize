@@ -30,6 +30,11 @@ export class BatchLineItemsController {
     return this.batchLineItemsService.findAllByOrganisationId(+id);
   }
 
+  @Get('inventoryLevel/:id/:percentage')
+  getLowStockFinalGoods(@Param('id') id: number, @Param('percentage') percentage: number) {
+    return this.batchLineItemsService.getLowStockFinalGoods(id, percentage);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.batchLineItemsService.findOne(+id);

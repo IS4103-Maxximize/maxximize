@@ -419,4 +419,45 @@ export class BatchLineItemsService {
     }
     return finalGoodsStock;
   }
+
+  async getLowStockFinalGoods(organisationId: number, percentage: number) {
+    const batchLineItems = await this.findAllByOrganisationId(organisationId);
+    const finalGoodsStock = new Map<number, BatchLineItem[]>();
+
+    for (const batchLineItem of batchLineItems) {
+      const product = batchLineItem.product;
+      if (product instanceof FinalGood) {
+        if (!finalGoodsStock.has(product.id)) {
+          const lineItemsArr: BatchLineItem[] = [];
+          lineItemsArr.push(batchLineItem);
+          finalGoodsStock.set(product.id, lineItemsArr);
+        } else {
+          const lineItems = finalGoodsStock.get(product.id);
+          lineItems.push(batchLineItem);
+          finalGoodsStock.set(product.id, lineItems);
+        }
+      }
+    }
+
+    const finalGoodsLowStock = [];
+
+    for(const [key, value] of finalGoodsStock.entries()) {
+      const totalQuantity = value.reduce((seed, batchLineItem) => {
+        return seed + batchLineItem.quantity
+      }, 0);
+      const remainingQuantity = value.reduce((seed, batchLineItem) => {
+        return seed + (batchLineItem.quantity - batchLineItem.reservedQuantity)
+      }, 0);
+      const percentageCalc = remainingQuantity / totalQuantity * 100;
+      if (percentageCalc < percentage) {
+        finalGoodsLowStock.push({
+          "finalGood": value[0].product,
+          "totalQuantity": totalQuantity,
+          "remainingQuantity": remainingQuantity,
+          "percentageCalc": percentageCalc
+        })
+      }
+    }
+    return finalGoodsLowStock;
+  }
 }
