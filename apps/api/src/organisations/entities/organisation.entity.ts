@@ -57,6 +57,9 @@ export class Organisation {
   @Column({ unique: true })
   uen: string;
 
+  @Column({nullable: true})
+  description: string
+
   @OneToMany(() => User, (user) => user.organisation, {
     cascade: ['remove'],
   })
@@ -148,6 +151,9 @@ export class Organisation {
   accountInfo: AccountInfo
   @OneToMany(() => Cart, cart => cart.organisation)
   carts: Cart[]
+
+  @OneToMany(() => Cart, cart => cart.supplier)
+  placeholderCarts: Cart[]
 
   @OneToMany(() => BulkDiscount, bulkDiscount => bulkDiscount.organisation)
   bulkDiscounts: BulkDiscount[]

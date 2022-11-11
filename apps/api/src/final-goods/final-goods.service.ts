@@ -41,7 +41,8 @@ export class FinalGoodsService {
   findAll(): Promise<FinalGood[]> {
     return this.finalGoodRepository.find({relations: {
       organisation: true,
-      billOfMaterial: true
+      billOfMaterial: true,
+      image: true
     }})
   }
 
@@ -54,7 +55,8 @@ export class FinalGoodsService {
       },
       relations: {
         organisation: true,
-        billOfMaterial: true
+        billOfMaterial: true,
+        image: true
       }
     })
   }
@@ -65,7 +67,8 @@ export class FinalGoodsService {
         id
       }, relations: {
         organisation: true,
-        billOfMaterial: true 
+        billOfMaterial: true,
+        image: true
       }})
       return finalGood
     } catch (err) {

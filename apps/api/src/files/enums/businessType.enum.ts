@@ -1,4 +1,6 @@
 export enum BusinessType {
     VALIDATION = 'validation',
-    FINANCE = 'finance'
+    FINANCE = 'finance',
+    FINALGOODIMAGE = 'finalgoodimage',
+    ORGIMAGE = 'organisationImage'
 }

@@ -159,7 +159,7 @@ export class OrganisationsService {
     try {
       const organisation =  await this.organisationsRepository.findOneOrFail({
         where: {id}, 
-        relations: ["shellOrganisations", "contact", "users.contact", "membership", "accountInfo"]
+        relations: ["shellOrganisations", "contact", "users.contact", "membership", "accountInfo", "documents"]
       });
       return organisation;
     } catch (err) {

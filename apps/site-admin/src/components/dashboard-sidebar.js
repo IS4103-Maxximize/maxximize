@@ -1,4 +1,5 @@
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import PriceChangeIcon from '@mui/icons-material/PriceChange';
 import {
   Accordion,
   AccordionDetails,
@@ -28,6 +29,12 @@ const standalone = [
   //     title: 'Onboarding',
   //     access: ['admin', 'superadmin'],
   //   },
+  {
+    href: '/revenue-brackets',
+    icon: <PriceChangeIcon fontSize="small" />,
+    title: 'Revenue Brackets',
+    access: ['admin', 'superadmin'],
+  }
 ];
 
 const items = [
