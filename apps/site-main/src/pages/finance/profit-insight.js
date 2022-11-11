@@ -1,14 +1,13 @@
 import { DataTableCell, Table, TableBody, TableCell, TableHeader } from '@david.kucsai/react-pdf-table';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import ListIcon from '@mui/icons-material/List';
-import MoreVert from '@mui/icons-material/MoreVert';
 import {
   Box, Button, Container, Dialog, DialogContent, Grid,
   IconButton,
   Typography
 } from '@mui/material';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
-import { Document, Page, PDFViewer, Text, View, StyleSheet } from '@react-pdf/renderer';
+import { Document, Page, PDFViewer, StyleSheet, Text, View } from '@react-pdf/renderer';
 import DayJS from 'dayjs';
 import { useEffect, useState } from 'react';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
@@ -128,7 +127,6 @@ export const ProfitInsight = (props) => {
     setOpenExport(!openExport);
   }
 
-
   const ExportProfitButton = (props) => {
     return (
       profit.length > 0 && 
@@ -136,12 +134,16 @@ export const ProfitInsight = (props) => {
         variant="contained"
         color="primary"
         endIcon={<FileDownloadIcon />}
-        onClick={toggleExport}
+        onClick={handleOpenExportOpen}
       >
         Export
       </Button>
     );
   };
+
+  const formatDate = (date) => {
+    return DayJS(date).format('DD MMM YYYY hh:mm a');
+  }
 
   const styles = StyleSheet.create({
     page: { margin: 10 },
@@ -157,6 +159,10 @@ export const ProfitInsight = (props) => {
     return (
     <Document>
       <Page style={styles.page}>
+        <View style={styles.entry}>
+          <Text>{`PROFIT INSIGHT REPORT - (${profitType === 'month' ? 'Monthly' : 'Yearly'})`}</Text>
+          <Text>{`Generated: ${formatDate(new Date())}`}</Text>
+        </View>
         {profit.map((item, index) => 
           {
             const rev = item.revenueLineItems.length > 0;
@@ -174,6 +180,9 @@ export const ProfitInsight = (props) => {
                     >
                       <TableHeader>
                         <TableCell>
+                          Date
+                        </TableCell>
+                        <TableCell>
                           Item Type
                         </TableCell>
                         <TableCell>
@@ -181,6 +190,7 @@ export const ProfitInsight = (props) => {
                         </TableCell>  
                       </TableHeader>
                       <TableBody>
+                        <DataTableCell getContent={(r) => formatDate(r.paymentReceived)}/>
                         <DataTableCell getContent={(r) => r.type}/>
                         <DataTableCell getContent={(r) => r.amount}/>
                       </TableBody>
@@ -197,6 +207,9 @@ export const ProfitInsight = (props) => {
                     >
                       <TableHeader>
                         <TableCell>
+                          Date
+                        </TableCell>
+                        <TableCell>
                           Item Type
                         </TableCell>
                         <TableCell>
@@ -204,6 +217,19 @@ export const ProfitInsight = (props) => {
                         </TableCell>
                       </TableHeader>
                       <TableBody>
+                        <DataTableCell getContent={(r) => {
+                          const type = r.type;
+                          if (type === 'invoice') {
+                            return formatDate(r.paymentReceived);
+                          }
+                          if (type === 'maxximizeInvoice') {
+                            return formatDate(r.created);
+                          }
+                          if (type === 'schedule') {
+                            return formatDate(r.end);
+                          }
+                          return ''
+                        }}/>
                         <DataTableCell getContent={(r) => r.type}/>
                         <DataTableCell getContent={(r) => r.costAmount}/>
                       </TableBody>
