@@ -12,6 +12,7 @@ import BusinessRelations from './pages/businessRelations';
 import Dashboard from './pages/dashboard';
 import B2BInvoice from './pages/finance/b2b-invoice';
 import Finance from './pages/finance/finance';
+import MaxximizePayments from './pages/finance/maxximize-payments';
 import ProfitInsight from './pages/finance/profit-insight';
 import ForgotPassword from './pages/forgotPassword';
 import DeliveryRequest from './pages/fulfilment/delivery-request';
@@ -138,7 +139,7 @@ const routes = (
             {/* Maxximize Payments */}
             <Route
               path="finance/maxximize-payments"
-              // element={<MaxximizePayments />}
+              element={<MaxximizePayments />}
             ></Route>
           </Route>
 

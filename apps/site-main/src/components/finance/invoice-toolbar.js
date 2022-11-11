@@ -5,6 +5,7 @@ import {
 export const InvoiceToolbar = (props) => {
   const {
     name,
+    action,
     ...rest
   } = props;
 
@@ -22,6 +23,7 @@ export const InvoiceToolbar = (props) => {
         <Typography sx={{ m: 1 }} variant="h4">
           {name}
         </Typography>
+        {action}
       </Box>
     </Box>
   );
