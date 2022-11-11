@@ -5,9 +5,7 @@ import {
   IconButton,
   Skeleton,
   Stack,
-  Step,
-  StepContent,
-  StepLabel,
+  Step, StepLabel,
   Stepper,
   Typography
 } from '@mui/material';
