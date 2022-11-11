@@ -1,18 +1,18 @@
-import { Routes, Route } from 'react-router-dom';
-import Layout from './components/Layout';
-import Login from './pages/login';
+import { Route, Routes } from 'react-router-dom';
 import { DashboardLayout } from './components/dashboard-layout';
-import Unauthorized from './pages/unauthorized';
-import Dashboard from './pages/dashboard';
-import NotFound from './pages/404';
+import Layout from './components/Layout';
 import RequireAuth from './components/RequireAuth';
-import Onboarding from './pages/application';
-import ForgotPassword from './pages/forgotPassword';
-import ResetPassword from './pages/resetPassword';
-import ProtectedRoute from './pages/protectedRoute';
-import ProtectedPublicRoute from './pages/protectedPublicRoute';
+import NotFound from './pages/404';
 import Application from './pages/application';
+import Dashboard from './pages/dashboard';
+import ForgotPassword from './pages/forgotPassword';
+import Login from './pages/login';
 import OrganisationManagement from './pages/organisation-management';
+import ProtectedPublicRoute from './pages/protectedPublicRoute';
+import ProtectedRoute from './pages/protectedRoute';
+import ResetPassword from './pages/resetPassword';
+import RevenueBrackets from './pages/revenue-brackets';
+import Unauthorized from './pages/unauthorized';
 
 const ROLES = {
   Admin: 'admin',
@@ -55,6 +55,10 @@ const App = () => {
               <Route
                 path="client/organisation-management"
                 element={<OrganisationManagement />}
+              ></Route>
+              <Route
+                path="revenue-brackets"
+                element={<RevenueBrackets />}
               ></Route>
             </Route>
 
