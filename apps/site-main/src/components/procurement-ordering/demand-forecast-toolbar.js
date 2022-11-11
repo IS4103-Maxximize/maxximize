@@ -1,17 +1,21 @@
+import LoadingButton from '@mui/lab/LoadingButton';
 import {
   Autocomplete,
   Box,
   Breadcrumbs,
   Button,
   Card,
-  CardContent, TextField, Typography
+  CardContent,
+  TextField,
+  Typography,
 } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { procurementBreadcrumbs } from '../../helpers/constants';
 
 export const DemandForecastToolbar = (props) => {
-  const { name, finalGoods, setSelectedFinalGood, setPeriod, handleSubmit } = props;
+  const { name, finalGoods, setSelectedFinalGood, setPeriod, handleSubmit, loading } =
+    props;
 
   // Get current pathname
   const location = useLocation();
@@ -74,7 +78,14 @@ export const DemandForecastToolbar = (props) => {
                 label="Number of periods"
                 onChange={(event) => setPeriod(event.target.value)}
               />
-              <Button variant="contained" onClick={handleSubmit}>Forecast</Button>
+              <LoadingButton
+                onClick={handleSubmit}
+                loading={loading}
+                loadingIndicator="Loading…"
+                variant="contained"
+              >
+                Predict
+              </LoadingButton>
             </Box>
           </CardContent>
         </Card>

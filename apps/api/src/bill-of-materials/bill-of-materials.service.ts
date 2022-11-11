@@ -118,4 +118,14 @@ export class BillOfMaterialsService {
     return this.billOfMaterialRepository.remove(billOfMaterialToRemove)
   }
 
+  async getBOMFromFinalGood(finalGoodsId: number) {
+    return this.billOfMaterialRepository.findOne({
+      where: {
+        finalGood: {
+          id: finalGoodsId
+        }
+      }
+    });
+  }
+
 }

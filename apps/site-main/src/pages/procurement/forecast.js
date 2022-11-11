@@ -6,9 +6,12 @@ import {
   Area,
   CartesianGrid,
   ComposedChart,
-  Line, Tooltip,
+  Line,
+  ResponsiveContainer,
+  Scatter,
+  Tooltip,
   XAxis,
-  YAxis
+  YAxis,
 } from 'recharts';
 import { DemandForecastToolbar } from '../../components/procurement-ordering/demand-forecast-toolbar';
 
@@ -17,29 +20,23 @@ const ProcurementForecast = () => {
   const organisationId = user ? user.organisation.id : null;
   const name = 'Demand Forecast';
 
-  const [data, setData] = useState([]);
+  const [data, setData] = useState();
   const [finalGoods, setFinalGoods] = useState([]);
   const [selectedFinalGood, setSelectedFinalGood] = useState('');
   const [period, setPeriod] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
     const response = await fetch(
-      `http://localhost:3000/api/raw-materials/orgId/${organisationId}/demand-forecast`,
-      {
-        method: 'POST',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          period: period,
-          selectedFinalGood: selectedFinalGood,
-        }),
-      }
+      `http://localhost:3000/api/final-goods/demand-forecast/${organisationId}/${selectedFinalGood.id}/${period}`
     );
+    setLoading(true);
     if (response.status === 200 || response.status === 201) {
       const result = await response.json();
       setData(result);
+      setLoading(false);
+    } else if (response.status === 500) {
+      setLoading(false);
     }
   };
 
@@ -79,6 +76,7 @@ const ProcurementForecast = () => {
             setSelectedFinalGood={setSelectedFinalGood}
             setPeriod={setPeriod}
             handleSubmit={handleSubmit}
+            loading={loading}
           />
           <Box
             sx={{
@@ -93,47 +91,56 @@ const ProcurementForecast = () => {
             >
               <CardContent>
                 {data ? (
-                  <ComposedChart
-                    width={500}
-                    height={400}
-                    data={data}
-                    margin={{
-                      top: 20,
-                      right: 80,
-                      bottom: 20,
-                      left: 20,
-                    }}
-                  >
-                    <CartesianGrid stroke="#f5f5f5" />
-                    <XAxis
-                      dataKey="name"
-                      label={{
-                        value: 'Month',
-                        position: 'insideBottomRight',
-                        offset: 0,
+                  <ResponsiveContainer width="100%" height={500}>
+                    <ComposedChart
+                      width={500}
+                      height={400}
+                      data={data}
+                      margin={{
+                        top: 20,
+                        right: 80,
+                        bottom: 20,
+                        left: 20,
                       }}
-                      scale="band"
-                    />
-                    <YAxis
-                      label={{
-                        value: 'Amount',
-                        angle: -90,
-                        position: 'insideLeft',
-                      }}
-                    />
-                    <Tooltip />
-                    <Legend />
-                    <Area
-                      type="monotone"
-                      dataKey="bound"
-                      fill="#8884d8"
-                      stroke="#8884d8"
-                    />
-                    <Line type="monotone" dataKey="val" stroke="#ff7300" />
-                  </ComposedChart>
+                    >
+                      <CartesianGrid stroke="#f5f5f5" />
+                      <XAxis
+                        dataKey="date"
+                        label={{
+                          value: 'Month and Year',
+                          position: 'insideBottomRight',
+                          offset: -10,
+                        }}
+                        scale="band"
+                      />
+                      <YAxis
+                        label={{
+                          value: 'Amount',
+                          angle: -90,
+                          position: 'insideLeft',
+                          offset: -10,
+                        }}
+                      />
+                      <Tooltip />
+                      <Legend />
+                      <Area
+                        type="monotone"
+                        dataKey="bound"
+                        fill="#8884d8"
+                        stroke="#8884d8"
+                      />
+                      <Scatter name="Actual Value" dataKey="test" fill="red" />
+                      <Line type="monotone" dataKey="val" name="Value" stroke="#ff7300" />
+                    </ComposedChart>
+                  </ResponsiveContainer>
                 ) : (
-                  ""
+                  ''
                 )}
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent>
+                Test
               </CardContent>
             </Card>
           </Box>
