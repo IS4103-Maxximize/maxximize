@@ -168,6 +168,7 @@ export class ProductionOrdersService {
           }
           for (const dto of scheduleDtos) {
             const { start, end, productionLineId } = dto;
+            const expectedQuantity = (await this.productionLinesService.findOne(productionLineId)).outputPerHour * ((end.getTime() - start.getTime()) / 3600000)
             const schedule: Schedule = transactionalEntityManager.create(
               Schedule,
               {
@@ -176,6 +177,7 @@ export class ProductionOrdersService {
                 productionLineId,
                 status: ScheduleType.PLANNED,
                 scheduleLineItems: [],
+                expectedQuantity
               }
             );
             schedulesToBeAdded.push(
@@ -407,6 +409,7 @@ export class ProductionOrdersService {
           if (plannedMaterialCount == rawMaterialCount) {
             for (const dto of scheduleDtos) {
               const { start, end, productionLineId } = dto;
+              const expectedQuantity = (await this.productionLinesService.findOne(productionLineId)).outputPerHour * ((end.getTime() - start.getTime()) / 3600000)
               const schedule: Schedule = transactionalEntityManager.create(
                 Schedule,
                 {
@@ -415,6 +418,7 @@ export class ProductionOrdersService {
                   productionLineId,
                   status: ScheduleType.PLANNED,
                   scheduleLineItems: [],
+                  expectedQuantity
                 }
               );
               schedulesToBeAdded.push(
@@ -560,6 +564,7 @@ export class ProductionOrdersService {
                 );
               for (const dto of scheduleDtos) {
                 const { start, end, productionLineId } = dto;
+                const expectedQuantity = (await this.productionLinesService.findOne(productionLineId)).outputPerHour * ((end.getTime() - start.getTime()) / 3600000)
                 const schedule: Schedule = transactionalEntityManager.create(
                   Schedule,
                   {
@@ -568,6 +573,7 @@ export class ProductionOrdersService {
                     productionLineId,
                     status: ScheduleType.PLANNED,
                     scheduleLineItems: [],
+                    expectedQuantity
                   }
                 );
                 schedulesToBeAdded.push(
