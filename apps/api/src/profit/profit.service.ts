@@ -3,7 +3,7 @@ import { CostService } from '../cost/cost.service';
 import { GetCostDto } from '../cost/dto/get-cost.dto';
 import { GetRevenueDto } from '../revenue/dto/get-revenue.dto';
 import { RevenueService } from '../revenue/revenue.service';
-import { GetProfitDto } from './enums/get-profit.enum';
+import { GetProfitDto } from './dto/get-profit.dto';
 
 @Injectable()
 export class ProfitService {
@@ -58,7 +58,9 @@ export class ProfitService {
 
     generateInDateProfitLineItems(type: string, revenueObjectArray: any[], costObjectArray: any[], inDateValue: any) {
       const revenue = revenueObjectArray.length > 0 ? revenueObjectArray[0].revenue : 0
+      const revenueLineItems = revenueObjectArray.length > 0 ? revenueObjectArray[0].lineItems : []
       const cost = costObjectArray.length > 0 ? costObjectArray[0].cost : 0
+      const costLineItems = costObjectArray.length > 0 ? costObjectArray[0].lineItems : []
       const profit =  Math.round((revenue - cost) * 100) / 100
       let dateKey: string
       if (type === 'month') {
@@ -69,8 +71,8 @@ export class ProfitService {
       const value = {
         dateKey,
         profit,
-        revenueLineItems: [...revenueObjectArray],
-        costLineItems: [...costObjectArray]
+        revenueLineItems: [...revenueLineItems],
+        costLineItems: [...costLineItems]
       }
       return value
     }
