@@ -3,7 +3,7 @@ import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import ListIcon from '@mui/icons-material/List';
 import MoreVert from '@mui/icons-material/MoreVert';
 import {
-  Box, Button, Container, Grid,
+  Box, Button, Container, Dialog, DialogContent, Grid,
   IconButton,
   Typography
 } from '@mui/material';
@@ -24,36 +24,6 @@ export const ProfitInsight = (props) => {
 
   const [loading, setLoading] = useState(true); // loading upon entering page
 
-  // DataGrid Helpers
-  const [rows, setRows] = useState([]);
-  const [selectedRow, setSelectedRow] = useState();
-
-  // Incoming Invoices
-  const [incoming, setIncoming] = useState([]);
-  const getIncoming = async () => {
-    await fetch(`${apiHost}/invoices/incoming/${organisationId}`)
-      .then(res => res.json())
-      .then(result => {
-        const mapped = result.map(item => {
-          return {
-            type: 'incoming',
-            ...item
-          }
-        })
-        setIncoming(mapped);
-      })
-      .catch(err => console.log(err));
-  }
-
-  // Invoice Dialog Helpers
-  // const [invoiceDialogOpen, setInvoiceDialogOpen] = useState(false);
-  // const handleInvoiceDialogOpen = () => {
-  //   setInvoiceDialogOpen(true);
-  // }
-  // const handleInvoiceDialogClose = () => {
-  //   setInvoiceDialogOpen(false);
-  // }
-
   // Alert Helpers
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertSeverity, setAlertSeverity] = useState('error'); // success || error
@@ -65,31 +35,6 @@ export const ProfitInsight = (props) => {
   };
   const handleAlertClose = () => {
     setAlertOpen(false);
-  };
-
-  // Menu Helpers
-  const [action, setAction] = useState();
-  const [anchorEl, setAnchorEl] = useState(null);
-  const menuOpen = Boolean(anchorEl);
-
-  const handleMenuClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
-
-  const menuButton = (params) => {
-    return (
-      <IconButton
-        onClick={(event) => {
-          setSelectedRow(params.row);
-          handleMenuClick(event);
-        }}
-      >
-        <MoreVert />
-      </IconButton>
-    );
   };
 
   // Profit Helpers
@@ -111,6 +56,7 @@ export const ProfitInsight = (props) => {
   }
 
   const resetProfitDates = () => {
+    handleOpenExportClose();
     setInProfitDate(new Date());
     setFromProfitDate(DayJS(new Date()).subtract(1, 'year'));
     setToProfitDate(new Date());
@@ -198,7 +144,11 @@ export const ProfitInsight = (props) => {
   };
 
   const styles = StyleSheet.create({
-    table: { margin: 20 }
+    page: { margin: 10 },
+    tableHeader: { marginLeft: 10 },
+    table: { margin: 10 },
+    entry: { marginBottom: 15 },
+    entryTitle: { marginBottom: 5 },
   })
 
   const ProfitDocument = (props) => {
@@ -206,49 +156,59 @@ export const ProfitInsight = (props) => {
 
     return (
     <Document>
-      <Page>
+      <Page style={styles.page}>
         {profit.map((item, index) => 
           {
             const rev = item.revenueLineItems.length > 0;
             const cost = item.costLineItems.length > 0;
             return (
-              <View key={item.dateKey}>
-                <Text>{`${item.dateKey} - $${item.profit}`}</Text>
+              <View key={item.dateKey} style={styles.entry}>
+                <Text style={styles.entryTitle}>{`${item.dateKey} - $${item.profit}`}</Text>
                 {rev && 
-                <View key={`revenueLineItems_${index}`} style={styles.table}>
-                  <Text>Revenue Line Items</Text>
-                  <Table
-                    data={item.revenueLineItems}
-                  >
-                    <TableHeader>
-                      <TableCell>
-                        Item Type
-                      </TableCell>
-                      <TableCell>
-                        Amount ($)
-                      </TableCell>  
-                    </TableHeader>
-                    <TableBody>
-                      <DataTableCell getContent={(r) => r.type}/>
-                      <DataTableCell getContent={(r) => r.amount}/>
-                    </TableBody>
-                  </Table>
+                <View key={`revenueLineItems_${index}`} style={styles.tableHeader}>
+                  <Text>Revenue Items</Text>
+                  {/* <View style={styles.table}> */}
+                    <Table
+                      data={item.revenueLineItems}
+                      style={styles.table}
+                    >
+                      <TableHeader>
+                        <TableCell>
+                          Item Type
+                        </TableCell>
+                        <TableCell>
+                          Amount ($)
+                        </TableCell>  
+                      </TableHeader>
+                      <TableBody>
+                        <DataTableCell getContent={(r) => r.type}/>
+                        <DataTableCell getContent={(r) => r.amount}/>
+                      </TableBody>
+                    </Table>
+                  {/* </View> */}
                 </View>}
                 {cost && 
-                <View key={`costLineItems_${index}`} style={styles.table}>
-                  <Text>Cost Line Items</Text>
-                  <Table
-                    data={item.costLineItems}
-                  >
-                    <TableHeader>
-                      <TableCell>
-                        Amount ($)
-                      </TableCell>
-                    </TableHeader>
-                    <TableBody>
-                      <DataTableCell getContent={(r) => r.costAmount}/>
-                    </TableBody>
-                  </Table>
+                <View key={`costLineItems_${index}`} style={styles.tableHeader}>
+                  <Text>Cost Items</Text>
+                  {/* <View style={styles.table}> */}
+                    <Table
+                      data={item.costLineItems}
+                      style={styles.table}
+                    >
+                      <TableHeader>
+                        <TableCell>
+                          Item Type
+                        </TableCell>
+                        <TableCell>
+                          Amount ($)
+                        </TableCell>
+                      </TableHeader>
+                      <TableBody>
+                        <DataTableCell getContent={(r) => r.type}/>
+                        <DataTableCell getContent={(r) => r.costAmount}/>
+                      </TableBody>
+                    </Table>
+                  {/* </View> */}
                 </View>}
               </View>)
           }
@@ -256,6 +216,11 @@ export const ProfitInsight = (props) => {
       </Page>
     </Document>
   )}
+
+  const handleSearch = () => {
+    handleOpenExportClose();
+    getProfit();
+  }
 
   return (
     <>
@@ -305,7 +270,7 @@ export const ProfitInsight = (props) => {
                 type={profitType}
                 handleType={handleProfitType}
                 reset={resetProfitDates}
-                handleSearch={getProfit}
+                handleSearch={handleSearch}
                 actionButton={<ExportProfitButton />}
               />
             </Grid>
@@ -331,15 +296,29 @@ export const ProfitInsight = (props) => {
               mt: 3,
             }}
           >
-            {openExport && 
-            <PDFViewer
-              width='100%'
-              height='700'
+            <Dialog
+              open={openExport}
+              fullWidth
+              maxWidth="md"
+              onClose={handleOpenExportClose}
             >
-              <ProfitDocument 
-                profit={profit}
-              />
-            </PDFViewer>}
+              <DialogContent>
+                {/* <Box
+                  sx={{
+                    display: 'flex'
+                  }}
+                > */}
+                  <PDFViewer
+                    width='100%'
+                    height={700}
+                  >
+                    <ProfitDocument 
+                      profit={profit}
+                    />
+                  </PDFViewer>
+                {/* </Box> */}
+              </DialogContent>
+            </Dialog>
             <DataGrid
               autoHeight
               rows={profit}
