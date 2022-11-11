@@ -213,11 +213,11 @@ export class RevenueService implements OnModuleInit {
     const bracket = revenueBrackets.find(bracket => {
       const {start, end} = bracket
       if (start && end) {
-        if (amount > start && amount <= end) {
+        if (amount >= start && amount <= end) {
           return bracket
         }
       } else if (start && !end) {
-        if (amount > start) {
+        if (amount >= start) {
           return bracket
         }
       }
