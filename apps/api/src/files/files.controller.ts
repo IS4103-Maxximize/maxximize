@@ -38,8 +38,8 @@ export class FilesController {
       }
     })
   }))
-  uploadFile(@UploadedFiles() files: Express.Multer.File[], @Query() dto: UploadFileDto) {
-    return this.filesService.uploadAndCreateFiles(files, dto.type, dto.organisationId, dto.applicationId)
+  uploadFile(@UploadedFiles() files: Express.Multer.File[], @Query() uploadFileDto: UploadFileDto) {
+    return this.filesService.uploadAndCreateFiles(files, uploadFileDto)
   }
 
 
