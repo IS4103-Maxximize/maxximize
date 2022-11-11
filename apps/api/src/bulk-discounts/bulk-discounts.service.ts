@@ -103,7 +103,7 @@ export class BulkDiscountsService {
       const selectedRange = ranges.find(range => {
         const type = activeBulkDiscount.bulkType
         const quantity = type === 'weight' ? totalWeight : totalPrice
-        return (quantity > range.start && quantity <= range.end)
+        return (quantity >= range.start && quantity <= range.end)
       })
       if (selectedRange) {
         const discountRate = selectedRange.discountRate
