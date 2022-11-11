@@ -1277,6 +1277,11 @@
   dependencies:
     "@date-io/core" "^2.15.0"
 
+"@david.kucsai/react-pdf-table@^0.4.1":
+  version "0.4.1"
+  resolved "https://registry.yarnpkg.com/@david.kucsai/react-pdf-table/-/react-pdf-table-0.4.1.tgz#e34da7c11afff0823608bdb3a2127366d0c30b39"
+  integrity sha512-YCnRtvbiB3/OHIYZ4pHlOE6VChK8I8SqT1AqmRnUOUrPEKxNviZyZmMHTUhqORtUAYNUsqFBoLSRNBXrzRfcsw==
+
 "@electron/get@^1.0.1":
   version "1.14.1"
   resolved "https://registry.yarnpkg.com/@electron/get/-/get-1.14.1.tgz#16ba75f02dffb74c23965e72d617adc721d27f40"
