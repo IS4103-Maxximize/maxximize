@@ -17,21 +17,26 @@ export class RawMaterialsService {
   ){}
 
   async create(createRawMaterialDto: CreateRawMaterialDto): Promise<RawMaterial> {
-    const {name, description, unit, unitPrice, expiry, organisationId, lotQuantity} = createRawMaterialDto;
-    let organisationToBeAdded: Organisation
-    organisationToBeAdded = await this.organisationsRepository.findOneByOrFail({id: organisationId})
-    const newRawmaterialInstance = this.rawMaterialRepository.create({
-      name,
-      description,
-      unit,
-      unitPrice,
-      expiry,
-      lotQuantity,
-      organisation: organisationToBeAdded
-    })
-    const newRawmaterial = await this.rawMaterialRepository.save(newRawmaterialInstance);
-    const skuCode = `${newRawmaterial.id}-${name.toUpperCase().substring(0, 3)}`
-    return this.update(newRawmaterial.id, { skuCode: skuCode })
+    try{
+      const {name, description, unit, unitPrice, expiry, organisationId, lotQuantity} = createRawMaterialDto;
+      let organisationToBeAdded: Organisation
+      organisationToBeAdded = await this.organisationsRepository.findOneByOrFail({id: organisationId})
+      const newRawmaterialInstance = this.rawMaterialRepository.create({
+        name,
+        description,
+        unit,
+        unitPrice,
+        expiry,
+        lotQuantity,
+        organisation: organisationToBeAdded
+      })
+      const newRawmaterial = await this.rawMaterialRepository.save(newRawmaterialInstance);
+      const skuCode = `${newRawmaterial.id}-${name.toUpperCase().substring(0, 3)}`
+      return this.update(newRawmaterial.id, { skuCode: skuCode })
+    } catch (err) {
+      throw new NotFoundException('The organisation cannot be found')
+    }
+    
   }
 
   findAll(): Promise<RawMaterial[]> {
@@ -70,7 +75,7 @@ export class RawMaterialsService {
     }})
       return product
     } catch (err) {
-      throw new NotFoundException(`findOne failed as Raw Material with id: ${id} cannot be found`)
+      throw new NotFoundException(`The raw material cannot be found`)
     }
   }
 
@@ -103,7 +108,7 @@ export class RawMaterialsService {
       await this.rawMaterialRepository.save(product);
       return this.findOne(id);
     } catch (err) {
-      throw new NotFoundException(`update Failed as Raw Material with id: ${id} cannot be found`)
+      throw new NotFoundException(`The raw material cannot be found`)
     }
   }
 
@@ -112,7 +117,7 @@ export class RawMaterialsService {
       const product = await this.rawMaterialRepository.findOneBy({id})
       return this.rawMaterialRepository.remove(product);
     } catch (err) {
-      throw new NotFoundException(`Remove failed as Raw Material with id: ${id} cannot be found`)
+      throw new NotFoundException(`The raw material cannot be found`)
     }
   }
 
