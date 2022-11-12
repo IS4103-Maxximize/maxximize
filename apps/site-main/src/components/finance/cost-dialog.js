@@ -23,11 +23,15 @@ export const CostDialog = (props) => {
     if (open && cost) {
       const lineItems = cost.lineItems
         .map((item) => {
+          // add common date attribute to show in DataGrid
+          if (item.type === 'invoice') {
+            return { ...item, date: item.paymentReceived };
+          }
           if (item.type === 'maxximizeInvoice') {
-            return { ...item, type: "maxximize" };
+            return { ...item, type: "maxximize", date: item.created };
           }
           if (item.type === 'schedule') {
-            return { ...item, type: 'production' };
+            return { ...item, type: 'production', date: item.end };
           }
           return item;
         })
@@ -65,16 +69,8 @@ export const CostDialog = (props) => {
       )
     },
     {
-      field: 'created',
-      headerName: 'Created',
-      flex: 3,
-      valueFormatter: (params) => 
-        params.value ? DayJS(params.value).format('DD MMM YYYY hh:mm a')
-        : 'NA'
-    },
-    {
-      field: 'paymentReceived',
-      headerName: 'Payment Received Date',
+      field: 'date',
+      headerName: 'Date',
       flex: 3,
       valueFormatter: (params) => 
         params.value ? DayJS(params.value).format('DD MMM YYYY hh:mm a')

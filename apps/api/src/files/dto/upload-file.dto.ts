@@ -4,4 +4,5 @@ export class UploadFileDto {
     type?: BusinessType
     organisationId?: number
     applicationId?: number
+    finalGoodId?: number
 }

@@ -103,23 +103,29 @@ export const RevenueBrackets = (props) => {
       .catch(err => handleAlertOpen('Failed to delete Revenue Bracket', 'error'));
   };
 
-  const handleUpdate = async () => {
+  const handleUpdate = async (only) => {
     const url = `${baseUrl}/${formik.values.id}`
     const body = JSON.stringify({
       start: formik.values.start,
       commisionRate: formik.values.commisionRate
     })
     const requestOptions = requestOptionsHelper('PATCH', body);
-    const updateBracket = fetch(url, requestOptions).then(res => res.json())
+    const updateBracket = fetch(url, requestOptions).then(res => res.json());
 
-    const belowUrl = `${baseUrl}/${brackets[1].id}`
-    const belowBody = JSON.stringify({ 
-      end: formik.values.start - 1 
-    });
-    const belowRequestOptions = requestOptionsHelper('PATCH', belowBody);
-    const updateBracketBelow = fetch(belowUrl, belowRequestOptions);
+    const promises = [updateBracket];
 
-    await Promise.all([updateBracket, updateBracketBelow])
+    // If more than 1 bracket, also update the bracket below
+    if (!only) {
+      const belowUrl = `${baseUrl}/${brackets[1].id}`
+      const belowBody = JSON.stringify({ 
+        end: formik.values.start - 1 
+      });
+      const belowRequestOptions = requestOptionsHelper('PATCH', belowBody);
+      const updateBracketBelow = fetch(belowUrl, belowRequestOptions);
+      promises.push(updateBracketBelow);
+    }
+    
+    await Promise.all(promises)
       .then(values => {
         getRevenueBrackets();
         handleAlertOpen('Sucessfully updated Revenue Bracket!', 'success');
@@ -166,13 +172,14 @@ export const RevenueBrackets = (props) => {
     validationSchema: Yup.object({
       start: Yup.number()
         .positive('Starting Amount must be positive')
+        .min(brackets.length > 0 ? (brackets.length === 1 ? 1 : brackets[1].start + 1000 ) : 1, 'Starting Amount must be at least $1, or $1000 more than previous bracket')
         .required('Starting Amount is required'),
       commisionRate: Yup.number()
         .min(0, 'Commission cannot be negative')
         .required('Commission Rate is required'),
       newStart: Yup.number()
         .positive('Starting Amount must be positive')
-        .min(brackets.length > 0 ? brackets[0].start + 1000 : 1000, 'Starting Amount must be at least $1000 more than the previous bracket')
+        .min(brackets.length > 0 ? brackets[0].start + 1000 : 1, 'Starting Amount must be at least $1, or $1000 more than previous bracket')
         .required('Starting Amount is required'),
       newCommisionRate: Yup.number()
         .min(0, 'Commission cannot be negative')
@@ -308,7 +315,7 @@ export const RevenueBrackets = (props) => {
                       <>
                         <Button 
                           color="primary"
-                          onClick={handleUpdate}
+                          onClick={() => handleUpdate(brackets.length === 1)}
                           endIcon={<EditIcon />}
                         >
                           Update

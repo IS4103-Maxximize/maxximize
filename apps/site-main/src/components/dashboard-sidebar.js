@@ -32,6 +32,7 @@ import RuleIcon from '@mui/icons-material/Rule';
 import TaskIcon from '@mui/icons-material/Task';
 import WarehouseIcon from '@mui/icons-material/Warehouse';
 import QueryStatsIcon from '@mui/icons-material/QueryStats';
+import MoneyIcon from '@mui/icons-material/Money';
 import {
   Accordion,
   AccordionDetails,
@@ -89,9 +90,15 @@ const items = [
     modules: [
       {
         href: '/finance/revenue-cost',
-        icon: <InsightsIcon fontSize="small" />,
+        icon: <MoneyIcon fontSize="small" />,
         title: 'Revenue & Cost',
         access: ['manager', 'admin', 'superadmin'],
+      },
+      {
+        href: '/finance/profit-insight',
+        icon: <InsightsIcon fontSize="small" />,
+        title: 'Profit Insight',
+        access: ['manager', 'admin', 'superadmin'], 
       },
       {
         href: '/finance/b2b-invoice',
@@ -100,9 +107,9 @@ const items = [
         access: ['manager', 'admin', 'superadmin'],
       },
       {
-        href: '/finance/subscription-invoice',
+        href: '/finance/maxximize-payments',
         icon: <CardMembershipIcon fontSize="small" />,
-        title: 'Subscription Invoice',
+        title: 'Maxximize Payments',
         access: ['manager', 'admin', 'superadmin'],
       },
     ]

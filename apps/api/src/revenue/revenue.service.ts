@@ -9,6 +9,8 @@ import { SchedulerRegistry } from '@nestjs/schedule';
 import { CronJob } from 'cron';
 import { OrganisationsService } from '../organisations/organisations.service';
 import { RevenueBracketsService } from '../revenue-brackets/revenue-brackets.service';
+import { GetContributorsDto } from './dto/get-contributors.dto';
+import { GetSalesAmountDto } from './dto/get-sales-amount.dto';
 
 @Injectable()
 export class RevenueService implements OnModuleInit {
@@ -211,11 +213,11 @@ export class RevenueService implements OnModuleInit {
     const bracket = revenueBrackets.find(bracket => {
       const {start, end} = bracket
       if (start && end) {
-        if (amount > start && amount <= end) {
+        if (amount >= start && amount <= end) {
           return bracket
         }
       } else if (start && !end) {
-        if (amount > start) {
+        if (amount >= start) {
           return bracket
         }
       }
@@ -275,5 +277,120 @@ export class RevenueService implements OnModuleInit {
     })
     this.schedulerRegistry.addCronJob("Monthy-Commision", job)
     job.start()
+  }
+
+  async getContributorsForRevenue(getContributorsDto: GetContributorsDto) {
+    const {count, ...rest} = getContributorsDto
+    const getRevenueDto = {
+      ...rest
+    }
+    const revenueArray = await this.getRevenueByDate(getRevenueDto)
+    if (revenueArray.length === 0) {
+      return []
+    } else {
+      const {revenue, lineItems}= revenueArray[0]
+      const map = new Map()
+      for (const lineItem of lineItems) {
+        //each line item represent an invoice object with a PO
+        const {po} = lineItem
+        const supplierKey = po.currentOrganisation.id
+        if (!map.has(supplierKey)) {
+          const value = {
+            name: po.currentOrganisation.name,
+            contribution: lineItem.amount
+          }
+          map.set(supplierKey, value)
+        } else {
+          const currentValue = map.get(supplierKey)
+          const newContribution = currentValue.contribution += lineItem.amount
+          const newValue = {
+            ...currentValue,
+            contribution: newContribution
+          }
+          map.set(supplierKey, newValue)
+        }
+      }
+      //convert map to array of values
+      const allValues = Array.from(map.values())
+      const sortedValues = allValues.sort((x, y) => {
+        return (y.contribution - x.contribution)
+      })
+      const ranked = sortedValues.splice(0, count)
+      return ranked
+    }
+  }
+
+  async getSalesAmount(getSalesAmountDto: GetSalesAmountDto) {
+    const {currentDate, days, organisationId} = getSalesAmountDto
+    const currentDateValue = {
+      month: new Date(currentDate).getMonth(),
+      year: new Date(currentDate).getFullYear()
+    }
+    const cloneDate = new Date(currentDate)
+    const earliestDate = new Date(cloneDate.setDate(cloneDate.getDate() - (days - 1)))
+    const earliestDateValue = {
+      month: earliestDate.getMonth(),
+      year: earliestDate.getFullYear()
+    }
+
+    const {month: latestMonth, year: latestYear} = currentDateValue
+    const {month: earliestMonth, year: earliestYear} = earliestDateValue
+    //get invoices for same month same year
+    //get invoices for same month previous year
+    const allSentInvoices = await this.invoicesService.findSentInvoicesByOrg(organisationId)
+    const currentMonthInvoices = allSentInvoices.filter(invoice => {
+      const invoiceDate = invoice.paymentReceived
+      const paymentMonth = invoiceDate.getMonth()
+      const paymentYear = invoiceDate.getFullYear()
+      return (((paymentMonth >= earliestMonth && 
+        paymentMonth <= latestMonth) && 
+        (paymentYear >= earliestYear && 
+          paymentYear <= latestYear)))
+    })
+    const previousYearButSameMonthInvoices = allSentInvoices.filter(invoice => {
+      const invoiceDate = invoice.paymentReceived
+      const paymentMonth = invoiceDate.getMonth()
+      const paymentYear = invoiceDate.getFullYear()
+      return (((paymentMonth >= earliestMonth && 
+        paymentMonth <= latestMonth) && 
+        (paymentYear >= earliestYear - 1 && 
+          paymentYear <= latestYear - 1)))
+    })
+    let date = new Date(currentDate)
+    const arrayOfSales = []
+    for(let i = 0; i < days; i++) {
+      const dateValue = {
+        day: date.getDate(),
+        month: date.getMonth(),
+        year: date.getFullYear()
+      }
+      const {day, month, year} = dateValue
+      const dateKey = `${day}/${month + 1}`
+      const currentYearInvoicesThatMatchDate = currentMonthInvoices.
+      filter(invoice => (invoice.paymentReceived.getDate() === day &&
+      invoice.paymentReceived.getMonth() === month && 
+      invoice.paymentReceived.getFullYear() === year))
+      let salesAmountThisYear = 0
+      for (const invoice of currentYearInvoicesThatMatchDate) {
+        salesAmountThisYear += invoice.amount
+      }
+      const previousYearInvoicesThatMatchDate = previousYearButSameMonthInvoices.filter(invoice => 
+        (invoice.paymentReceived.getDate() === day &&
+      invoice.paymentReceived.getMonth() === month && 
+      invoice.paymentReceived.getFullYear() === year - 1))
+      let salesAmountLastYear = 0
+      for (const invoice of previousYearInvoicesThatMatchDate) {
+        salesAmountLastYear += invoice.amount
+      }
+      const object = {
+        dateKey,
+        salesAmountThisYear,
+        salesAmountLastYear
+      }
+      arrayOfSales.push(object)
+      date = new Date(date.setDate(date.getDate() - 1))
+    }
+    return arrayOfSales
+    
   }
 }
