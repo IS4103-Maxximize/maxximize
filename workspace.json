@@ -8,6 +8,7 @@
     "site-b2b": "apps/site-b2b",
     "site-b2b-e2e": "apps/site-b2b-e2e",
     "site-main": "apps/site-main",
-    "site-main-e2e": "apps/site-main-e2e"
+    "site-main-e2e": "apps/site-main-e2e",
+    "site-retailer": "apps/site-retailer"
   }
 }

@@ -94,6 +94,18 @@ export class AppService implements OnApplicationBootstrap {
         },
       });
 
+      await this.organisationsService.create({
+        name: 'Tomato Farm Bali',
+        uen: '123TOM123',
+        type: OrganisationType.MANUFACTURER,
+        contact: {
+          phoneNumber: '123123123',
+          email: 'maxximizetest@gmail.com',
+          address: 'Tomato Farm Road 123',
+          postalCode: '123123',
+        },
+      });
+
       await this.usersService.create({
         firstName: 'Max',
         lastName: 'Admin',
@@ -114,39 +126,60 @@ export class AppService implements OnApplicationBootstrap {
         .into(Contact)
         .values([
           {
-            id: 5,
+            id: 6,
             phoneNumber: '93894938',
             email: 'mc1@gmail.com',
             address: 'ManuCusAddress1',
             postalCode: '423423',
           },
           {
-            id: 6,
+            id: 7,
             phoneNumber: '92390489',
             email: 'rc1@gmail.com',
             address: 'RetailCusAddress1',
             postalCode: '534523',
           },
           {
-            id: 7,
+            id: 8,
             phoneNumber: '82949238',
             email: 'maxxiuser@gmail.com',
             address: 'maxximiseAddress',
             postalCode: '839849',
           },
           {
-            id: 8,
+            id: 9,
             phoneNumber: '82949238',
             email: 'maxxiuser1@gmail.com',
             address: 'maxximiseAddress',
             postalCode: '839849',
           },
           {
-            id: 9,
+            id: 10,
             phoneNumber: '82949238',
             email: 'maxximizeAdmin@gmail.com',
             address: 'maxximiseAddress',
             postalCode: '839849',
+          },
+          {
+            id: 11,
+            phoneNumber: '88880000',
+            email: 'jiayinglim@live.com',
+            address: 'Serangoon Gardens',
+            postalCode: '789273',
+          },
+          {
+            id: 12,
+            phoneNumber: '88880000',
+            email: 'e0540315@u.nus.edu',
+            address: 'Serangoon Gardens',
+            postalCode: '789273',
+          },
+          {
+            id: 13,
+            phoneNumber: '88880000',
+            email: 'jiayinglim@live.com',
+            address: 'Serangoon Gardens',
+            postalCode: '789273',
           },
         ])
         .execute();
@@ -168,7 +201,7 @@ export class AppService implements OnApplicationBootstrap {
             passwordChanged: true,
             role: Role.SUPERADMIN,
             organisation: await this.organisationsService.findOne(2),
-            contact: await this.contactsService.findOne(5),
+            contact: await this.contactsService.findOne(6),
           },
           {
             id: 3,
@@ -182,7 +215,7 @@ export class AppService implements OnApplicationBootstrap {
             passwordChanged: true,
             role: Role.ADMIN,
             organisation: await this.organisationsService.findOne(2),
-            contact: await this.contactsService.findOne(6),
+            contact: await this.contactsService.findOne(7),
           },
           {
             id: 4,
@@ -196,7 +229,7 @@ export class AppService implements OnApplicationBootstrap {
             passwordChanged: true,
             role: Role.ADMIN,
             organisation: await this.organisationsService.findOne(2),
-            contact: await this.contactsService.findOne(7),
+            contact: await this.contactsService.findOne(8),
           },
           {
             id: 5,
@@ -210,7 +243,7 @@ export class AppService implements OnApplicationBootstrap {
             passwordChanged: true,
             role: Role.MANAGER,
             organisation: await this.organisationsService.findOne(2),
-            contact: await this.contactsService.findOne(8),
+            contact: await this.contactsService.findOne(9),
           },
           {
             id: 6,
@@ -224,50 +257,52 @@ export class AppService implements OnApplicationBootstrap {
             passwordChanged: true,
             role: Role.ADMIN,
             organisation: await this.organisationsService.findOne(1),
-            contact: await this.contactsService.findOne(9),
+            contact: await this.contactsService.findOne(10),
+          },
+          {
+            id: 7,
+            firstName: 'Bali',
+            lastName: 'Manager',
+            username: 'balimanager',
+            password:
+              '$2b$10$f6h95DOKlOa4967NYpF4y.ef5vkNYh9zJkl7LajmU7mFP86FU0k5K',
+            isActive: 'true',
+            salt: '$2b$10$f6h95DOKlOa4967NYpF4y.',
+            passwordChanged: true,
+            role: Role.MANAGER,
+            organisation: await this.organisationsService.findOne(4),
+            contact: await this.contactsService.findOne(11),
+          },
+          {
+            id: 8,
+            firstName: 'Bali',
+            lastName: 'Driver',
+            username: 'balidriver',
+            password:
+              '$2b$10$f6h95DOKlOa4967NYpF4y.ef5vkNYh9zJkl7LajmU7mFP86FU0k5K',
+            isActive: 'true',
+            salt: '$2b$10$f6h95DOKlOa4967NYpF4y.',
+            passwordChanged: true,
+            role: Role.DRIVER,
+            organisation: await this.organisationsService.findOne(4),
+            contact: await this.contactsService.findOne(12),
+          },
+          {
+            id: 9,
+            firstName: 'Test',
+            lastName: 'Retailer',
+            username: 'retailer',
+            password:
+              '$2b$10$f6h95DOKlOa4967NYpF4y.ef5vkNYh9zJkl7LajmU7mFP86FU0k5K',
+            isActive: 'true',
+            salt: '$2b$10$f6h95DOKlOa4967NYpF4y.',
+            passwordChanged: true,
+            role: Role.ADMIN,
+            organisation: await this.organisationsService.findOne(3),
+            contact: await this.contactsService.findOne(13),
           },
         ])
         .execute();
-
-      await this.organisationsService.create({
-        name: 'Tomato Farm Bali',
-        uen: '123TOM123',
-        type: OrganisationType.MANUFACTURER,
-        contact: {
-          phoneNumber: '123123123',
-          email: 'maxximizetest@gmail.com',
-          address: 'Tomato Farm Road 123',
-          postalCode: '123123',
-        },
-      });
-
-      await this.usersService.create({
-        firstName: 'Bali',
-        lastName: 'Manager',
-        role: Role.MANAGER,
-        contact: {
-          phoneNumber: '88880000',
-          email: 'jiayinglim@live.com',
-          address: 'Serangoon Gardens',
-          postalCode: '789273',
-        },
-        username: 'balimanager',
-        organisationId: 4,
-      });
-
-	  await this.usersService.create({
-        firstName: 'Bali',
-        lastName: 'Driver',
-        role: Role.DRIVER,
-        contact: {
-          phoneNumber: '88880000',
-          email: 'e0540315@u.nus.edu',
-          address: 'Serangoon Gardens',
-          postalCode: '789273',
-        },
-        username: 'balidriver',
-        organisationId: 4,
-      });
 
       await this.warehousesService.create({
         name: 'Warehouse 1',
@@ -807,18 +842,18 @@ export class AppService implements OnApplicationBootstrap {
         organisationId: 4,
       });
 
-	  await this.productionLineService.create({
-		"name": "PL1",
-		"description": "PL1",
-		"bomIds": [3,4],
-		"productionCostPerLot": 20,
-		"gracePeriod": 1800000,
-		"organisationId": 4,
-		"outputPerHour": 30,
-		"startTime": 9,
-		"endTime": 17,
-		"machineIds": [1]
-	})
+      await this.productionLineService.create({
+        name: 'PL1',
+        description: 'PL1',
+        bomIds: [3, 4],
+        productionCostPerLot: 20,
+        gracePeriod: 1800000,
+        organisationId: 4,
+        outputPerHour: 30,
+        startTime: 9,
+        endTime: 17,
+        machineIds: [1],
+      });
 
       await this.factoryMachineService.create({
         serialNumber: 'TO123',
@@ -847,18 +882,18 @@ export class AppService implements OnApplicationBootstrap {
       await this.revenueBracketsService.create({
         start: 15000,
         end: 25000,
-        commisionRate: 3
-      })
+        commisionRate: 3,
+      });
       await this.revenueBracketsService.create({
         start: 25000,
         end: 30000,
-        commisionRate: 4
-      })
+        commisionRate: 4,
+      });
       await this.revenueBracketsService.create({
         start: 30000,
         end: null,
-        commisionRate: 5
-      })
+        commisionRate: 5,
+      });
     }
   }
 }
