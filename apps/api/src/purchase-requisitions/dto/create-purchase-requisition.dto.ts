@@ -6,4 +6,5 @@ export class CreatePurchaseRequisitionDto {
     organisationId: number
     rawMaterialId: number
     requestByType?: RequestByType
+    finalGoodId?: number
 }

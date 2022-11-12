@@ -7,6 +7,8 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import dayjs = require('dayjs');
 import { QueryRunner, Repository } from 'typeorm';
+import { BillOfMaterialsService } from '../bill-of-materials/bill-of-materials.service';
+import { FinalGoodsService } from '../final-goods/final-goods.service';
 import { OrganisationsService } from '../organisations/organisations.service';
 import { ProductionLineItem } from '../production-line-items/entities/production-line-item.entity';
 import { ProductionLineItemsService } from '../production-line-items/production-line-items.service';
@@ -27,6 +29,9 @@ export class PurchaseRequisitionsService {
     private productionLineItemService: ProductionLineItemsService,
     private rawMaterialService: RawMaterialsService,
     private organisationService: OrganisationsService,
+    private bomService: BillOfMaterialsService,
+    @Inject(forwardRef(() => FinalGoodsService))
+    private finalGoodService: FinalGoodsService,
     @Inject(forwardRef(() => SalesInquiryService))
     private salesInquiryService: SalesInquiryService,
     @Inject(forwardRef(() => ProductionOrdersService))
@@ -39,6 +44,7 @@ export class PurchaseRequisitionsService {
       organisationId,
       rawMaterialId,
       requestByType,
+      finalGoodId
     } = createPurchaseRequisitionDto;
 
     let productionLineItem = null;
@@ -53,6 +59,10 @@ export class PurchaseRequisitionsService {
         });
       }
     }
+    let finalGood;
+    if (finalGoodId) {
+      finalGood = await this.finalGoodService.findOne(finalGoodId);
+    }
 
     const organisation = await this.organisationService.findOne(organisationId);
     const rawMaterial = await this.rawMaterialService.findOne(rawMaterialId);
@@ -65,6 +75,7 @@ export class PurchaseRequisitionsService {
       quantityToFulfill: expectedQuantity,
       createdDateTime: new Date(),
       requestByType: requestByType,
+      finalGood: finalGood ?? null
     });
     const newPR = await this.purchaseRequisitionsRepository.save(
       newPurchaseRequisition
@@ -88,23 +99,60 @@ export class PurchaseRequisitionsService {
     }
   }
 
-  async checkPurchaseRequestFromForecast() {
+  async checkPurchaseRequestFromForecast(orgId: number, finalGoodId: number) {
     const start = dayjs().startOf('day').toDate();
     const end = dayjs().endOf('day').toDate();
 
     const count = await this.purchaseRequisitionsRepository
-      .createQueryBuilder()
-      .where('schedule.start BETWEEN :start AND :end', {
+      .createQueryBuilder("purchase_requisition")
+      .where('purchase_requisition.createdDateTime BETWEEN :start AND :end', {
         start: start,
         end: end,
       })
-      .andWhere('purchase_requisition.requestByType = :type', { type: 'forecast' })
-      .getCount();
+      .andWhere('purchase_requisition.requestByType = :type', {
+        type: 'forecast',
+      })
+      .andWhere('purchase_requisition.organisationId = :orgId', {
+        orgId: orgId,
+      })
+      .andWhere('purchase_requisition.finalGoodId = :finalGoodId', {
+        finalGoodId: finalGoodId,
+      })
+      .getManyAndCount();
 
-    if (count === 0) {
-      return false;
+    const purchaseRequisitions = count[0];
+
+    const rawMaterialsMap = new Map<number, number>();
+
+    for (const purchaseRequest of purchaseRequisitions) {
+      const purchaseReq = await this.findOne(purchaseRequest.id);
+      if (rawMaterialsMap.has(purchaseReq.finalGood.id)) {
+        let count = rawMaterialsMap.get(purchaseReq.finalGood.id);
+        count += purchaseReq.expectedQuantity;
+        rawMaterialsMap.set(purchaseReq.finalGood.id, count);
+      } else {
+        rawMaterialsMap.set(
+          purchaseReq.finalGood.id,
+          purchaseReq.expectedQuantity
+        );
+      }
+    }
+
+    const bom = await this.bomService.getBOMFromFinalGood(finalGoodId);
+
+    const quantity = rawMaterialsMap.get(bom.bomLineItems[0].rawMaterial.id);
+
+    const quantityRequested = quantity / bom.bomLineItems[0].quantity;
+
+    if (count[1] === 0) {
+      return {
+        alreadyReq: false,
+      };
     } else {
-      return true;
+      return {
+        alreadyReq: true,
+        quantity: quantityRequested,
+      };
     }
   }
 
@@ -115,6 +163,7 @@ export class PurchaseRequisitionsService {
           organisationId: id,
         },
         relations: {
+          finalGood: true,
           salesInquiry: true,
           productionLineItem: {
             productionOrder: true,
@@ -137,6 +186,7 @@ export class PurchaseRequisitionsService {
           id,
         },
         relations: {
+          finalGood: true,
           salesInquiry: true,
           productionLineItem: {
             productionOrder: true,
