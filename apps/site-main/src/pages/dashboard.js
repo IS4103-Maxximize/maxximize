@@ -16,9 +16,11 @@ import { TasksProgress } from '../components/dashboard/tasks-progress';
 import { TotalCustomers } from '../components/dashboard/total-customers';
 import { TotalProfit } from '../components/dashboard/total-profit';
 import { TrafficByDevice } from '../components/dashboard/traffic-by-device';
+import { Deliveries } from '../components/dashboards/deliveries';
 import { GenericBigCard } from '../components/dashboards/generic-big-card';
 import { GenericCard } from '../components/dashboards/generic-card';
 import { InventoryCard } from '../components/dashboards/inventory-card';
+import { TrackDelivery } from '../components/dashboards/track-delivery';
 import { NotificationAlert } from '../components/notification-alert';
 import { apiHost, requestOptionsHelper } from '../helpers/constants';
 import { getSessionUrl } from '../helpers/stripe';
@@ -26,6 +28,7 @@ import { getSessionUrl } from '../helpers/stripe';
 const Dashboard = () => {
   const user = JSON.parse(localStorage.getItem('user'));
   const organisationId = user.organisation?.id;
+  const role = user.role;
 
   const [active, setActive] = useState(true);
   const [sessionUrl, setSessionUrl] = useState();
@@ -157,7 +160,7 @@ const Dashboard = () => {
     (
       <Box
         sx={{
-          height: 300,
+          height: 400,
           position: 'relative'
         }}
       >
@@ -169,14 +172,39 @@ const Dashboard = () => {
     );
   // ------------------------------------------------------------------------------------
 
+  // Deliveries Helpers
+  const [assigned, setAssigned] = useState();
+  const [deliveries, setDeliveries] = useState([]);
+  const getDeliveries = async () => {
+    const url = `${apiHost}/delivery-requests/findAllByWorkerId/${8}`;
+    await fetch(url).then(res => res.json())
+      .then(result => {
+        const deliveries = [];
+        let assigned = null;
+        result.forEach((item, index) => {
+          if (item.status === 'completed') {
+            deliveries.push(item);
+          } else { // assigned to Driver
+            assigned = item;
+          }
+        })
+        setAssigned(assigned);
+        setDeliveries(deliveries);
+      })
+  }
+
+  // ------------------------------------------------------------------------------------
+
 
   // INIT
   useEffect(() => {
     Promise.all([
+      //TODO load based on role
       getProfits(),
       getNewCustomers(),
       getProduction(),
       getCostBreakdown(),
+      getDeliveries(),
     ])
     .then(values => {
       // console.log(values);
@@ -188,7 +216,8 @@ const Dashboard = () => {
   }, [])
 
   // Dashboard Grid Items
-  const DashboardItems = () => (
+  // For Manager + Admin
+  const DashboardItems1 = (props) => (
     <>
       <Grid item lg={3} sm={6} xl={3} xs={12}>
         <GenericCard
@@ -248,6 +277,26 @@ const Dashboard = () => {
       </Grid>
     </>
   );
+
+  const DashboardItems2 = (props) => (
+    <>
+      <Grid item lg={8} md={12} xl={9} xs={12}>
+        <Deliveries
+          sx={{ height: '100%'}}
+          assigned={assigned}
+          deliveries={deliveries}
+          getDeliveries={getDeliveries}
+          handleAlertOpen={handleAlertOpen}
+        />
+      </Grid>
+      <Grid item lg={4} md={6} xl={3} xs={12}>
+        <TrackDelivery 
+          sx={{ height: '100%' }}
+          assigned={assigned}
+        />
+      </Grid>
+    </>
+  )
 
   // For reference
   const DefaultDashboardItems = () => (
@@ -328,7 +377,14 @@ const Dashboard = () => {
         />
         <Container maxWidth={false}>
           <Grid container spacing={3}>
-            <DashboardItems />
+            <DefaultDashboardItems />
+            {['manager', 
+              'admin',
+              'superadmin',
+              ].includes(role) && <DashboardItems1 />}
+            {['driver',
+              // 'superadmin',
+              ].includes(role) && <DashboardItems2 />}
           </Grid>
         </Container>
       </Box>
