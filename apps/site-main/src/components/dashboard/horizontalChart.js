@@ -19,6 +19,7 @@ export const HorizontalChart = (props) => {
   const data ={
     labels: graphLabels,
     datasets: [{
+    label: graphLabels,
     axis: 'y',
     data: graphData,
     fill: false,
@@ -75,7 +76,11 @@ export const HorizontalChart = (props) => {
     animation: false,
     cornerRadius: 20,
     layout: { padding: 0 },
-    legend: { display: false },
+    legend: {
+        display: true,
+        position: 'right',
+        align: 'start',
+      },
     maintainAspectRatio: false,
     responsive: true,
     xAxes: [
@@ -126,7 +131,7 @@ export const HorizontalChart = (props) => {
         title = {`${graphTitle}`}
         action={(
           <Box
-            width={200}
+            width={100}
           >
           {counter}
         </Box>

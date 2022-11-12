@@ -19,6 +19,7 @@ import { apiHost, headers, requestOptionsHelper } from '../helpers/constants';
 
 const Dashboard = () => {
   const user = JSON.parse(localStorage.getItem('user'));
+  const organisationId = user ? user.organisation.id : null;
   const [active, setActive] = useState(true);
   const [sessionUrl, setSessionUrl] = useState();
   useEffect(() => {
