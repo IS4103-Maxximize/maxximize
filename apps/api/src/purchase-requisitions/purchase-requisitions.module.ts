@@ -1,5 +1,7 @@
 import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { BillOfMaterialsModule } from '../bill-of-materials/bill-of-materials.module';
+import { FinalGoodsModule } from '../final-goods/final-goods.module';
 import { OrganisationsModule } from '../organisations/organisations.module';
 import { ProductionLineItemsModule } from '../production-line-items/production-line-items.module';
 import { ProductionOrdersModule } from '../production-orders/production-orders.module';
@@ -15,6 +17,8 @@ import { PurchaseRequisitionsService } from './purchase-requisitions.service';
     ProductionLineItemsModule, 
     OrganisationsModule, 
     RawMaterialsModule,
+    BillOfMaterialsModule,
+    forwardRef(() => FinalGoodsModule),
     forwardRef(() => ProductionOrdersModule),
     forwardRef(() => SalesInquiryModule)
   ],
