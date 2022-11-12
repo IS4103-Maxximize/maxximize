@@ -10,7 +10,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import dayjs = require('dayjs');
 import { catchError, map } from 'rxjs';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, Not, Repository } from 'typeorm';
 import { BatchLineItemsService } from '../batch-line-items/batch-line-items.service';
 import { BillOfMaterialsService } from '../bill-of-materials/bill-of-materials.service';
 import { InvoiceStatus } from '../invoices/enums/invoiceStatus.enum';
@@ -36,33 +36,37 @@ export class FinalGoodsService {
   ) {}
 
   async create(createFinalGoodDto: CreateFinalGoodDto): Promise<FinalGood> {
-    const {
-      name,
-      description,
-      unit,
-      unitPrice,
-      expiry,
-      lotQuantity,
-      organisationId,
-    } = createFinalGoodDto;
-    let organisationToBeAdded: Organisation;
-    organisationToBeAdded = await this.organisationsRepository.findOneByOrFail({
-      id: organisationId,
-    });
-    const newFinalGoodInstance = this.finalGoodRepository.create({
-      name,
-      description,
-      unit,
-      unitPrice,
-      expiry,
-      lotQuantity,
-      organisation: organisationToBeAdded,
-    });
-    const newFinalGood = await this.finalGoodRepository.save(
-      newFinalGoodInstance
-    );
-    const skuCode = `${newFinalGood.id}-${name.toUpperCase().substring(0, 3)}`;
-    return this.update(newFinalGood.id, { skuCode: skuCode });
+    try {
+      const {
+        name,
+        description,
+        unit,
+        unitPrice,
+        expiry,
+        lotQuantity,
+        organisationId,
+      } = createFinalGoodDto;
+      let organisationToBeAdded: Organisation;
+      organisationToBeAdded = await this.organisationsRepository.findOneByOrFail({
+        id: organisationId,
+      });
+      const newFinalGoodInstance = this.finalGoodRepository.create({
+        name,
+        description,
+        unit,
+        unitPrice,
+        expiry,
+        lotQuantity,
+        organisation: organisationToBeAdded,
+      });
+      const newFinalGood = await this.finalGoodRepository.save(
+        newFinalGoodInstance
+      );
+      const skuCode = `${newFinalGood.id}-${name.toUpperCase().substring(0, 3)}`;
+      return this.update(newFinalGood.id, { skuCode: skuCode });
+    } catch (err) {
+      throw new NotFoundException('The organisation cannot be found')
+    }
   }
 
   findAll(): Promise<FinalGood[]> {
@@ -100,7 +104,7 @@ export class FinalGoodsService {
       return finalGood
     } catch (err) {
       throw new NotFoundException(
-        `findOne failed as Final Good with id: ${id} cannot be found`
+        `The final good cannot be found`
       );
     }
   }
@@ -181,7 +185,7 @@ export class FinalGoodsService {
       return this.findOne(id);
     } catch (err) {
       throw new NotFoundException(
-        `update Failed as Final Good with id: ${id} cannot be found`
+        `The final good cannot be found`
       );
     }
   }
@@ -192,7 +196,7 @@ export class FinalGoodsService {
       return this.finalGoodRepository.remove(product);
     } catch (err) {
       throw new NotFoundException(
-        `Remove failed as Final Good with id: ${id} cannot be found`
+        `The final good cannot be found`
       );
     }
   }
