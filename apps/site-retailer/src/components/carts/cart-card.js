@@ -68,7 +68,7 @@ export const CartCard = (props) => {
             <Avatar alt="Supplier" src="../../assets/img/default-avatar.png" />
           </ListItemAvatar>
           <ListItemText
-            primary={`${cart.supplierId}`}
+            primary={`${cart.supplier.name}`}
             secondary={
               <React.Fragment>
                 <Typography

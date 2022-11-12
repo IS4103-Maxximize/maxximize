@@ -3,24 +3,46 @@ import {
   IconButton,
   ImageListItem,
   ImageListItemBar,
+  TextField,
   Tooltip,
 } from '@mui/material';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useShoppingCart } from '../context/shopping-cart-context';
 import { ProductModal } from './product-modal';
 import AddCircleOutlineRoundedIcon from '@mui/icons-material/AddCircleOutlineRounded';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import { theme } from '../../theme';
 import { TransitionGroup } from 'react-transition-group';
+import EditIcon from '@mui/icons-material/Edit';
 
 export const ProductCard = (props) => {
   const { supplier, product, handleAlertOpen } = props;
 
-  const { isItemInCart, removeFromCart } = useShoppingCart();
+  const {
+    isItemInCart,
+    removeFromCart,
+    getItemQuantity,
+    updateCartLineItemFromProduct,
+  } = useShoppingCart();
 
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = useState(false);
   const handleModalOpen = () => setOpen(true);
   const handleModalClose = () => setOpen(false);
+
+  const [quantity, setQuantity] = useState('');
+
+  useEffect(() => {
+    const getCartQuantity = () => {
+      return getItemQuantity(supplier.id, product.id);
+    };
+
+    const cartQuantity = getCartQuantity();
+    setQuantity(cartQuantity);
+  }, [product]);
+
+  const handleChange = (event) => {
+    setQuantity(event.target.value);
+  };
 
   return (
     <>
@@ -65,7 +87,10 @@ export const ProductCard = (props) => {
                 <Collapse>
                   <Tooltip title="Remove">
                     <IconButton
-                      sx={{ color: 'rgba(255, 255, 255, 0.54)' }}
+                      sx={{
+                        color: 'rgba(255, 255, 255, 0.54)',
+                        paddingLeft: '39%',
+                      }}
                       aria-label={`info about ${product.name}`}
                       onClick={() => {
                         removeFromCart(supplier.id, product.id);
@@ -81,6 +106,47 @@ export const ProductCard = (props) => {
                           },
                         }}
                         color="primary"
+                      />
+                    </IconButton>
+                  </Tooltip>
+                  <TextField
+                    size="small"
+                    value={quantity}
+                    sx={{ width: '20%', input: { color: 'white' } }}
+                    onChange={handleChange}
+                  ></TextField>
+                  <Tooltip title="Update">
+                    <IconButton
+                      sx={{ color: 'rgba(255, 255, 255, 0.54)' }}
+                      aria-label={`info about ${product.name}`}
+                      onClick={() => {
+                        if (!isNaN(quantity) && quantity > 0) {
+                          updateCartLineItemFromProduct(
+                            supplier.id,
+                            product.id,
+                            quantity
+                          );
+                          handleAlertOpen(
+                            'Updated cart line item quantity successfully',
+                            'success'
+                          );
+                        } else {
+                          handleAlertOpen(
+                            'Quantity must be a positive whole number',
+                            'error'
+                          );
+                        }
+                      }}
+                    >
+                      <EditIcon
+                        style={{ transition: '0.2s' }}
+                        sx={{
+                          '&:hover': {
+                            color: 'secondary.light',
+                            transform: 'scale(1.2)',
+                          },
+                        }}
+                        color="secondary"
                       />
                     </IconButton>
                   </Tooltip>

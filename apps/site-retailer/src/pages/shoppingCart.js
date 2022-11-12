@@ -129,8 +129,8 @@ const ShoppingCart = () => {
       <CartConfirmDialog
         open={confirmDialogOpen}
         handleClose={handleConfirmDialogClose}
-        dialogTitle={`Delete address record(s)`}
-        dialogContent={`Confirm deletion of addresss record(s)?`}
+        dialogTitle={`Delete cart(s)`}
+        dialogContent={`Confirm deletion of cart(s)?`}
         dialogAction={() => {
           handleDelete(checked);
         }}

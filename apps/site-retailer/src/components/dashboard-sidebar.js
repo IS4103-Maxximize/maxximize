@@ -1,5 +1,7 @@
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import StoreIcon from '@mui/icons-material/Store';
+import DescriptionIcon from '@mui/icons-material/Description';
+import RequestPageIcon from '@mui/icons-material/RequestPage';
 import {
   Accordion,
   AccordionDetails,
@@ -24,6 +26,18 @@ const standalone = [
     href: '/suppliers',
     icon: <StoreIcon fontSize="small" />,
     title: 'View Suppliers',
+    access: ['admin', 'superadmin'],
+  },
+  {
+    href: '/sent-purchase-orders',
+    icon: <RequestPageIcon fontSize="small" />,
+    title: 'Sent Purchase Orders',
+    access: ['admin', 'superadmin'],
+  },
+  {
+    href: '/received-invoices',
+    icon: <DescriptionIcon fontSize="small" />,
+    title: 'Received Invoices',
     access: ['admin', 'superadmin'],
   },
 ];

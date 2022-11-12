@@ -17,17 +17,19 @@ export const ShoppingCartProvider = ({ children }) => {
   // API Calls
   // Call backend to get carts
   const retrieveUserCarts = async () => {
-    const response = await fetch(
-      `http://localhost:3000/api/carts/orgId/${organisationId}`
-    );
+    if (organisationId) {
+      const response = await fetch(
+        `http://localhost:3000/api/carts/orgId/${organisationId}`
+      );
 
-    let result = [];
+      let result = [];
 
-    if (response.status == 200 || response.status == 201) {
-      result = await response.json();
+      if (response.status == 200 || response.status == 201) {
+        result = await response.json();
+      }
+
+      setCarts(result);
     }
-
-    setCarts(result);
   };
 
   // Add cart item
@@ -77,6 +79,43 @@ export const ShoppingCartProvider = ({ children }) => {
 
   // Update cart line item quantity
   const updateCartLineItem = async (cartLineItemId, quantity) => {
+    const response = await fetch(
+      `http://localhost:3000/api/cart-line-items/${cartLineItemId}`,
+      {
+        method: 'PATCH',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          quantity: quantity,
+        }),
+      }
+    );
+
+    if (response.status == 200 || response.status == 201) {
+      const result = await response.json();
+
+      retrieveUserCarts(organisationId);
+    }
+  };
+
+  // Update cart line item quantity
+  const updateCartLineItemFromProduct = async (
+    supplierId,
+    productId,
+    quantity
+  ) => {
+    const cartLineItemId = carts
+      ?.find(
+        (cart) =>
+          cart.organisationId === organisationId &&
+          cart.supplierId === supplierId
+      )
+      ?.cartLineItems?.find(
+        (cartLineItem) => cartLineItem.finalGood.id === productId
+      ).id;
+
     const response = await fetch(
       `http://localhost:3000/api/cart-line-items/${cartLineItemId}`,
       {
@@ -150,14 +189,16 @@ export const ShoppingCartProvider = ({ children }) => {
   };
 
   // Get quantity of item in cart
-  const getItemQuantity = (orgId, itemId) => {
-    return (
-      carts
-        ?.find((cart) => cart.organisation.id === orgId)
-        ?.cartLineItems?.find(
-          (cartLineItem) => cartLineItem.finalGoodId === itemId
-        )?.quantity || 0
-    );
+  const getItemQuantity = (supplierId, itemId) => {
+    return carts
+      ?.find(
+        (cart) =>
+          cart.organisationId === organisationId &&
+          cart.supplierId === supplierId
+      )
+      ?.cartLineItems?.find(
+        (cartLineItem) => cartLineItem.finalGood.id === itemId
+      )?.quantity;
   };
 
   // Set the quantity of an item in cart, if absent, add a cart/lineitem
@@ -295,6 +336,8 @@ export const ShoppingCartProvider = ({ children }) => {
         setItemQuantity,
         removeCart,
         removeFromCart,
+        updateCartLineItem,
+        updateCartLineItemFromProduct,
         carts,
         cartsQuantity,
       }}
