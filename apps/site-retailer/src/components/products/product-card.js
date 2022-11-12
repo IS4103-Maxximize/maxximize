@@ -14,6 +14,7 @@ import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import { theme } from '../../theme';
 import { TransitionGroup } from 'react-transition-group';
 import EditIcon from '@mui/icons-material/Edit';
+import { Box, Container } from '@mui/system';
 
 export const ProductCard = (props) => {
   const { supplier, product, handleAlertOpen } = props;
@@ -38,7 +39,7 @@ export const ProductCard = (props) => {
 
     const cartQuantity = getCartQuantity();
     setQuantity(cartQuantity);
-  }, [product]);
+  }, [product, isItemInCart]);
 
   const handleChange = (event) => {
     setQuantity(event.target.value);
@@ -85,71 +86,76 @@ export const ProductCard = (props) => {
             isItemInCart(supplier.id, product.id) ? (
               <TransitionGroup>
                 <Collapse>
-                  <Tooltip title="Remove">
-                    <IconButton
-                      sx={{
-                        color: 'rgba(255, 255, 255, 0.54)',
-                        paddingLeft: '39%',
-                      }}
-                      aria-label={`info about ${product.name}`}
-                      onClick={() => {
-                        removeFromCart(supplier.id, product.id);
-                        handleAlertOpen('Removed product from cart', 'success');
-                      }}
-                    >
-                      <RemoveCircleOutlineIcon
-                        style={{ transition: '0.2s' }}
+                  <Box display="flex" justifyContent="flex-end">
+                    <Tooltip title="Remove">
+                      <IconButton
                         sx={{
-                          '&:hover': {
-                            color: 'primary.light',
-                            transform: 'scale(1.2)',
-                          },
+                          color: 'rgba(255, 255, 255, 0.54)',
+                          //   paddingLeft: '39%',
                         }}
-                        color="primary"
-                      />
-                    </IconButton>
-                  </Tooltip>
-                  <TextField
-                    size="small"
-                    value={quantity}
-                    sx={{ width: '20%', input: { color: 'white' } }}
-                    onChange={handleChange}
-                  ></TextField>
-                  <Tooltip title="Update">
-                    <IconButton
-                      sx={{ color: 'rgba(255, 255, 255, 0.54)' }}
-                      aria-label={`info about ${product.name}`}
-                      onClick={() => {
-                        if (!isNaN(quantity) && quantity > 0) {
-                          updateCartLineItemFromProduct(
-                            supplier.id,
-                            product.id,
-                            quantity
-                          );
+                        aria-label={`info about ${product.name}`}
+                        onClick={() => {
+                          removeFromCart(supplier.id, product.id);
                           handleAlertOpen(
-                            'Updated cart line item quantity successfully',
+                            'Removed product from cart',
                             'success'
                           );
-                        } else {
-                          handleAlertOpen(
-                            'Quantity must be a positive whole number',
-                            'error'
-                          );
-                        }
-                      }}
-                    >
-                      <EditIcon
-                        style={{ transition: '0.2s' }}
-                        sx={{
-                          '&:hover': {
-                            color: 'secondary.light',
-                            transform: 'scale(1.2)',
-                          },
                         }}
-                        color="secondary"
-                      />
-                    </IconButton>
-                  </Tooltip>
+                      >
+                        <RemoveCircleOutlineIcon
+                          style={{ transition: '0.2s' }}
+                          sx={{
+                            '&:hover': {
+                              color: 'primary.light',
+                              transform: 'scale(1.2)',
+                            },
+                          }}
+                          color="primary"
+                        />
+                      </IconButton>
+                    </Tooltip>
+                    <TextField
+                      size="small"
+                      value={quantity}
+                      sx={{ width: '20%', input: { color: 'white' } }}
+                      onChange={handleChange}
+                    ></TextField>
+                    <Tooltip title="Update">
+                      <IconButton
+                        sx={{ color: 'rgba(255, 255, 255, 0.54)' }}
+                        aria-label={`info about ${product.name}`}
+                        onClick={() => {
+                          if (!isNaN(quantity) && quantity > 0) {
+                            updateCartLineItemFromProduct(
+                              supplier.id,
+                              product.id,
+                              quantity
+                            );
+                            handleAlertOpen(
+                              'Updated cart line item quantity successfully',
+                              'success'
+                            );
+                          } else {
+                            handleAlertOpen(
+                              'Quantity must be a positive whole number',
+                              'error'
+                            );
+                          }
+                        }}
+                      >
+                        <EditIcon
+                          style={{ transition: '0.2s' }}
+                          sx={{
+                            '&:hover': {
+                              color: 'secondary.light',
+                              transform: 'scale(1.2)',
+                            },
+                          }}
+                          color="secondary"
+                        />
+                      </IconButton>
+                    </Tooltip>
+                  </Box>
                 </Collapse>
               </TransitionGroup>
             ) : (

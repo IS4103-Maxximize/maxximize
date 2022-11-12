@@ -100,12 +100,12 @@ export const ViewPODialog = ({
       </DialogTitle>
       <DialogContent>
         <TextField
-          sx={{ width: '5a	za	q00px' }}
+          sx={{ width: '500px' }}
           label="Total Price"
           margin="normal"
           name="totalPrice"
           type="number"
-          value={purchaseOrder?.totalPrice}
+          value={purchaseOrder?.totalPrice.toFixed(2)}
           variant="outlined"
           InputProps={{
             startAdornment: <InputAdornment position="start">$</InputAdornment>,

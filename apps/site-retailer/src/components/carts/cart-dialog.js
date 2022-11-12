@@ -10,11 +10,12 @@ import {
   Dialog,
   DialogContent,
   IconButton,
+  InputAdornment,
   TextField,
   Toolbar,
   Typography,
 } from '@mui/material';
-import { DataGrid } from '@mui/x-data-grid';
+import { DataGrid, gridColumnVisibilityModelSelector } from '@mui/x-data-grid';
 import DayJS from 'dayjs';
 import { useFormik } from 'formik';
 import { useEffect, useState } from 'react';
@@ -33,13 +34,39 @@ export const CartDialog = (props) => {
   // Initially this will be all of the cart line items
   // But as each line item is used for PO, decrease their qty
   // Also use this to check for the quantity that is allowed for each PO
-  // TODO in addition, this can be used to check if checkout can proceed
+  // In addition, this can be used to check if checkout can proceed
   const [availableLineItems, setAvailableLineItems] = useState([]);
 
-  useEffect(
-    () => setAvailableLineItems(JSON.parse(JSON.stringify(cart.cartLineItems))),
-    [open]
-  );
+  const [discount, setDiscount] = useState(0);
+
+  // Get the discount available for this cart, if any
+  const getDiscountForCart = async () => {
+    const response = await fetch(
+      'http://localhost:3000/api/bulk-discounts/discount',
+      {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          organisationId: cart.supplier.id,
+          totalPrice: cart.totalPrice,
+          totalWeight: cart.totalWeight,
+        }),
+      }
+    );
+
+    if (response.status == 200 || response.status == 201) {
+      const result = await response.json();
+      setDiscount(result);
+    }
+  };
+
+  useEffect(() => {
+    setAvailableLineItems(JSON.parse(JSON.stringify(cart.cartLineItems)));
+    getDiscountForCart();
+  }, [open]);
 
   // Submission
   // Loading buttons
@@ -90,6 +117,7 @@ export const CartDialog = (props) => {
     }
   };
 
+  // View PO Helper
   const [selectedRow, setSelectedRow] = useState();
   const [openViewPODialog, setOpenViewPODialog] = useState(false);
 
@@ -104,7 +132,8 @@ export const CartDialog = (props) => {
 
   // Delete a cart line item in the cart
   const handleCartLineItemDelete = (row) => {
-    removeFromCart(row.supplierId, row.finalGood.id);
+    console.log(row);
+    removeFromCart(cart.supplier.id, row.finalGood.id);
     const remainingLineItems = cart.cartLineItems.filter(
       (cartLineItem) => cartLineItem.id != row.id
     );
@@ -112,11 +141,17 @@ export const CartDialog = (props) => {
     const finalGoodToRemoveId = row.finalGood.id;
 
     for (const purchaseOrder of purchaseOrders) {
-      purchaseOrder.purchaseOrderLineItems.filter(
+      purchaseOrder.poLineItemDtos = purchaseOrder.poLineItemDtos.filter(
         (purchaseOrderLineItem) =>
-          purchaseOrderLineItem.finalGood.id != finalGoodToRemoveId
+          purchaseOrderLineItem.finalGood.id !== finalGoodToRemoveId
       );
     }
+
+    setPurchaseOrders((purchaseOrders) =>
+      purchaseOrders.filter(
+        (purchaseOrder) => purchaseOrder.poLineItemDtos.length !== 0
+      )
+    );
   };
 
   // For cart line item
@@ -194,6 +229,7 @@ export const CartDialog = (props) => {
     setLoading(false);
     setPurchaseOrders([]);
     setAvailableLineItems([]);
+    setDiscount(0);
   };
 
   // Handling the update of a cart line item quantity
@@ -209,6 +245,7 @@ export const CartDialog = (props) => {
 
     let cannotUpdate = false;
     // If new value is greater than previous, the excess should be added to available line items
+    console.log(newRow.quantity - oldRow.quantity);
     if (newRow.quantity - oldRow.quantity > 0) {
       const temporaryLineItems = [];
       let present = false;
@@ -242,60 +279,96 @@ export const CartDialog = (props) => {
       setAvailableLineItems((availableLineItems) =>
         availableLineItems.concat(temporaryLineItems)
       );
-
       // If the new value is less than the previous value
     } else {
-      setAvailableLineItems((availableLineItems) =>
-        availableLineItems.map((availableLineItem) => {
-          if (availableLineItem.id === newRow.id) {
-            if (
-              availableLineItem.quantity - (oldRow.quantity - newRow.quantity) <
-              0
-            ) {
-              const message = `Purchase order allocation has exceeded the line item quantity, new value difference cannot be greater than ${availableLineItem.quantity}`;
-              handleAlertOpen(message, 'error');
-              cannotUpdate = true;
-              return availableLineItem;
+      // Already allocated fully, cannot alter quantity
+      if (availableLineItems.length === 0) {
+        const message = `Purchase order allocation has been completed, cannot alter quantity`;
+        handleAlertOpen(message, 'error');
+        cannotUpdate = true;
+      } else {
+        setAvailableLineItems((availableLineItems) =>
+          availableLineItems.map((availableLineItem) => {
+            if (availableLineItem.id === newRow.id) {
+              // Less than what is already allocated
+              if (
+                availableLineItem.quantity -
+                  (oldRow.quantity - newRow.quantity) <
+                0
+              ) {
+                const message = `Purchase order allocation has exceeded the line item quantity, new value difference cannot be greater than ${availableLineItem.quantity}`;
+                handleAlertOpen(message, 'error');
+                cannotUpdate = true;
+                return availableLineItem;
+              } else {
+                // Avilable becomes 0, will be removed
+
+                return {
+                  ...availableLineItem,
+                  quantity:
+                    availableLineItem.quantity -
+                    (oldRow.quantity - newRow.quantity),
+                };
+              }
             } else {
-              return {
-                ...availableLineItem,
-                quantity:
-                  availableLineItem.quantity -
-                  (oldRow.quantity - newRow.quantity),
-              };
+              return availableLineItem;
             }
-          } else {
-            return availableLineItem;
-          }
-        })
-      );
+          })
+        );
 
-      // If there are any line item with quantity of 0, remove it
-      setAvailableLineItems((availableLineItems) =>
-        availableLineItems.filter((lineItem) => {
-          return lineItem.quantity !== 0;
-        })
-      );
-    }
-
-    let totalPrice = 0;
-
-    for (const lineItem of cart.cartLineItems) {
-      if (lineItem.id == updatedRow.id) {
-        lineItem.quantity = updatedRow.quantity;
-        lineItem.finalGood = updatedRow.finalGood;
+        // If there are any line item with quantity of 0, remove it
+        setAvailableLineItems((availableLineItems) =>
+          availableLineItems.filter((lineItem) => {
+            return lineItem.quantity !== 0;
+          })
+        );
       }
-
-      totalPrice += lineItem.indicativePrice * lineItem.quantity;
     }
-    formik.setFieldValue('totalPrice', totalPrice);
 
     if (!cannotUpdate) {
+      console.log('Can update');
+      let totalPrice = 0;
+
+      updateCartLineItem(updatedRow.id, updatedRow.quantity);
+
+      for (const lineItem of cart.cartLineItems) {
+        if (lineItem.id == updatedRow.id) {
+          lineItem.quantity = updatedRow.quantity;
+          lineItem.finalGood = updatedRow.finalGood;
+        }
+
+        console.log(lineItem);
+
+        totalPrice += lineItem.finalGood.unitPrice * lineItem.quantity;
+      }
+      formik.setFieldValue('totalPrice', totalPrice);
+
       return updatedRow;
     } else {
-      return oldRow;
+      console.log('Returning old row');
+      throw new Error('Cannot update');
     }
   };
+
+  // Change for PO prices whenever a cart line item is deleted
+  // Will need to recalculate based on discount too
+  useEffect(() => {
+    getDiscountForCart();
+
+    setPurchaseOrders((purchaseOrders) =>
+      purchaseOrders.map((purchaseOrder) => {
+        return {
+          ...purchaseOrder,
+          totalPrice:
+            purchaseOrder.poLineItemDtos.reduce(
+              (a, b) => a + b.quantity * b.finalGood.unitPrice,
+              0
+            ) *
+            ((100 - discount) / 100),
+        };
+      })
+    );
+  }, [cart.cartLineItems, discount]);
 
   // Whenever a PO is created or deleted
   const handleAvailableLineItemsChange = (poLineItems, type) => {
@@ -329,24 +402,38 @@ export const CartDialog = (props) => {
       console.log('Handling Delete');
       const temporaryLineItems = [];
 
+      let counter = 0;
       for (const poLineItem of poLineItems) {
         let present = false;
-        setAvailableLineItems((availableLineItems) =>
-          availableLineItems.map((availableLineItem) => {
-            // Line item with the final good is still present, just update the qty
-            if (availableLineItem.finalGood.id === poLineItem.finalGood.id) {
-              present = true;
-              return {
-                ...availableLineItem,
-                quantity: availableLineItem.quantity + poLineItem.quantity,
-              };
-              // Line item no longer exist, need to reconstruct it from the po line item
-            }
-          })
-        );
+        counter++;
+
+        console.log(counter);
+        console.log(availableLineItems);
+
+        availableLineItems.map((availableLineItem) => {
+          // Line item with the final good is still present, just update the qty
+          console.log(availableLineItem);
+          console.log(poLineItem);
+
+          if (availableLineItem.finalGood.id == poLineItem.finalGood.id) {
+            present = true;
+            temporaryLineItems.push({
+              cartId: availableLineItem.cartId,
+              finalGood: availableLineItem.finalGood,
+              id: availableLineItem.id,
+              quantity:
+                Number(availableLineItem.quantity) +
+                Number(poLineItem.quantity),
+            });
+            // Line item no longer exist, need to reconstruct it from the po line item
+          }
+          console.log(temporaryLineItems);
+        });
 
         if (!present) {
+          console.log(present);
           console.log('Adding to the available items');
+          console.log(poLineItem);
           temporaryLineItems.push({
             cartId: cart.id,
             finalGood: poLineItem.finalGood,
@@ -358,15 +445,14 @@ export const CartDialog = (props) => {
         }
       }
 
-      setAvailableLineItems((availableLineItems) =>
-        availableLineItems.concat(temporaryLineItems)
-      );
+      setAvailableLineItems(temporaryLineItems);
     }
   };
 
   const formik = useFormik({
     initialValues: {
       supplierName: cart ? cart.supplier.name : '',
+      totalPrice: cart ? cart.totalPrice : '',
     },
     enableReinitialize: true,
   });
@@ -454,7 +540,8 @@ export const CartDialog = (props) => {
       valueGetter: (params) => {
         return params.row.totalPrice;
       },
-      valueFormatter: (params) => (params.value ? `$ ${params.value}` : ''),
+      valueFormatter: (params) =>
+        params.value ? `$ ${params.value.toFixed(2)}` : '',
     },
     {
       field: 'actions',
@@ -478,10 +565,20 @@ export const CartDialog = (props) => {
         open={poDialogOpen}
         handleClose={handlePODialogClose}
         cart={cart}
+        discount={discount}
         setPurchaseOrders={setPurchaseOrders}
         availableLineItems={availableLineItems}
         handleAvailableLineItemsChange={handleAvailableLineItemsChange}
         handleAlertOpen={handleAlertOpen}
+      />
+      <CartConfirmDialog
+        open={confirmDialogOpen}
+        handleClose={handleConfirmDialogClose}
+        dialogTitle={'Delete Cart Line Item'}
+        dialogContent={
+          'Are you sure you want to delete this line item? It will also be removed from all PO (if any)'
+        }
+        dialogAction={() => handleCartLineItemDelete(selectedRow)}
       />
       <CartConfirmDialog
         open={poConfirmDialogOpen}
@@ -536,25 +633,45 @@ export const CartDialog = (props) => {
             </Toolbar>
           </AppBar>
           <DialogContent style={{ backgroundColor: '#f8f8f8' }}>
-            <Box mr={2} flex={1}>
+            <Box mr={2} flex={1} display="flex" justifyContent="space-between">
               <TextField
                 disabled
+                sx={{ width: '66%' }}
                 color="primary"
-                error={Boolean(
-                  formik.touched.supplierName && formik.errors.supplierName
-                )}
                 fullWidth
-                helperText={
-                  formik.touched.supplierName && formik.errors.supplierName
-                }
                 label="Supplier Name"
                 margin="normal"
                 name="supplierName"
-                onBlur={formik.handleBlur}
-                onChange={formik.handleChange}
                 value={formik.values.supplierName}
                 variant="outlined"
                 size="small"
+              />
+              <TextField
+                disabled
+                sx={{ width: '16%' }}
+                color="primary"
+                label="Total Price"
+                margin="normal"
+                name="totalPrice"
+                value={formik.values.totalPrice}
+                variant="outlined"
+                size="small"
+              />
+              <TextField
+                disabled
+                sx={{ width: '16%' }}
+                color="primary"
+                label="Bulk Discount Obtained"
+                margin="normal"
+                name="discount"
+                value={discount}
+                variant="outlined"
+                size="small"
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">%</InputAdornment>
+                  ),
+                }}
               />
             </Box>
             <Typography variant="h6" component="div" sx={{ marginTop: 2 }}>

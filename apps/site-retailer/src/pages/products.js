@@ -29,6 +29,7 @@ const Products = () => {
     }
   };
 
+  // Get list of products
   const retrieveFinalGoods = async () => {
     const res = await fetch(
       `http://localhost:3000/api/final-goods/orgId/${currentSupplierId}`
@@ -112,7 +113,7 @@ const Products = () => {
               {searchResults.length !== 0 ? (
                 <Masonry
                   columns={{ xs: 1, sm: 2, md: 3, lg: 3, xl: 4 }}
-                  spacing={{ xs: 1, sm: 2 }}
+                  spacing={{ xs: 1, sm: 1 }}
                 >
                   {searchResults.map((product) => (
                     <ProductCard

@@ -27,6 +27,7 @@ export const CartPODialog = (props) => {
     open,
     handleClose,
     cart,
+    discount,
     setPurchaseOrders,
     availableLineItems,
     handleAvailableLineItemsChange,
@@ -54,7 +55,7 @@ export const CartPODialog = (props) => {
     const submitValues = {
       id: uuid(),
       deliveryAddress: values.deliveryAddress,
-      totalPrice: values.totalPrice,
+      totalPrice: values.netPrice,
       deliveryDate: values.deliveryDate,
       currentOrganisationId: organisationId,
       userContactId: user.contact.id,
@@ -83,36 +84,40 @@ export const CartPODialog = (props) => {
 
   const [poLineItems, setPOLineItems] = useState([]);
 
+  useEffect(() => {
+    // fetch when opening create dialog
+    if (open) {
+      setPOLineItems(JSON.parse(JSON.stringify(availableLineItems)));
+      getOutlets();
+      formik.setFieldValue('deliveryDate', new Date());
+    }
+  }, [open]);
+
   const formik = useFormik({
     initialValues: {
       deliveryAddress: '',
       totalPrice: poLineItems.reduce(
         (a, b) => a + b.quantity * b.finalGood.unitPrice,
         0
-      ), //Cart line items calculation
+      ),
+      netPrice:
+        poLineItems.reduce(
+          (a, b) => a + b.quantity * b.finalGood.unitPrice,
+          0
+        ) *
+        ((100 - discount) / 100), //Cart line items calculation
       deliveryDate: null,
       currentOrganisation: user.organisation,
       userContact: user.contact.id,
     },
     validationSchema: Yup.object({
       deliveryAddress: Yup.string().required(),
-      totalPrice: Yup.number().positive().required(),
+      netPrice: Yup.number().positive().required(),
       deliveryDate: Yup.date().required(),
     }),
     enableReinitialize: true,
     onSubmit: handleOnSubmit,
   });
-
-  useEffect(() => {
-    // fetch when opening create dialog
-    if (open) {
-      setPOLineItems(JSON.parse(JSON.stringify(availableLineItems)));
-      getOutlets();
-    }
-    // if (open &&  action === 'PATCH') {
-    //   console.log(purchaseOrder)
-    // }
-  }, [open]);
 
   const onClose = () => {
     handleClose();
@@ -157,7 +162,9 @@ export const CartPODialog = (props) => {
 
       totalPrice += lineItem.indicativePrice * lineItem.quantity;
     }
-    formik.setFieldValue('totalPrice', totalPrice);
+
+    const netPrice = totalPrice * ((100 - discount) / 100);
+    formik.setFieldValue('netPrice', netPrice);
 
     return updatedRow;
   };
@@ -251,6 +258,21 @@ export const CartPODialog = (props) => {
         <DialogContent>
           {/* PO Information */}
           {/* For desktop screens */}
+
+          {/* Outlet Selection */}
+
+          <Typography variant="h6">Purchase Order Line Items</Typography>
+          <DataGrid
+            autoHeight
+            rows={poLineItems}
+            columns={columns}
+            pageSize={5}
+            rowsPerPageOptions={[5]}
+            disableSelectionOnClick
+            experimentalFeatures={{ newEditingApi: true }}
+            processRowUpdate={updateLineItems}
+          />
+
           {fullScreen ? (
             // For mobile devices
             <>
@@ -280,20 +302,20 @@ export const CartPODialog = (props) => {
                     );
                   }}
                   renderInput={(params) => (
-                    <TextField {...params} label="Deliver To" />
+                    <TextField {...params} size="small" label="Deliver To" />
                   )}
                 />
               </Stack>
               <Stack
                 direction="row"
                 spacing={1}
-                sx={{ mb: 2, display: 'flex', justifyContent: 'flex-end' }}
+                sx={{ mb: 2, display: 'flex', justifyContent: 'flex-start' }}
               >
                 <DatePicker
-                  renderInput={(props) => <TextField {...props} />}
+                  renderInput={(props) => <TextField size="small" {...props} />}
                   label="Delivery Date"
                   value={formik.values.deliveryDate}
-                  minDate={new Date()} // earliest date is current + leadTime OR purchaseOrder.deliveryDate
+                  minDate={formik.values.deliveryDate} // earliest date is current + leadTime OR purchaseOrder.deliveryDate
                   onChange={(newValue) => {
                     formik.setFieldValue('deliveryDate', newValue);
                   }}
@@ -301,29 +323,57 @@ export const CartPODialog = (props) => {
               </Stack>
               <Stack
                 direction="row"
-                spacing={1}
+                spacing={0.5}
                 sx={{ mb: 2, display: 'flex', justifyContent: 'flex-end' }}
               >
                 <TextField
-                  error={Boolean(
-                    formik.touched.totalPrice && formik.errors.totalPrice
-                  )}
-                  helperText={
-                    formik.touched.totalPrice && formik.errors.totalPrice
-                  }
+                  disabled
                   label="Total Price"
-                  margin="normal"
                   name="totalPrice"
                   type="number"
-                  onBlur={formik.handleBlur}
-                  onChange={formik.handleChange}
-                  value={formik.values.totalPrice}
+                  value={cart.totalPrice}
                   variant="outlined"
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">$</InputAdornment>
                     ),
                   }}
+                  size="small"
+                />
+                <TextField
+                  disabled
+                  label="Discount"
+                  margin="normal"
+                  name="discount"
+                  type="number"
+                  value={discount}
+                  variant="outlined"
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">%</InputAdornment>
+                    ),
+                  }}
+                  size="small"
+                />
+                <TextField
+                  error={Boolean(
+                    formik.touched.netPrice && formik.errors.netPrice
+                  )}
+                  helperText={formik.touched.netPrice && formik.errors.netPrice}
+                  label="Net Price"
+                  margin="normal"
+                  name="netPrice"
+                  type="number"
+                  onBlur={formik.handleBlur}
+                  onChange={formik.handleChange}
+                  value={formik.values.netPrice.toFixed(2)}
+                  variant="outlined"
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">$</InputAdornment>
+                    ),
+                  }}
+                  size="small"
                   disabled
                 />
               </Stack>
@@ -333,7 +383,12 @@ export const CartPODialog = (props) => {
               <Stack
                 direction="row"
                 spacing={1}
-                sx={{ mb: 2, display: 'flex', justifyContent: 'space-between' }}
+                sx={{
+                  mt: 2,
+                  mb: 2,
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                }}
                 width="100%"
               >
                 <Box display="flex" justifyContent="space-between" width="60%">
@@ -362,7 +417,7 @@ export const CartPODialog = (props) => {
                     renderInput={(props) => <TextField {...props} />}
                     label="Delivery Date"
                     value={formik.values.deliveryDate}
-                    minDate={formik.values.deliveryDate} // earliest date is current + leadTime OR purchaseOrder.deliveryDate
+                    minDate={new Date()} // earliest date is current + leadTime OR purchaseOrder.deliveryDate
                     onChange={(newValue) => {
                       formik.setFieldValue('deliveryDate', newValue);
                     }}
@@ -370,19 +425,39 @@ export const CartPODialog = (props) => {
                 </Box>
                 <TextField
                   disabled
-                  error={Boolean(
-                    formik.touched.totalPrice && formik.errors.totalPrice
-                  )}
-                  helperText={
-                    formik.touched.totalPrice && formik.errors.totalPrice
-                  }
                   label="Total Price"
                   margin="normal"
                   name="totalPrice"
                   type="number"
-                  onBlur={formik.handleBlur}
-                  onChange={formik.handleChange}
                   value={formik.values.totalPrice}
+                  variant="outlined"
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">$</InputAdornment>
+                    ),
+                  }}
+                />
+                <TextField
+                  disabled
+                  label="Discount"
+                  margin="normal"
+                  name="discount"
+                  type="number"
+                  value={discount}
+                  variant="outlined"
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">%</InputAdornment>
+                    ),
+                  }}
+                />
+                <TextField
+                  disabled
+                  label="Net Price"
+                  margin="normal"
+                  name="netPrice"
+                  type="number"
+                  value={formik.values.netPrice.toFixed(2)}
                   variant="outlined"
                   InputProps={{
                     startAdornment: (
@@ -393,20 +468,6 @@ export const CartPODialog = (props) => {
               </Stack>
             </>
           )}
-
-          {/* Outlet Selection */}
-
-          <Typography variant="h6">Purchase Order Line Items</Typography>
-          <DataGrid
-            autoHeight
-            rows={poLineItems}
-            columns={columns}
-            pageSize={5}
-            rowsPerPageOptions={[5]}
-            disableSelectionOnClick
-            experimentalFeatures={{ newEditingApi: true }}
-            processRowUpdate={updateLineItems}
-          />
         </DialogContent>
       </Dialog>
     </form>
