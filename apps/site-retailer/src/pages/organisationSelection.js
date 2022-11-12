@@ -28,6 +28,8 @@ export default function OrganisationSelection() {
 
         if (!result.isActive) {
           formik.values.authenticationError = 'Organisation is suspended';
+        } else if (result.type !== 'retailer') {
+          formik.values.authenticationError = 'Organisation is not a retailer';
         } else {
           //navigate to the login page with id of the organisation
           navigate(`/login/${result.id}`);
