@@ -1,8 +1,9 @@
-import { Column, DeleteDateColumn, Entity, ManyToMany, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, DeleteDateColumn, Entity, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { BatchLineItem } from "../../batch-line-items/entities/batch-line-item.entity";
 import { ProductionOrder } from "../../production-orders/entities/production-order.entity";
 import { PurchaseRequisition } from "../../purchase-requisitions/entities/purchase-requisition.entity";
 import { RawMaterial } from "../../raw-materials/entities/raw-material.entity";
+import { ScheduleLineItem } from "../../schedule-line-items/entities/schedule-line-item.entity";
 import { Schedule } from "../../schedules/entities/schedule.entity";
 
 @Entity()
@@ -19,7 +20,7 @@ export class ProductionLineItem {
     @DeleteDateColumn()
     deletedDateTime: Date;
 
-    @ManyToOne(() => BatchLineItem, {nullable: true})
+    @ManyToOne(() => BatchLineItem, batchLineItem => batchLineItem.productionLineItems, {nullable: true})
     batchLineItem?: BatchLineItem
 
     @ManyToOne(() => RawMaterial, {nullable: true})
@@ -30,6 +31,9 @@ export class ProductionLineItem {
 
     @OneToOne(() => PurchaseRequisition, purchaseRequisition => purchaseRequisition.productionLineItem)
     purchaseRequisition: PurchaseRequisition;
+
+    @OneToMany(() => ScheduleLineItem, scheduleLineItem => scheduleLineItem.prodLineItem)
+    scheduleLineItems: ScheduleLineItem[]
 
     // @ManyToMany(() => Schedule, schedule => schedule.prodLineItems)
     // schedules: Schedule[]

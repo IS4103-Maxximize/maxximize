@@ -2,6 +2,7 @@ import { Column, DeleteDateColumn, Entity, ManyToMany, ManyToOne, OneToMany } fr
 import { Batch } from "../../batches/entities/batch.entity";
 import { Bin } from "../../bins/entities/bin.entity";
 import { LineItem } from "../../line-Items/LineItem";
+import { ProductionLineItem } from "../../production-line-items/entities/production-line-item.entity";
 import { PurchaseOrder } from "../../purchase-orders/entities/purchase-order.entity";
 import { ReservationLineItem } from "../../reservation-line-items/entities/reservation-line-item.entity";
 
@@ -27,4 +28,7 @@ export class BatchLineItem extends LineItem {
 
     @OneToMany(() => ReservationLineItem, reservationLineItem => reservationLineItem.batchLineItem)
     reservationLineItems: ReservationLineItem[];
+
+    @OneToMany(() => ProductionLineItem, productionLineItem => productionLineItem.batchLineItem)
+    productionLineItems: ProductionLineItem[]
 }

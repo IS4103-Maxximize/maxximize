@@ -32,6 +32,11 @@ export class BatchesController {
     return this.batchesService.batckTrackBatch(batchNumber)
   }
 
+  @Get('customersAffected/:batchNumber')
+  findAffectedCustomers(@Param('batchNumber') batchNumber: string) {
+    return this.batchesService.getEndCustomersFromBatchNumber(batchNumber)
+  }
+
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateBatchDto: UpdateBatchDto) {
     return this.batchesService.update(+id, updateBatchDto);
