@@ -15,6 +15,7 @@ import Finance from './pages/finance/finance';
 import MaxximizePayments from './pages/finance/maxximize-payments';
 import ProfitInsight from './pages/finance/profit-insight';
 import ForgotPassword from './pages/forgotPassword';
+import BulkDiscount from './pages/fulfilment/bulk-discount';
 import DeliveryRequest from './pages/fulfilment/delivery-request';
 import ReceivedPurchaseOrder from './pages/fulfilment/received-purchase-order';
 import ReceivedSalesInquiry from './pages/fulfilment/received-sales-inquiry';
@@ -298,6 +299,10 @@ const routes = (
 
             {/* Fulfilment */}
             {/* Fulfilment Modules */}
+			<Route
+              path="fulfilment/bulk-discount"
+              element={<BulkDiscount />}
+            ></Route>
             <Route
               path="fulfilment/received-sales-inquiry"
               element={<ReceivedSalesInquiry />}
