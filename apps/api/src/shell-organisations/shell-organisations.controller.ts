@@ -32,6 +32,11 @@ export class ShellOrganisationsController {
     return this.shellOrganisationsService.findAllByOrg(+id)
   }
 
+  @Get('retailersByOrg/:id')
+  findRetailersByOrg(@Param('id') id: string) {
+    return this.shellOrganisationsService.findAllRetailersByOrg(+id)
+  }
+
   @Get('orgId/:id/:uen')
   retrieveShellOrgFromUen(@Param('id') id: string, @Param('uen') uen: string) {
     return this.shellOrganisationsService.retrieveShellOrgFromUen(+id, uen)

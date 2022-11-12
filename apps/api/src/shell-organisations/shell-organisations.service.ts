@@ -10,6 +10,7 @@ import { RawMaterial } from '../raw-materials/entities/raw-material.entity';
 import { CreateShellOrganisationDto } from './dto/create-shell-organisation.dto';
 import { UpdateShellOrganisationDto } from './dto/update-shell-organisation.dto';
 import { ShellOrganisation } from './entities/shell-organisation.entity';
+import { OrganisationType } from "../organisations/enums/organisationType.enum";
 
 @Injectable()
 export class ShellOrganisationsService {
@@ -96,6 +97,18 @@ export class ShellOrganisationsService {
     return this.shellOrganisationRepository.find({
       where: {
         parentOrganisationId: id,
+      },
+      relations: {
+        contact: true,
+      },
+    });
+  }
+
+  async findAllRetailersByOrg(id: number){
+    return this.shellOrganisationRepository.find({
+      where: {
+        parentOrganisationId: id,
+        type: OrganisationType.RETAILER
       },
       relations: {
         contact: true,
