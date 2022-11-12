@@ -2,7 +2,7 @@ import GroupsIcon from '@mui/icons-material/Groups';
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import MoneyIcon from '@mui/icons-material/Money';
 import PrecisionManufacturingIcon from '@mui/icons-material/PrecisionManufacturing';
-import { Box, Button, Container, Grid, Link, Skeleton, Stack, Typography } from '@mui/material';
+import { Box, Button, Container, Grid, Link, Skeleton, Typography } from '@mui/material';
 import DayJS from 'dayjs';
 import { useEffect, useState } from 'react';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
@@ -47,11 +47,8 @@ const Dashboard = () => {
     setAlertOpen(false);
   };
 
-  const workerDashboardPerms = [
-    'factoryworker',
-    'superadmin',
-  ]
 
+  // Generic Card Helpers
   const getTrend = (change) => {
     if (change === 0) {
       return 'same';
@@ -64,6 +61,7 @@ const Dashboard = () => {
     }
     return null;
   }
+
 
   // Profits Card Helpers
   const [profits, setProfits] = useState([]);
@@ -89,6 +87,8 @@ const Dashboard = () => {
         setProfitChange(result[1].profit - result[0].profit);
       });
   }
+  // ------------------------------------------------------------------------------------
+
 
   // New Customers Card Helpers
   const [newCustomers, setNewCustomers] = useState();
@@ -97,8 +97,10 @@ const Dashboard = () => {
     await fetch(url).then(res => res.json())
       .then(result => setNewCustomers(result));
   }
+  // ------------------------------------------------------------------------------------ 
 
-  // Production Throughput and Yield Helpers
+
+  // Production Throughput and Yield Card Helpers
   const [production, setProduction] = useState(); // [yield, throughput]
   const getProduction = async () => {
     const baseUrl = `${apiHost}/schedules`;
@@ -111,6 +113,7 @@ const Dashboard = () => {
     await Promise.all([getYield, getThroughput])
       .then(values => setProduction(values));
   }
+  // ------------------------------------------------------------------------------------
 
 
   // Monthly Cost Breakdown Card + Doughnut
@@ -151,20 +154,23 @@ const Dashboard = () => {
   }
 
   const CostBreakdownCardContent = (props) => 
-    costBreakdown ? (
-        <Box
-          sx={{
-            height: 300,
-            position: 'relative'
-          }}
-        >
-          <DoughnutChart
-            data={costData}
-            labels={costLabels}
-          />
-        </Box>
-      ) : null;
+    (
+      <Box
+        sx={{
+          height: 300,
+          position: 'relative'
+        }}
+      >
+        <DoughnutChart
+          data={costData}
+          labels={costLabels}
+        /> 
+      </Box>
+    );
+  // ------------------------------------------------------------------------------------
 
+
+  // INIT
   useEffect(() => {
     Promise.all([
       getProfits(),
@@ -181,7 +187,8 @@ const Dashboard = () => {
     });
   }, [])
 
-  const TestDashboardItems = () => (
+  // Dashboard Grid Items
+  const DashboardItems = () => (
     <>
       <Grid item lg={3} sm={6} xl={3} xs={12}>
         <GenericCard
@@ -240,8 +247,9 @@ const Dashboard = () => {
         />
       </Grid>
     </>
-  )
+  );
 
+  // For reference
   const DefaultDashboardItems = () => (
     <>
       <Grid item lg={3} sm={6} xl={3} xs={12}>
@@ -270,6 +278,8 @@ const Dashboard = () => {
       </Grid>
     </>
   );
+  // ------------------------------------------------------------------------------------
+
 
   return (
     <>
@@ -318,7 +328,7 @@ const Dashboard = () => {
         />
         <Container maxWidth={false}>
           <Grid container spacing={3}>
-            <TestDashboardItems />
+            <DashboardItems />
           </Grid>
         </Container>
       </Box>

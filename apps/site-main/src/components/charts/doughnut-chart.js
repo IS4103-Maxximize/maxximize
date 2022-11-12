@@ -1,4 +1,4 @@
-import { useTheme } from '@mui/material';
+import { Skeleton, useTheme } from '@mui/material';
 import { Doughnut } from 'react-chartjs-2';
 
 export const DoughnutChart = (props) => {
@@ -45,10 +45,10 @@ export const DoughnutChart = (props) => {
     }
   };
 
-  return (
+  return (data && labels) ?
     <Doughnut
       data={chartData}
       options={options}
-    />
-  );
+    /> 
+    : <Skeleton />
 };

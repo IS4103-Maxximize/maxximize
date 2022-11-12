@@ -16,7 +16,7 @@ export const GenericBigCard = (props) => {
       />
       <Divider />
       <CardContent>
-        {content ? content : <Skeleton />}
+        {content}
       </CardContent>
     </Card>
   );
