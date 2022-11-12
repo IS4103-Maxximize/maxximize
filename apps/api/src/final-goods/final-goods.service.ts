@@ -1,7 +1,18 @@
 /* eslint-disable prefer-const */
-import { forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { HttpService } from '@nestjs/axios';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import dayjs = require('dayjs');
+import { catchError, map } from 'rxjs';
+import { DataSource, Repository } from 'typeorm';
+import { BatchLineItemsService } from '../batch-line-items/batch-line-items.service';
+import { BillOfMaterialsService } from '../bill-of-materials/bill-of-materials.service';
 import { InvoiceStatus } from '../invoices/enums/invoiceStatus.enum';
 import { InvoicesService } from '../invoices/invoices.service';
 import { Organisation } from '../organisations/entities/organisation.entity';
@@ -17,13 +28,27 @@ export class FinalGoodsService {
     @InjectRepository(Organisation)
     private readonly organisationsRepository: Repository<Organisation>,
     @Inject(forwardRef(() => InvoicesService))
-    private invoicesService: InvoicesService
-  ){}
+    private invoicesService: InvoicesService,
+    private readonly httpService: HttpService,
+    private billOfMaterialService: BillOfMaterialsService,
+    private batchLineItemService: BatchLineItemsService,
+    private dataSource: DataSource
+  ) {}
 
   async create(createFinalGoodDto: CreateFinalGoodDto): Promise<FinalGood> {
-    const {name, description, unit, unitPrice, expiry, lotQuantity, organisationId} = createFinalGoodDto
-    let organisationToBeAdded: Organisation
-    organisationToBeAdded = await this.organisationsRepository.findOneByOrFail({id: organisationId})
+    const {
+      name,
+      description,
+      unit,
+      unitPrice,
+      expiry,
+      lotQuantity,
+      organisationId,
+    } = createFinalGoodDto;
+    let organisationToBeAdded: Organisation;
+    organisationToBeAdded = await this.organisationsRepository.findOneByOrFail({
+      id: organisationId,
+    });
     const newFinalGoodInstance = this.finalGoodRepository.create({
       name,
       description,
@@ -31,9 +56,11 @@ export class FinalGoodsService {
       unitPrice,
       expiry,
       lotQuantity,
-      organisation: organisationToBeAdded
+      organisation: organisationToBeAdded,
     });
-    const newFinalGood = await this.finalGoodRepository.save(newFinalGoodInstance);
+    const newFinalGood = await this.finalGoodRepository.save(
+      newFinalGoodInstance
+    );
     const skuCode = `${newFinalGood.id}-${name.toUpperCase().substring(0, 3)}`;
     return this.update(newFinalGood.id, { skuCode: skuCode });
   }
@@ -50,8 +77,8 @@ export class FinalGoodsService {
     return this.finalGoodRepository.find({
       where: {
         organisation: {
-          id: organisationId
-        }
+          id: organisationId,
+        },
       },
       relations: {
         organisation: true,
@@ -72,24 +99,30 @@ export class FinalGoodsService {
       }})
       return finalGood
     } catch (err) {
-      throw new NotFoundException(`findOne failed as Final Good with id: ${id} cannot be found`)
+      throw new NotFoundException(
+        `findOne failed as Final Good with id: ${id} cannot be found`
+      );
     }
   }
 
-  async findTopSellingGoods(orgId: number){
-    const invoices = await this.invoicesService.findSentInvoicesByOrg(orgId)
-    const goodsSales = new Map<number, number>()
-    const date = new Date()
+  async findTopSellingGoods(orgId: number) {
+    const invoices = await this.invoicesService.findSentInvoicesByOrg(orgId);
+    const goodsSales = new Map<number, number>();
+    const date = new Date();
     for (const invoice of invoices) {
-      if (invoice.status == InvoiceStatus.CLOSED){
-        const po = (await this.invoicesService.findOne(invoice.id)).po
-        if (invoice.paymentReceived.getMonth() == date.getMonth() && invoice.paymentReceived.getFullYear() == date.getFullYear()){
+      if (invoice.status == InvoiceStatus.CLOSED) {
+        const po = (await this.invoicesService.findOne(invoice.id)).po;
+        if (
+          invoice.paymentReceived.getMonth() == date.getMonth() &&
+          invoice.paymentReceived.getFullYear() == date.getFullYear()
+        ) {
           for (const poLineItem of po.poLineItems) {
-            if(goodsSales.has(poLineItem.finalGood.id)) {
-              const quantity = goodsSales.get(poLineItem.finalGood.id) + poLineItem.quantity
-              goodsSales.set(poLineItem.finalGood.id, quantity)
+            if (goodsSales.has(poLineItem.finalGood.id)) {
+              const quantity =
+                goodsSales.get(poLineItem.finalGood.id) + poLineItem.quantity;
+              goodsSales.set(poLineItem.finalGood.id, quantity);
             } else {
-              goodsSales.set(poLineItem.finalGood.id, poLineItem.quantity)
+              goodsSales.set(poLineItem.finalGood.id, poLineItem.quantity);
             }
           }
         }
@@ -111,52 +144,103 @@ export class FinalGoodsService {
     //   {name: (await this.findOne(finalGoods[4])).name, quantity: mapSort1.get(finalGoods[4])}
     // ]
 
-    return arr
+    return arr;
   }
 
-  async update(id: number, updateFinalGoodDto: UpdateFinalGoodDto): Promise<FinalGood> {
+  async update(
+    id: number,
+    updateFinalGoodDto: UpdateFinalGoodDto
+  ): Promise<FinalGood> {
     try {
-      const product = await this.finalGoodRepository.findOne({where: {
-        id
-      }})
-      const keyValuePairs = Object.entries(updateFinalGoodDto)
+      const product = await this.finalGoodRepository.findOne({
+        where: {
+          id,
+        },
+      });
+      const keyValuePairs = Object.entries(updateFinalGoodDto);
       for (let i = 0; i < keyValuePairs.length; i++) {
-        const key = keyValuePairs[i][0]
-        const value = keyValuePairs[i][1]
+        const key = keyValuePairs[i][0];
+        const value = keyValuePairs[i][1];
         if (value) {
-            if (key === 'description') {
-              product.description = value;
-            }
-            else if (key === 'unitPrice') {
-              product.unitPrice = value;
-            }
-            else if (key === 'expiry') {
-              product.expiry = value;
-            } 
-            else if (key === 'skuCode') {
-              product.skuCode = value;
-            } 
-            else if (key === 'lotQuantity') {
-              product.lotQuantity = value;
-            } 
-          } 
-        else {
-          product[key] = value
+          if (key === 'description') {
+            product.description = value;
+          } else if (key === 'unitPrice') {
+            product.unitPrice = value;
+          } else if (key === 'expiry') {
+            product.expiry = value;
+          } else if (key === 'skuCode') {
+            product.skuCode = value;
+          } else if (key === 'lotQuantity') {
+            product.lotQuantity = value;
+          }
+        } else {
+          product[key] = value;
         }
       }
       await this.finalGoodRepository.save(product);
       return this.findOne(id);
     } catch (err) {
-      throw new NotFoundException(`update Failed as Final Good with id: ${id} cannot be found`)
+      throw new NotFoundException(
+        `update Failed as Final Good with id: ${id} cannot be found`
+      );
     }
   }
 
   async remove(id: number): Promise<FinalGood> {
     try {
-      const product = await this.finalGoodRepository.findOneBy({id})
+      const product = await this.finalGoodRepository.findOneBy({ id });
       return this.finalGoodRepository.remove(product);
     } catch (err) {
-      throw new NotFoundException(`Remove failed as Final Good with id: ${id} cannot be found`)
+      throw new NotFoundException(
+        `Remove failed as Final Good with id: ${id} cannot be found`
+      );
     }
+  }
+
+  async getDemandForecast(id: number, finalGoodsId: number, numOfMonths: number, seasonality: string) {
+    const url = 'http://127.0.0.1:5000/demand-forecast';
+    const query =
+    `
+      SELECT 
+        YEAR(created) as YEAR, 
+        MONTH(created) as MONTH,
+        SUM(quantity) as SUM
+      FROM purchase_order 
+      JOIN purchase_order_line_item
+      ON purchase_order.id = purchase_order_line_item.purchaseOrderId
+        AND purchase_order_line_item.finalGoodId = ${finalGoodsId}
+      WHERE currentOrganisationId = ${id}
+      GROUP BY Year(created), MONTH(created)
+      ORDER BY YEAR, MONTH;
+    `
+    const queryRunner = this.dataSource.createQueryRunner();
+    const result = await queryRunner.manager.query(query);
+    const dataForDemandPython = [];
+    for (const row of result) {
+      dataForDemandPython.push({
+        date: new Date(row.YEAR, row.MONTH, 1),
+        value: row.SUM
+      })
+    }
+    const season = seasonality === 'true'
+    const data = {
+      numOfMonths: numOfMonths,
+      data: dataForDemandPython,
+      seasonality: season
+    };
+    return this.httpService
+      .post(url, data)
+      .pipe(map((res) => res.data))
+      .pipe(
+        catchError(() => {
+          throw new InternalServerErrorException('API is down');
+        })
+      );
+  }
+
+  async getShortFall(finalGoodsId: number, quantity: number, organisationId: number, numOfMonths: number) {
+    const bom = await this.billOfMaterialService.getBOMFromFinalGood(finalGoodsId);
+    const lineItems = await this.batchLineItemService.getLineItems(bom.id, quantity, organisationId, dayjs().add(numOfMonths, 'month').toDate());
+    return lineItems;
   }
 }

@@ -46,8 +46,8 @@ export class DeliveryRequestsService {
       await this.allocateDriverToRequest(organisationId, deliveryRequest);
       await this.allocateVehicleToRequest(organisationId, deliveryRequest);
 
-	  purchaseOrder.status = PurchaseOrderStatus.DELIVERY
-	  await queryRunner.manager.save(purchaseOrder);
+      purchaseOrder.status = PurchaseOrderStatus.DELIVERY
+      await queryRunner.manager.save(purchaseOrder);
 
       const deliveryLineItems = [];
 

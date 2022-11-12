@@ -1,7 +1,15 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { FinalGoodsService } from './final-goods.service';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+} from '@nestjs/common';
 import { CreateFinalGoodDto } from './dto/create-final-good.dto';
 import { UpdateFinalGoodDto } from './dto/update-final-good.dto';
+import { FinalGoodsService } from './final-goods.service';
 
 @Controller('final-goods')
 export class FinalGoodsController {
@@ -24,16 +32,44 @@ export class FinalGoodsController {
 
   @Get('orgId/:id')
   findAllByOrg(@Param('id') id: string) {
-    return this.finalGoodsService.findAllByOrg(+id)
+    return this.finalGoodsService.findAllByOrg(+id);
+  }
+
+  @Get('/shortfall/:id/:finalGoodsId/:numOfMonths/:quantity')
+  getShortfall(
+    @Param('id') id: number,
+    @Param('finalGoodsId') finalGoodsId: number,
+    @Param('numOfMonths') numOfMonths: number,
+    @Param('quantity') quantity: number
+  ) {
+    return this.finalGoodsService.getShortFall(finalGoodsId, quantity, id, numOfMonths);
+  }
+
+  @Get('/demand-forecast/:id/:finalGoodsId/:numOfMonths/:seasonality')
+  getDemandForecast(
+    @Param('id') id: number,
+    @Param('finalGoodsId') finalGoodsId: number,
+    @Param('numOfMonths') numOfMonths: number,
+    @Param('seasonality') seasonality: string
+  ) {
+    return this.finalGoodsService.getDemandForecast(
+      id,
+      finalGoodsId,
+      numOfMonths,
+      seasonality
+    );
   }
 
   @Get('topSales/:id')
   findTopSellingGoods(@Param('id') id: string) {
-    return this.finalGoodsService.findTopSellingGoods(+id)
+    return this.finalGoodsService.findTopSellingGoods(+id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateFinalGoodDto: UpdateFinalGoodDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateFinalGoodDto: UpdateFinalGoodDto
+  ) {
     return this.finalGoodsService.update(+id, updateFinalGoodDto);
   }
 

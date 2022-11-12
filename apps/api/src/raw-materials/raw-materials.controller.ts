@@ -22,11 +22,6 @@ export class RawMaterialsController {
     return this.rawMaterialsService.findAllByOrg(+id)
   }
 
-  @Get('orgId/:id/demand-forecast')
-  getDemandForecast(@Param('id') id: string) {
-    return this.rawMaterialsService.findAllByOrg(+id)
-  }
-
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.rawMaterialsService.findOne(+id);

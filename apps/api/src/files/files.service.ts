@@ -89,7 +89,7 @@ export class FilesService {
         purchaseOrderDto.deliveryAddress = entry[0];
         purchaseOrderDto.totalPrice = entry[1];
         purchaseOrderDto.currentOrganisationId = id;
-        console.log(new Date(entry[2]) + " " + entry[2])
+        // console.log(new Date(entry[2]) + " " + entry[2])
         purchaseOrderDto.date = new Date(entry[2]);
         mapPurchaseDto.set(entry[6], purchaseOrderDto);
         const arr = [];

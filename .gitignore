@@ -4,6 +4,9 @@
 /dist
 /tmp
 /out-tsc
+.flaskenv
+*.pyc
+*.pyo
 
 # dependencies
 node_modules

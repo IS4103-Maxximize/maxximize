@@ -1,17 +1,31 @@
+import LoadingButton from '@mui/lab/LoadingButton';
 import {
   Autocomplete,
   Box,
   Breadcrumbs,
   Button,
   Card,
-  CardContent, TextField, Typography
+  CardContent,
+  FormControlLabel,
+  FormGroup,
+  Switch,
+  TextField,
+  Typography,
 } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { procurementBreadcrumbs } from '../../helpers/constants';
 
 export const DemandForecastToolbar = (props) => {
-  const { name, finalGoods, setSelectedFinalGood, setPeriod, handleSubmit } = props;
+  const {
+    name,
+    finalGoods,
+    setSelectedFinalGood,
+    setPeriod,
+    handleSubmit,
+    loading,
+    handleToggle
+  } = props;
 
   // Get current pathname
   const location = useLocation();
@@ -54,7 +68,7 @@ export const DemandForecastToolbar = (props) => {
                 justifyContent: 'space-between',
                 flexWrap: 'wrap',
                 m: -1,
-                width: '60%',
+                width: '80%',
               }}
             >
               <Autocomplete
@@ -71,10 +85,24 @@ export const DemandForecastToolbar = (props) => {
                 }}
               />
               <TextField
-                label="Number of periods"
+                label="Number of months"
                 onChange={(event) => setPeriod(event.target.value)}
               />
-              <Button variant="contained" onClick={handleSubmit}>Forecast</Button>
+              <FormGroup>
+                <FormControlLabel
+                  control={<Switch defaultChecked />}
+                  label="Seasonality"
+                  onChange={handleToggle}
+                />
+              </FormGroup>
+              <LoadingButton
+                onClick={handleSubmit}
+                loading={loading}
+                loadingIndicator="Loading…"
+                variant="contained"
+              >
+                Forecast
+              </LoadingButton>
             </Box>
           </CardContent>
         </Card>

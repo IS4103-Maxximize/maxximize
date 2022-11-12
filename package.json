@@ -27,6 +27,7 @@
     "@mui/x-data-grid": "^5.17.1",
     "@mui/x-date-pickers": "^5.0.2",
     "@nestjs-modules/mailer": "^1.8.1",
+    "@nestjs/axios": "^1.0.0",
     "@nestjs/cli": "^9.0.0",
     "@nestjs/common": "^9.0.0",
     "@nestjs/config": "^2.2.0",
