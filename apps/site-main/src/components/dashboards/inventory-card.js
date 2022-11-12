@@ -1,10 +1,13 @@
 import { Box, Button, Card, CardContent, CardHeader, Divider, Slider, Stack, Typography, useTheme } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
-import { useEffect, useState } from 'react';
-import { apiHost } from '../../helpers/constants';
 
 export const InventoryCard = (props) => {
   const {
+    defaultLevel,
+    warningLevel,
+    handleDrag,
+    inventory,
+    handleRefresh,
     handleAlertOpen,
     ...rest
   } = props;
@@ -12,31 +15,6 @@ export const InventoryCard = (props) => {
   const user = JSON.parse(localStorage.getItem('user'))
   const organisationId = user.organisation?.id;
   const theme = useTheme();
-
-  // Slider Helpers
-  const [defaultLevel, setDefaultLevel] = useState(20)
-  const [warningLevel, setWarningLevel] = useState(defaultLevel);
-
-  const handleDrag = (event, newValue) => {
-    setWarningLevel(newValue);
-  }
-
-
-  const [inventory, setInventory] = useState([]);
-
-  const getInventory = async () => {
-    const url = `${apiHost}/batch-line-items/inventoryLevel/${organisationId}/${warningLevel}`
-    await fetch(url).then(res => res.json())
-      .then(result => {
-        const mapped = result.map((item, index) => {return {id: index, ...item }});
-        setInventory(mapped);
-        // handleAlertOpen()
-      })
-  }
-
-  useEffect(() => {
-    getInventory();
-  }, [])
 
   const columns = [
     {
@@ -72,7 +50,7 @@ export const InventoryCard = (props) => {
               marks
               step={5}
               min={20}
-              max={70}
+              max={100} // adjust to 70 for SR4
               value={warningLevel}
               valueLabelDisplay="auto"
               valueLabelFormat={(value, index) => `${value}%`}
@@ -81,10 +59,7 @@ export const InventoryCard = (props) => {
             <Button
               sx={{ ml: 2 }}
               disabled={warningLevel === defaultLevel}
-              onClick={() => {
-                getInventory()
-                .then(() => setDefaultLevel(warningLevel));
-              }}
+              onClick={handleRefresh}
             >
               Refresh
             </Button>

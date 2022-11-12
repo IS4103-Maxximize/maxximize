@@ -119,6 +119,36 @@ const Dashboard = () => {
   // ------------------------------------------------------------------------------------
 
 
+  // Inventory Card Helpers
+
+  // Slider Helpers
+  const [defaultLevel, setDefaultLevel] = useState(20)
+  const [warningLevel, setWarningLevel] = useState(defaultLevel);
+
+  const handleDrag = (event, newValue) => {
+    setWarningLevel(newValue);
+  }
+
+  const [inventory, setInventory] = useState([]);
+
+  const getInventory = async () => {
+    const url = `${apiHost}/batch-line-items/inventoryLevel/${organisationId}/${warningLevel}`
+    await fetch(url).then(res => res.json())
+      .then(result => {
+        const mapped = result.map((item, index) => {return {id: index, ...item }});
+        setInventory(mapped);
+      })
+  }
+
+  const handleRefresh = async () => {
+    getInventory().then(() => {
+      setDefaultLevel(warningLevel);
+      handleAlertOpen('Successfully updated Inventory Warning Level!', 'success');
+    })
+  }
+  // ------------------------------------------------------------------------------------
+
+
   // Monthly Cost Breakdown Card + Doughnut
   const [costBreakdown, setCostBreakdown] = useState();
   const [costData, setCostData] = useState();
@@ -200,10 +230,15 @@ const Dashboard = () => {
   useEffect(() => {
     Promise.all([
       //TODO load based on role
+
+      // Set 1
       getProfits(),
       getNewCustomers(),
       getProduction(),
       getCostBreakdown(),
+      
+      // Set 2
+      getInventory(),
       getDeliveries(),
     ])
     .then(values => {
@@ -266,6 +301,11 @@ const Dashboard = () => {
       <Grid item lg={8} md={12} xl={9} xs={12}>
         <InventoryCard 
           sx={{ height: '100%' }}
+          defaultLevel={defaultLevel}
+          warningLevel={warningLevel}
+          handleDrag={handleDrag}
+          inventory={inventory}
+          handleRefresh={handleRefresh}
           handleAlertOpen={handleAlertOpen}
         />
       </Grid>
@@ -285,7 +325,7 @@ const Dashboard = () => {
           sx={{ height: '100%'}}
           assigned={assigned}
           deliveries={deliveries}
-          getDeliveries={getDeliveries}
+          handleRefresh={handleRefresh}
           handleAlertOpen={handleAlertOpen}
         />
       </Grid>
@@ -377,7 +417,7 @@ const Dashboard = () => {
         />
         <Container maxWidth={false}>
           <Grid container spacing={3}>
-            <DefaultDashboardItems />
+            {/* <DefaultDashboardItems /> */}
             {['manager', 
               'admin',
               'superadmin',
