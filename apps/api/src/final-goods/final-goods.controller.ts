@@ -60,6 +60,17 @@ export class FinalGoodsController {
     );
   }
 
+  @Get('/required-raw-materials/:finalGoodsId/:quantity')
+  getRequiredRawMaterialsFromFinalGoods(
+    @Param('finalGoodsId') finalGoodsId: number,
+    @Param('quantity') quantity: number,
+  ) {
+    return this.finalGoodsService.getRequiredRawMaterialsFromFinalGoods(
+      finalGoodsId,
+      quantity
+    );
+  }
+
   @Get('topSales/:id')
   findTopSellingGoods(@Param('id') id: string) {
     return this.finalGoodsService.findTopSellingGoods(+id);

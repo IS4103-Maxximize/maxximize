@@ -5,6 +5,7 @@ import { ProductionOrder } from "../../production-orders/entities/production-ord
 import { RawMaterial } from "../../raw-materials/entities/raw-material.entity"
 import { SalesInquiry } from "../../sales-inquiry/entities/sales-inquiry.entity"
 import { PRStatus } from "../enums/prStatus.enum"
+import { RequestByType } from "../enums/RequestByType.enum"
 
 @Entity()
 export class PurchaseRequisition {
@@ -16,6 +17,12 @@ export class PurchaseRequisition {
 
     @Column()
     quantityToFulfill: number
+
+    @Column({
+        type: 'enum',
+        enum: RequestByType
+    })
+    requestByType: RequestByType
 
     @Column({
         type: 'enum',
