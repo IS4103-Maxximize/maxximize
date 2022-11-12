@@ -5,12 +5,15 @@ import { DashboardLayout } from './components/dashboard-layout';
 import Layout from './components/Layout';
 import RequireAuth from './components/RequireAuth';
 import NotFound from './pages/404';
+import DeliveryFleetManagement from './pages/assetManagement/deliveryFleetManagement';
 import MachineManagement from './pages/assetManagement/machineManagement';
 import ProductionLineManagement from './pages/assetManagement/productionLineManagement';
 import BusinessRelations from './pages/businessRelations';
-import DeliveryFleetManagement from './pages/assetManagement/deliveryFleetManagement';
 import Dashboard from './pages/dashboard';
+import B2BInvoice from './pages/finance/b2b-invoice';
 import Finance from './pages/finance/finance';
+import MaxximizePayments from './pages/finance/maxximize-payments';
+import ProfitInsight from './pages/finance/profit-insight';
 import ForgotPassword from './pages/forgotPassword';
 import DeliveryRequest from './pages/fulfilment/delivery-request';
 import ReceivedPurchaseOrder from './pages/fulfilment/received-purchase-order';
@@ -45,7 +48,6 @@ import { RegisterOrganisation } from './pages/registerOrganisation';
 import ResetPassword from './pages/resetpassword';
 import Unauthorized from './pages/unauthorized';
 import WorkerManagement from './pages/workermanagement';
-import B2BInvoice from './pages/finance/b2b-invoice';
 
 const ROLES = {
   Admin: 'admin',
@@ -126,14 +128,19 @@ const routes = (
             ></Route>
             {/* B2B Invoices */}
             <Route
+              path="finance/profit-insight"
+              element={<ProfitInsight />}
+            ></Route>
+            {/* B2B Invoices */}
+            <Route
               path="finance/b2b-invoice"
               element={<B2BInvoice />}
             ></Route>
-            {/* Subscription Invoices */}
-            {/* <Route
-              path="finance/subscription-invoice"
-              element={<SubscriptionInvoice />}
-            ></Route> */}
+            {/* Maxximize Payments */}
+            <Route
+              path="finance/maxximize-payments"
+              element={<MaxximizePayments />}
+            ></Route>
           </Route>
 
           {/* Product Management */}

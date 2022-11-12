@@ -23,6 +23,16 @@ export class SchedulesController {
     return this.schedulesService.findOne(+id);
   }
 
+  @Get('yield/:id')
+  getProductionYield(@Param('id') id: string) {
+    return this.schedulesService.getProductionYield(+id);
+  }
+
+  @Get('throughput/:id')
+  getProductionThroughput(@Param('id') id: string) {
+    return this.schedulesService.getProductionThroughput(+id);
+  }
+
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateScheduleDto: UpdateScheduleDto) {
     return this.schedulesService.update(+id, updateScheduleDto);

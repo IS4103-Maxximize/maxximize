@@ -36,6 +36,7 @@ import { ProductionLinesModule } from '../production-lines/production-lines.modu
 import { ProductionOrdersModule } from '../production-orders/production-orders.module';
 import { ProductionRequestsModule } from '../production-requests/production-requests.module';
 import { ProductsModule } from '../products/products.module';
+import { ProfitModule } from '../profit/profit.module';
 import { PurchaseOrderLineItem } from '../purchase-order-line-items/entities/purchase-order-line-item.entity';
 import { PurchaseOrderLineItemsModule } from '../purchase-order-line-items/purchase-order-line-items.module';
 import { PurchaseOrdersModule } from '../purchase-orders/purchase-orders.module';
@@ -139,7 +140,8 @@ import { AppService } from './app.service';
     RevenueModule,
     RevenueBracketsModule,
     OutletsModule,
-    CostModule
+    CostModule,
+    ProfitModule
   ],
   controllers: [AppController],
   providers: [AppService],

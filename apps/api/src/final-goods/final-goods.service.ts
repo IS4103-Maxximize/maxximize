@@ -41,7 +41,8 @@ export class FinalGoodsService {
   findAll(): Promise<FinalGood[]> {
     return this.finalGoodRepository.find({relations: {
       organisation: true,
-      billOfMaterial: true
+      billOfMaterial: true,
+      image: true
     }})
   }
 
@@ -54,7 +55,8 @@ export class FinalGoodsService {
       },
       relations: {
         organisation: true,
-        billOfMaterial: true
+        billOfMaterial: true,
+        image: true
       }
     })
   }
@@ -65,7 +67,8 @@ export class FinalGoodsService {
         id
       }, relations: {
         organisation: true,
-        billOfMaterial: true 
+        billOfMaterial: true,
+        image: true
       }})
       return finalGood
     } catch (err) {
@@ -94,13 +97,19 @@ export class FinalGoodsService {
     }
     const mapSort1 = new Map([...goodsSales.entries()].sort((a, b) => b[1] - a[1]))
     const finalGoods = [...mapSort1.keys()]
-    const arr = [
-      {name: (await this.findOne(finalGoods[0])).name, quantity: mapSort1.get(finalGoods[0])},
-      {name: (await this.findOne(finalGoods[1])).name, quantity: mapSort1.get(finalGoods[1])},
-      {name: (await this.findOne(finalGoods[2])).name, quantity: mapSort1.get(finalGoods[2])},
-      {name: (await this.findOne(finalGoods[3])).name, quantity: mapSort1.get(finalGoods[3])},
-      {name: (await this.findOne(finalGoods[4])).name, quantity: mapSort1.get(finalGoods[4])}
-    ]
+    let i = 0
+    const arr = []
+    while (mapSort1.has(finalGoods[i]) && i<5){
+      arr.push({name: (await this.findOne(finalGoods[i])).name, quantity: mapSort1.get(finalGoods[i])})
+      i++
+    }
+    // const arr = [
+    //   {name: (await this.findOne(finalGoods[0])).name, quantity: mapSort1.get(finalGoods[0])},
+    //   {name: (await this.findOne(finalGoods[1])).name, quantity: mapSort1.get(finalGoods[1])},
+    //   {name: (await this.findOne(finalGoods[2])).name, quantity: mapSort1.get(finalGoods[2])},
+    //   {name: (await this.findOne(finalGoods[3])).name, quantity: mapSort1.get(finalGoods[3])},
+    //   {name: (await this.findOne(finalGoods[4])).name, quantity: mapSort1.get(finalGoods[4])}
+    // ]
 
     return arr
   }

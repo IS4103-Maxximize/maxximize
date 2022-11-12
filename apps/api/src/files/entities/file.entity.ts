@@ -1,5 +1,6 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Application } from "../../applications/entities/application.entity";
+import { FinalGood } from "../../final-goods/entities/final-good.entity";
 import { Organisation } from "../../organisations/entities/organisation.entity";
 import { BusinessType } from "../enums/businessType.enum";
 
@@ -28,6 +29,10 @@ export class File {
     applicationId: number
     @ManyToOne(() => Application, application => application.documents)
     application: Application
+
+    @OneToOne(() => FinalGood, finalGood => finalGood.image)
+    @JoinColumn()
+    finalGood: FinalGood
 
 
 }

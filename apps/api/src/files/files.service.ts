@@ -7,6 +7,8 @@ import { Repository } from 'typeorm';
 import { promisify } from 'util';
 import { ApplicationsService } from '../applications/applications.service';
 import { Application } from '../applications/entities/application.entity';
+import { FinalGood } from '../final-goods/entities/final-good.entity';
+import { FinalGoodsService } from '../final-goods/final-goods.service';
 import { Organisation } from '../organisations/entities/organisation.entity';
 import { OrganisationsService } from '../organisations/organisations.service';
 import { CreatePurchaseOrderLineItemDto } from '../purchase-order-line-items/dto/create-purchase-order-line-item.dto';
@@ -14,6 +16,7 @@ import { CreatePurchaseOrderDto } from '../purchase-orders/dto/create-purchase-o
 import { PurchaseOrdersService } from '../purchase-orders/purchase-orders.service';
 import { CreateFileDto } from './dto/create-file.dto';
 import { UpdateFileDto } from './dto/update-file.dto';
+import { UploadFileDto } from './dto/upload-file.dto';
 import { File } from './entities/file.entity';
 import { BusinessType } from './enums/businessType.enum';
 
@@ -23,6 +26,7 @@ export class FilesService {
   @InjectRepository(File)
   private readonly fileRepository: Repository<File>,
   private applicationService: ApplicationsService,
+  private finalGoodsService: FinalGoodsService,
   private purchaseOrderService: PurchaseOrdersService){}
   async create(createFileDto: CreateFileDto) {
     const { name, type, organisationId} = createFileDto
@@ -35,20 +39,23 @@ export class FilesService {
     return this.fileRepository.save(newFile)
   }
 
-  async uploadAndCreateFiles(files: Express.Multer.File[], type: string, orgId: number, applicationId: number) {
+  async uploadAndCreateFiles(files: Express.Multer.File[], uploadFileDto: UploadFileDto) {
     let organisationToBeAdded: Organisation
     let applicationToBeAdded: Application
-    organisationToBeAdded = orgId ? await this.organisationService.findOne(orgId) : null
+    let finalGoodToBeAdded: FinalGood
+    const {organisationId, applicationId, finalGoodId, type} = uploadFileDto
+    organisationToBeAdded = organisationId ? await this.organisationService.findOne(organisationId) : null
     applicationToBeAdded = applicationId ? await this.applicationService.findOne(applicationId) : null
-    const businessType = type === 'validation' ? BusinessType.VALIDATION : BusinessType.FINANCE
+    finalGoodToBeAdded = finalGoodId ? await this.finalGoodsService.findOne(finalGoodId) : null
     const newFiles = []
     for (const file of files) {
       const { filename } = file
       const newFile = this.fileRepository.create({
         name: filename,
-        businessType: businessType,
+        businessType: type,
         organisationId: organisationToBeAdded ? organisationToBeAdded.id : null,
-        applicationId: applicationToBeAdded ? applicationToBeAdded.id : null
+        applicationId: applicationToBeAdded ? applicationToBeAdded.id : null,
+        finalGood: finalGoodToBeAdded ?? null
       })
       newFiles.push(await this.fileRepository.save(newFile))
     }

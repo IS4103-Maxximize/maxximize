@@ -147,6 +147,45 @@ export class SchedulesService {
     return this.scheduleRepository.remove(scheduleToRemove);
   }
 
+  async getProductionYield(id: number) {
+    const schedules = await this.findAllByOrg(id)
+    let totalExpected: number = 0
+    let totalActual: number = 0
+    const date = new Date()
+    for (const schedule of schedules) {
+      if (schedule.end.getMonth() == date.getMonth() && schedule.end.getFullYear() == date.getFullYear() && schedule.status == ScheduleType.ALLOCATED){
+        totalExpected += schedule.expectedQuantity
+        totalActual += schedule.actualQuantity
+      }
+    }
+    if (totalExpected > 0){
+      return totalActual/totalExpected
+    } else {
+      return null
+    }
+    
+  }
+
+  async getProductionThroughput(id: number) {
+    const schedules = await this.findAllByOrg(id)
+    let actualQuantity: number = 0
+    let hoursElapsed: number = 0
+    const date = new Date()
+    for (const schedule of schedules) {
+      if (schedule.end.getMonth() == date.getMonth() && schedule.end.getFullYear() == date.getFullYear() && schedule.status == ScheduleType.ALLOCATED){
+        actualQuantity += schedule.actualQuantity
+        const hours = (schedule.end.getTime() - schedule.start.getTime()) / 3600000
+        hoursElapsed += hours
+      }
+    }
+    if (hoursElapsed > 0){
+      return actualQuantity/hoursElapsed
+    } else {
+      return null
+    }
+    
+  }
+
   async allocate(allocateScheduleDto: AllocateScheduleDto) {
     const { orgId, scheduleId, quantity, volumetricSpace } =
       allocateScheduleDto;
@@ -175,6 +214,7 @@ export class SchedulesService {
         await transactionalEntityManager.update(Schedule, scheduleId, {
           status: ScheduleType.ALLOCATED,
           completedGoods: newBatch,
+          actualQuantity: quantity
         });
         let productionOrder: ProductionOrder =
           await transactionalEntityManager.findOne(ProductionOrder, {

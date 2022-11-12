@@ -1,6 +1,5 @@
-import ClearIcon from '@mui/icons-material/Clear';
 import SearchIcon from '@mui/icons-material/Search';
-import { Box, Button, Card, CardContent, CardHeader, Divider, IconButton, InputAdornment, Stack, TextField, ToggleButton, ToggleButtonGroup } from "@mui/material";
+import { Box, Button, Card, CardContent, CardHeader, Divider, IconButton, Stack, TextField, ToggleButton, ToggleButtonGroup } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers";
 import DayJS from 'dayjs';
 
@@ -19,6 +18,7 @@ export const FilterCard = (props) => {
     handleType,
     reset,
     handleSearch,
+    actionButton, // additional button
     ...rest
   } = props;
 
@@ -108,6 +108,7 @@ export const FilterCard = (props) => {
               disableFuture
             />
           </Box>}
+          {actionButton}
         </Box>
       </CardContent>
     </Card>

@@ -22,6 +22,11 @@ export class ShellOrganisationsController {
     return this.shellOrganisationsService.findOne(+id);
   }
 
+  @Get('newCustomers/:id') 
+  getNewCustomersByMonth(@Param('id') id: string) {
+    return this.shellOrganisationsService.getNewCustomersByMonth(+id);
+  }
+
   @Get('orgId/:id')
   findByOrg(@Param('id') id: string) {
     return this.shellOrganisationsService.findAllByOrg(+id)
