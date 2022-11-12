@@ -107,8 +107,8 @@ export class BulkDiscountsService {
       })
       if (selectedRange) {
         const discountRate = selectedRange.discountRate
-        const discount = Math.round((discountRate / 100) * totalPrice)
-        return discount
+        // const discount = Math.round((discountRate / 100) * totalPrice)
+        return discountRate
       }
     }
     return 0

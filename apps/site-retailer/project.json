@@ -1,0 +1,83 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/site-retailer/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/web:webpack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "compiler": "babel",
+        "outputPath": "dist/apps/site-retailer",
+        "index": "apps/site-retailer/src/index.html",
+        "baseHref": "/",
+        "main": "apps/site-retailer/src/index.js",
+        "polyfills": "apps/site-retailer/src/polyfills.js",
+        "tsConfig": "apps/site-retailer/tsconfig.app.json",
+        "assets": [
+          "apps/site-retailer/src/favicon.ico",
+          "apps/site-retailer/src/assets"
+        ],
+        "styles": [],
+        "scripts": [],
+        "webpackConfig": "@nrwl/react/plugins/webpack"
+      },
+      "configurations": {
+        "development": {
+          "extractLicenses": false,
+          "optimization": false,
+          "sourceMap": true,
+          "vendorChunk": true
+        },
+        "production": {
+          "fileReplacements": [
+            {
+              "replace": "apps/site-retailer/src/environments/environment.js",
+              "with": "apps/site-retailer/src/environments/environment.prod.js"
+            }
+          ],
+          "optimization": true,
+          "outputHashing": "all",
+          "sourceMap": false,
+          "namedChunks": false,
+          "extractLicenses": true,
+          "vendorChunk": false
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nrwl/web:dev-server",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "site-retailer:build",
+        "hmr": true
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "site-retailer:build:development"
+        },
+        "production": {
+          "buildTarget": "site-retailer:build:production",
+          "hmr": false
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/site-retailer/**/*.{ts,tsx,js,jsx}"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/apps/site-retailer"],
+      "options": {
+        "jestConfig": "apps/site-retailer/jest.config.js",
+        "passWithNoTests": true
+      }
+    }
+  },
+  "tags": []
+}
