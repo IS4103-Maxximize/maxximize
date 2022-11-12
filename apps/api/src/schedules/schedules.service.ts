@@ -159,9 +159,9 @@ export class SchedulesService {
       }
     }
     if (totalExpected > 0){
-      return totalActual/totalExpected
+      return totalActual/totalExpected;
     } else {
-      return null
+      return 0;
     }
     
   }
@@ -179,9 +179,9 @@ export class SchedulesService {
       }
     }
     if (hoursElapsed > 0){
-      return actualQuantity/hoursElapsed
+      return actualQuantity/hoursElapsed;
     } else {
-      return null
+      return 0;
     }
     
   }
