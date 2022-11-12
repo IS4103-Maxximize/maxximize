@@ -441,6 +441,8 @@ export class BatchLineItemsService {
 
     const finalGoodsLowStock = [];
 
+    console.log(finalGoodsStock)
+
     for(const [key, value] of finalGoodsStock.entries()) {
       const totalQuantity = value.reduce((seed, batchLineItem) => {
         return seed + batchLineItem.quantity
@@ -449,7 +451,7 @@ export class BatchLineItemsService {
         return seed + (batchLineItem.quantity - batchLineItem.reservedQuantity)
       }, 0);
       const percentageCalc = remainingQuantity / totalQuantity * 100;
-      if (percentageCalc < percentage) {
+      if (percentageCalc <= percentage) {
         finalGoodsLowStock.push({
           "finalGood": value[0].product,
           "totalQuantity": totalQuantity,

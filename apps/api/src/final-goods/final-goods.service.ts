@@ -222,7 +222,7 @@ export class FinalGoodsService {
     const dataForDemandPython = [];
     for (const row of result) {
       dataForDemandPython.push({
-        date: new Date(row.YEAR, row.MONTH, 1),
+        date: new Date(row.YEAR, row.MONTH - 1, 1),
         value: row.SUM
       })
     }
@@ -234,7 +234,15 @@ export class FinalGoodsService {
     };
     return this.httpService
       .post(url, data)
-      .pipe(map((res) => res.data))
+      .pipe(map(async (res) => {
+        let month = 1;
+        for (let idx = res.data.length - numOfMonths; idx < res.data.length; idx++) {
+          res.data[idx].shortfall = await this.getShortFall(finalGoodsId, res.data[idx].val, id, month);
+          month += 1;
+        }
+        // console.log(res.data)
+        return res.data;
+      }))
       .pipe(
         catchError(() => {
           throw new InternalServerErrorException('API is down');
@@ -243,8 +251,38 @@ export class FinalGoodsService {
   }
 
   async getShortFall(finalGoodsId: number, quantity: number, organisationId: number, numOfMonths: number) {
-    const bom = await this.billOfMaterialService.getBOMFromFinalGood(finalGoodsId);
-    const lineItems = await this.batchLineItemService.getLineItems(bom.id, quantity, organisationId, dayjs().add(numOfMonths, 'month').toDate());
-    return lineItems;
+    const inventory = await this.batchLineItemService.getAggregatedFinalGoods(organisationId, dayjs().add(numOfMonths, 'month').toDate());
+    if (inventory.has(Number(finalGoodsId))) {
+      const lineItems = inventory.get(Number(finalGoodsId));
+      const totalQty = lineItems.reduce((seed, lineItem) => {
+        return seed + (lineItem.quantity - lineItem.reservedQuantity);
+      }, 0);
+      return totalQty - quantity;
+    } else {
+      return quantity;
+    }
   }
+
+  async getRequiredRawMaterialsFromFinalGoods(finalGoodsId: number, quantity: number) {
+    const billOfMaterial = await this.billOfMaterialService.getBOMFromFinalGood(finalGoodsId);
+
+    const lotQuantity = Math.ceil(quantity / billOfMaterial.finalGood.lotQuantity);
+
+    const rawMaterialsRequired = [];
+
+    for (const lineItem of billOfMaterial.bomLineItems) {
+      rawMaterialsRequired.push({
+        rawMaterial: lineItem.rawMaterial,
+        quantityRequired: lotQuantity * lineItem.quantity
+      });
+    }
+
+    return rawMaterialsRequired;
+  }
+
+  // async getShortFall(finalGoodsId: number, quantity: number, organisationId: number, numOfMonths: number) {
+  //   const bom = await this.billOfMaterialService.getBOMFromFinalGood(finalGoodsId);
+  //   const lineItems = await this.batchLineItemService.getLineItems(bom.id, quantity, organisationId, dayjs().add(numOfMonths, 'month').toDate());
+  //   return lineItems;
+  // }
 }

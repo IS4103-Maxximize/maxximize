@@ -1,10 +1,12 @@
 import { Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm"
+import { FinalGood } from "../../final-goods/entities/final-good.entity"
 import { Organisation } from "../../organisations/entities/organisation.entity"
 import { ProductionLineItem } from "../../production-line-items/entities/production-line-item.entity"
 import { ProductionOrder } from "../../production-orders/entities/production-order.entity"
 import { RawMaterial } from "../../raw-materials/entities/raw-material.entity"
 import { SalesInquiry } from "../../sales-inquiry/entities/sales-inquiry.entity"
 import { PRStatus } from "../enums/prStatus.enum"
+import { RequestByType } from "../enums/RequestByType.enum"
 
 @Entity()
 export class PurchaseRequisition {
@@ -19,12 +21,23 @@ export class PurchaseRequisition {
 
     @Column({
         type: 'enum',
+        enum: RequestByType,
+        default: RequestByType.ADHOC
+    })
+    requestByType: RequestByType
+
+    @Column({
+        type: 'enum',
         enum: PRStatus
     })
     status: PRStatus
 
     @Column()
     createdDateTime: Date;
+
+    @OneToOne(() => FinalGood)
+    @JoinColumn()
+    finalGood: FinalGood
 
     @Column()
     rawMaterialId: number

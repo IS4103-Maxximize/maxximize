@@ -1,10 +1,12 @@
 import {
   Box,
+  Button,
   Card,
   CardContent,
   CircularProgress,
   Container,
 } from '@mui/material';
+import { DataGrid } from '@mui/x-data-grid';
 import { Legend } from 'chart.js';
 import { useEffect, useState } from 'react';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
@@ -26,19 +28,20 @@ const ProcurementForecast = () => {
   const organisationId = user ? user.organisation.id : null;
   const name = 'Demand Forecast';
 
-  const [data, setData] = useState();
+  const [data, setData] = useState([]);
   const [finalGoods, setFinalGoods] = useState([]);
   const [selectedFinalGood, setSelectedFinalGood] = useState('');
   const [period, setPeriod] = useState('');
+  const [actualPeriod, setActualPeriod] = useState('');
   const [loading, setLoading] = useState(false);
   const [seasonality, setSeasonality] = useState(true);
 
-  const API_URL = 'http://localhost:3000/api/final-goods/demand-forecast/'
-  
+  const API_URL = 'http://localhost:3000/api/final-goods/demand-forecast/';
+
   // Fetch demand forecast data
   const handleSubmit = async () => {
-    console.log(seasonality);
     setLoading(true);
+    setActualPeriod(period);
     const response = await fetch(
       `${API_URL}${organisationId}/${selectedFinalGood.id}/${period}/${seasonality}`
     );
@@ -56,9 +59,60 @@ const ProcurementForecast = () => {
     setSeasonality(!seasonality);
   };
 
+  // Handle create purchase requisition
+  // const handleCreatePurchaseRequisition = async (values) => {
+  //   const salesInquiryLineItemsDtos = [];
+
+  //   values.lineItems.forEach((item) => {
+  //     const lineItemDto = {
+  //       quantity: item.quantity,
+  //       indicativePrice: item.rawMaterial.unitPrice,
+  //       rawMaterialId: item.rawMaterial.id,
+  //     }
+  //     salesInquiryLineItemsDtos.push(lineItemDto);
+  //   })
+
+  //   const purchaseRequisitionIds = purchaseRequisitions.map(pr => pr.id);
+
+  //   const createSalesInquiryDto = {
+  //     currentOrganisationId: organisationId,
+  //     totalPrice: formik.values.totalPrice,
+  //     salesInquiryLineItemsDtos: salesInquiryLineItemsDtos,
+  //     purchaseRequisitionIds: purchaseRequisitionIds
+  //   }
+
+  //   console.log(createSalesInquiryDto)
+
+  //   createSalesInquiryFromPurchaseRequisition(createSalesInquiryDto)
+  //     .then((result) => {
+  //       onClose();
+  //       handleAlertOpen(`Successfully Created Sales Inquiry ${result.id}!`, 'success')
+  //     })
+  //     .catch((error) => handleAlertOpen(`Failed to Create Sales Inquiry from Purchase Requisitions`, 'error'))
+  // };
+
+  // DataGrid Columns
+  const columns = [
+    {
+      field: 'date',
+      headerName: 'Date',
+      flex: 1,
+    },
+    {
+      field: 'val',
+      headerName: 'Predicted Value',
+      flex: 1,
+    },
+    {
+      field: 'shortfall',
+      headerName: 'Current Shortfall',
+      flex: 1
+    }
+  ];
+
   useEffect(() => {
     const fetchFinalGoods = async () => {
-      setData(null);
+      setData([]);
       const response = await fetch(
         `http://localhost:3000/api/final-goods/orgId/${organisationId}`
       );
@@ -108,62 +162,76 @@ const ProcurementForecast = () => {
               }}
             >
               <CardContent>
-                {data ? (
-                  <ResponsiveContainer width="100%" height={500}>
-                    <ComposedChart
-                      width={500}
-                      height={400}
-                      data={data}
-                      margin={{
-                        top: 20,
-                        right: 80,
-                        bottom: 20,
-                        left: 20,
-                      }}
-                    >
-                      <CartesianGrid stroke="#f5f5f5" />
-                      <XAxis
-                        dataKey="date"
-                        label={{
-                          value: 'Month and Year',
-                          position: 'insideBottomRight',
-                          offset: -10,
+                {data.length !== 0 ? (
+                  <>
+                    <ResponsiveContainer width="100%" height={550}>
+                      <ComposedChart
+                        width={500}
+                        height={400}
+                        data={data}
+                        margin={{
+                          top: 20,
+                          right: 80,
+                          bottom: 20,
+                          left: 20,
                         }}
-                        scale="band"
-                      />
-                      <YAxis
-                        label={{
-                          value: 'Amount',
-                          angle: -90,
-                          position: 'insideLeft',
-                          offset: -10,
-                        }}
-                      />
-                      <Tooltip />
-                      <Legend />
-                      <Area
-                        type="monotone"
-                        dataKey="bound"
-                        fill="#8884d8"
-                        stroke="#8884d8"
-                      />
-                      <Scatter name="Actual Value" dataKey="test" fill="red" />
-                      <Line
-                        type="monotone"
-                        dataKey="val"
-                        name="Value"
-                        stroke="#ff7300"
-                      />
-                    </ComposedChart>
-                  </ResponsiveContainer>
+                      >
+                        <CartesianGrid stroke="#f5f5f5" />
+                        <XAxis
+                          dataKey="date"
+                          label={{
+                            value: 'Month and Year',
+                            position: 'insideBottomRight',
+                            offset: -10,
+                          }}
+                          scale="band"
+                        />
+                        <YAxis
+                          label={{
+                            value: 'Amount',
+                            angle: -90,
+                            position: 'insideLeft',
+                            offset: -10,
+                          }}
+                        />
+                        <Tooltip />
+                        <Area
+                          type="monotone"
+                          dataKey="bound"
+                          fill="#8884d8"
+                          stroke="#8884d8"
+                        />
+                        <Scatter
+                          name="Actual Value"
+                          dataKey="test"
+                          fill="red"
+                        />
+                        <Line
+                          type="monotone"
+                          dataKey="val"
+                          name="Value"
+                          stroke="#ff7300"
+                        />
+                      </ComposedChart>
+                    </ResponsiveContainer>
+                    <DataGrid
+                      autoHeight
+                      rows={data.slice(-Number(actualPeriod))}
+                      columns={columns}
+                      pageSize={10}
+                      getRowId={(row) => row.date}
+                      rowsPerPageOptions={[10]}
+                      checkboxSelection
+                      disableSelectionOnClick
+                      experimentalFeatures={{ newEditingApi: true }}
+                    />
+                    {/* <Button onClick={handleCreatePR}>Create Purchase Requisition</Button> */}
+                  </>
                 ) : (
                   ''
                 )}
-                {loading ? <CircularProgress /> : ''}
+                {loading && data.length === 0 ? <CircularProgress /> : ''}
               </CardContent>
-            </Card>
-            <Card>
-              <CardContent>Test</CardContent>
             </Card>
           </Box>
         </Container>
