@@ -210,7 +210,7 @@ export class FinalGoodsService {
     }
   }
 
-  async getDemandForecast(id: number, finalGoodsId: number, numOfMonths: number) {
+  async getDemandForecast(id: number, finalGoodsId: number, numOfMonths: number, seasonality: string) {
     const url = 'http://127.0.0.1:5000/demand-forecast';
     const query =
     `
@@ -235,9 +235,11 @@ export class FinalGoodsService {
         value: row.SUM
       })
     }
+    const season = seasonality === 'true'
     const data = {
       numOfMonths: numOfMonths,
-      data: dataForDemandPython
+      data: dataForDemandPython,
+      seasonality: season
     };
     return this.httpService
       .post(url, data)

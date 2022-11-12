@@ -40,21 +40,23 @@ export class FinalGoodsController {
     @Param('id') id: number,
     @Param('finalGoodsId') finalGoodsId: number,
     @Param('numOfMonths') numOfMonths: number,
-    @Param('quantity') quantity
+    @Param('quantity') quantity: number
   ) {
     return this.finalGoodsService.getShortFall(finalGoodsId, quantity, id, numOfMonths);
   }
 
-  @Get('/demand-forecast/:id/:finalGoodsId/:numOfMonths')
+  @Get('/demand-forecast/:id/:finalGoodsId/:numOfMonths/:seasonality')
   getDemandForecast(
     @Param('id') id: number,
     @Param('finalGoodsId') finalGoodsId: number,
-    @Param('numOfMonths') numOfMonths: number
+    @Param('numOfMonths') numOfMonths: number,
+    @Param('seasonality') seasonality: string
   ) {
     return this.finalGoodsService.getDemandForecast(
       id,
       finalGoodsId,
-      numOfMonths
+      numOfMonths,
+      seasonality
     );
   }
 

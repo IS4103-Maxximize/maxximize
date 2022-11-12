@@ -6,6 +6,9 @@ import {
   Button,
   Card,
   CardContent,
+  FormControlLabel,
+  FormGroup,
+  Switch,
   TextField,
   Typography,
 } from '@mui/material';
@@ -14,8 +17,15 @@ import { useLocation } from 'react-router-dom';
 import { procurementBreadcrumbs } from '../../helpers/constants';
 
 export const DemandForecastToolbar = (props) => {
-  const { name, finalGoods, setSelectedFinalGood, setPeriod, handleSubmit, loading } =
-    props;
+  const {
+    name,
+    finalGoods,
+    setSelectedFinalGood,
+    setPeriod,
+    handleSubmit,
+    loading,
+    handleToggle
+  } = props;
 
   // Get current pathname
   const location = useLocation();
@@ -58,7 +68,7 @@ export const DemandForecastToolbar = (props) => {
                 justifyContent: 'space-between',
                 flexWrap: 'wrap',
                 m: -1,
-                width: '60%',
+                width: '80%',
               }}
             >
               <Autocomplete
@@ -75,16 +85,23 @@ export const DemandForecastToolbar = (props) => {
                 }}
               />
               <TextField
-                label="Number of periods"
+                label="Number of months"
                 onChange={(event) => setPeriod(event.target.value)}
               />
+              <FormGroup>
+                <FormControlLabel
+                  control={<Switch defaultChecked />}
+                  label="Seasonality"
+                  onChange={handleToggle}
+                />
+              </FormGroup>
               <LoadingButton
                 onClick={handleSubmit}
                 loading={loading}
                 loadingIndicator="Loading…"
                 variant="contained"
               >
-                Predict
+                Forecast
               </LoadingButton>
             </Box>
           </CardContent>

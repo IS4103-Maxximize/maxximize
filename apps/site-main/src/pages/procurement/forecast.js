@@ -1,4 +1,10 @@
-import { Box, Card, CardContent, Container } from '@mui/material';
+import {
+  Box,
+  Card,
+  CardContent,
+  CircularProgress,
+  Container,
+} from '@mui/material';
 import { Legend } from 'chart.js';
 import { useEffect, useState } from 'react';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
@@ -25,12 +31,17 @@ const ProcurementForecast = () => {
   const [selectedFinalGood, setSelectedFinalGood] = useState('');
   const [period, setPeriod] = useState('');
   const [loading, setLoading] = useState(false);
+  const [seasonality, setSeasonality] = useState(true);
 
+  const API_URL = 'http://localhost:3000/api/final-goods/demand-forecast/'
+  
+  // Fetch demand forecast data
   const handleSubmit = async () => {
-    const response = await fetch(
-      `http://localhost:3000/api/final-goods/demand-forecast/${organisationId}/${selectedFinalGood.id}/${period}`
-    );
+    console.log(seasonality);
     setLoading(true);
+    const response = await fetch(
+      `${API_URL}${organisationId}/${selectedFinalGood.id}/${period}/${seasonality}`
+    );
     if (response.status === 200 || response.status === 201) {
       const result = await response.json();
       setData(result);
@@ -40,8 +51,14 @@ const ProcurementForecast = () => {
     }
   };
 
+  // Toggle switch for seasonality
+  const handleToggle = () => {
+    setSeasonality(!seasonality);
+  };
+
   useEffect(() => {
     const fetchFinalGoods = async () => {
+      setData(null);
       const response = await fetch(
         `http://localhost:3000/api/final-goods/orgId/${organisationId}`
       );
@@ -77,6 +94,7 @@ const ProcurementForecast = () => {
             setPeriod={setPeriod}
             handleSubmit={handleSubmit}
             loading={loading}
+            handleToggle={handleToggle}
           />
           <Box
             sx={{
@@ -130,18 +148,22 @@ const ProcurementForecast = () => {
                         stroke="#8884d8"
                       />
                       <Scatter name="Actual Value" dataKey="test" fill="red" />
-                      <Line type="monotone" dataKey="val" name="Value" stroke="#ff7300" />
+                      <Line
+                        type="monotone"
+                        dataKey="val"
+                        name="Value"
+                        stroke="#ff7300"
+                      />
                     </ComposedChart>
                   </ResponsiveContainer>
                 ) : (
                   ''
                 )}
+                {loading ? <CircularProgress /> : ''}
               </CardContent>
             </Card>
             <Card>
-              <CardContent>
-                Test
-              </CardContent>
+              <CardContent>Test</CardContent>
             </Card>
           </Box>
         </Container>
