@@ -17,7 +17,11 @@ export class DeliveryRequestLineItemsService {
     await queryRunner.startTransaction();
     try {
       const deliveryRequestLineItem = new DeliveryRequestLineItem();
-      return deliveryRequestLineItem;
+      deliveryRequestLineItem.product = createDeliveryRequestLineItemDto.product;
+      deliveryRequestLineItem.quantity = createDeliveryRequestLineItemDto.quantity;
+      const deliveryRequestLine = await queryRunner.manager.save(deliveryRequestLineItem);
+      queryRunner.commitTransaction()
+      return deliveryRequestLine;
     } catch (err) {
       await queryRunner.rollbackTransaction();
       throw new InternalServerErrorException(err);

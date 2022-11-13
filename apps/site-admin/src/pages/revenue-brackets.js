@@ -45,10 +45,14 @@ export const RevenueBrackets = (props) => {
   };
 
   const [brackets, setBrackets] = useState([]);
+  const [rates, setRates] = useState([]);
+
   const getRevenueBrackets = async () => {
     await fetch(baseUrl).then(res => res.json())
       .then(result =>  {
         const sorted = result.slice().sort((a, b) => b.start - a.start);
+        const rates = sorted.map(item => item.commisionRate);
+        setRates(rates);
         setBrackets(sorted);
       })
       .catch(err => handleAlertOpen('Unable to fetch Revenue Brackets', 'error'));
@@ -188,6 +192,21 @@ export const RevenueBrackets = (props) => {
     enableReinitialize: true,
   })
 
+  const updateCommission = async (id, newRate) => {
+    const url = `${baseUrl}/${id}`;
+    const body = JSON.stringify({
+      commisionRate: newRate,
+    });
+    const requestOptions = requestOptionsHelper('PATCH', body);
+
+    await fetch(url, requestOptions).then(res => res.json())
+      .then(result => {
+        getRevenueBrackets();
+        handleAlertOpen('Successfully updated Commission Rate!', 'success');
+      })
+      .catch(err => handleAlertOpen('Failed to update Commission Rate', 'error'));
+  }
+
   return (
     <>
       <HelmetProvider>
@@ -317,6 +336,7 @@ export const RevenueBrackets = (props) => {
                           color="primary"
                           onClick={() => handleUpdate(brackets.length === 1)}
                           endIcon={<EditIcon />}
+                          disabled={formik.isSubmitting || !formik.isValid}
                         >
                           Update
                         </Button>
@@ -442,9 +462,13 @@ export const RevenueBrackets = (props) => {
                           margin="normal"
                           name="commisionRate"
                           type="number"
-                          value={bracket.commisionRate}
+                          value={rates[index]}
                           variant="outlined"
+                          onChange={event => 
+                            setRates(rates.map((item, idx) => 
+                              index === idx ? event.target.value : item))}
                           InputProps={{
+                            inputProps: { min: 0, max: 100 },
                             endAdornment: (
                               <InputAdornment position="end">%</InputAdornment>
                             )
@@ -454,7 +478,9 @@ export const RevenueBrackets = (props) => {
                       {/* For Updating of commission if have time */}
                       <Grid item md={1} xs={2}>
                         <Button
-                          disabled
+                          onClick={() => {
+                            updateCommission(bracket.id, rates[index]);
+                          }}
                         >
                           Update %
                         </Button>

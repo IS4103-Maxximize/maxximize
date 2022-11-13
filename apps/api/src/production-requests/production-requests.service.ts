@@ -41,23 +41,23 @@ export class ProductionRequestsService {
   }
 
   async bulkCreate(createProductionRequestDtos: CreateProductionRequestDto[]) {
-	await this.dataSource.manager.transaction(async (transactionalEntityManager) => {
-    let prodRequests: ProductionRequest[] = []
+    await this.dataSource.manager.transaction(async (transactionalEntityManager) => {
+      let prodRequests: ProductionRequest[] = []
 
-	const purchaseOrderId = createProductionRequestDtos[0].purchaseOrderId
+    const purchaseOrderId = createProductionRequestDtos[0].purchaseOrderId
 
-    for (const dto of createProductionRequestDtos) {
-      prodRequests.push(await this.create(dto))
-    }
+      for (const dto of createProductionRequestDtos) {
+        prodRequests.push(await this.create(dto))
+      }
 
-	const productionStatus = PurchaseOrderStatus.PRODUCTION
+    const productionStatus = PurchaseOrderStatus.PRODUCTION
 
-	await transactionalEntityManager.update(PurchaseOrder, purchaseOrderId, {
-		status: productionStatus,
-	});
-	
-    return prodRequests
-	})
+    await transactionalEntityManager.update(PurchaseOrder, purchaseOrderId, {
+      status: productionStatus,
+    });
+    
+      return prodRequests
+    })
   }
 
   findAll() {

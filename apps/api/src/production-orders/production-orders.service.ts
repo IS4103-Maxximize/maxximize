@@ -3,13 +3,13 @@ import {
   Inject,
   Injectable,
   Logger,
-  NotFoundException
+  NotFoundException,
 } from '@nestjs/common';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CronJob } from 'cron';
 import * as dayjs from 'dayjs';
-import { DataSource, Repository } from 'typeorm';
+import { Between, DataSource, Repository } from 'typeorm';
 import { BatchLineItemsService } from '../batch-line-items/batch-line-items.service';
 import { BatchLineItem } from '../batch-line-items/entities/batch-line-item.entity';
 import { Batch } from '../batches/entities/batch.entity';
@@ -98,21 +98,20 @@ export class ProductionOrdersService {
             prodRequestId,
             { status: ProdRequestStatus.PROCESSING }
           );
+          prodRequest = await transactionalEntityManager.findOne(
+            ProductionRequest,
+            {
+              where: {
+                id: prodRequestId,
+              },
+              relations: {
+                purchaseOrder: true,
+                finalGood: true,
+                prodOrders: true,
+              },
+            }
+          );
         }
-		
-		console.log(prodRequest)
-		
-		prodRequest = await transactionalEntityManager.findOne(ProductionRequest, {
-			where: {
-			  id: prodRequestId
-			}, relations: {
-			  purchaseOrder: true,
-			  finalGood: true,
-			  prodOrders: true
-			}
-		})
-
-		console.log(prodRequest)
 
         if (daily) {
           scheduleDtos =
@@ -168,7 +167,10 @@ export class ProductionOrdersService {
           }
           for (const dto of scheduleDtos) {
             const { start, end, productionLineId } = dto;
-            const expectedQuantity = (await this.productionLinesService.findOne(productionLineId)).outputPerHour * ((end.getTime() - start.getTime()) / 3600000)
+            const expectedQuantity =
+              (await this.productionLinesService.findOne(productionLineId))
+                .outputPerHour *
+              ((end.getTime() - start.getTime()) / 3600000);
             const schedule: Schedule = transactionalEntityManager.create(
               Schedule,
               {
@@ -177,7 +179,7 @@ export class ProductionOrdersService {
                 productionLineId,
                 status: ScheduleType.PLANNED,
                 scheduleLineItems: [],
-                expectedQuantity
+                expectedQuantity,
               }
             );
             schedulesToBeAdded.push(
@@ -231,28 +233,32 @@ export class ProductionOrdersService {
                 (prodLine.outputPerHour / bomToBeAdded.finalGood.lotQuantity) *
                 duration *
                 bomLineItem.quantity;
-              current = 0
+              current = 0;
 
               for (const prodLineItem of prodLineItemsToBeAdded) {
                 if (prodLineItem.rawMaterial.id == bomLineItem.rawMaterial.id) {
-                  let quan = 0
+                  let quan = 0;
                   if (prodLineItem.quantity < target - current) {
-                    quan = prodLineItem.quantity + current - start
+                    quan = prodLineItem.quantity + current - start;
                     current += prodLineItem.quantity;
                   } else {
-                    if (current > start){
-                      quan = target - current
+                    if (current > start) {
+                      quan = target - current;
                     } else {
-                      quan = target - start
+                      quan = target - start;
                     }
                     current = target;
                   }
                   if (start < current) {
-                    const scheduleLineItem = await transactionalEntityManager.create(ScheduleLineItem, {
-                      quantity: quan,
-                      prodLineItem
-                    })
-                    await transactionalEntityManager.save(scheduleLineItem)
+                    const scheduleLineItem =
+                      await transactionalEntityManager.create(
+                        ScheduleLineItem,
+                        {
+                          quantity: quan,
+                          prodLineItem,
+                        }
+                      );
+                    await transactionalEntityManager.save(scheduleLineItem);
                     schedule.scheduleLineItems.push(scheduleLineItem);
                   }
                   if (current == target) {
@@ -409,7 +415,10 @@ export class ProductionOrdersService {
           if (plannedMaterialCount == rawMaterialCount) {
             for (const dto of scheduleDtos) {
               const { start, end, productionLineId } = dto;
-              const expectedQuantity = (await this.productionLinesService.findOne(productionLineId)).outputPerHour * ((end.getTime() - start.getTime()) / 3600000)
+              const expectedQuantity =
+                (await this.productionLinesService.findOne(productionLineId))
+                  .outputPerHour *
+                ((end.getTime() - start.getTime()) / 3600000);
               const schedule: Schedule = transactionalEntityManager.create(
                 Schedule,
                 {
@@ -418,7 +427,7 @@ export class ProductionOrdersService {
                   productionLineId,
                   status: ScheduleType.PLANNED,
                   scheduleLineItems: [],
-                  expectedQuantity
+                  expectedQuantity,
                 }
               );
               schedulesToBeAdded.push(
@@ -436,31 +445,38 @@ export class ProductionOrdersService {
                   (schedule.end.getTime() - schedule.start.getTime()) / 3600000;
                 let start = target;
                 target +=
-                  (prodLine.outputPerHour / bomToBeAdded.finalGood.lotQuantity) *
+                  (prodLine.outputPerHour /
+                    bomToBeAdded.finalGood.lotQuantity) *
                   duration *
                   bomLineItem.quantity;
-  
-                current = 0
+
+                current = 0;
                 for (const prodLineItem of prodLineItemsToBeAdded) {
-                  if (prodLineItem.rawMaterial.id == bomLineItem.rawMaterial.id) {
-                    let quan = 0
+                  if (
+                    prodLineItem.rawMaterial.id == bomLineItem.rawMaterial.id
+                  ) {
+                    let quan = 0;
                     if (prodLineItem.quantity < target - current) {
-                      quan = prodLineItem.quantity + current - start
+                      quan = prodLineItem.quantity + current - start;
                       current += prodLineItem.quantity;
                     } else {
-                      if (current > start){
-                        quan = target - current
+                      if (current > start) {
+                        quan = target - current;
                       } else {
-                        quan = target - start
+                        quan = target - start;
                       }
                       current = target;
                     }
                     if (start < current) {
-                      const scheduleLineItem = await transactionalEntityManager.create(ScheduleLineItem, {
-                        quantity: quan,
-                        prodLineItem
-                      })
-                      await transactionalEntityManager.save(scheduleLineItem)
+                      const scheduleLineItem =
+                        await transactionalEntityManager.create(
+                          ScheduleLineItem,
+                          {
+                            quantity: quan,
+                            prodLineItem,
+                          }
+                        );
+                      await transactionalEntityManager.save(scheduleLineItem);
                       schedule.scheduleLineItems.push(scheduleLineItem);
                     }
                     if (current == target) {
@@ -564,7 +580,10 @@ export class ProductionOrdersService {
                 );
               for (const dto of scheduleDtos) {
                 const { start, end, productionLineId } = dto;
-                const expectedQuantity = (await this.productionLinesService.findOne(productionLineId)).outputPerHour * ((end.getTime() - start.getTime()) / 3600000)
+                const expectedQuantity =
+                  (await this.productionLinesService.findOne(productionLineId))
+                    .outputPerHour *
+                  ((end.getTime() - start.getTime()) / 3600000);
                 const schedule: Schedule = transactionalEntityManager.create(
                   Schedule,
                   {
@@ -573,7 +592,7 @@ export class ProductionOrdersService {
                     productionLineId,
                     status: ScheduleType.PLANNED,
                     scheduleLineItems: [],
-                    expectedQuantity
+                    expectedQuantity,
                   }
                 );
                 schedulesToBeAdded.push(
@@ -588,34 +607,42 @@ export class ProductionOrdersService {
                     schedule.productionLineId
                   );
                   const duration =
-                    (schedule.end.getTime() - schedule.start.getTime()) / 3600000;
+                    (schedule.end.getTime() - schedule.start.getTime()) /
+                    3600000;
                   let start = target;
                   target +=
-                    (prodLine.outputPerHour / bomToBeAdded.finalGood.lotQuantity) *
+                    (prodLine.outputPerHour /
+                      bomToBeAdded.finalGood.lotQuantity) *
                     duration *
                     bomLineItem.quantity;
-    
-                  current = 0
+
+                  current = 0;
                   for (const prodLineItem of prodLineItemsToBeAdded) {
-                    if (prodLineItem.rawMaterial.id == bomLineItem.rawMaterial.id) {
-                      let quan = 0
+                    if (
+                      prodLineItem.rawMaterial.id == bomLineItem.rawMaterial.id
+                    ) {
+                      let quan = 0;
                       if (prodLineItem.quantity < target - current) {
-                        quan = prodLineItem.quantity + current - start
+                        quan = prodLineItem.quantity + current - start;
                         current += prodLineItem.quantity;
                       } else {
-                        if (current > start){
-                          quan = target - current
+                        if (current > start) {
+                          quan = target - current;
                         } else {
-                          quan = target - start
+                          quan = target - start;
                         }
                         current = target;
                       }
                       if (start < current) {
-                        const scheduleLineItem = await transactionalEntityManager.create(ScheduleLineItem, {
-                          quantity: quan,
-                          prodLineItem
-                        })
-                        await transactionalEntityManager.save(scheduleLineItem)
+                        const scheduleLineItem =
+                          await transactionalEntityManager.create(
+                            ScheduleLineItem,
+                            {
+                              quantity: quan,
+                              prodLineItem,
+                            }
+                          );
+                        await transactionalEntityManager.save(scheduleLineItem);
                         schedule.scheduleLineItems.push(scheduleLineItem);
                       }
                       if (current == target) {
@@ -725,7 +752,7 @@ export class ProductionOrdersService {
             }
           }
         }
-		console.log(prodRequest)
+        console.log(prodRequest);
         return null;
       }
     );
@@ -807,8 +834,8 @@ export class ProductionOrdersService {
           purchaseRequisition: true,
         },
         prodRequest: {
-			purchaseOrder: true,
-		},
+          purchaseOrder: true,
+        },
         organisation: true,
       },
     });
@@ -841,7 +868,7 @@ export class ProductionOrdersService {
           completedGoods: {
             batchLineItems: true,
           },
-		  productionLine: true,
+          productionLine: true,
         },
         prodLineItems: {
           batchLineItem: {
@@ -851,8 +878,8 @@ export class ProductionOrdersService {
           purchaseRequisition: true,
         },
         prodRequest: {
-			purchaseOrder: true,
-		},
+          purchaseOrder: true,
+        },
         organisation: true,
       },
       withDeleted: true,
@@ -965,52 +992,63 @@ export class ProductionOrdersService {
                 const bomToBeAdded = productionOrderToUpdate.bom;
                 const prodLineItemsToBeAdded =
                   productionOrderToUpdate.prodLineItems;
-                  for (const bomLineItem of bomToBeAdded.bomLineItems) {
-                    let current = 0;
-                    let target = 0;
-                    for (const schedule of schedulesToBeAdded) {
-                      const prodLine = await this.productionLinesService.findOne(
-                        schedule.productionLineId
-                      );
-                      const duration =
-                        (schedule.end.getTime() - schedule.start.getTime()) / 3600000;
-                      let start = target;
-                      target +=
-                        (prodLine.outputPerHour / bomToBeAdded.finalGood.lotQuantity) *
-                        duration *
-                        bomLineItem.quantity;
-        
-                      current = 0
-                      for (const prodLineItem of prodLineItemsToBeAdded) {
-                        if (prodLineItem.rawMaterial.id == bomLineItem.rawMaterial.id) {
-                          let quan = 0
-                          if (prodLineItem.quantity < target - current) {
-                            quan = prodLineItem.quantity + current - start
-                            current += prodLineItem.quantity;
+                for (const bomLineItem of bomToBeAdded.bomLineItems) {
+                  let current = 0;
+                  let target = 0;
+                  for (const schedule of schedulesToBeAdded) {
+                    const prodLine = await this.productionLinesService.findOne(
+                      schedule.productionLineId
+                    );
+                    const duration =
+                      (schedule.end.getTime() - schedule.start.getTime()) /
+                      3600000;
+                    let start = target;
+                    target +=
+                      (prodLine.outputPerHour /
+                        bomToBeAdded.finalGood.lotQuantity) *
+                      duration *
+                      bomLineItem.quantity;
+
+                    current = 0;
+                    for (const prodLineItem of prodLineItemsToBeAdded) {
+                      if (
+                        prodLineItem.rawMaterial.id ==
+                        bomLineItem.rawMaterial.id
+                      ) {
+                        let quan = 0;
+                        if (prodLineItem.quantity < target - current) {
+                          quan = prodLineItem.quantity + current - start;
+                          current += prodLineItem.quantity;
+                        } else {
+                          if (current > start) {
+                            quan = target - current;
                           } else {
-                            if (current > start){
-                              quan = target - current
-                            } else {
-                              quan = target - start
-                            }
-                            
-                            current = target;
+                            quan = target - start;
                           }
-                          if (start < current) {
-                            const scheduleLineItem = await transactionalEntityManager.create(ScheduleLineItem, {
-                              quantity: quan,
-                              prodLineItem
-                            })
-                            await transactionalEntityManager.save(scheduleLineItem)
-                            schedule.scheduleLineItems.push(scheduleLineItem);
-                          }
-                          if (current == target) {
-                            break;
-                          }
+
+                          current = target;
+                        }
+                        if (start < current) {
+                          const scheduleLineItem =
+                            await transactionalEntityManager.create(
+                              ScheduleLineItem,
+                              {
+                                quantity: quan,
+                                prodLineItem,
+                              }
+                            );
+                          await transactionalEntityManager.save(
+                            scheduleLineItem
+                          );
+                          schedule.scheduleLineItems.push(scheduleLineItem);
+                        }
+                        if (current == target) {
+                          break;
                         }
                       }
                     }
                   }
+                }
                 for (const schedule of schedulesToBeAdded) {
                   await transactionalEntityManager.save(schedule);
                 }
@@ -1244,17 +1282,36 @@ export class ProductionOrdersService {
     console.log(jobs);
   }
 
-  async retrieveBatchLineItemsForProduction() {
-    const start = dayjs().startOf('day').toDate(); 
+  async retrieveBatchLineItemsForProduction(orgId: number) {
+    const start = dayjs().startOf('day').toDate();
     const end = dayjs().endOf('day').toDate();
 
-    const schedules = await this.datasource
-      .getRepository(Schedule)
-      .createQueryBuilder("schedule")
-      .where("schedule.start BETWEEN :start AND :end", {start : start, end: end})
-      .getMany();
-    
-    const map = new Map<number, number>;
+    const schedules = await this.schedulesRepository.find({
+      where: {
+        start: Between(start, end),
+        productionOrder: {
+          organisationId: orgId,
+        },
+      },
+      relations: {
+        productionLine: true,
+        completedGoods: true,
+        scheduleLineItems: {
+          prodLineItem: {
+            rawMaterial: true,
+            batchLineItem: true,
+          },
+        },
+        productionOrder: {
+          bom: {
+            finalGood: true,
+          },
+          prodRequest: true,
+        },
+      },
+    });
+
+    const map = new Map<number, number>();
 
     for (const schedule of schedules) {
       const fetchedSchedule = await this.schedulesService.findOne(schedule.id);

@@ -1,48 +1,34 @@
-import { Bar } from 'react-chartjs-2';
-import { Box, Button, Card, CardContent, CardHeader, Divider, useTheme } from '@mui/material';
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import CheckIcon from '@mui/icons-material/Check';
-import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
-import { useState } from 'react';
+import { Box, Button, Card, CardContent, CardHeader, Divider, Typography, useTheme } from '@mui/material';
+import { DataGrid } from '@mui/x-data-grid';
+import { apiHost, requestOptionsHelper } from '../../helpers/constants';
 
 export const Deliveries = (props) => {
   const {
-    user,
+    assigned,
+    deliveries,
+    getDeliveries,
+    handleAlertOpen,
     ...rest
   } = props;
 
+  const user = JSON.parse(localStorage.getItem('user'))
+  const organisationId = user.organisation?.id;
   const theme = useTheme();
 
-  const startButton = (
-    <Button
-      endIcon={<PlayArrowIcon fontSize="small" />}
-      size="small"
-      variant="contained"
-      // onClick
-    >
-      Start Delivery
-    </Button>
-  )
+  const updateDelivery = async (newStatus) => {
+    const url = `${apiHost}/delivery-requests/${assigned.id}`;
+    const body = JSON.stringify({ status: newStatus });
+    const requestOptions = requestOptionsHelper('PATCH', body);
 
-  const completeButton = (
-    <Button
-      endIcon={<CheckIcon fontSize="small" />}
-      size="small"
-      variant="contained"
-      color="secondary"
-      // onClick
-    >
-      Complete Delivery
-    </Button>
-  )
-
-  // Delivery Request TODO
-  const [todoDelivery, setTodoDelivery] = useState();
-
-  // Completed Delivery Requests
-  const [deliveryRequests, setDeliveryRequests] = useState([]);
+    await fetch(url, requestOptions).then(res => res.json())
+      .then(result => {
+        handleAlertOpen('Successfully Updated Delivery!', 'success');
+        getDeliveries();
+      })
+      .catch(err => handleAlertOpen('Failed to update Delivery', 'error'));
+  }
 
   // Columns for Completed Delivery Requests
   const columns = [
@@ -53,12 +39,12 @@ export const Deliveries = (props) => {
     },
     {
       field: 'addressFrom',
-      headerName: 'From',
+      headerName: 'Deliver From',
       flex: 1
     },
     {
       field: 'addressTo',
-      headerName: 'To',
+      headerName: 'Destination Address',
       flex: 1
     },
   ]
@@ -66,27 +52,52 @@ export const Deliveries = (props) => {
   return (
     <Card>
       <CardHeader
-        // action={startButton}
-        action={completeButton}
+        action={
+          <Box>
+            {assigned && assigned.status === 'readytodeliver' && 
+            <Button
+              endIcon={<PlayArrowIcon fontSize="small" />}
+              size="small"
+              variant="contained"
+              onClick={() => updateDelivery('outfordelivery')}
+            >
+              Start Delivery
+            </Button>}
+            {assigned && assigned.status === 'outfordelivery' && 
+            <Button
+              endIcon={<CheckIcon fontSize="small" />}
+              size="small"
+              variant="contained"
+              color="secondary"
+              onClick={() => updateDelivery('completed')}
+            >
+              Complete Delivery
+            </Button>}
+          </Box>}
         title="Pending Delivery Request"
       />
       <Divider />
       <CardContent>
         <Box
           sx={{
-            m: -1,
-            height: 500,
-            position: 'relative'
+            height: 400,
+            position: 'relative',
+            textAlign: 'center'
           }}
         >
+          {deliveries.length > 0 ?
           <DataGrid 
-            rows={deliveryRequests}
+            rows={deliveries}
             columns={columns}
             pageSize={10}
-            components={{
-              Toolbar: GridToolbar,
-            }}
+            rowsPerPageOptions={[10]}
           />
+          : 
+          <Typography 
+            variant="h6"
+          >
+            {`No Delivery Requests Found`}
+          </Typography>}
         </Box>
       </CardContent>
     </Card>
