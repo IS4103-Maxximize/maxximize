@@ -14,12 +14,6 @@ export class PurchaseOrderLineItemsService {
   constructor(
     @InjectRepository(PurchaseOrderLineItem)
     private readonly poLineItemsRepository: Repository<PurchaseOrderLineItem>,
-    @InjectRepository(PurchaseOrder)
-    private readonly purchaseOrdersRepository: Repository<PurchaseOrder>,
-    @InjectRepository(RawMaterial)
-    private readonly rawMaterialsRepository: Repository<RawMaterial>,
-    @InjectRepository(FinalGood)
-    private readonly finalGoodsRepository: Repository<FinalGood>,
     private datasource: DataSource
   ){}
 
@@ -52,7 +46,7 @@ export class PurchaseOrderLineItemsService {
       })
       return newPurchaseOrderLineItem 
     } catch (error) {
-      throw new NotFoundException("There was an error")
+      throw new NotFoundException("The raw material or final good cannot be found")
     }
           
   }
@@ -67,28 +61,43 @@ export class PurchaseOrderLineItemsService {
     })
   }
 
-  findOne(id: number): Promise<PurchaseOrderLineItem> {
-    return this.poLineItemsRepository.findOne({where: {
-      id
-    }, relations: {
-      rawMaterial: true,
-      finalGood: true,
-      purchaseOrder: true
-    }})
+  async findOne(id: number): Promise<PurchaseOrderLineItem> {
+    try {
+      return await this.poLineItemsRepository.findOne({where: {
+        id
+      }, relations: {
+        rawMaterial: true,
+        finalGood: true,
+        purchaseOrder: true
+      }})
+    } catch (err) {
+      throw new NotFoundException('The purchase order line item cannot be found')
+    }
+    
   }
 
 
   async update(id: number, updatePurchaseOrderLineItemDto: UpdatePurchaseOrderLineItemDto): Promise<PurchaseOrderLineItem>{
-    const purchaseOrderLineItemToUpdate = await this.poLineItemsRepository.findOneBy({id})
-    const arrayOfKeyValues = Object.entries(updatePurchaseOrderLineItemDto)
-    arrayOfKeyValues.forEach(([key, value]) => {
-      purchaseOrderLineItemToUpdate[key] = value
-    })
-    return this.poLineItemsRepository.save(purchaseOrderLineItemToUpdate)
+    try {
+      const purchaseOrderLineItemToUpdate = await this.poLineItemsRepository.findOneBy({id})
+      const arrayOfKeyValues = Object.entries(updatePurchaseOrderLineItemDto)
+      arrayOfKeyValues.forEach(([key, value]) => {
+        purchaseOrderLineItemToUpdate[key] = value
+      })
+      return this.poLineItemsRepository.save(purchaseOrderLineItemToUpdate)
+    } catch (err) {
+      throw new NotFoundException('The purchase order line item cannot be found')
+    }
+    
   }
 
   async remove(id: number): Promise<PurchaseOrderLineItem> {
-    const purchaseOrderLineItemToRemove = await this.poLineItemsRepository.findOneBy({id})
-    return this.poLineItemsRepository.remove(purchaseOrderLineItemToRemove)
+    try{
+      const purchaseOrderLineItemToRemove = await this.poLineItemsRepository.findOneBy({id})
+      return this.poLineItemsRepository.remove(purchaseOrderLineItemToRemove)
+    } catch(err) {
+      throw new NotFoundException('The purchase order line item cannot be found')
+    }
+    
   }
 }

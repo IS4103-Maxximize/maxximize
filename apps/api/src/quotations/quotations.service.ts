@@ -1,5 +1,5 @@
 /* eslint-disable prefer-const */
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IsNull, Repository } from 'typeorm';
 import { Organisation } from '../organisations/entities/organisation.entity';
@@ -25,8 +25,7 @@ export class QuotationsService {
     private readonly shellOrganisationsRepository: Repository<ShellOrganisation>,
     @InjectRepository(Quotation)
     private readonly quotationsRepository: Repository<Quotation>,
-    @InjectRepository(QuotationLineItem)
-    private readonly quotationLineItemsRepository: Repository<QuotationLineItem>,
+    @Inject(forwardRef(() => SalesInquiryService))
     private salesInquiryService: SalesInquiryService,
     private organisationService: OrganisationsService
   ) {}
@@ -64,9 +63,7 @@ export class QuotationsService {
       if (receivingOrganisationToBeAdded) await this.salesInquiryService.update(salesInquiryId, {status: SalesInquiryStatus.REPLIED})
       return quotation
     } catch (error) {
-      throw new NotFoundException(
-        error
-      );
+      throw new NotFoundException('The sales inquiry or organisation cannot be found');
     }
   }
 
@@ -141,52 +138,67 @@ export class QuotationsService {
     return [...shellOrgQuotations, ...receivedQuotations]
   }
 
-  findOne(id: number): Promise<Quotation> {
-    return this.quotationsRepository.findOne({
-      where: {
-        id,
-      },
-      relations: {
-        shellOrganisation: {
-          contact: true,
+  async findOne(id: number): Promise<Quotation> {
+    try {
+      return await this.quotationsRepository.findOne({
+        where: {
+          id,
         },
-        currentOrganisation: true,
-        receivingOrganisation: true,
-        salesInquiry: true,
-        quotationLineItems: {
-          rawMaterial: true,
-          finalGood: true
+        relations: {
+          shellOrganisation: {
+            contact: true,
+          },
+          currentOrganisation: true,
+          receivingOrganisation: true,
+          salesInquiry: true,
+          quotationLineItems: {
+            rawMaterial: true,
+            finalGood: true
+          },
         },
-      },
-    });
+      });
+    } catch(err) {
+      throw new NotFoundException('The quotation cannot be found')
+    }
+    
   }
 
   async update(
     id: number,
     updateQuotationDto: UpdateQuotationDto
   ): Promise<Quotation> {
-    //update lot quantity, lot price, unit
-    //shell org and product should remain the same!
+    try{
+      //update lot quantity, lot price, unit
+      //shell org and product should remain the same!
 
-    const quotationToUpdate = await this.quotationsRepository.findOne({ 
-      where: {
-        id,
-      },
-      relations: {
-        shellOrganisation: {
-          contact: true
+      const quotationToUpdate = await this.quotationsRepository.findOne({ 
+        where: {
+          id,
         },
-      }
-    });
-    const arrayOfKeyValues = Object.entries(updateQuotationDto);
-    arrayOfKeyValues.forEach(([key, value]) => {
-      quotationToUpdate[key] = value;
-    });
-    return this.quotationsRepository.save(quotationToUpdate);
+        relations: {
+          shellOrganisation: {
+            contact: true
+          },
+        }
+      });
+      const arrayOfKeyValues = Object.entries(updateQuotationDto);
+      arrayOfKeyValues.forEach(([key, value]) => {
+        quotationToUpdate[key] = value;
+      });
+      return this.quotationsRepository.save(quotationToUpdate);
+    } catch (err) {
+      throw new NotFoundException('The quotation cannot be found')
+    }
+    
   }
 
   async remove(id: number): Promise<Quotation> {
-    const quotationToRemove = await this.quotationsRepository.findOneBy({ id });
-    return this.quotationsRepository.remove(quotationToRemove);
+    try {
+      const quotationToRemove = await this.quotationsRepository.findOneBy({ id });
+      return this.quotationsRepository.remove(quotationToRemove);
+    } catch (err) {
+      throw new NotFoundException('The quotation cannot be found')
+    }
+    
   }
 }
