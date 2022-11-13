@@ -6,4 +6,5 @@ export class CreateInvoiceDto {
     amount: number;
     poId: number;
     status: InvoiceStatus
+    paymentReceived?: Date
 }

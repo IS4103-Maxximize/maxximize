@@ -45,7 +45,7 @@ export class FinalGoodsService {
         expiry,
         lotQuantity,
         organisationId,
-        image
+        // image
       } = createFinalGoodDto;
       let organisationToBeAdded: Organisation;
       organisationToBeAdded = await this.organisationsRepository.findOneByOrFail({
@@ -58,7 +58,7 @@ export class FinalGoodsService {
         unitPrice,
         expiry,
         lotQuantity,
-        image,
+        // image,
         organisation: organisationToBeAdded,
       });
       const newFinalGood = await this.finalGoodRepository.save(
@@ -74,8 +74,7 @@ export class FinalGoodsService {
   findAll(): Promise<FinalGood[]> {
     return this.finalGoodRepository.find({relations: {
       organisation: true,
-      billOfMaterial: true,
-      image: true
+      billOfMaterial: true
     }})
   }
 
@@ -88,8 +87,7 @@ export class FinalGoodsService {
       },
       relations: {
         organisation: true,
-        billOfMaterial: true,
-        image: true
+        billOfMaterial: true
       }
     })
   }
