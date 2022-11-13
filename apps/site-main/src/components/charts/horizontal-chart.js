@@ -72,11 +72,12 @@ export const HorizontalChart = (props) => {
     animation: false,
     cornerRadius: 20,
     layout: { padding: 0 },
-    legend: {
+    plugins: {
+      legend: {
         display: true,
         position: 'right',
-        align: 'right',
       },
+    },
     maintainAspectRatio: false,
     responsive: true,
     xAxes: [
@@ -127,7 +128,7 @@ export const HorizontalChart = (props) => {
         title = {`${graphTitle}`}
         action={(
           <Box
-            // width={100}
+            width={100}
           >
           {counter}
         </Box>
