@@ -241,6 +241,13 @@ export class AppService implements OnApplicationBootstrap {
             address: 'Serangoon Gardens',
             postalCode: '789273',
           },
+          {
+            id: 18,
+            phoneNumber: '88886546',
+            email: 'jiayinglim@live.com',
+            address: 'Serangoon Gardens',
+            postalCode: '789273',
+          },
         ])
         .execute();
 
@@ -360,6 +367,20 @@ export class AppService implements OnApplicationBootstrap {
             role: Role.DRIVER,
             organisation: await this.organisationsService.findOne(2),
             contact: await this.contactsService.findOne(17),
+          },
+          {
+            id: 10,
+            firstName: 'PregoFactoryWorker',
+            lastName: 'Lee',
+            username: 'pregofactoryworker',
+            password:
+              '$2b$10$f6h95DOKlOa4967NYpF4y.ef5vkNYh9zJkl7LajmU7mFP86FU0k5K',
+            isActive: 'true',
+            salt: '$2b$10$f6h95DOKlOa4967NYpF4y.',
+            passwordChanged: true,
+            role: Role.FACTORYWORKER,
+            organisation: await this.organisationsService.findOne(2),
+            contact: await this.contactsService.findOne(18),
           },
         ])
         .execute();

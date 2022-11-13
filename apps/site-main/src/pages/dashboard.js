@@ -255,24 +255,26 @@ const Dashboard = () => {
   const getPickingList = async () => {
     const url = `${apiHost}/production-orders/retrieveBatchLineItemsForProduction/${organisationId}`;
     await fetch(url).then(res => res.json())
-      .then(result => setPickingList(result));
+      .then(result => setPickingList(result.map((item, index) => {return {id: index, ...item}})));
   }
 
   const pickingListColumns = [
     {
       field: 'code',
       headerName: 'Batch Line Item Code',
-      flex: 2
+      flex: 2,
+      valueGetter: (params) => params.row ? 
+        params.row.batchLineItem.code : ''
     },
     {
       field: 'batchNumber',
       headerName: 'Batch Number',
       flex: 2,
       valueGetter: (params) => params.row ?
-        params.row.batch.batchNumber : ''
+        params.row.batchLineItem.batch.batchNumber : ''
     },
     {
-      field: 'reservedQuantity',
+      field: 'quantityToTake',
       headerName: 'Retrieve Quantity',
       flex: 1
     },
