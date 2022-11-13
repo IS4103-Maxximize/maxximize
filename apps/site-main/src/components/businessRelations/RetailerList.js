@@ -177,12 +177,12 @@ export const RetailersList = ({ orgId }) => {
   };
 
   const columns = [
-    {
-      field: 'id',
-      headerName: 'Retailer ID',
-      width: 150,
-      flex: 1,
-    },
+    // {
+    //   field: 'id',
+    //   headerName: 'Retailer ID',
+    //   width: 150,
+    //   flex: 1,
+    // },
     {
       field: 'name',
       headerName: 'Name',
@@ -195,20 +195,20 @@ export const RetailersList = ({ orgId }) => {
       width: 200,
       flex: 2,
     },
-    {
-      field: 'address',
-      headerName: 'Address',
-      width: 200,
-      flex: 3,
-      editable: true,
-      valueGetter: (params) => {
-        if (params.row.contact.address) {
-          return params.row.contact.address;
-        } else {
-          return '';
-        }
-      },
-    },
+    // {
+    //   field: 'address',
+    //   headerName: 'Address',
+    //   width: 200,
+    //   flex: 3,
+    //   editable: true,
+    //   valueGetter: (params) => {
+    //     if (params.row.contact.address) {
+    //       return params.row.contact.address;
+    //     } else {
+    //       return '';
+    //     }
+    //   },
+    // },
     {
       field: 'phoneNumber',
       headerName: 'Contact',
@@ -237,19 +237,27 @@ export const RetailersList = ({ orgId }) => {
         }
       },
     },
+    // {
+    //   field: 'postalCode',
+    //   headerName: 'Postal Code',
+    //   width: 200,
+    //   flex: 1,
+    //   editable: true,
+    //   valueGetter: (params) => {
+    //     if (params.row.contact.postalCode) {
+    //       return params.row.contact.postalCode;
+    //     } else {
+    //       return '';
+    //     }
+    //   },
+    // },
     {
-      field: 'postalCode',
-      headerName: 'Postal Code',
+      field: 'credit',
+      headerName: 'Credit',
       width: 200,
-      flex: 1,
+      flex: 2,
       editable: true,
-      valueGetter: (params) => {
-        if (params.row.contact.postalCode) {
-          return params.row.contact.postalCode;
-        } else {
-          return '';
-        }
-      },
+      valueGetter: (params) => `${params.row.currentCredit} / ${params.row.creditLimit}`
     },
     {
       field: 'actions',
