@@ -436,12 +436,14 @@ const Dashboard = () => {
   };
 
   // horizontal graph data 2
-  // 
+  // Top X best selling goods
   const [graphData2, setGraphData2] = useState([]);
   const [graphLabels2, setGraphLabels2] = useState([]);
 
+  const [selectedCount2, setSelectedCount2] = useState(5);
+
   const getHorizontalGraphData2 = async () => {
-    const apiUrl = `${apiHost}/final-goods/topSales/${organisationId}`;
+    const apiUrl = `${apiHost}/final-goods/topSales/${organisationId}/${selectedCount2}`;
 
     await fetch(apiUrl).then(res => res.json())
       .then(result => {
@@ -456,6 +458,33 @@ const Dashboard = () => {
         setGraphData2(quantityLabels);
         setGraphLabels2(nameLabels);
       });
+  };
+
+  useEffect(() => {
+    if (selectedCount2) {
+      getHorizontalGraphData2();
+    }
+  }, [selectedCount2])
+
+  const handleChange2 = (event) => {
+    console.log(event.target)
+    setSelectedCount2(event.target.value);
+  };
+
+  const Counter2 = () => {
+    return(
+      <TextField 
+        fullWidth
+        type="number"
+        inputProps={{ max: 20, min: 1 }}
+        sx={{ width: 100 }}
+        label="Counter"
+        margin="normal"
+        name="Counter"
+        onChange={handleChange2}
+        value={selectedCount2}
+      />
+    );
   };
   // ------------------------------------------------------------------------------------
 
@@ -596,6 +625,7 @@ const Dashboard = () => {
 
       <Grid item lg={6} md={12} xl={9} xs={12}>
         <HorizontalChart 
+          counter={<Counter2/>}
           graphLabels={graphLabels2}
           graphData={graphData2}
           graphTitle="Top 5 best selling goods this month"
