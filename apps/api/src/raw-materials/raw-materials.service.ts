@@ -66,7 +66,7 @@ export class RawMaterialsService {
 
   async findOne(id: number): Promise<RawMaterial> {
     try {
-      const product =  await this.rawMaterialRepository.findOne({where: {
+      const product =  await this.rawMaterialRepository.findOneOrFail({where: {
         id
       }, relations: {
         organisation: true,
