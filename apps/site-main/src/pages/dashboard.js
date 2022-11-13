@@ -595,7 +595,7 @@ const Dashboard = () => {
           avatarColor={'warning.main'}
         />
       </Grid>
-      <Grid item lg={8} md={12} xl={9} xs={12}>
+      <Grid item lg={8} md={8} xl={9} xs={12}>
         <InventoryCard 
           sx={{ height: '100%' }}
           defaultLevel={defaultLevel}
@@ -607,7 +607,7 @@ const Dashboard = () => {
           handleAlertOpen={handleAlertOpen}
         />
       </Grid>
-      <Grid item lg={4} md={6} xl={3} xs={12}>
+      <Grid item lg={4} md={4} xl={3} xs={12}>
         <GenericBigCard
           headerProps={costBreakdownHeaderProps}
           content={<CostBreakdownCardContent />}
@@ -625,7 +625,7 @@ const Dashboard = () => {
         />
       </Grid>
 
-      <Grid item lg={6} md={12} xl={9} xs={12}>
+      <Grid item lg={6} md={12} xl={6} xs={12}>
         <HorizontalChart 
           counter={<Counter2/>}
           graphLabels={graphLabels2}
@@ -635,7 +635,7 @@ const Dashboard = () => {
         />
       </Grid>
 
-      <Grid item lg={6} md={12} xl={9} xs={12}>
+      <Grid item lg={6} md={12} xl={6} xs={12}>
         <HorizontalChart 
           counter={<Counter/>}
           graphLabels={graphLabels1}
@@ -770,7 +770,7 @@ const Dashboard = () => {
           handleClose={handleAlertClose}
         />
         <Container maxWidth={false}>
-          <Grid container spacing={3}>
+          <Grid container spacing={3}  width='100%'>
             {/* <DefaultDashboardItems /> */}
             {['manager', 
               'admin',
