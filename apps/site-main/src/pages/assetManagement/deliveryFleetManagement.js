@@ -1,3 +1,5 @@
+import CancelIcon from '@mui/icons-material/Cancel';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import MoreVert from '@mui/icons-material/MoreVert';
 import {
   Box,
@@ -13,12 +15,12 @@ import { useEffect, useState } from 'react';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { ConfirmDialog } from '../../components/assetManagement/confirm-dialog';
 import { DeliveryRequestViewDialog } from '../../components/assetManagement/delivery-request-view-dialog';
-import { Toolbar } from '../../components/toolbar';
 import { VehicleCreateDialog } from '../../components/assetManagement/vehicle-create-dialog';
 import { VehicleManagementMenu } from '../../components/assetManagement/vehicle-management-menu';
 import { VehicleUpdateDialog } from '../../components/assetManagement/vehicle-update-dialog';
 import { DashboardLayout } from '../../components/dashboard-layout';
 import { NotificationAlert } from '../../components/notification-alert';
+import { Toolbar } from '../../components/toolbar';
 import {
   deleteVehicle, fetchVehicles
 } from '../../helpers/deliveryFleet';
@@ -169,11 +171,6 @@ const DeliveryFleetManagement = (props) => {
 
   const columns = [
     {
-      field: 'id',
-      headerName: 'ID',
-      flex: 1,
-    },
-    {
       field: 'description',
       headerName: 'Description',
       flex: 1,
@@ -200,11 +197,12 @@ const DeliveryFleetManagement = (props) => {
       valueFormatter: (params) =>
         DayJS(params?.value).format('DD MMM YYYY hh:mm a'),
     },
-    
     {
       field: 'currentStatus',
       headerName: 'Current Status',
       flex: 1,
+      renderCell: (params) => params.value === 'available' ?
+        <CheckCircleIcon color="success"/> : <CancelIcon color="error"/> 
     },
     {
       field: 'licensePlate',
