@@ -74,7 +74,7 @@ export const HorizontalChart = (props) => {
     layout: { padding: 0 },
     plugins: {
       legend: {
-        display: true,
+        display: false,
         position: 'right',
       },
     },
