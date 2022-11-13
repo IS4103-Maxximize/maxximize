@@ -45,6 +45,11 @@ export class Product {
   @Column({ nullable: true })
   expiry: number;
 
+  @Column({
+    nullable: true
+  })
+  image: string
+
   @ManyToOne(() => Organisation, (organisation) => organisation.rawMaterials)
   organisation: Organisation;
 }

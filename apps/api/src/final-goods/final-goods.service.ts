@@ -45,6 +45,7 @@ export class FinalGoodsService {
         expiry,
         lotQuantity,
         organisationId,
+        image
       } = createFinalGoodDto;
       let organisationToBeAdded: Organisation;
       organisationToBeAdded = await this.organisationsRepository.findOneByOrFail({
@@ -57,6 +58,7 @@ export class FinalGoodsService {
         unitPrice,
         expiry,
         lotQuantity,
+        image,
         organisation: organisationToBeAdded,
       });
       const newFinalGood = await this.finalGoodRepository.save(
@@ -99,7 +101,6 @@ export class FinalGoodsService {
       }, relations: {
         organisation: true,
         billOfMaterial: true,
-        image: true
       }})
       return finalGood
     } catch (err) {
@@ -222,7 +223,7 @@ export class FinalGoodsService {
     const dataForDemandPython = [];
     for (const row of result) {
       dataForDemandPython.push({
-        date: new Date(row.YEAR, row.MONTH - 1, 1),
+        date: dayjs().year(row.YEAR).month(row.MONTH - 1).endOf('month').toDate(),
         value: row.SUM
       })
     }

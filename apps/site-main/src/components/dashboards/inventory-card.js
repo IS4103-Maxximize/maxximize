@@ -1,5 +1,6 @@
-import { Box, Button, Card, CardContent, CardHeader, Divider, Slider, Stack, Typography, useTheme } from '@mui/material';
+import { Box, Button, Card, CardContent, CardHeader, Divider, IconButton, Slider, Stack, Tooltip, Typography, useTheme } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
+import FindInPageIcon from '@mui/icons-material/FindInPage';
 
 export const InventoryCard = (props) => {
   const {
@@ -8,6 +9,7 @@ export const InventoryCard = (props) => {
     handleDrag,
     inventory,
     handleRefresh,
+    sendProdRequests,
     handleAlertOpen,
     ...rest
   } = props;
@@ -38,6 +40,33 @@ export const InventoryCard = (props) => {
       valueFormatter: (params) => params.value ? `${params.value} %` : ''
     },
   ]
+
+  const marks = [
+    {
+      value: 20,
+      label: '20',
+    },
+    {
+      value: 30,
+      label: '30',
+    },
+    {
+      value: 40,
+      label: '40',
+    },
+    {
+      value: 50,
+      label: '50',
+    },
+    {
+      value: 60,
+      label: '60',
+    },
+    {
+      value: 70,
+      label: '70',
+    },
+  ]
   
   return (
     <Card {...props}>
@@ -45,14 +74,27 @@ export const InventoryCard = (props) => {
         title='Final Good Inventory'
         action={
           <Stack direction="row" alignItems="center">
+            {inventory.length > 0 && 
+            <IconButton
+              sx={{ mr: 4 }}
+              color="primary"
+              onClick={sendProdRequests}
+            >
+              <Tooltip 
+                placement='top'
+                title="Send bulk Production Requests"
+              >
+                <FindInPageIcon />
+              </Tooltip>
+            </IconButton>}
             <Slider 
-              sx={{ minWidth: 400 }}
-              marks
-              step={5}
+              sx={{ minWidth: 300 }}
+              marks={marks}
+              step={10}
               min={20}
               max={100} // adjust to 70 for SR4
               value={warningLevel}
-              valueLabelDisplay="auto"
+              valueLabelDisplay="off"
               valueLabelFormat={(value, index) => `${value}%`}
               onChange={handleDrag}
             />
