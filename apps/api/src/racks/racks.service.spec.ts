@@ -56,16 +56,16 @@ describe('RacksService', () => {
               commitTransaction: jest.fn(),
               rollbackTransaction: jest.fn(),
               manager: {
-                save: jest.fn().mockImplementation(() => {
+                save: jest.fn().mockImplementation((dto) => {
                   return {
                     id: 1,
-                    ...testRack
+                    ...dto
                   }
                 }),
-                update: jest.fn().mockImplementation(() => {
+                update: jest.fn().mockImplementation((dto) => {
                   return {
                     ...testRack,
-                    name: 'name updated',
+                    ...dto,
                     id: 1
                   }
                 })
@@ -135,17 +135,17 @@ describe('RacksService', () => {
     it('should return the updated rack', async() => {
       const expected: any = {
         ...testRack,
-        name: 'rack test updated',
+        description: 'description 1 updated',
       }
       jest.spyOn(service, 'findOne').mockResolvedValue(expected)
       expect(await service.update(1, {
-        name: 'name 1 updated'
+        description: 'description 1 updated'
       })).toStrictEqual(expected)
     })
   });
 
   describe('remove', () => {
-    it('remove warehouse and return removed warehouse', async() => {
+    it('remove rack and return removed rack', async() => {
       expect(await service.remove(1)).toEqual(testRack);
     })
   });

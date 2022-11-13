@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, QueryRunner, Repository } from 'typeorm';
 import { RawMaterialsService } from '../raw-materials/raw-materials.service';
@@ -24,11 +24,14 @@ export class GrLineItemsService {
       const rawMaterial = await this.rawMaterialService.findOne(createGrLineItemsDto.rawMaterialId);
       grLineItem.product = rawMaterial;
 
+      grLineItem.unitOfVolumetricSpace = createGrLineItemsDto.volumetricSpace;
+
       const createdGrLineItem =  await queryRunner.manager.save(grLineItem);
       await queryRunner.commitTransaction();
       return createdGrLineItem;
     } catch (err) {
       await queryRunner.rollbackTransaction();
+      throw new InternalServerErrorException(err);
     } finally {
       await queryRunner.release();
     }
@@ -50,10 +53,14 @@ export class GrLineItemsService {
   }
 
   findOne(id: number) {
-    return this.grLineItemRepository.findOne({
-      where: { id },
-      relations: ["goodsReceipt", "product"]
-    });
+    try {
+      return this.grLineItemRepository.findOneOrFail({
+        where: { id },
+        relations: ["goodsReceipt", "product"]
+      });
+    } catch (err) {
+      throw new NotFoundException(`Gr line with id ${id} not found`);
+    }
   }
 
   async update(id: number, updateGrLineItemDto: UpdateGrLineItemDto) {
@@ -68,6 +75,7 @@ export class GrLineItemsService {
       return updatedGrLineItem;
     } catch (err) {
       await queryRunner.rollbackTransaction();
+      throw new InternalServerErrorException(err);
     } finally {
       await queryRunner.release();
     }
