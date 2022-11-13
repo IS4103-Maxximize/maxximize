@@ -101,7 +101,6 @@ export class FinalGoodsService {
       }, relations: {
         organisation: true,
         billOfMaterial: true,
-        image: true
       }})
       return finalGood
     } catch (err) {
