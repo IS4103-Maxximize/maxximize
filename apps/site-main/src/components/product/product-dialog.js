@@ -1,4 +1,5 @@
 import {
+  Avatar,
   Box,
   Button,
   Dialog,
@@ -76,7 +77,7 @@ export const ProductDialog = (props) => {
       .positive('Lot Quantity must be a positive integer')
       .integer('Lot Quantity must be a positive integer')
       .required('Lot quantity is required'),
-    image: Yup.mixed().required(),
+    // image: Yup.mixed().required(),
   };
 
   const handleOnSubmit = async (values) => {
@@ -122,19 +123,19 @@ export const ProductDialog = (props) => {
     handleClose();
   };
 
-  const convertToBase64 = (file) => {
-    const reader = new FileReader();
-    if (file) reader.readAsDataURL(file);
-
+  const getBase64 = async (file, cb) => {
+    var reader = new FileReader();
+    // const blob = await file.blob();
+    reader.readAsDataURL(file);
     reader.onload = function () {
-      return reader.result;
+      cb(reader.result);
     };
-
     reader.onerror = function (error) {
       console.log('Error: ', error);
     };
   };
 
+  let test = '';
   const {
     acceptedFiles,
     getRootProps,
@@ -146,7 +147,12 @@ export const ProductDialog = (props) => {
     maxFiles: 1,
     accept: { 'image/*': [] },
     onDrop: (acceptedFiles) => {
-      formik.setFieldValue('image', convertToBase64(acceptedFiles));
+      formik.setFieldValue(
+        'image',
+        getBase64(acceptedFiles, (result) => {
+          console.log(result);
+        })
+      );
     },
   });
 
@@ -193,6 +199,20 @@ export const ProductDialog = (props) => {
       {file.path} - {file.size} bytes
     </li>
   ));
+
+  const handleCapture = ({ target }) => {
+    if (target.files.length === 0) {
+      return null;
+    }
+    const fileReader = new FileReader();
+    console.log(target);
+    console.log(target.files[0]);
+    fileReader.readAsDataURL(target.files[0]);
+    fileReader.onloadend = () => {
+      console.log('onLoad');
+      formik.setFieldValue('image', fileReader.result);
+    };
+  };
 
   return (
     <form onSubmit={formik.handleSubmit}>
@@ -328,6 +348,22 @@ export const ProductDialog = (props) => {
             variant="outlined"
           />
           {type === 'final-goods' ? (
+            <>
+              <Button variant="contained" component="label" onC>
+                Upload Image
+                <input
+                  type="file"
+                  hidden
+                  accept="image/png, image/jpeg"
+                  onChange={handleCapture}
+                />
+              </Button>
+              <Avatar src={formik.values.image} />
+            </>
+          ) : (
+            <></>
+          )}
+          {/* 
             <Box mt={2}>
               <Typography variant="h6" sx={{ marginBottom: 2 }}>
                 Upload final good image
@@ -343,9 +379,7 @@ export const ProductDialog = (props) => {
                 </aside>
               </Box>
             </Box>
-          ) : (
-            <></>
-          )}
+           */}
         </DialogContent>
         <DialogActions>
           <Button

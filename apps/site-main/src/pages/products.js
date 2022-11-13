@@ -101,6 +101,7 @@ const Products = (props) => {
   };
 
   const addProduct = (product) => {
+    console.log(rows);
     const updatedProducts = [...rows, product];
     setRows(updatedProducts);
     handleAlertOpen(
@@ -145,9 +146,9 @@ const Products = (props) => {
   };
 
   const unitMap = {
-    'kilogram': 'kg',
-    'litre': 'litre',
-  }
+    kilogram: 'kg',
+    litre: 'litre',
+  };
 
   const columns = [
     // {
@@ -174,7 +175,7 @@ const Products = (props) => {
       field: 'unitPrice',
       headerName: 'Unit Price',
       flex: 1,
-      valueFormatter: (params) => params.value ? `$ ${params.value}` : ''
+      valueFormatter: (params) => (params.value ? `$ ${params.value}` : ''),
     },
     {
       field: 'expiry',
@@ -185,7 +186,10 @@ const Products = (props) => {
       field: 'lotQuantity',
       headerName: 'Lot Quantity',
       flex: 1,
-      valueGetter: (params) => params.row ? `${params.row.lotQuantity} ${unitMap[params.row.unit]}` : ''
+      valueGetter: (params) =>
+        params.row
+          ? `${params.row.lotQuantity} ${unitMap[params.row.unit]}`
+          : '',
     },
     {
       field: 'actions',
