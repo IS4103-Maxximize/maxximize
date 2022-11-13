@@ -552,7 +552,7 @@ const Dashboard = () => {
           sx={{ height: '100% ' }}
           title={'Production Throughput'}
           icon={<PrecisionManufacturingIcon />}
-          value={production ? `${(production[0]).toFixed(2)}` : null}
+          value={production ? `${(production[1]).toFixed(2)}` : null}
           change={production ? 'Amount of Final Goods / hr' : null}
           avatarColor={'warning.main'}
         />
@@ -563,7 +563,7 @@ const Dashboard = () => {
           sx={{ height: '100% ' }}
           title={'Production Yield'}
           icon={<PrecisionManufacturingIcon />}
-          value={production ? `${(production[1]).toFixed(1)}%` : null}
+          value={production ? `${(production[0]*100).toFixed(1)}%` : null}
           avatarColor={'warning.main'}
         />
       </Grid>
