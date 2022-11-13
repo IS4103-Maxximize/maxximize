@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { RacksService } from '../racks/racks.service';
@@ -37,6 +37,7 @@ export class BinsService {
       return createdBin;
     } catch (err) {
       await queryRunner.rollbackTransaction();
+      throw new InternalServerErrorException(err);
     } finally {
       await queryRunner.release();
     }
@@ -112,6 +113,7 @@ export class BinsService {
     } catch (err) {
       console.log(err)
       await queryRunner.rollbackTransaction();
+      throw new InternalServerErrorException(err);
     } finally {
       await queryRunner.release();
     }

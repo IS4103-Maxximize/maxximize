@@ -55,7 +55,6 @@ import { SalesInquiryLineItemsModule } from '../sales-inquiry-line-items/sales-i
 import { SalesInquiryModule } from '../sales-inquiry/sales-inquiry.module';
 import { ScheduleLineItemsModule } from '../schedule-line-items/schedule-line-items.module';
 import { SchedulesModule } from '../schedules/schedules.module';
-import { SensorsModule } from '../sensors/sensors.module';
 import { ShellOrganisationsModule } from '../shell-organisations/shell-organisations.module';
 import { StripeModule } from '../stripe/stripe.module';
 import { UsersModule } from '../users/users.module';
@@ -96,7 +95,6 @@ import { AppService } from './app.service';
     RawMaterialsModule,
     RecipesModule,
     SchedulesModule,
-    SensorsModule,
     UsersModule,
     VehiclesModule,
     WarehousesModule,
