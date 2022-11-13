@@ -23,6 +23,7 @@ import {
   YAxis,
 } from 'recharts';
 import { NotificationAlert } from '../../components/notification-alert';
+import { CreatePurchaseRequisitionDialog } from '../../components/procurement-ordering/create-purchase-requisition-dialog';
 import { DemandForecastToolbar } from '../../components/procurement-ordering/demand-forecast-toolbar';
 
 const ProcurementForecast = () => {
@@ -134,6 +135,15 @@ const ProcurementForecast = () => {
     fetchFinalGoods();
   }, [organisationId]);
 
+  // Dialog helpers
+  const [prCreationDialogOpen, setPRCreationDialogOpen] = useState(false);
+  const handleClickOpen = () => {
+    setPRCreationDialogOpen(true);
+  };
+  const handleClickClose = () => {
+    setPRCreationDialogOpen(false);
+  };
+
   // NotificationAlert helpers
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertText, setAlertText] = useState();
@@ -149,6 +159,17 @@ const ProcurementForecast = () => {
     setAlertSeverity('success');
   };
 
+  const rows = data.slice(-Number(actualPeriod));
+
+  const [shortfall, setShortfall] = useState(0);
+
+  useEffect(() => {
+    console.log(rows);
+    setShortfall(rows[0]?.shortfall);
+  }, [data]);
+
+  useEffect(() => console.log(shortfall), [shortfall]);
+
   return (
     <>
       <HelmetProvider>
@@ -161,6 +182,12 @@ const ProcurementForecast = () => {
         severity={alertSeverity}
         text={alertText}
         handleClose={handleAlertClose}
+      />
+      <CreatePurchaseRequisitionDialog
+        open={prCreationDialogOpen}
+        handleClose={handleClickClose}
+        finalGoodId={selectedFinalGood.id}
+        firstFinalGoodQuantity={shortfall}
       />
       <Box
         component="main"
@@ -249,16 +276,17 @@ const ProcurementForecast = () => {
                     </ResponsiveContainer>
                     <DataGrid
                       autoHeight
-                      rows={data.slice(-Number(actualPeriod))}
+                      rows={rows}
                       columns={columns}
                       pageSize={10}
                       getRowId={(row) => row.date}
                       rowsPerPageOptions={[10]}
-                      checkboxSelection
                       disableSelectionOnClick
                       experimentalFeatures={{ newEditingApi: true }}
                     />
-                    {/* <Button onClick={handleCreatePR}>Create Purchase Requisition</Button> */}
+                    <Button variant="contained" onClick={handleClickOpen}>
+                      Create Purchase Requisition(s)
+                    </Button>
                   </>
                 ) : (
                   ''
