@@ -196,6 +196,14 @@ export const theme = createTheme({
       primary: '#121828',
       secondary: '#65748B',
       disabled: 'rgba(55, 65, 81, 0.48)',
+    }, // Used for Sales Inquiry Statuses
+    draft: {
+      main: '#616161',
+      contrastText: '#FFFFFF',
+    },
+    expired: {
+      main: '#5d4037',
+      contrastText: '#FFFFFF',
     },
   },
   shape: {

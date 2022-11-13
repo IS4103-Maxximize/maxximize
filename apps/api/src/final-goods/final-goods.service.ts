@@ -48,9 +48,10 @@ export class FinalGoodsService {
         // image
       } = createFinalGoodDto;
       let organisationToBeAdded: Organisation;
-      organisationToBeAdded = await this.organisationsRepository.findOneByOrFail({
-        id: organisationId,
-      });
+      organisationToBeAdded =
+        await this.organisationsRepository.findOneByOrFail({
+          id: organisationId,
+        });
       const newFinalGoodInstance = this.finalGoodRepository.create({
         name,
         description,
@@ -64,18 +65,22 @@ export class FinalGoodsService {
       const newFinalGood = await this.finalGoodRepository.save(
         newFinalGoodInstance
       );
-      const skuCode = `${newFinalGood.id}-${name.toUpperCase().substring(0, 3)}`;
+      const skuCode = `${newFinalGood.id}-${name
+        .toUpperCase()
+        .substring(0, 3)}`;
       return this.update(newFinalGood.id, { skuCode: skuCode });
     } catch (err) {
-      throw new NotFoundException('The organisation cannot be found')
+      throw new NotFoundException('The organisation cannot be found');
     }
   }
 
   findAll(): Promise<FinalGood[]> {
-    return this.finalGoodRepository.find({relations: {
-      organisation: true,
-      billOfMaterial: true
-    }})
+    return this.finalGoodRepository.find({
+      relations: {
+        organisation: true,
+        billOfMaterial: true,
+      },
+    });
   }
 
   async findAllByOrg(organisationId: number): Promise<FinalGood[]> {
@@ -87,24 +92,25 @@ export class FinalGoodsService {
       },
       relations: {
         organisation: true,
-        billOfMaterial: true
-      }
-    })
+        billOfMaterial: true,
+      },
+    });
   }
 
   async findOne(id: number): Promise<FinalGood> {
     try {
-      const finalGood =  await this.finalGoodRepository.findOneOrFail({where: {
-        id
-      }, relations: {
-        organisation: true,
-        billOfMaterial: true,
-      }})
-      return finalGood
+      const finalGood = await this.finalGoodRepository.findOneOrFail({
+        where: {
+          id,
+        },
+        relations: {
+          organisation: true,
+          billOfMaterial: true,
+        },
+      });
+      return finalGood;
     } catch (err) {
-      throw new NotFoundException(
-        `The final good cannot be found`
-      );
+      throw new NotFoundException(`The final good cannot be found`);
     }
   }
 
@@ -131,13 +137,18 @@ export class FinalGoodsService {
         }
       }
     }
-    const mapSort1 = new Map([...goodsSales.entries()].sort((a, b) => b[1] - a[1]))
-    const finalGoods = [...mapSort1.keys()]
-    let i = 0
-    const arr = []
-    while (mapSort1.has(finalGoods[i]) && i<count){
-      arr.push({name: (await this.findOne(finalGoods[i])).name, quantity: mapSort1.get(finalGoods[i])})
-      i++
+    const mapSort1 = new Map(
+      [...goodsSales.entries()].sort((a, b) => b[1] - a[1])
+    );
+    const finalGoods = [...mapSort1.keys()];
+    let i = 0;
+    const arr = [];
+    while (mapSort1.has(finalGoods[i]) && i < count) {
+      arr.push({
+        name: (await this.findOne(finalGoods[i])).name,
+        quantity: mapSort1.get(finalGoods[i]),
+      });
+      i++;
     }
     // const arr = [
     //   {name: (await this.findOne(finalGoods[0])).name, quantity: mapSort1.get(finalGoods[0])},
@@ -183,9 +194,7 @@ export class FinalGoodsService {
       await this.finalGoodRepository.save(product);
       return this.findOne(id);
     } catch (err) {
-      throw new NotFoundException(
-        `The final good cannot be found`
-      );
+      throw new NotFoundException(`The final good cannot be found`);
     }
   }
 
@@ -194,16 +203,18 @@ export class FinalGoodsService {
       const product = await this.finalGoodRepository.findOneBy({ id });
       return this.finalGoodRepository.remove(product);
     } catch (err) {
-      throw new NotFoundException(
-        `The final good cannot be found`
-      );
+      throw new NotFoundException(`The final good cannot be found`);
     }
   }
 
-  async getDemandForecast(id: number, finalGoodsId: number, numOfMonths: number, seasonality: string) {
+  async getDemandForecast(
+    id: number,
+    finalGoodsId: number,
+    numOfMonths: number,
+    seasonality: string
+  ) {
     const url = 'http://127.0.0.1:5000/demand-forecast';
-    const query =
-    `
+    const query = `
       SELECT 
         YEAR(created) as YEAR, 
         MONTH(created) as MONTH,
@@ -215,33 +226,48 @@ export class FinalGoodsService {
       WHERE currentOrganisationId = ${id}
       GROUP BY Year(created), MONTH(created)
       ORDER BY YEAR, MONTH;
-    `
+    `;
     const queryRunner = this.dataSource.createQueryRunner();
     const result = await queryRunner.manager.query(query);
     const dataForDemandPython = [];
     for (const row of result) {
       dataForDemandPython.push({
-        date: dayjs().year(row.YEAR).month(row.MONTH - 1).endOf('month').toDate(),
-        value: row.SUM
-      })
+        date: dayjs()
+          .year(row.YEAR)
+          .month(row.MONTH - 1)
+          .endOf('month')
+          .toDate(),
+        value: row.SUM,
+      });
     }
-    const season = seasonality === 'true'
+    const season = seasonality === 'true';
     const data = {
       numOfMonths: numOfMonths,
       data: dataForDemandPython,
-      seasonality: season
+      seasonality: season,
     };
     return this.httpService
       .post(url, data)
-      .pipe(map(async (res) => {
-        let month = 1;
-        for (let idx = res.data.length - numOfMonths; idx < res.data.length; idx++) {
-          res.data[idx].shortfall = await this.getShortFall(finalGoodsId, res.data[idx].val, id, month);
-          month += 1;
-        }
-        // console.log(res.data)
-        return res.data;
-      }))
+      .pipe(
+        map(async (res) => {
+          let month = 1;
+          for (
+            let idx = res.data.length - numOfMonths;
+            idx < res.data.length;
+            idx++
+          ) {
+            res.data[idx].shortfall = await this.getShortFall(
+              finalGoodsId,
+              res.data[idx].val,
+              id,
+              month
+            );
+            month += 1;
+          }
+          // console.log(res.data)
+          return res.data;
+        })
+      )
       .pipe(
         catchError(() => {
           throw new InternalServerErrorException('API is down');
@@ -249,30 +275,45 @@ export class FinalGoodsService {
       );
   }
 
-  async getShortFall(finalGoodsId: number, quantity: number, organisationId: number, numOfMonths: number) {
-    const inventory = await this.batchLineItemService.getAggregatedFinalGoods(organisationId, dayjs().add(numOfMonths, 'month').toDate());
+  async getShortFall(
+    finalGoodsId: number,
+    quantity: number,
+    organisationId: number,
+    numOfMonths: number
+  ) {
+    const inventory = await this.batchLineItemService.getAggregatedFinalGoods(
+      organisationId,
+      dayjs().add(numOfMonths, 'month').toDate()
+    );
     if (inventory.has(Number(finalGoodsId))) {
       const lineItems = inventory.get(Number(finalGoodsId));
       const totalQty = lineItems.reduce((seed, lineItem) => {
         return seed + (lineItem.quantity - lineItem.reservedQuantity);
       }, 0);
-      return totalQty - quantity;
+      return Math.abs(totalQty - quantity);
     } else {
       return quantity;
     }
   }
 
-  async getRequiredRawMaterialsFromFinalGoods(finalGoodsId: number, quantity: number) {
-    const billOfMaterial = await this.billOfMaterialService.getBOMFromFinalGood(finalGoodsId);
+  async getRequiredRawMaterialsFromFinalGoods(
+    finalGoodsId: number,
+    quantity: number
+  ) {
+    const billOfMaterial = await this.billOfMaterialService.getBOMFromFinalGood(
+      finalGoodsId
+    );
 
-    const lotQuantity = Math.ceil(quantity / billOfMaterial.finalGood.lotQuantity);
+    const lotQuantity = Math.ceil(
+      quantity / billOfMaterial.finalGood.lotQuantity
+    );
 
     const rawMaterialsRequired = [];
 
     for (const lineItem of billOfMaterial.bomLineItems) {
       rawMaterialsRequired.push({
         rawMaterial: lineItem.rawMaterial,
-        quantityRequired: lotQuantity * lineItem.quantity
+        quantityRequired: lotQuantity * lineItem.quantity,
       });
     }
 

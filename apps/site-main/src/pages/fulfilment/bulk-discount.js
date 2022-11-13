@@ -1,15 +1,15 @@
 import { Box, Container, Typography } from '@mui/material';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
-import { OutletsList } from '../components/outlets/outlets-list';
+import { BulkDiscountList } from '../../components/fulfilment/bulk-discount/bulk-discount-list';
 
-const Outlets = () => {
+const BulkDiscount = () => {
   const user = JSON.parse(localStorage.getItem('user'));
 
   return (
     <>
       <HelmetProvider>
         <Helmet>
-          <title>{`Outlets | ${user?.organisation?.name}`}</title>
+          <title>{`Bulk Discount | ${user?.organisation?.name}`}</title>
         </Helmet>
       </HelmetProvider>
       <Box
@@ -31,11 +31,11 @@ const Outlets = () => {
             }}
           >
             <Typography sx={{ m: 1 }} variant="h4">
-              Outlets
+              Bulk Discount
             </Typography>
           </Box>
           <Box sx={{ mt: 3 }}>
-            <OutletsList />
+            <BulkDiscountList />
           </Box>
         </Container>
       </Box>
@@ -43,4 +43,4 @@ const Outlets = () => {
   );
 };
 
-export default Outlets;
+export default BulkDiscount;

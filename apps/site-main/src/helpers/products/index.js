@@ -13,6 +13,7 @@ export const fetchProducts = async (type, organisationId) => {
 
 export const createProduct = async (type, values, organisationId) => {
   const apiUrl = `${apiHost}/${type}`;
+  console.log(values.image);
   const body = JSON.stringify({
     name: values.name,
     description: values.description,
@@ -21,6 +22,7 @@ export const createProduct = async (type, values, organisationId) => {
     expiry: values.expiry,
     organisationId: organisationId,
     lotQuantity: values.lotQuantity,
+    image: values.image,
   });
   const requestOptions = {
     method: 'POST',

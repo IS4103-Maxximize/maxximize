@@ -7,6 +7,7 @@ import {
   Container,
 } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
+import { isSameDateError } from '@mui/x-date-pickers/internals/hooks/validation/useDateValidation';
 import { Legend } from 'chart.js';
 import { useEffect, useState } from 'react';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
@@ -21,6 +22,8 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
+import { NotificationAlert } from '../../components/notification-alert';
+import { CreatePurchaseRequisitionDialog } from '../../components/procurement-ordering/create-purchase-requisition-dialog';
 import { DemandForecastToolbar } from '../../components/procurement-ordering/demand-forecast-toolbar';
 
 const ProcurementForecast = () => {
@@ -50,6 +53,8 @@ const ProcurementForecast = () => {
       setData(result);
       setLoading(false);
     } else if (response.status === 500) {
+      const result = await response.json();
+      handleAlertOpen(`Error encountered: ${result.message}`, 'error');
       setLoading(false);
     }
   };
@@ -58,6 +63,12 @@ const ProcurementForecast = () => {
   const handleToggle = () => {
     setSeasonality(!seasonality);
   };
+
+  useEffect(() => {
+    if (loading === true) {
+      setData([]);
+    }
+  }, [loading]);
 
   // Handle create purchase requisition
   // const handleCreatePurchaseRequisition = async (values) => {
@@ -106,8 +117,8 @@ const ProcurementForecast = () => {
     {
       field: 'shortfall',
       headerName: 'Current Shortfall',
-      flex: 1
-    }
+      flex: 1,
+    },
   ];
 
   useEffect(() => {
@@ -124,6 +135,41 @@ const ProcurementForecast = () => {
     fetchFinalGoods();
   }, [organisationId]);
 
+  // Dialog helpers
+  const [prCreationDialogOpen, setPRCreationDialogOpen] = useState(false);
+  const handleClickOpen = () => {
+    setPRCreationDialogOpen(true);
+  };
+  const handleClickClose = () => {
+    setPRCreationDialogOpen(false);
+  };
+
+  // NotificationAlert helpers
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertText, setAlertText] = useState();
+  const [alertSeverity, setAlertSeverity] = useState('success');
+  const handleAlertOpen = (text, severity) => {
+    setAlertText(text);
+    setAlertSeverity(severity);
+    setAlertOpen(true);
+  };
+  const handleAlertClose = () => {
+    setAlertOpen(false);
+    setAlertText(null);
+    setAlertSeverity('success');
+  };
+
+  const rows = data.slice(-Number(actualPeriod));
+
+  const [shortfall, setShortfall] = useState(0);
+
+  useEffect(() => {
+    console.log(rows);
+    setShortfall(rows[0]?.shortfall);
+  }, [data]);
+
+  useEffect(() => console.log(shortfall), [shortfall]);
+
   return (
     <>
       <HelmetProvider>
@@ -131,6 +177,18 @@ const ProcurementForecast = () => {
           <title>{`${name} | ${user?.organisation?.name}`}</title>
         </Helmet>
       </HelmetProvider>
+      <NotificationAlert
+        open={alertOpen}
+        severity={alertSeverity}
+        text={alertText}
+        handleClose={handleAlertClose}
+      />
+      <CreatePurchaseRequisitionDialog
+        open={prCreationDialogOpen}
+        handleClose={handleClickClose}
+        finalGoodId={selectedFinalGood.id}
+        firstFinalGoodQuantity={shortfall}
+      />
       <Box
         component="main"
         sx={{
@@ -144,7 +202,9 @@ const ProcurementForecast = () => {
             key="toolbar"
             name={name}
             finalGoods={finalGoods}
+            selectedFinalGood={selectedFinalGood}
             setSelectedFinalGood={setSelectedFinalGood}
+            period={period}
             setPeriod={setPeriod}
             handleSubmit={handleSubmit}
             loading={loading}
@@ -216,16 +276,17 @@ const ProcurementForecast = () => {
                     </ResponsiveContainer>
                     <DataGrid
                       autoHeight
-                      rows={data.slice(-Number(actualPeriod))}
+                      rows={rows}
                       columns={columns}
                       pageSize={10}
                       getRowId={(row) => row.date}
                       rowsPerPageOptions={[10]}
-                      checkboxSelection
                       disableSelectionOnClick
                       experimentalFeatures={{ newEditingApi: true }}
                     />
-                    {/* <Button onClick={handleCreatePR}>Create Purchase Requisition</Button> */}
+                    <Button variant="contained" onClick={handleClickOpen}>
+                      Create Purchase Requisition(s)
+                    </Button>
                   </>
                 ) : (
                   ''

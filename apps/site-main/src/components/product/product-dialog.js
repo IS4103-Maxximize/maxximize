@@ -1,4 +1,6 @@
 import {
+  Avatar,
+  Box,
   Button,
   Dialog,
   DialogActions,
@@ -14,7 +16,8 @@ import {
 } from '@mui/material';
 import { Stack } from '@mui/system';
 import { useFormik } from 'formik';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import { useDropzone } from 'react-dropzone';
 import * as Yup from 'yup';
 import { createProduct, updateProduct } from '../../helpers/products';
 
@@ -46,7 +49,7 @@ export const ProductDialog = (props) => {
         setDisabled(product.billOfMaterial);
       }
     }
-  }, [product])
+  }, [product]);
 
   let initialValues = {
     id: product ? product.id : null,
@@ -57,32 +60,38 @@ export const ProductDialog = (props) => {
     expiry: product ? Number(product.expiry) : '',
     skuCode: product ? product.skuCode : '',
     lotQuantity: product ? Number(product.lotQuantity) : '',
+    image: '',
   };
   let schema = {
     name: Yup.string().max(255).required('Name is required'),
     description: Yup.string(),
     unit: Yup.string(),
-    unitPrice: Yup
-      .number()
+    unitPrice: Yup.number()
       .positive('Unit Price must be positive')
       .required('Unit Price is required'),
-    expiry: Yup
-      .number()
+    expiry: Yup.number()
       .positive('Days must be a positive integer')
       .integer('Days must be a positive integer')
       .required('Expiry (days) is required'),
-    lotQuantity: Yup
-      .number()
+    lotQuantity: Yup.number()
       .positive('Lot Quantity must be a positive integer')
       .integer('Lot Quantity must be a positive integer')
       .required('Lot quantity is required'),
+    // image: Yup.mixed().required(),
   };
 
   const handleOnSubmit = async (values) => {
     if (action === 'POST') {
-      const result = await createProduct(type, values, organisationId).catch(
-        (err) => handleAlertOpen(`Error creating ${typeString}`, 'error')
-      );
+      let result;
+      if (type === 'final-goods') {
+        result = await createProduct(type, values, organisationId).catch(
+          (err) => handleAlertOpen(`Error creating ${typeString}`, 'error')
+        );
+      } else {
+        result = await createProduct(type, values, organisationId).catch(
+          (err) => handleAlertOpen(`Error creating ${typeString}`, 'error')
+        );
+      }
       addProduct(result);
     } else if (action === 'PATCH') {
       try {
@@ -106,10 +115,24 @@ export const ProductDialog = (props) => {
     onSubmit: handleOnSubmit,
   });
 
+  useEffect(() => console.log(formik.values.image), [formik.values.image]);
+
   const onClose = () => {
     formik.resetForm();
     setDisabled(false);
     handleClose();
+  };
+
+  const getBase64 = async (file, cb) => {
+    var reader = new FileReader();
+    // const blob = await file.blob();
+    reader.readAsDataURL(file);
+    reader.onload = function () {
+      cb(reader.result);
+    };
+    reader.onerror = function (error) {
+      console.log('Error: ', error);
+    };
   };
 
   return (
@@ -202,9 +225,7 @@ export const ProductDialog = (props) => {
               formik.touched.lotQuantity && formik.errors.lotQuantity
             )}
             fullWidth
-            helperText={
-              formik.touched.lotQuantity && formik.errors.lotQuantity
-            }
+            helperText={formik.touched.lotQuantity && formik.errors.lotQuantity}
             label="Lot Quantity"
             margin="normal"
             name="lotQuantity"
@@ -229,9 +250,7 @@ export const ProductDialog = (props) => {
             value={formik.values.unitPrice}
             variant="outlined"
             InputProps={{
-              startAdornment: (
-                <InputAdornment sx={{ mr: 1 }}>$</InputAdornment>
-              )
+              startAdornment: <InputAdornment sx={{ mr: 1 }}>$</InputAdornment>,
             }}
           />
           <TextField
