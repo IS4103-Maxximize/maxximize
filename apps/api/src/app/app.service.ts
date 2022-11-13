@@ -407,7 +407,7 @@ export class AppService implements OnApplicationBootstrap {
 
       //3
       await this.rawMaterialsService.create({
-        name: 'Yello Tomato',
+        name: 'Yellow Tomato',
         description: 'Unripe Tomatoes, freshly grown in Singapore Farm',
         lotQuantity: 50,
         unit: MeasurementUnit.KILOGRAM,
@@ -465,7 +465,7 @@ export class AppService implements OnApplicationBootstrap {
 
       //Final Good for Prego
 
-      //1
+      //8
       await this.finalGoodsService.create({
         name: 'Canned Mild Tomato',
         description: 'Canned Mild Tomato',
@@ -476,7 +476,7 @@ export class AppService implements OnApplicationBootstrap {
         organisationId: 2,
       });
 
-      //2
+      //9
       await this.finalGoodsService.create({
         name: 'Canned Picked Cucumbers',
         description: 'Canned Picked Cucumbers',
@@ -487,7 +487,7 @@ export class AppService implements OnApplicationBootstrap {
         organisationId: 2,
       });
 
-      //3
+      //10
       await this.finalGoodsService.create({
         name: 'Canned Pickles',
         description: 'Canned Pickles',
@@ -498,7 +498,7 @@ export class AppService implements OnApplicationBootstrap {
         organisationId: 2,
       });
 
-      //4
+      //11
       await this.finalGoodsService.create({
         name: 'Canned Spicy Tomato',
         description: 'Canned Spicy Tomato',
@@ -509,7 +509,7 @@ export class AppService implements OnApplicationBootstrap {
         organisationId: 2,
       });
 
-      //5
+      //12
       await this.finalGoodsService.create({
         name: 'Canned Sour Cabbage',
         description: 'Canned Sour Cabbage',
@@ -523,7 +523,7 @@ export class AppService implements OnApplicationBootstrap {
 
       //Final Good for Nissin
 
-      //6
+      //13
       await this.finalGoodsService.create({
         name: 'Tomato Noodles',
         description: 'Tomato Noodles made with fresh ingredients, tangy and mild, perfect for a small snack!',
@@ -535,7 +535,7 @@ export class AppService implements OnApplicationBootstrap {
       });
 
 
-      //7
+      //14
       await this.finalGoodsService.create({
         name: 'Sweet and Sour Noodles',
         description: 'QQ noodles that is both sweet and sour, made with fresh tomatoes and pickles',
@@ -551,7 +551,7 @@ export class AppService implements OnApplicationBootstrap {
 
       //1
       await this.bomService.create({
-        finalGoodId: 1,
+        finalGoodId: 8,
         bomLineItemDtos: [
           {
             quantity: 5,
@@ -566,7 +566,7 @@ export class AppService implements OnApplicationBootstrap {
 
       //2
       await this.bomService.create({
-        finalGoodId: 2,
+        finalGoodId: 9,
         bomLineItemDtos: [
           {
             quantity: 5,
@@ -581,7 +581,7 @@ export class AppService implements OnApplicationBootstrap {
 
       //3
       await this.bomService.create({
-        finalGoodId: 3,
+        finalGoodId: 10,
         bomLineItemDtos: [
           {
             quantity: 5,
@@ -596,7 +596,7 @@ export class AppService implements OnApplicationBootstrap {
 
       //4
       await this.bomService.create({
-        finalGoodId: 9,
+        finalGoodId: 11,
         bomLineItemDtos: [
           {
             quantity: 5,
@@ -611,7 +611,7 @@ export class AppService implements OnApplicationBootstrap {
 
       //5
       await this.bomService.create({
-        finalGoodId: 9,
+        finalGoodId: 12,
         bomLineItemDtos: [
           {
             quantity: 3,
@@ -629,7 +629,7 @@ export class AppService implements OnApplicationBootstrap {
 
       //6
       await this.bomService.create({
-        finalGoodId: 6,
+        finalGoodId: 13,
         bomLineItemDtos: [
           {
             quantity: 3,
@@ -640,7 +640,7 @@ export class AppService implements OnApplicationBootstrap {
 
       //7
       await this.bomService.create({
-        finalGoodId: 7,
+        finalGoodId: 14,
         bomLineItemDtos: [
           {
             quantity: 3,
@@ -676,6 +676,7 @@ export class AppService implements OnApplicationBootstrap {
           postalCode: '123123',
         },
         organisationId: 2,
+        creditLimit: 1000000000
       });
 
       //create SI from Nissin to Nissin's supplier
@@ -769,7 +770,7 @@ export class AppService implements OnApplicationBootstrap {
       });
 
       //create purchaseOrder
-      await this.purchaseOrderService.create({
+      const po = await this.purchaseOrderService.create({
         deliveryAddress: 'ManuAddress1',
         totalPrice: 9600,
         deliveryDate: new Date(),
@@ -842,6 +843,12 @@ export class AppService implements OnApplicationBootstrap {
         ],
         followUpLineItemsDtos: [],
       });
+
+      console.log(po)
+
+      await this.purchaseOrderService.update(1, {
+        status: PurchaseOrderStatus.CLOSED
+      })
 
       //Factory Machine
       await this.factoryMachineService.create({
@@ -923,29 +930,68 @@ export class AppService implements OnApplicationBootstrap {
       })
 
       //create PO from HAIDILAO to PREGO
-      await this.purchaseOrderService.create({
-        "deliveryAddress": "warehouse 1",
-        "totalPrice": 10000,
-        "deliveryDate": new Date(2022-10-11),
-        "currentOrganisationId": 3,
-        "supplierId": 2,
-        "userContactId": 8,
-        "poLineItemDtos": [
-            {
-                "quantity": 500,
-                "price": 50,
-                "finalGoodId": 1 
-            }
-        ]
-      })
-
-      await this.purchaseOrderService.update(2, {
-        status: PurchaseOrderStatus.FULFILLED
-      })
-
-      await this.invoiceService.update(1, {
-        status: InvoiceStatus.CLOSED
-      })
+      let startCurrentQuantity = 300
+      const priceCurrent = 50
+      let currentDate = new Date()
+      for (let i = 0; i < 7; i++) {
+        const pur = await this.purchaseOrderService.create({
+          "deliveryAddress": "warehouse 1",
+          "totalPrice": startCurrentQuantity * priceCurrent,
+          "deliveryDate": new Date(2022-10-11),
+          "currentOrganisationId": 3,
+          "supplierId": 2,
+          "userContactId": 8,
+          "poLineItemDtos": [
+              {
+                  "quantity": startCurrentQuantity,
+                  "price": priceCurrent,
+                  "finalGoodId": 8
+              }
+          ]
+        })
+  
+        await this.purchaseOrderService.update(i + 2, {
+          status: PurchaseOrderStatus.FULFILLED
+        })
+  
+        await this.invoiceService.update(i + 2, {
+          status: InvoiceStatus.CLOSED,
+          paymentReceived: currentDate
+        })
+        currentDate = new Date(currentDate.setDate(currentDate.getDate() - 1))
+        startCurrentQuantity -= ((i + 1) * 10)
+      }
+      let currentLastYearDate = new Date(new Date().setFullYear(new Date().getFullYear() - 1))
+      let startQuantity = 200
+      const price = 50
+      for (let i = 0; i < 7; i++) { 
+        await this.purchaseOrderService.create({
+          "deliveryAddress": "warehouse 1",
+          "totalPrice": (startQuantity * price),
+          "deliveryDate": new Date(2022-10-11),
+          "currentOrganisationId": 3,
+          "supplierId": 2,
+          "userContactId": 8,
+          "poLineItemDtos": [
+              {
+                  "quantity": startQuantity,
+                  "price": price,
+                  "finalGoodId": 8
+              }
+          ]
+        })
+  
+        await this.purchaseOrderService.update(i + 7 + 2, {
+          status: PurchaseOrderStatus.FULFILLED
+        })
+  
+        await this.invoiceService.update(i + 7 + 2, {
+          status: InvoiceStatus.CLOSED,
+          paymentReceived: currentLastYearDate
+        })
+        currentLastYearDate = new Date(currentLastYearDate.setDate(currentLastYearDate.getDate() - 1))
+        startQuantity -= ((i + 1) * 5)
+      }
     }
   }
 }

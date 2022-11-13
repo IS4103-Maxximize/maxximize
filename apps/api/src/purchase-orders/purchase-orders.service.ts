@@ -414,7 +414,8 @@ export class PurchaseOrdersService {
         purchaseOrderToUpdate.invoice = await this.invoicesService.create({
           amount: purchaseOrderToUpdate.totalPrice,
           poId: id,
-          status: InvoiceStatus.CLOSED
+          status: InvoiceStatus.CLOSED,
+          paymentReceived: new Date()
         })
       } else if (key == 'status' && value == PurchaseOrderStatus.FULFILLED) {       
         purchaseOrderToUpdate.invoice = await this.invoicesService.create({

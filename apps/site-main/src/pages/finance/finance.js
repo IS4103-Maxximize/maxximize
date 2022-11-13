@@ -239,7 +239,7 @@ export const Finance = (props) => {
   
   const getCards = async () => {
     const customerId = user.organisation?.membership?.customerId;
-    const updatedMembership = await fetch(`${apiHost}/memberships/${organisationId}`).then(res => res.json());
+    const updatedMembership = await fetch(`${apiHost}/memberships/orgId/${organisationId}`).then(res => res.json());
     const commisionPaymentId = updatedMembership.commisionPayment;
 
     if (customerId) {
@@ -265,9 +265,9 @@ export const Finance = (props) => {
   }
 
   const updateDefaultPayment = async () => {
-    const url = `${apiHost}/memberships/${organisationId}`;
+    const url = `${apiHost}/memberships/${user.organisation.membership.id}`;
     const body = JSON.stringify({
-      defaultPayment: selectedCard
+      commisionPayment: selectedCard
     })
     const requestOptions = requestOptionsHelper('PATCH', body);
 

@@ -19,13 +19,14 @@ export class InvoicesService {
   ) {}
   async create(createInvoiceDto: CreateInvoiceDto) {
     try{
-      const { amount, poId, status } = createInvoiceDto
+      const { amount, poId, status, paymentReceived } = createInvoiceDto
       const poToBeAdded: PurchaseOrder = await this.purchaseOrdersService.findOne(poId)
       const newInvoice: Invoice = this.invoicesRepository.create({
         date: new Date(),
         amount,
         status,
-        po: poToBeAdded
+        po: poToBeAdded,
+        paymentReceived: paymentReceived
       })
       return this.invoicesRepository.save(newInvoice)
     } catch (error) {
