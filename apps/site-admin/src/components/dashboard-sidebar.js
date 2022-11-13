@@ -30,40 +30,52 @@ const standalone = [
   //     access: ['admin', 'superadmin'],
   //   },
   {
+    href: '/',
+    icon: <BusinessIcon fontSize="small" />,
+    title: 'Org. Management',
+    access: ['admin', 'superadmin'],
+  },
+  {
+    href: '/client-application',
+    icon: <ContactPageIcon fontSize="small" />,
+    title: 'Application',
+    access: ['admin', 'superadmin'],
+  },
+  {
     href: '/revenue-brackets',
     icon: <PriceChangeIcon fontSize="small" />,
     title: 'Revenue Brackets',
     access: ['admin', 'superadmin'],
-  }
+  },
 ];
 
 const items = [
-  {
-    subsystem: 'Client',
-    access: ['admin', 'superadmin'],
-    icon: (
-      <PeopleAltIcon
-        sx={{ marginTop: 0.2, color: '#9CA3AF' }}
-        fontSize="small"
-      />
-    ),
-    open: 'openClient',
-    handleClick: 'handleClientClick',
-    modules: [
-      {
-        href: '/client/application',
-        icon: <ContactPageIcon fontSize="small" />,
-        title: 'Application',
-        access: ['admin', 'superadmin'],
-      },
-      {
-        href: '/client/organisation-management',
-        icon: <BusinessIcon fontSize="small" />,
-        title: 'Organisation Management',
-        access: ['admin', 'superadmin'],
-      },
-    ],
-  },
+  // {
+  //   subsystem: 'Client',
+  //   access: ['admin', 'superadmin'],
+  //   icon: (
+  //     <PeopleAltIcon
+  //       sx={{ marginTop: 0.2, color: '#9CA3AF' }}
+  //       fontSize="small"
+  //     />
+  //   ),
+  //   open: 'openClient',
+  //   handleClick: 'handleClientClick',
+  //   modules: [
+  //     {
+  //       href: '/client-application',
+  //       icon: <ContactPageIcon fontSize="small" />,
+  //       title: 'Application',
+  //       access: ['admin', 'superadmin'],
+  //     },
+  //     {
+  //       href: '/',
+  //       icon: <BusinessIcon fontSize="small" />,
+  //       title: 'Organisation Management',
+  //       access: ['admin', 'superadmin'],
+  //     },
+  //   ],
+  // },
 ];
 
 export const DashboardSidebar = (props) => {

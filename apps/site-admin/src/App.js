@@ -42,19 +42,16 @@ const App = () => {
           </Route>
 
           <Route element={<DashboardLayout />}>
-            {/* Dashboard */}
-            <Route path="/" element={<Dashboard />}></Route>
-
             {/* Protected Routes for Admin Specifically */}
             <Route element={<RequireAuth requiredRoles={[ROLES.Admin]} />}>
               {/* Add routes here */}
               <Route
-                path="client/application"
-                element={<Application />}
+                path="/"
+                element={<OrganisationManagement />}
               ></Route>
               <Route
-                path="client/organisation-management"
-                element={<OrganisationManagement />}
+                path="client-application"
+                element={<Application />}
               ></Route>
               <Route
                 path="revenue-brackets"
