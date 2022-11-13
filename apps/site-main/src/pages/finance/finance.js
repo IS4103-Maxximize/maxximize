@@ -240,7 +240,7 @@ export const Finance = (props) => {
   const getCards = async () => {
     const customerId = user.organisation?.membership?.customerId;
     const updatedMembership = await fetch(`${apiHost}/memberships/${organisationId}`).then(res => res.json());
-    const defaultPaymentId = updatedMembership.defaultPayment;
+    const commisionPaymentId = updatedMembership.commisionPayment;
 
     if (customerId) {
       const url = `${apiHost}/memberships/stripe/paymentMethods/customers/${customerId}`;
@@ -248,12 +248,12 @@ export const Finance = (props) => {
         .then(res => res.json())
         .then(result => {
           const mapped = result.map((item, index) => 
-            item.id === defaultPaymentId ? { default: true, ...item }
+            item.id === commisionPaymentId ? { default: true, ...item }
             : { default: false, ...item }
           )
           mapped.sort((a, b) => Number(b.default) - Number(a.default));
 
-          setDefaultId(mapped[0].id);
+          setDefaultId(mapped[0]?.id);
           setCards(mapped)
           setSelectedCard(null)
           setCardsError(null);
