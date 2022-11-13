@@ -108,7 +108,7 @@ export class FinalGoodsService {
     }
   }
 
-  async findTopSellingGoods(orgId: number) {
+  async findTopSellingGoods(orgId: number, count: number) {
     const invoices = await this.invoicesService.findSentInvoicesByOrg(orgId);
     const goodsSales = new Map<number, number>();
     const date = new Date();
@@ -135,7 +135,7 @@ export class FinalGoodsService {
     const finalGoods = [...mapSort1.keys()]
     let i = 0
     const arr = []
-    while (mapSort1.has(finalGoods[i]) && i<5){
+    while (mapSort1.has(finalGoods[i]) && i<count){
       arr.push({name: (await this.findOne(finalGoods[i])).name, quantity: mapSort1.get(finalGoods[i])})
       i++
     }
