@@ -46,7 +46,7 @@ export class QuotationLineItemsService {
       this.quotationsRepository.save(quotationToBeAdded)
       return this.quotationLineItemsRepository.save(newQuotationLineItem)
     } catch (error) {
-      throw new NotFoundException('The Entity cannot be found')
+      throw new NotFoundException('The quotation cannot be found')
     }
   }
 
@@ -59,26 +59,41 @@ export class QuotationLineItemsService {
     })
   }
 
-  findOne(id: number): Promise<QuotationLineItem> {
-    return this.quotationLineItemsRepository.findOne({where: {
-      id
-    }, relations: {
-      rawMaterial: true,
-      quotation: true
-    }})
+  async findOne(id: number): Promise<QuotationLineItem> {
+    try {
+      return await this.quotationLineItemsRepository.findOne({where: {
+        id
+      }, relations: {
+        rawMaterial: true,
+        quotation: true
+      }})
+    } catch (err) {
+      throw new NotFoundException('The quotation line item cannot be found')
+    }
+    
   }
 
   async update(id: number, updateQuotationLineItemDto: UpdateQuotationLineItemDto): Promise<QuotationLineItem> {
-    const quotationLineItemToUpdate = await this.quotationLineItemsRepository.findOneBy({id})
-    const arrayOfKeyValues = Object.entries(updateQuotationLineItemDto)
-    arrayOfKeyValues.forEach(([key, value]) => {
-      quotationLineItemToUpdate[key] = value
-    })
-    return this.quotationLineItemsRepository.save(quotationLineItemToUpdate)
+    try{
+      const quotationLineItemToUpdate = await this.quotationLineItemsRepository.findOneBy({id})
+      const arrayOfKeyValues = Object.entries(updateQuotationLineItemDto)
+      arrayOfKeyValues.forEach(([key, value]) => {
+        quotationLineItemToUpdate[key] = value
+      })
+      return this.quotationLineItemsRepository.save(quotationLineItemToUpdate)
+    } catch (err) {
+      throw new NotFoundException('The quotation line item cannot be found')
+    }
+    
   }
 
   async remove(id: number): Promise<QuotationLineItem> {
-    const quotationLineItemToRemove = await this.quotationLineItemsRepository.findOneBy({id})
-    return this.quotationLineItemsRepository.remove(quotationLineItemToRemove)
+    try {
+      const quotationLineItemToRemove = await this.quotationLineItemsRepository.findOneBy({id})
+      return this.quotationLineItemsRepository.remove(quotationLineItemToRemove)
+    } catch (err) {
+      throw new NotFoundException('The quotation line item cannot be found')
+    }
+    
   }
 }
