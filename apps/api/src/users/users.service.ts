@@ -121,7 +121,8 @@ export class UsersService {
         relations: { 
           contact: true,
           organisation: {
-            membership: true
+            membership: true,
+            contact: true
           }
         },
       });
