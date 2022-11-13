@@ -10,6 +10,8 @@ import { PODialog } from '../components/purchaseOrder/purchase-order-dialog';
 import { SeverityPill } from '../components/severity-pill';
 import { Toolbar } from '../components/toolbar';
 import { purchaseOrderStatusColorMap } from '../helpers/constants';
+import VerifiedIcon from '@mui/icons-material/Verified';
+import { POConfirmDialog } from '../components/purchaseOrder/purchase-order-confirm-dialog';
 // import { purchaseOrders } from "../../__mocks__/purchase-orders";
 
 export const SentPurchaseOrders = (props) => {
@@ -75,17 +77,66 @@ export const SentPurchaseOrders = (props) => {
     setPODialogOpen(false);
   };
 
+  // Confirm Dialog Helpers
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const handleConfirmDialogOpen = () => {
+    setConfirmDialogOpen(true);
+  };
+  const handleConfirmDialogClose = () => {
+    setConfirmDialogOpen(false);
+  };
+
+  const handleCompletion = async () => {
+    const response = await fetch(
+      `http://localhost:3000/api/purchase-orders/${selectedRow.id}`,
+      {
+        method: 'PATCH',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          status: 'fulfilled',
+        }),
+      }
+    );
+
+    if (response.status === 200 || response.status === 201) {
+      const result = await response.json();
+
+      retrieveAllSentPurchaseOrders();
+      handleAlertOpen(`Purchase Order ${result.id} completed`);
+    } else {
+      const result = await response.json();
+      handleAlertOpen(`Updating purchase order ${result.id} failed`);
+    }
+  };
+
   // Action button
   const actionButton = (params) => {
     return (
-      <IconButton
-        onClick={(event) => {
-          setSelectedRow(params.row);
-          handleClickOpen();
-        }}
-      >
-        <InfoIcon color="primary" />
-      </IconButton>
+      <>
+        <IconButton
+          onClick={(event) => {
+            setSelectedRow(params.row);
+            handleClickOpen();
+          }}
+        >
+          <InfoIcon color="primary" />
+        </IconButton>
+        {params.row.status === 'delivery' ? (
+          <IconButton
+            onClick={(event) => {
+              setSelectedRow(params.row);
+              handleConfirmDialogOpen();
+            }}
+          >
+            <VerifiedIcon color="success" />
+          </IconButton>
+        ) : (
+          <></>
+        )}
+      </>
     );
   };
 
@@ -193,6 +244,15 @@ export const SentPurchaseOrders = (props) => {
         open={poDialogOpen}
         handleClose={handleClickClose}
         purchaseOrder={selectedRow}
+      />
+      <POConfirmDialog
+        open={confirmDialogOpen}
+        handleClose={handleConfirmDialogClose}
+        dialogTitle={`Delete purchase order(s)`}
+        dialogContent={`Confirm deletion of purchase order(s)?`}
+        dialogAction={() => {
+          handleCompletion(selectedRow.id);
+        }}
       />
       <Box
         component="main"

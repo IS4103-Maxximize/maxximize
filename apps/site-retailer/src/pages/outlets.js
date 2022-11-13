@@ -9,7 +9,7 @@ const Outlets = () => {
     <>
       <HelmetProvider>
         <Helmet>
-          <title>{`Addresses | ${user?.organisation?.name}`}</title>
+          <title>{`Outlets | ${user?.organisation?.name}`}</title>
         </Helmet>
       </HelmetProvider>
       <Box
@@ -31,7 +31,7 @@ const Outlets = () => {
             }}
           >
             <Typography sx={{ m: 1 }} variant="h4">
-              Addresses
+              Outlets
             </Typography>
           </Box>
           <Box sx={{ mt: 3 }}>

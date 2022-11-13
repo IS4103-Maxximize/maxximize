@@ -8,8 +8,10 @@ import {
   CardContent,
   FormControlLabel,
   FormGroup,
+  IconButton,
   Switch,
   TextField,
+  Tooltip,
   Typography,
 } from '@mui/material';
 import { useEffect, useState } from 'react';
@@ -20,11 +22,13 @@ export const DemandForecastToolbar = (props) => {
   const {
     name,
     finalGoods,
+    selectedFinalGood,
     setSelectedFinalGood,
+    period,
     setPeriod,
     handleSubmit,
     loading,
-    handleToggle
+    handleToggle,
   } = props;
 
   // Get current pathname
@@ -96,6 +100,9 @@ export const DemandForecastToolbar = (props) => {
                 />
               </FormGroup>
               <LoadingButton
+                disabled={
+                  period <= 0 || isNaN(period) || selectedFinalGood === ''
+                }
                 onClick={handleSubmit}
                 loading={loading}
                 loadingIndicator="Loading…"
@@ -103,6 +110,25 @@ export const DemandForecastToolbar = (props) => {
               >
                 Forecast
               </LoadingButton>
+            </Box>
+            <Box>
+              {/* <IconButton 
+              onClick={(event) => {
+              //   handleCSVUpload();
+              // }}
+              {/* > */}
+
+              {/*  */}
+              {/* <Button variant="contained">
+                <input
+                  type="file"
+                  hidden
+                  accept=".csv"
+                  onChange={handleCSVUpload}
+                />
+              </Button> */}
+
+              {/* </IconButton> */}
             </Box>
           </CardContent>
         </Card>

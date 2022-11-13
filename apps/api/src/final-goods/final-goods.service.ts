@@ -290,7 +290,7 @@ export class FinalGoodsService {
       const totalQty = lineItems.reduce((seed, lineItem) => {
         return seed + (lineItem.quantity - lineItem.reservedQuantity);
       }, 0);
-      return totalQty - quantity;
+      return Math.abs(totalQty - quantity);
     } else {
       return quantity;
     }
