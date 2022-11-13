@@ -40,6 +40,7 @@ export class FilesService {
   }
 
   async uploadAndCreateFiles(files: Express.Multer.File[], uploadFileDto: UploadFileDto) {
+	console.log(files)
     let organisationToBeAdded: Organisation
     let applicationToBeAdded: Application
     let finalGoodToBeAdded: FinalGood
