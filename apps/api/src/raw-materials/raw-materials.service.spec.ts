@@ -45,6 +45,7 @@ describe('RawMaterialsService', () => {
     findOne: jest.fn().mockResolvedValue(rawMaterial),
     findOneBy: jest.fn().mockResolvedValue(rawMaterial),
     findOneByOrFail: jest.fn().mockResolvedValue(rawMaterial),
+    findOneOrFail: jest.fn().mockResolvedValue(rawMaterial),
     remove: jest.fn().mockImplementation(rawMaterialToRemove => {
       return rawMaterialToRemove
     })
@@ -125,7 +126,7 @@ describe('RawMaterialsService', () => {
     })
 
     it('should throw an exception if raw material with id cannot be found', () => {
-      jest.spyOn(rawMaterialRepo, 'findOne').mockRejectedValueOnce(new Error())
+      jest.spyOn(rawMaterialRepo, 'findOneOrFail').mockRejectedValueOnce(new Error())
       expect(service.findOne(2)).rejects.toEqual(new NotFoundException('The raw material cannot be found'))
     })
   })
@@ -151,7 +152,7 @@ describe('RawMaterialsService', () => {
       await service.update(1, {...updateDto, description: 'test description'})
     })
     it('should throw an exception if raw material cannot be found', () => {
-      jest.spyOn(rawMaterialRepo, 'findOne').mockRejectedValueOnce(new Error())
+      jest.spyOn(rawMaterialRepo, 'findOneOrFail').mockRejectedValueOnce(new Error())
       expect(service.update(2, updateDto)).rejects.toEqual(new NotFoundException('The raw material cannot be found'))
     })
   })

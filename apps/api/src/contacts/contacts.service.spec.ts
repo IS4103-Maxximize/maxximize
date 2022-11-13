@@ -1,3 +1,8 @@
+/**
+ *
+ * @group unit
+ */
+
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { ContactsService } from './contacts.service';
