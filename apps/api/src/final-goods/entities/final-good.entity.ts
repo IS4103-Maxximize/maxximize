@@ -13,7 +13,4 @@ export class FinalGood extends Product {
   @OneToMany(() => CartLineItem, cartLineItem => cartLineItem.finalGood)
   cartLineItems: CartLineItem[]
 
-  @OneToOne(() => File, file => file.finalGood)
-  image: File
-
 }
