@@ -1,3 +1,4 @@
+import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import ListIcon from '@mui/icons-material/List';
 import {
   Box, Button, Card, CardContent, CardHeader,
@@ -234,16 +235,26 @@ export const Finance = (props) => {
   const [cardsError, setCardsError] = useState();
   const [cards, setCards] = useState([]);
   const [selectedCard, setSelectedCard] = useState();
+  const [defaultId, setDefaultId] = useState();
   
   const getCards = async () => {
     const customerId = user.organisation?.membership?.customerId;
+    const updatedMembership = await fetch(`${apiHost}/memberships/${organisationId}`).then(res => res.json());
+    const defaultPaymentId = updatedMembership.defaultPayment;
 
     if (customerId) {
       const url = `${apiHost}/memberships/stripe/paymentMethods/customers/${customerId}`;
       await fetch(url)
         .then(res => res.json())
         .then(result => {
-          setCards(result)
+          const mapped = result.map((item, index) => 
+            item.id === defaultPaymentId ? { default: true, ...item }
+            : { default: false, ...item }
+          )
+          mapped.sort((a, b) => Number(b.default) - Number(a.default));
+
+          setDefaultId(mapped[0].id);
+          setCards(mapped)
           setSelectedCard(null)
           setCardsError(null);
         })
@@ -251,6 +262,21 @@ export const Finance = (props) => {
     } else {
       setCardsError('Unable to fetch payment methods from Stripe')
     }
+  }
+
+  const updateDefaultPayment = async () => {
+    const url = `${apiHost}/memberships/${organisationId}`;
+    const body = JSON.stringify({
+      defaultPayment: selectedCard
+    })
+    const requestOptions = requestOptionsHelper('PATCH', body);
+
+    await fetch(url, requestOptions).then(res => res.json())
+      .then(result => {
+        getCards();
+        handleAlertOpen('Successfully updated Default Payment method for Maxximize payments!', 'success');
+      })
+      .catch(err => handleAlertOpen('Failed to update Default Payment method', 'error'));
   }
 
   useEffect(() => {
@@ -297,7 +323,8 @@ export const Finance = (props) => {
       field: 'default',
       headerName: 'Default',
       flex: 1,
-      // renderCell: (params) => ()
+      renderCell: (params) => params.row.id === defaultId ?
+        <CheckBoxIcon color='success' /> : ''
     },
   ]
 
@@ -459,7 +486,9 @@ export const Finance = (props) => {
                     action={
                     <Button
                       variant="contained"
-                      disabled={!selectedCard}
+                      disabled={!selectedCard || selectedCard === defaultId}
+                      updateDefaultPayment
+                      onClick={updateDefaultPayment}
                     >
                       Set Default
                     </Button>
@@ -483,6 +512,7 @@ export const Finance = (props) => {
                         rowsPerPageOptions={[3]}
                         hideFooterSelectedRowCount={true}
                         onSelectionModelChange={(selectionModel) => setSelectedCard(...selectionModel)}
+                        isRowSelectable={(params) => params.row?.id !== defaultId}
                       />}
                       {(cards.length === 0 && !cardsError) && <Skeleton width={600} height={200} />}
                       {cardsError && <Typography sx={{ mt: 1 }}>{cardsError}</Typography>}

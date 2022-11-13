@@ -3,6 +3,7 @@ import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import MoneyIcon from '@mui/icons-material/Money';
 import PrecisionManufacturingIcon from '@mui/icons-material/PrecisionManufacturing';
 import { Box, Button, Container, FormControl, Grid, InputLabel, Link, MenuItem, Select, Skeleton, TextField, Typography } from '@mui/material';
+import { DataGrid } from '@mui/x-data-grid';
 import DayJS from 'dayjs';
 import { useEffect, useState } from 'react';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
@@ -24,6 +25,7 @@ import { GenericCard } from '../components/dashboards/generic-card';
 import { InventoryCard } from '../components/dashboards/inventory-card';
 import { TrackDelivery } from '../components/dashboards/track-delivery';
 import { NotificationAlert } from '../components/notification-alert';
+import { SeverityPill } from '../components/severity-pill';
 import { apiHost, requestOptionsHelper } from '../helpers/constants';
 import { getSessionUrl } from '../helpers/stripe';
 
@@ -247,6 +249,54 @@ const Dashboard = () => {
   // ------------------------------------------------------------------------------------
 
 
+  // Picking List Helpers
+  const [pickingList, setPickingList] = useState([]);
+
+  const getPickingList = async () => {
+    const url = `${apiHost}/production-orders/retrieveBatchLineItemsForProduction/${organisationId}`;
+    await fetch(url).then(res => res.json())
+      .then(result => setPickingList(result));
+  }
+
+  const pickingListColumns = [
+    {
+      field: 'code',
+      headerName: 'Batch Line Item Code',
+      flex: 2
+    },
+    {
+      field: 'batchNumber',
+      headerName: 'Batch Number',
+      flex: 2,
+      valueGetter: (params) => params.row ?
+        params.row.batch.batchNumber : ''
+    },
+    {
+      field: 'reservedQuantity',
+      headerName: 'Retrieve Quantity',
+      flex: 1
+    },
+  ]
+
+  const pickingListHeaderProps = {
+    title: `Batch Line Items to retrieve today, ${DayJS().format('ddd DD MMM YYYY')}`,
+    action: <SeverityPill color="primary">Raw Materials</SeverityPill>
+  }
+
+  const pickingListContent = (
+    <DataGrid
+      autoHeight
+      rows={pickingList}
+      columns={pickingListColumns}
+      pageSize={10}
+      rowsPerPageOptions={[10]}
+      disableSelectionOnClick
+    />
+  )
+    
+  // ------------------------------------------------------------------------------------
+
+
   // Chart Helpers
   const today = new Date();
 
@@ -441,6 +491,18 @@ const Dashboard = () => {
       // handleAlertOpen('Failed to fetch data', 'error')
     });
 
+    // Set 3
+    Promise.all([
+      getPickingList(),
+    ])
+    .then(values => {
+      // console.log(values);
+    })
+    .catch(err => {
+      console.log(err);
+      // handleAlertOpen('Failed to fetch data', 'error')
+    });
+
     // Charts
     Promise.all([
       getHorizontalGraphData2(),
@@ -461,6 +523,7 @@ const Dashboard = () => {
       <Grid item lg={3} sm={6} xl={3} xs={12}>
         <GenericCard
           key="new-customers"
+          sx={{ height: '100% ' }}
           title={'New Customers'}
           icon={<GroupsIcon />}
           value={newCustomers ? `${newCustomers.count}` : null}
@@ -473,6 +536,7 @@ const Dashboard = () => {
       <Grid item lg={3} sm={6} xl={3} xs={12}>
         <GenericCard
           key="profit"
+          sx={{ height: '100% ' }}
           title={'Profit'}
           icon={<MoneyIcon />}
           value={profits.length > 1 ? `$${profits[1].profit}` : null}
@@ -485,6 +549,7 @@ const Dashboard = () => {
       <Grid item lg={3} sm={6} xl={3} xs={12}>
         <GenericCard
           key="production-throughput"
+          sx={{ height: '100% ' }}
           title={'Production Throughput'}
           icon={<PrecisionManufacturingIcon />}
           value={production ? `${(production[0]).toFixed(2)}` : null}
@@ -553,6 +618,7 @@ const Dashboard = () => {
     </>
   );
 
+  // Driver Dashboard Items
   const DashboardItems2 = (props) => (
     <>
       <Grid item lg={8} md={12} xl={9} xs={12}>
@@ -568,6 +634,18 @@ const Dashboard = () => {
         <TrackDelivery 
           sx={{ height: '100%' }}
           assigned={assigned}
+        />
+      </Grid>
+    </>
+  )
+
+  // Worker Dashboard Items
+  const DashboardItems3 = (props) => (
+    <>
+      <Grid item lg={8} md={12} xl={9} xs={12}>
+        <GenericBigCard
+          headerProps={pickingListHeaderProps}
+          content={pickingListContent}
         />
       </Grid>
     </>
@@ -658,8 +736,11 @@ const Dashboard = () => {
               'superadmin',
               ].includes(role) && <DashboardItems1 />}
             {['driver',
-              // 'superadmin',
+              'superadmin',
               ].includes(role) && <DashboardItems2 />}
+            {['factoryworker',
+              'superadmin',
+              ].includes(role) && <DashboardItems3 />}
           </Grid>
         </Container>
       </Box>
