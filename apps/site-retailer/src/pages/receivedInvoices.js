@@ -151,6 +151,8 @@ export const ReceivedInvoices = (props) => {
         open={invoiceDialogOpen}
         handleClose={handleClickClose}
         invoice={selectedRow}
+        handleAlertOpen={handleAlertOpen}
+        retrieveAllInvoices={retrieveAllReceivedInvoices}
       />
       <Box
         component="main"

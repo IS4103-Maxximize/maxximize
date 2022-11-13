@@ -1,15 +1,16 @@
 import { Box, Container, Typography } from '@mui/material';
+import { WorkerListResults } from '../components/worker-management/worker-list-results';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
-import { OutletsList } from '../components/outlets/outlets-list';
+import { Profile } from '../components/profile';
 
-const Outlets = () => {
+const ProfilePage = () => {
   const user = JSON.parse(localStorage.getItem('user'));
 
   return (
     <>
       <HelmetProvider>
         <Helmet>
-          <title>{`Outlets | ${user?.organisation?.name}`}</title>
+          <title>{`Organisation Profile | ${user?.organisation?.name}`}</title>
         </Helmet>
       </HelmetProvider>
       <Box
@@ -31,11 +32,11 @@ const Outlets = () => {
             }}
           >
             <Typography sx={{ m: 1 }} variant="h4">
-              Outlets
+              Organisation Profile
             </Typography>
           </Box>
           <Box sx={{ mt: 3 }}>
-            <OutletsList />
+            <Profile />
           </Box>
         </Container>
       </Box>
@@ -43,4 +44,4 @@ const Outlets = () => {
   );
 };
 
-export default Outlets;
+export default ProfilePage;

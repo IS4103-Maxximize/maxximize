@@ -3,7 +3,9 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import DoneAllIcon from '@mui/icons-material/DoneAll';
 import {
   AppBar,
+  Box,
   Button,
+  Checkbox,
   Dialog,
   DialogActions,
   DialogContent,
@@ -21,7 +23,7 @@ import {
 } from '@mui/material';
 import DayJS from 'dayjs';
 import { useFormik } from 'formik';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import * as Yup from 'yup';
 import { invoiceStatusColorMap } from '../../helpers/constants';
 import { SeverityPill } from '../severity-pill';
@@ -32,11 +34,11 @@ export const InvoiceDialog = (props) => {
     handleClose,
     invoice,
     handleAlertOpen,
-    handleAlertClose,
+    retrieveAllInvoices,
     ...rest
   } = props;
   const theme = useTheme();
-  const fullScreen = useMediaQuery(theme.breakpoints.down('lg'));
+  const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
 
   const [copied, setCopied] = useState(false);
 
@@ -45,7 +47,6 @@ export const InvoiceDialog = (props) => {
 
   const formik = useFormik({
     initialValues: {
-      type: invoice?.type,
       id: invoice?.id,
       date: invoice ? invoice.date : new Date(),
       paymentReceived: invoice ? invoice.paymentReceived : new Date(),
@@ -62,6 +63,43 @@ export const InvoiceDialog = (props) => {
     handleClose();
     formik.resetForm();
   };
+
+  const updateInvoice = async () => {
+    const requestOptions = {
+      method: 'PATCH',
+    };
+
+    const response = await fetch(
+      `http://localhost:3000/api/invoices/${invoice.id}`,
+      {
+        method: 'PATCH',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          status: 'paid',
+        }),
+      }
+    );
+
+    if (response.status === 200 || response.status === 201) {
+      const result = await response.json();
+
+      handleAlertOpen(`Paid for invoice ${result.id}`);
+      retrieveAllInvoices();
+    } else {
+      const result = await response.json();
+      handleAlertOpen(
+        `Error indicating paid for ${result.id}. ${result.message}`,
+        'error'
+      );
+    }
+  };
+
+  const [confirm, setConfirm] = useState(false);
+
+  useEffect(() => console.log(invoice), [invoice]);
 
   const columns = [
     {
@@ -139,7 +177,7 @@ export const InvoiceDialog = (props) => {
       )}
       <DialogContent>
         <Grid container spacing={2}>
-          {formik.values.type === 'incoming' && formik.values.accountInfo && (
+          {formik.values.accountInfo && (
             <>
               <Grid item md={12} xs={12}>
                 <Typography>Supplier Account Info</Typography>
@@ -258,6 +296,35 @@ export const InvoiceDialog = (props) => {
                 )}
                 disabled
               />
+            </Grid>
+          )}
+          {formik.values.status === 'pending' && (
+            <Grid item md={12} xs={12}>
+              <Box
+                sx={{
+                  mt: 1,
+                  alignItems: 'center',
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                }}
+              >
+                <Stack direction="row" spacing={1} alignItems="center">
+                  <Checkbox
+                    defaultChecked={false}
+                    onChange={() => setConfirm(!confirm)}
+                  />
+                  <Typography>Update Status to 'Paid'</Typography>
+                </Stack>
+                <Button
+                  sx={{ ml: 4 }}
+                  size="small"
+                  variant="contained"
+                  disabled={!confirm}
+                  onClick={() => updateInvoice()}
+                >
+                  Update
+                </Button>
+              </Box>
             </Grid>
           )}
         </Grid>

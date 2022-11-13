@@ -1,33 +1,41 @@
 import PropTypes from 'prop-types';
 import styled from '@emotion/styled';
-import { AppBar, Box, IconButton, Menu, MenuItem, Toolbar, Tooltip } from '@mui/material';
+import {
+  AppBar,
+  Box,
+  IconButton,
+  Menu,
+  MenuItem,
+  Toolbar,
+  Tooltip,
+} from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import { UserCircle as UserCircleIcon } from '../icons/user-circle';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom';
 
 const DashboardNavbarRoot = styled(AppBar)(({ theme }) => ({
   backgroundColor: theme.palette.background.paper,
-  boxShadow: theme.shadows[3]
+  boxShadow: theme.shadows[3],
 }));
 
 export const DashboardNavbar = (props) => {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const { onSidebarOpen, ...other } = props;
-  const [anchorEl, setAnchorEl] = useState(null)
-  const open = Boolean(anchorEl)
+  const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
   const toggleMenu = (event) => {
     setAnchorEl(event.currentTarget);
   };
   const handleClose = (type) => {
     setAnchorEl(null);
-    switch(type) {
-      case('logout'):
-        localStorage.removeItem('user')
-        navigate('/organisationSelection', {replace: true})
-        break
-      case ('profile'):
-        //do nothing yet
+    switch (type) {
+      case 'logout':
+        localStorage.removeItem('user');
+        navigate('/organisationSelection', { replace: true });
+        break;
+      case 'profile':
+        navigate('/profile');
         break;
     }
   };
@@ -37,19 +45,20 @@ export const DashboardNavbar = (props) => {
       <DashboardNavbarRoot
         sx={{
           left: {
-            lg: 280
+            lg: 280,
           },
           width: {
-            lg: 'calc(100% - 280px)'
-          }
+            lg: 'calc(100% - 280px)',
+          },
         }}
-        {...other}>
+        {...other}
+      >
         <Toolbar
           disableGutters
           sx={{
             minHeight: 64,
             left: 0,
-            px: 2
+            px: 2,
           }}
         >
           <IconButton
@@ -57,16 +66,14 @@ export const DashboardNavbar = (props) => {
             sx={{
               display: {
                 xs: 'inline-flex',
-                lg: 'none'
-              }
+                lg: 'none',
+              },
             }}
           >
             <MenuIcon fontSize="small" />
           </IconButton>
           <Box sx={{ flexGrow: 1 }} />
-          <IconButton 
-            onClick={toggleMenu} 
-          >
+          <IconButton onClick={toggleMenu}>
             <UserCircleIcon fontSize="small" />
           </IconButton>
           <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
@@ -80,5 +87,5 @@ export const DashboardNavbar = (props) => {
 };
 
 DashboardNavbar.propTypes = {
-  onSidebarOpen: PropTypes.func
+  onSidebarOpen: PropTypes.func,
 };

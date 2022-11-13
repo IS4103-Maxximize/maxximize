@@ -33,6 +33,7 @@ import TaskIcon from '@mui/icons-material/Task';
 import WarehouseIcon from '@mui/icons-material/Warehouse';
 import QueryStatsIcon from '@mui/icons-material/QueryStats';
 import MoneyIcon from '@mui/icons-material/Money';
+import LocalOfferIcon from '@mui/icons-material/LocalOffer';
 import {
   Accordion,
   AccordionDetails,
@@ -80,9 +81,9 @@ const items = [
     basepath: 'finance',
     access: ['manager', 'admin', 'superadmin'],
     icon: (
-      <AccountBalanceIcon 
+      <AccountBalanceIcon
         sx={{ marginTop: 0.2, color: '#9CA3AF' }}
-        fontSize="small" 
+        fontSize="small"
       />
     ),
     open: 'openFinance',
@@ -98,7 +99,7 @@ const items = [
         href: '/finance/profit-insight',
         icon: <InsightsIcon fontSize="small" />,
         title: 'Profit Insight',
-        access: ['manager', 'admin', 'superadmin'], 
+        access: ['manager', 'admin', 'superadmin'],
       },
       {
         href: '/finance/b2b-invoice',
@@ -112,7 +113,7 @@ const items = [
         title: 'Maxximize Payments',
         access: ['manager', 'admin', 'superadmin'],
       },
-    ]
+    ],
   },
   {
     subsystem: 'Quality Assurance',
@@ -281,7 +282,7 @@ const items = [
         href: '/production/delivery-fleet-management',
         icon: <LocalShippingIcon fontSize="small" />,
         title: 'Delivery Fleet',
-        access: [ 'manager', 'factoryworker', 'superadmin'],
+        access: ['manager', 'factoryworker', 'superadmin'],
       },
       {
         href: '/production/production-request',
@@ -298,7 +299,7 @@ const items = [
     ],
   },
   {
-    subsystem: 'Fulfilment',
+    subsystem: 'Sales & Distribution',
     basepath: 'fulfilment',
     access: ['manager', 'factoryworker', 'superadmin'],
     icon: (
@@ -310,6 +311,12 @@ const items = [
     open: 'openFulfilment',
     handleClick: 'handleFulfilmentClick',
     modules: [
+      {
+        href: '/fulfilment/bulk-discount',
+        icon: <LocalOfferIcon fontSize="small" />,
+        title: 'Bulk Discount',
+        access: ['manager', 'admin', 'superadmin'],
+      },
       {
         href: '/fulfilment/received-sales-inquiry',
         icon: <ReplyAllIcon fontSize="small" />,
