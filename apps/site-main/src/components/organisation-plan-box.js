@@ -13,7 +13,6 @@ export const OrganisationPlanBox = (props) => {
 
   const [sessionUrl, setSessionUrl] = useState();
   const [plan, setPlan] = useState()
-  // const user = JSON.parse(localStorage.getItem('user'));
 
   // Set color and text for plan
   const getPlan = () => {
@@ -76,7 +75,7 @@ export const OrganisationPlanBox = (props) => {
         {plan ? <SeverityPill color={plan[1]}>{plan[0]}</SeverityPill> : <Skeleton />}
       </Stack>
       
-      {sessionUrl ? 
+      {(['manager', 'admin', 'superadmin'].includes(user.role) && sessionUrl) &&
         <Link
           href={sessionUrl}
         >
@@ -89,9 +88,9 @@ export const OrganisationPlanBox = (props) => {
               }}
             />
           </Tooltip>
-        </Link>
-        : <Skeleton sx={{ bgcolor: "grey.500" }} variant="circular" width={20} height={20}/>
-      }
+        </Link>}
+      {(['manager', 'admin', 'superadmin'].includes(user.role) && !sessionUrl) && 
+        <Skeleton sx={{ bgcolor: "grey.500" }} variant="circular" width={20} height={20}/>}
     </Box>
   )
 }

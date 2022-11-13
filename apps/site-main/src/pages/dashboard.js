@@ -461,59 +461,56 @@ const Dashboard = () => {
 
 
   // INIT
-  //TODO load based on role
   useEffect(() => {
      // Set 1
-    Promise.all([
-      getProfits(),
-      getNewCustomers(),
-      getProduction(),
-      getCostBreakdown(),
-    ])
-    .then(values => {
-      // console.log(values);
-    })
-    .catch(err => {
-      console.log(err);
-      // handleAlertOpen('Failed to fetch data', 'error')
-    });
+     // Admin and Manager
+    if (['admin', 'manager', 'superadmin'].includes(role)) {
+      Promise.all([
+        getProfits(),
+        getNewCustomers(),
+        getProduction(),
+        getCostBreakdown(),
+        getHorizontalGraphData2(),
+      ])
+      .then(values => {
+        // console.log(values);
+      })
+      .catch(err => {
+        console.log(err);
+        // handleAlertOpen('Failed to fetch data', 'error')
+      });
+    }
 
     // Set 2
-    Promise.all([
-      getInventory(),
-      getDeliveries(),
-    ])
-    .then(values => {
-      // console.log(values);
-    })
-    .catch(err => {
-      console.log(err);
-      // handleAlertOpen('Failed to fetch data', 'error')
-    });
+    // Factory Worker
+    if (['factoryworker', 'superadmin'].includes(role)) {
+      Promise.all([
+        getInventory(),
+        getPickingList(),
+      ])
+      .then(values => {
+        // console.log(values);
+      })
+      .catch(err => {
+        console.log(err);
+        // handleAlertOpen('Failed to fetch data', 'error')
+      });
+    }
 
     // Set 3
-    Promise.all([
-      getPickingList(),
-    ])
-    .then(values => {
-      // console.log(values);
-    })
-    .catch(err => {
-      console.log(err);
-      // handleAlertOpen('Failed to fetch data', 'error')
-    });
-
-    // Charts
-    Promise.all([
-      getHorizontalGraphData2(),
-    ])
-    .then(values => {
-      // console.log(values);
-    })
-    .catch(err => {
-      console.log(err);
-      // handleAlertOpen('Failed to fetch data', 'error')
-    });
+    // Driver
+    if (['driver', 'superadmin'].includes(role)) {
+      Promise.all([
+        getDeliveries(),
+      ])
+      .then(values => {
+        // console.log(values);
+      })
+      .catch(err => {
+        console.log(err);
+        // handleAlertOpen('Failed to fetch data', 'error')
+      });
+    }
   }, [])
 
   // Dashboard Grid Items
@@ -587,7 +584,7 @@ const Dashboard = () => {
       </Grid>
 
       {/* CHARTS */}
-      <Grid item lg={8} md={12} xl={9} xs={12}>
+      <Grid item lg={12} md={12} xl={12} xs={12}>
         <VerticalChart
           dropDown={<DropDown/>}
           dateLabels={dateLabels}
@@ -618,8 +615,32 @@ const Dashboard = () => {
     </>
   );
 
-  // Driver Dashboard Items
+  // Worker Dashboard Items
   const DashboardItems2 = (props) => (
+    <>
+      <Grid item lg={6} md={12} xl={6} xs={12}>
+        <GenericBigCard
+          headerProps={pickingListHeaderProps}
+          content={pickingListContent}
+        />
+      </Grid>
+      <Grid item lg={6} md={12} xl={6} xs={12}>
+        <InventoryCard 
+          sx={{ height: '100%' }}
+          defaultLevel={defaultLevel}
+          warningLevel={warningLevel}
+          handleDrag={handleDrag}
+          inventory={inventory}
+          handleRefresh={handleRefresh}
+          sendProdRequests={sendProdRequests}
+          handleAlertOpen={handleAlertOpen}
+        />
+      </Grid>
+    </>
+  )
+
+  // Driver Dashboard Items
+  const DashboardItems3 = (props) => (
     <>
       <Grid item lg={8} md={12} xl={9} xs={12}>
         <Deliveries
@@ -634,18 +655,6 @@ const Dashboard = () => {
         <TrackDelivery 
           sx={{ height: '100%' }}
           assigned={assigned}
-        />
-      </Grid>
-    </>
-  )
-
-  // Worker Dashboard Items
-  const DashboardItems3 = (props) => (
-    <>
-      <Grid item lg={8} md={12} xl={9} xs={12}>
-        <GenericBigCard
-          headerProps={pickingListHeaderProps}
-          content={pickingListContent}
         />
       </Grid>
     </>
@@ -735,10 +744,10 @@ const Dashboard = () => {
               'admin',
               'superadmin',
               ].includes(role) && <DashboardItems1 />}
-            {['driver',
+            {['factoryworker',
               'superadmin',
               ].includes(role) && <DashboardItems2 />}
-            {['factoryworker',
+            {['driver',
               'superadmin',
               ].includes(role) && <DashboardItems3 />}
           </Grid>
