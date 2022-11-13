@@ -122,13 +122,12 @@ const Dashboard = () => {
 
 
   // Inventory Card Helpers
-
   // Slider Helpers
   const [defaultLevel, setDefaultLevel] = useState(20)
   const [warningLevel, setWarningLevel] = useState(defaultLevel);
 
-  const handleDrag = (event, newValue) => {
-    setWarningLevel(newValue);
+  const handleDrag = (event, value) => {
+    setWarningLevel(value);
   }
 
   const [inventory, setInventory] = useState([]);
@@ -147,6 +146,26 @@ const Dashboard = () => {
       setDefaultLevel(warningLevel);
       handleAlertOpen('Successfully updated Inventory Warning Level!', 'success');
     })
+  }
+
+  // Send Bulk Production Requests
+  const sendProdRequests = async () => {
+    const url = `${apiHost}/production-requests/bulk`;
+    const productionRequestDtos = inventory.map(item => {
+      const dto = {
+        quantity: item.totalQuantity - item.remainingQuantity,
+        finalGoodId: item.finalGood.id,
+        organisationId: organisationId
+      };
+      return dto;
+    });
+    const requestOptions = requestOptionsHelper('POST', JSON.stringify(productionRequestDtos));
+
+    await fetch(url, requestOptions).then(res => res.json())
+      .then(result => {
+        getInventory();
+        handleAlertOpen('Successfully created Production Requests for Final Goods!', 'success');
+      });
   }
   // ------------------------------------------------------------------------------------
 
@@ -400,8 +419,6 @@ const Dashboard = () => {
       getNewCustomers(),
       getProduction(),
       getCostBreakdown(),
-      
-      
     ])
     .then(values => {
       // console.log(values);
@@ -493,6 +510,7 @@ const Dashboard = () => {
           handleDrag={handleDrag}
           inventory={inventory}
           handleRefresh={handleRefresh}
+          sendProdRequests={sendProdRequests}
           handleAlertOpen={handleAlertOpen}
         />
       </Grid>
