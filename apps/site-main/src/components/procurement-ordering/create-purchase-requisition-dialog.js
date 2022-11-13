@@ -26,6 +26,10 @@ export const CreatePurchaseRequisitionDialog = ({
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
   const [error, setError] = useState('');
 
+  useEffect(() => {
+    formik.setFieldValue('finalGoodQuantity', firstFinalGoodQuantity);
+  }, [open]);
+
   //User organisation Id
   const user = JSON.parse(localStorage.getItem('user'));
   const organisationId = user.organisation.id;
@@ -89,7 +93,7 @@ export const CreatePurchaseRequisitionDialog = ({
   // Formik
   const formik = useFormik({
     initialValues: {
-      finalGoodQuantity: firstFinalGoodQuantity,
+      finalGoodQuantity: 0,
     },
     validationSchema: Yup.object({
       finalGoodQuantity: Yup.number()
@@ -154,7 +158,11 @@ export const CreatePurchaseRequisitionDialog = ({
               variant="outlined"
               size="small"
             />
-            <Button onClick={retrieveRawMaterial}>Retrieve</Button>
+            <Box ml={1}>
+              <Button onClick={retrieveRawMaterial} variant="contained">
+                Retrieve
+              </Button>
+            </Box>
           </Box>
 
           <DataGrid
