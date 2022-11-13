@@ -27,9 +27,9 @@ export class ProductionOrdersController {
     return this.productionOrdersService.findAll();
   }
 
-  @Get('retrieveBatchLineItemsForProduction')
-  retrieveBatchLineItemsForProduction() {
-    return this.productionOrdersService.retrieveBatchLineItemsForProduction();
+  @Get('retrieveBatchLineItemsForProduction/:id')
+  retrieveBatchLineItemsForProduction(@Param('id') id: string) {
+    return this.productionOrdersService.retrieveBatchLineItemsForProduction(+id);
   }
 
   @Get('cron')

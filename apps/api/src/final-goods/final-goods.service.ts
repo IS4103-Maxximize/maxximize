@@ -45,6 +45,7 @@ export class FinalGoodsService {
         expiry,
         lotQuantity,
         organisationId,
+        image
       } = createFinalGoodDto;
       let organisationToBeAdded: Organisation;
       organisationToBeAdded = await this.organisationsRepository.findOneByOrFail({
@@ -57,6 +58,7 @@ export class FinalGoodsService {
         unitPrice,
         expiry,
         lotQuantity,
+        image,
         organisation: organisationToBeAdded,
       });
       const newFinalGood = await this.finalGoodRepository.save(
