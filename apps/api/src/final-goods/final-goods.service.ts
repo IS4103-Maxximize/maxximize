@@ -222,7 +222,7 @@ export class FinalGoodsService {
     const dataForDemandPython = [];
     for (const row of result) {
       dataForDemandPython.push({
-        date: new Date(row.YEAR, row.MONTH - 1, 1),
+        date: dayjs().year(row.YEAR).month(row.MONTH - 1).endOf('month').toDate(),
         value: row.SUM
       })
     }
