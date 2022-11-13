@@ -1,12 +1,14 @@
 import CloseIcon from '@mui/icons-material/Close';
 import {
-  AppBar, Button,
+  AppBar,
+  Button,
   Dialog,
   DialogContent,
   IconButton,
-  InputAdornment, TextField,
+  InputAdornment,
+  TextField,
   Toolbar,
-  Typography
+  Typography,
 } from '@mui/material';
 import { Box } from '@mui/system';
 import { DataGrid } from '@mui/x-data-grid';
@@ -28,11 +30,11 @@ export const ReceivedPurchaseOrderViewDialog = (props) => {
     purchaseOrder,
     handleAlertOpen,
     retrieveAllReceivedPurchaseOrders,
-    retailer
+    retailer,
   } = props;
 
   const [ret, setRet] = useState(retailer);
-  const [creditRequired, setCreditRequired] = useState(0)
+  const [creditRequired, setCreditRequired] = useState(0);
 
   // Formik Helpers
   const initialValues = {
@@ -40,7 +42,7 @@ export const ReceivedPurchaseOrderViewDialog = (props) => {
       ? DayJS(purchaseOrder.created).format('DD MMM YYYY hh:mm a')
       : '',
     totalPrice: purchaseOrder ? purchaseOrder.totalPrice : 0,
-    leadTime: purchaseOrder ? purchaseOrder.quotation.leadTime : '',
+    leadTime: purchaseOrder?.quotation ? purchaseOrder.quotation.leadTime : '',
     purchaseOrderId: purchaseOrder ? purchaseOrder.id : '',
     purchaseOrderLineItems: purchaseOrder ? purchaseOrder.poLineItems : [],
     followUpLineItems: purchaseOrder ? purchaseOrder.followUpLineItems : [],
@@ -168,7 +170,13 @@ export const ReceivedPurchaseOrderViewDialog = (props) => {
   useEffect(() => {
     if (open) {
       setRet(retailer);
-      setCreditRequired(Math.max(0, purchaseOrder.totalPrice - (retailer.creditLimit - retailer.currentCredit)))
+      setCreditRequired(
+        Math.max(
+          0,
+          purchaseOrder.totalPrice -
+            (retailer.creditLimit - retailer.currentCredit)
+        )
+      );
     }
 
     console.log(purchaseOrder);
@@ -226,20 +234,26 @@ export const ReceivedPurchaseOrderViewDialog = (props) => {
   const getUpdatedRetailer = async () => {
     const url = `${apiHost}/shell-organisations/${retailer?.id}`;
     await fetch(url)
-      .then(res => res.json())
-      .then(result => {
-        console.log(result)
-        setRet(result)
-        setCreditRequired(Math.max(0, formik.values.totalPrice - (result.creditLimit - result.currentCredit)))
+      .then((res) => res.json())
+      .then((result) => {
+        console.log(result);
+        setRet(result);
+        setCreditRequired(
+          Math.max(
+            0,
+            formik.values.totalPrice -
+              (result.creditLimit - result.currentCredit)
+          )
+        );
       })
-      .catch(err => console.log(err));
-  }
+      .catch((err) => console.log(err));
+  };
 
   useEffect(() => {
     if (!creditDialogOpen) {
       getUpdatedRetailer();
     }
-  }, [creditDialogOpen])
+  }, [creditDialogOpen]);
 
   // DataGrid Helpers
   const columns = [
@@ -334,31 +348,33 @@ export const ReceivedPurchaseOrderViewDialog = (props) => {
               <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
                 View Purchase Order
               </Typography>
-              {(ret && purchaseOrder?.status === 'pending') ? (
+              {ret && purchaseOrder?.status === 'pending' ? (
                 <>
-                  {(ret && creditRequired <= 0) &&
-                  <Button
-                    autoFocus
-                    color="inherit"
-                    size="medium"
-                    type="submit"
-                    variant="outlined"
-                    onClick={handleAccept}
-                  >
-                    Accept
-                  </Button>}
-                  {creditRequired > 0 && 
-                  <>
-                  <Typography>{`Credit Required: $${creditRequired}`}</Typography>
-                  <Button
-                    variant="contained"
-                    color="warning"
-                    onClick={handleCreditDialogOpen}
-                    sx={{ ml: 1 }}
-                  >
-                    Update Credit Limit
-                  </Button>
-                  </>}
+                  {ret && creditRequired <= 0 && (
+                    <Button
+                      autoFocus
+                      color="inherit"
+                      size="medium"
+                      type="submit"
+                      variant="outlined"
+                      onClick={handleAccept}
+                    >
+                      Accept
+                    </Button>
+                  )}
+                  {creditRequired > 0 && (
+                    <>
+                      <Typography>{`Credit Required: $${creditRequired}`}</Typography>
+                      <Button
+                        variant="contained"
+                        color="warning"
+                        onClick={handleCreditDialogOpen}
+                        sx={{ ml: 1 }}
+                      >
+                        Update Credit Limit
+                      </Button>
+                    </>
+                  )}
                   <Button
                     autoFocus
                     color="error"

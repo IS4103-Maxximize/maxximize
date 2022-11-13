@@ -80,12 +80,17 @@ export class CartLineItemsService {
     await this.cartLineItemsRepository.remove(cartLineItemToRemove)
     //need to update the cart's totalPrice and totalWeight
     const cart = await this.cartsService.findOne(cartLineItemToRemove.cartId)
-    const newTotalPrice = cart.totalPrice -= cartLineItemToRemove.quantity * cartLineItemToRemove.finalGood.unitPrice
-    const newTotalWeight = cart.totalWeight -= cartLineItemToRemove.quantity
-    await this.cartsService.update(cart.id, {
-      totalPrice: newTotalPrice,
-      totalWeight: newTotalWeight
-    })
+    const cartLineItemsCount = cart.cartLineItems.length
+    if (cartLineItemsCount === 0) {
+      await this.cartsService.remove(cart.id)
+    } else {
+      const newTotalPrice = cart.totalPrice -= cartLineItemToRemove.quantity * cartLineItemToRemove.finalGood.unitPrice
+      const newTotalWeight = cart.totalWeight -= cartLineItemToRemove.quantity
+      await this.cartsService.update(cart.id, {
+        totalPrice: newTotalPrice,
+        totalWeight: newTotalWeight
+      })
+    }
     return cartLineItemToRemove
   }
 }

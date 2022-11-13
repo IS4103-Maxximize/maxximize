@@ -124,7 +124,8 @@ export class BillOfMaterialsService {
         finalGood: {
           id: finalGoodsId
         }
-      }
+      },
+      relations: ["finalGood", "bomLineItems.rawMaterial", "productionOrders", "productionLines"]
     });
   }
 

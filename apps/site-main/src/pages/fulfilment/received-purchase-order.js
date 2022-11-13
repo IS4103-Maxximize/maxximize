@@ -29,11 +29,11 @@ const ReceivedPurchaseOrder = () => {
   const [retailers, setRetailers] = useState([]);
   const getShellOrgs = async () => {
     await fetch(`${apiHost}/shell-organisations/orgId/${organisationId}`)
-      .then(res => res.json())
-      .then(result => result.filter(org => org.type === 'retailer'))
-      .then(filtered => setRetailers(filtered))
-      .catch(err => console.log(err));
-  }
+      .then((res) => res.json())
+      .then((result) => result.filter((org) => org.type === 'retailer'))
+      .then((filtered) => setRetailers(filtered))
+      .catch((err) => console.log(err));
+  };
 
   // Load in list of purchase orders
   // and retailer list
@@ -77,44 +77,48 @@ const ReceivedPurchaseOrder = () => {
   };
 
   const menuButton = (params) => {
-    const retailer = retailers.find(retailer => retailer.uen === params.row.currentOrganisation.uen);
+    const retailer = retailers.find(
+      (retailer) => retailer.uen === params.row.currentOrganisation.uen
+    );
     return (
       <Stack direction="row">
-        {!retailer && 
-        <IconButton
-          color="error"
-          onClick={() => {
-            setSelectedRow(params.row);
-            const po = params.row;
-            const fields = {
-              name: po.currentOrganisation?.name,
-              uen: po.currentOrganisation?.uen,
-              address: po.currentOrganisation?.orgContact?.address,
-              postalCode: po.currentOrganisation?.orgContact?.postalCode,
-              email: po.currentOrganisation?.orgContact?.email,
-              phoneNumber: po.currentOrganisation?.orgContact?.phoneNumber,
-            }
-            setFields(fields)
-            setOpenRetailerDialog(true)
-          }}
-        >
-          <Tooltip title='Create Retailer'>
-            <DomainAddIcon />
-          </Tooltip>
-        </IconButton>}
-        {retailer && 
-        <IconButton
-          // disabled={params.row.bins?.length == 0}
-          onClick={(event) => {
-            setSelectedRow(params.row);
-            setFields({
-              retailer: retailer
-            });
-            handleMenuClick(event);
-          }}
-        >
-          <MoreVert />
-        </IconButton>}
+        {!retailer && (
+          <IconButton
+            color="error"
+            onClick={() => {
+              setSelectedRow(params.row);
+              const po = params.row;
+              const fields = {
+                name: po.currentOrganisation?.name,
+                uen: po.currentOrganisation?.uen,
+                address: po.orgContact?.address,
+                postalCode: po.orgContact?.postalCode,
+                email: po.orgContact?.email,
+                phoneNumber: po.orgContact?.phoneNumber,
+              };
+              setFields(fields);
+              setOpenRetailerDialog(true);
+            }}
+          >
+            <Tooltip title="Create Retailer">
+              <DomainAddIcon />
+            </Tooltip>
+          </IconButton>
+        )}
+        {retailer && (
+          <IconButton
+            // disabled={params.row.bins?.length == 0}
+            onClick={(event) => {
+              setSelectedRow(params.row);
+              setFields({
+                retailer: retailer,
+              });
+              handleMenuClick(event);
+            }}
+          >
+            <MoreVert />
+          </IconButton>
+        )}
       </Stack>
     );
   };
@@ -154,7 +158,7 @@ const ReceivedPurchaseOrder = () => {
       getShellOrgs();
       retrieveAllReceivedPurchaseOrders();
     }
-  }, [purchaseOrderDialogOpen, openRetailerDialog])
+  }, [purchaseOrderDialogOpen, openRetailerDialog]);
 
   //Delete Confirm dialog
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
@@ -247,8 +251,6 @@ const ReceivedPurchaseOrder = () => {
   //Row for datagrid, set the list returned from API
   const rows = receivedPurchaseOrder;
 
-  
-
   return (
     <>
       <HelmetProvider>
@@ -284,7 +286,7 @@ const ReceivedPurchaseOrder = () => {
         openDialog={openRetailerDialog}
         setOpenDialog={setOpenRetailerDialog}
         addOrganisation={() => null}
-        type='retailer'
+        type="retailer"
         orgId={organisationId}
         handleAlertOpen={handleAlertOpen}
       />

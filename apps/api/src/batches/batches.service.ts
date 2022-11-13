@@ -559,9 +559,15 @@ export class BatchesService {
         displayPreviousObjAttr: false
       },
       {
-        key: "prodLineItems",
+        key: "scheduleLineItems",
         select: true,
         replacementKey: "rmBatchLineItems",
+        displayPreviousObjAttr: false
+      },
+      {
+        key: "prodLineItem",
+        select: false,
+        replacementKey: null,
         displayPreviousObjAttr: false
       },
       {
@@ -610,5 +616,78 @@ export class BatchesService {
     
     const finalResult = this.selectiveFlatten(batch, count, flow)
     return finalResult
+  }
+
+  async forwardTrackingFindOne(batchNumber: string) {
+    const batch = await this.batchRepository.findOne({
+      where: {
+        batchNumber
+      }, relations: {
+        schedule: true,
+        batchLineItems: {
+          reservationLineItems: {
+            purchaseOrder: {
+              currentOrganisation: {
+                contact: true
+              }
+            }
+          }
+        }
+      },
+      withDeleted: true
+    })
+    return batch
+  }
+
+  async getEndCustomersFromBatchNumber(batchNumber: string) {
+    const batch = await this.forwardTrackingFindOne(batchNumber)
+    //check if its a final good batch based on if theres a schedule
+    if (!batch.schedule) {
+      throw new NotFoundException("Batch number is not associated with a final Good")
+    }
+    const count = 0
+    //key, select, replacementKey, displayPreviousObjAttr
+    
+
+    const flow = [
+      {
+        key: "batchLineItems",
+        select: true,
+        replacementKey: 'fgBatchLineItems',
+        displayPreviousObjAttr: false
+      },
+      {
+        key: "reservationLineItems",
+        select: false,
+        replacementKey: null, 
+        displayPreviousObjAttr: false
+      },
+      {
+        key: "purchaseOrder",
+        select: true,
+        replacementKey: null,
+        displayPreviousObjAttr: false
+      },
+      {
+        key: 'currentOrganisation',
+        select: true,
+        replacementKey: null, 
+        displayPreviousObjAttr: ['id', 'status', 'deliveryAddress', 'totalPrice', 'created', 'deliveryDate']
+      },
+      {
+        key: 'contact',
+        select: true,
+        replacementKey: null, 
+        displayPreviousObjAttr: true
+      }
+    ]
+
+    const finalResult = this.selectiveFlatten(batch, count, flow)
+    const newFinalResult = finalResult.fgBatchLineItems.map(array => {
+      return array[0].purchaseOrder
+    })
+    return {
+      purchaseOrders: newFinalResult
+    }
   }
 }

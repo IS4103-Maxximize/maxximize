@@ -116,6 +116,8 @@ export class PurchaseOrdersService {
             supplierOnboarded = await this.organisationsService.findOne(supplierId)
             supplierContact = supplierOnboarded.contact
           }
+		  const currentOrganisation = await this.organisationsService.findOne(currentOrganisationId)
+		  orgContact = currentOrganisation.contact
           
 
           for (const dto of poLineItemDtos) {

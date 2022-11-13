@@ -22,6 +22,11 @@ export class PurchaseRequisitionsController {
     return this.purchaseRequisitionsService.findAllByOrg(+id);
   }
 
+  @Get('forecast-purchase-req/:id/:finalGoodId')
+  checkPurchaseRequestFromForecast(@Param('id') id: string, @Param('finalGoodId') finalGoodId: string) {
+    return this.purchaseRequisitionsService.checkPurchaseRequestFromForecast(Number(id), Number(finalGoodId));
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.purchaseRequisitionsService.findOne(+id);

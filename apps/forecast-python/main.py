@@ -29,7 +29,6 @@ def get_demand_forecast():
         data_json.append({
             "date": str(date_obj.month) + "/" + str(date_obj.year),
             "val": int(entry),
-            "test": int(entry)
         })
 
     # Auto arima modelling

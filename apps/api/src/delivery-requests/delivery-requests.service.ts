@@ -46,6 +46,11 @@ export class DeliveryRequestsService {
       await this.allocateDriverToRequest(organisationId, deliveryRequest);
       await this.allocateVehicleToRequest(organisationId, deliveryRequest);
 
+      deliveryRequest.user.available = false;
+      deliveryRequest.vehicle.currentStatus = VehicleStatus.RESERVED;
+      await queryRunner.manager.save(deliveryRequest.user)
+      await queryRunner.manager.save(deliveryRequest.vehicle)
+
       purchaseOrder.status = PurchaseOrderStatus.DELIVERY
       await queryRunner.manager.save(purchaseOrder);
 
@@ -198,6 +203,16 @@ export class DeliveryRequestsService {
     await queryRunner.startTransaction();
     try {
       await queryRunner.manager.update(DeliveryRequest, id, updateDeliveryRequestDto);
+      const deliveryRequest = await this.findOne(id);
+      if (updateDeliveryRequestDto.status === DeliveryRequestStatus.COMPLETED) {
+        deliveryRequest.user.available = true;
+        deliveryRequest.vehicle.currentStatus = VehicleStatus.AVAILABLE;
+        await queryRunner.manager.save(deliveryRequest.user);
+        await queryRunner.manager.save(deliveryRequest.vehicle);
+      } else if (updateDeliveryRequestDto.status === DeliveryRequestStatus.OUTFORDELIVERY) {
+        deliveryRequest.vehicle.currentStatus = VehicleStatus.OUTFORDELIVERY;
+        await queryRunner.manager.save(deliveryRequest.vehicle);
+      }
       await queryRunner.commitTransaction();
       return await this.findOne(id);
     } catch (err) {
