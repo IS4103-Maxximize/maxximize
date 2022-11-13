@@ -628,7 +628,7 @@ const Dashboard = () => {
           counter={<Counter2/>}
           graphLabels={graphLabels2}
           graphData={graphData2}
-          graphTitle="Top 5 best selling goods this month"
+          graphTitle={`Top ${selectedCount2} best selling goods this month`}
           sx={{ height: '100%' }} 
         />
       </Grid>
