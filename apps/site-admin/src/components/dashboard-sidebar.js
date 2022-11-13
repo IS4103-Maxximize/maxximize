@@ -10,6 +10,7 @@ import {
   Divider,
   Drawer,
   Link,
+  Stack,
   Typography,
   useMediaQuery,
 } from '@mui/material';
@@ -242,30 +243,6 @@ export const DashboardSidebar = (props) => {
                 ))}
             </AccordionDetails>
           </Accordion>
-          {/* <List>
-            <ListItemButton
-              sx={{
-                borderRadius: 1,
-                color: 'neutral.300',
-                justifyContent: 'flex-start',
-                px: 3,
-                textAlign: 'left',
-                textTransform: 'none',
-                width: '100%',
-                '&:hover': {
-                  backgroundColor: 'rgba(255,255,255, 0.08)',
-                },
-              }}
-              onClick={eval(item.handleClick)}
-            >
-              <ListItemIcon sx={{ color: 'neutral.400' }}>
-                {item.icon}
-              </ListItemIcon>
-              <ListItemText primary={item.subsystem} />
-              {eval(item.open) ? <ExpandLess /> : <ExpandMore />}
-            </ListItemButton> */}
-
-          {/* </List> */}
         </Box>
       );
     });
@@ -311,21 +288,14 @@ export const DashboardSidebar = (props) => {
               borderRadius: 1,
             }}
           >
-            <div>
+            <Stack direction="row" spacing={2} alignItems="baseline">
               <Typography color="inherit" variant="subtitle1">
                 {user?.organisation?.name}
               </Typography>
               <Typography color="neutral.400" variant="body2">
-                Your tier : Premium
+                ADMIN
               </Typography>
-            </div>
-            <SelectorIcon
-              sx={{
-                color: 'neutral.500',
-                width: 14,
-                height: 14,
-              }}
-            />
+            </Stack>
           </Box>
         </Box>
       </div>

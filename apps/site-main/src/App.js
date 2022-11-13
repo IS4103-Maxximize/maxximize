@@ -48,6 +48,7 @@ import QAChecklists from './pages/qaChecklists';
 import QARules from './pages/qaRules';
 import { RegisterOrganisation } from './pages/registerOrganisation';
 import ResetPassword from './pages/resetpassword';
+import SubscriptionProRoute from './pages/subscription-pro-route';
 import Unauthorized from './pages/unauthorized';
 import WorkerManagement from './pages/workermanagement';
 
@@ -183,10 +184,12 @@ const routes = (
               ></Route>
 
               {/* Procurement Forecast */}
-              <Route
-                path="procurement/forecast"
-                element={<ProcurementForecast />}
-              ></Route>
+              <Route element={<SubscriptionProRoute />}>
+                <Route
+                  path="procurement/forecast"
+                  element={<ProcurementForecast />}
+                ></Route>
+              </Route>
               {/* Quality Assurance */}
               <Route
                 path="quality-assurance/rules"
@@ -196,10 +199,12 @@ const routes = (
                 path="quality-assurance/checklists"
                 element={<QAChecklists />}
               ></Route>
-              <Route
-                path="quality-assurance/tracking"
-                element={<QATracking />}
-              ></Route>
+              <Route element={<SubscriptionProRoute />}>
+                <Route
+                  path="quality-assurance/tracking"
+                  element={<QATracking />}
+                ></Route>
+              </Route>
             </Route>
 
             {/* Protected Routes for Manager and Factory Worker */}
@@ -308,10 +313,12 @@ const routes = (
                 path="inventory/warehouse/rack/bin/details"
                 element={<BinDetails />}
               ></Route>
-              <Route
-                path="inventory/masterlist"
-                element={<Masterlist />}
-              ></Route>
+              <Route element={<SubscriptionProRoute />}>
+                <Route
+                  path="inventory/masterlist"
+                  element={<Masterlist />}
+                ></Route>
+              </Route>
               <Route
                 path="inventory/masterlist/lineItems"
                 element={<MasterlistLineItems />}

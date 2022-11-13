@@ -43,6 +43,7 @@ export const PricingPage = () => {
         {loading && <Skeleton />}
         {!loading && <Container maxWidth="sm">
           <stripe-pricing-table 
+            customer-email={user.organisation.contact.email}
             pricing-table-id="prctbl_1LwLCPHs54DYkQ2IqyQDKICr"
             publishable-key="pk_test_51LwL0XHs54DYkQ2ILjRaKrnU3FXkovbczOh1dSQpw3JaKgtyfnv7UbWfurXKql4PpugECTEClDXrDiUGTfFl1Lju00QtpgjMkp"
           >

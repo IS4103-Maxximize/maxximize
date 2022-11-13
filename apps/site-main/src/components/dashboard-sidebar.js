@@ -145,6 +145,7 @@ const items = [
         icon: <AccountTreeIcon fontSize="small" />,
         title: 'Tracking',
         access: ['manager', 'factoryworker', 'superadmin'],
+        pro: true
       },
     ],
   },
@@ -172,6 +173,7 @@ const items = [
         icon: <FormatListNumberedIcon fontSize="small" />,
         title: 'Masterlist',
         access: ['superadmin', 'manager', 'factoryworker'],
+        pro: true
       },
     ],
   },
@@ -214,6 +216,7 @@ const items = [
         icon: <QueryStatsIcon fontSize="small" />,
         title: 'Demand Forecast',
         access: ['manager', 'superadmin'],
+        pro: true,
       },
       {
         href: '/procurement/purchase-requisition',
@@ -505,6 +508,7 @@ export const DashboardSidebar = (props) => {
             >
               {item.modules
                 .filter((module) => module.access.includes(user.role))
+                .filter((module) => module.pro ? module.pro && user.organisation.membership.plan === 'pro' : true)
                 .map((module, index) => (
                   <Collapse
                     key={index}
