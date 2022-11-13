@@ -16,6 +16,7 @@ import { MembershipsService } from '../memberships/memberships.service';
 import { OrganisationType } from '../organisations/enums/organisationType.enum';
 import { OrganisationsService } from '../organisations/organisations.service';
 import { ProductionLinesService } from '../production-lines/production-lines.service';
+import { ProductionOrdersService } from '../production-orders/production-orders.service';
 import { MeasurementUnit } from '../products/enums/measurementUnit.enum';
 import { PurchaseOrderStatus } from '../purchase-orders/enums/purchaseOrderStatus.enum';
 import { PurchaseOrdersService } from '../purchase-orders/purchase-orders.service';
@@ -25,6 +26,7 @@ import { RacksService } from '../racks/racks.service';
 import { RawMaterialsService } from '../raw-materials/raw-materials.service';
 import { RevenueBracketsService } from '../revenue-brackets/revenue-brackets.service';
 import { SalesInquiryService } from '../sales-inquiry/sales-inquiry.service';
+import { SchedulesService } from '../schedules/schedules.service';
 import { ShellOrganisationsService } from '../shell-organisations/shell-organisations.service';
 import { User } from '../users/entities/user.entity';
 import { Role } from '../users/enums/role.enum';
@@ -55,7 +57,9 @@ export class AppService implements OnApplicationBootstrap {
     private productionLineService: ProductionLinesService,
     private revenueBracketsService: RevenueBracketsService,
     private membershipService: MembershipsService,
-    private invoiceService: InvoicesService
+    private invoiceService: InvoicesService,
+    private productionOrdersService: ProductionOrdersService,
+    private schedulesService: SchedulesService
   ) {}
   getData(): { message: string } {
     return { message: 'Welcome to api!' };
@@ -114,6 +118,54 @@ export class AppService implements OnApplicationBootstrap {
         },
       });
 
+      await this.organisationsService.create({
+        name: 'WcDonalds',
+        type: OrganisationType.RETAILER,
+        uen: 'WCD-12345',
+        contact: {
+          phoneNumber: '93492347',
+          email: 'wcdonalds@gmail.com',
+          address: 'RetailAddress2',
+          postalCode: '376839',
+        },
+      });
+
+      await this.organisationsService.create({
+        name: 'Burger Queen',
+        type: OrganisationType.RETAILER,
+        uen: 'BGQ-12345',
+        contact: {
+          phoneNumber: '90292348',
+          email: 'burgerqueen@gmail.com',
+          address: 'RetailAddress3',
+          postalCode: '555839',
+        },
+      });
+
+      await this.organisationsService.create({
+        name: 'Tehtiam',
+        type: OrganisationType.RETAILER,
+        uen: 'TEH-12345',
+        contact: {
+          phoneNumber: '93402349',
+          email: 'teh@gmail.com',
+          address: 'RetailAddress4',
+          postalCode: '371841',
+        },
+      });
+
+      await this.organisationsService.create({
+        name: 'Formosa',
+        type: OrganisationType.RETAILER,
+        uen: 'FOR-12345',
+        contact: {
+          phoneNumber: '93412348',
+          email: 'formosa@gmail.com',
+          address: 'RetailAddress5',
+          postalCode: '471839',
+        },
+      });
+
       await this.usersService.create({
         firstName: 'Max',
         lastName: 'Admin',
@@ -134,56 +186,56 @@ export class AppService implements OnApplicationBootstrap {
         .into(Contact)
         .values([
           {
-            id: 6,
+            id: 10,
             phoneNumber: '93894938',
             email: 'mc1@gmail.com',
             address: 'ManuCusAddress1',
             postalCode: '423423',
           },
           {
-            id: 7,
+            id: 11,
             phoneNumber: '92390489',
             email: 'rc1@gmail.com',
             address: 'RetailCusAddress1',
             postalCode: '534523',
           },
           {
-            id: 8,
+            id: 12,
             phoneNumber: '82949238',
             email: 'maxxiuser@gmail.com',
             address: 'maxximiseAddress',
             postalCode: '839849',
           },
           {
-            id: 9,
+            id: 13,
             phoneNumber: '82949238',
             email: 'maxxiuser1@gmail.com',
             address: 'maxximiseAddress',
             postalCode: '839849',
           },
           {
-            id: 10,
+            id: 14,
             phoneNumber: '82949238',
             email: 'maxximizeAdmin@gmail.com',
             address: 'maxximiseAddress',
             postalCode: '839849',
           },
           {
-            id: 11,
+            id: 15,
             phoneNumber: '88880000',
             email: 'jiayinglim@live.com',
             address: 'Serangoon Gardens',
             postalCode: '789273',
           },
           {
-            id: 12,
+            id: 16,
             phoneNumber: '88880000',
             email: 'e0540315@u.nus.edu',
             address: 'Serangoon Gardens',
             postalCode: '789273',
           },
           {
-            id: 13,
+            id: 17,
             phoneNumber: '88880000',
             email: 'jiayinglim@live.com',
             address: 'Serangoon Gardens',
@@ -209,7 +261,7 @@ export class AppService implements OnApplicationBootstrap {
             passwordChanged: true,
             role: Role.SUPERADMIN,
             organisation: await this.organisationsService.findOne(2),
-            contact: await this.contactsService.findOne(6),
+            contact: await this.contactsService.findOne(10),
           },
           {
             id: 3,
@@ -223,7 +275,7 @@ export class AppService implements OnApplicationBootstrap {
             passwordChanged: true,
             role: Role.ADMIN,
             organisation: await this.organisationsService.findOne(2),
-            contact: await this.contactsService.findOne(7),
+            contact: await this.contactsService.findOne(11),
           },
           {
             id: 4,
@@ -237,7 +289,7 @@ export class AppService implements OnApplicationBootstrap {
             passwordChanged: true,
             role: Role.MANAGER,
             organisation: await this.organisationsService.findOne(2),
-            contact: await this.contactsService.findOne(8),
+            contact: await this.contactsService.findOne(12),
           },
           {
             id: 5,
@@ -251,7 +303,7 @@ export class AppService implements OnApplicationBootstrap {
             passwordChanged: true,
             role: Role.ADMIN,
             organisation: await this.organisationsService.findOne(1),
-            contact: await this.contactsService.findOne(9),
+            contact: await this.contactsService.findOne(13),
           },
           {
             id: 6,
@@ -265,7 +317,7 @@ export class AppService implements OnApplicationBootstrap {
             passwordChanged: true,
             role: Role.ADMIN,
             organisation: await this.organisationsService.findOne(3),
-            contact: await this.contactsService.findOne(10),
+            contact: await this.contactsService.findOne(14),
           },
           {
             id: 7,
@@ -279,7 +331,7 @@ export class AppService implements OnApplicationBootstrap {
             passwordChanged: true,
             role: Role.DRIVER,
             organisation: await this.organisationsService.findOne(2),
-            contact: await this.contactsService.findOne(11),
+            contact: await this.contactsService.findOne(15),
           },
           {
             id: 8,
@@ -293,7 +345,7 @@ export class AppService implements OnApplicationBootstrap {
             passwordChanged: true,
             role: Role.MANAGER,
             organisation: await this.organisationsService.findOne(4),
-            contact: await this.contactsService.findOne(12),
+            contact: await this.contactsService.findOne(16),
           },
           {
             id: 9,
@@ -307,7 +359,7 @@ export class AppService implements OnApplicationBootstrap {
             passwordChanged: true,
             role: Role.DRIVER,
             organisation: await this.organisationsService.findOne(2),
-            contact: await this.contactsService.findOne(13),
+            contact: await this.contactsService.findOne(17),
           },
         ])
         .execute();
@@ -679,6 +731,62 @@ export class AppService implements OnApplicationBootstrap {
         creditLimit: 1000000000
       });
 
+      await this.shellOrganisationsService.create({
+        name: 'WcDonalds',
+        uen: 'WCD-12345',
+        type: OrganisationType.RETAILER,
+        contact: {
+          phoneNumber: '93492347',
+          email: 'wcdonalds@gmail.com',
+          address: 'RetailAddress2',
+          postalCode: '376839',
+        },
+        organisationId: 2,
+        creditLimit: 1000000000
+      });
+
+      await this.shellOrganisationsService.create({
+        name: 'Burger Queen',
+        uen: 'BGQ-12345',
+        type: OrganisationType.RETAILER,
+        contact: {
+          phoneNumber: '90292348',
+          email: 'burgerqueen@gmail.com',
+          address: 'RetailAddress3',
+          postalCode: '555839',
+        },
+        organisationId: 2,
+        creditLimit: 1000000000
+      });
+
+      await this.shellOrganisationsService.create({
+        name: 'Tehtiam',
+        uen: 'TEH-12345',
+        type: OrganisationType.RETAILER,
+        contact: {
+          phoneNumber: '93402349',
+          email: 'teh@gmail.com',
+          address: 'RetailAddress4',
+          postalCode: '371841',
+        },
+        organisationId: 2,
+        creditLimit: 1000000000
+      });
+
+      await this.shellOrganisationsService.create({
+        name: 'Formosa',
+        uen: 'FOR-12345',
+        type: OrganisationType.RETAILER,
+        contact: {
+          phoneNumber: '93412348',
+          email: 'formosa@gmail.com',
+          address: 'RetailAddress5',
+          postalCode: '471839',
+        },
+        organisationId: 2,
+        creditLimit: 1000000000
+      });
+
       //create SI from Nissin to Nissin's supplier
   
       await this.salesInquiryService.create({
@@ -867,16 +975,29 @@ export class AppService implements OnApplicationBootstrap {
       await this.productionLineService.create({
         name: 'PL1',
         description: 'PL1',
-        bomIds: [3, 4],
+        bomIds: [1, 2, 3, 4, 5],
         productionCostPerLot: 20,
         gracePeriod: 1800000,
-        organisationId: 4,
+        organisationId: 2,
         outputPerHour: 30,
         startTime: 9,
         endTime: 17,
         machineIds: [1],
       });
 
+      await this.productionOrdersService.create({
+        plannedQuantity: 5,
+        bomId: 1,
+        daily: false,
+        organisationId: 2
+      })
+
+      await this.schedulesService.allocate({
+        orgId: 2,
+        scheduleId: 1,
+        quantity: 90,
+        volumetricSpace: 900
+      })
 
 
       //Revenue brackets
@@ -934,7 +1055,7 @@ export class AppService implements OnApplicationBootstrap {
       const priceCurrent = 50
       let currentDate = new Date()
       for (let i = 0; i < 7; i++) {
-        const pur = await this.purchaseOrderService.create({
+        await this.purchaseOrderService.create({
           "deliveryAddress": "warehouse 1",
           "totalPrice": startCurrentQuantity * priceCurrent,
           "deliveryDate": new Date(2022-10-11),
@@ -992,6 +1113,111 @@ export class AppService implements OnApplicationBootstrap {
         currentLastYearDate = new Date(currentLastYearDate.setDate(currentLastYearDate.getDate() - 1))
         startQuantity -= ((i + 1) * 5)
       }
+
+      //create PO from WcDonald to PREGO
+      await this.purchaseOrderService.create({
+        "deliveryAddress": "warehouse 1",
+        "totalPrice": 2000,
+        "deliveryDate": new Date(2022-11-11),
+        "currentOrganisationId": 5,
+        "supplierId": 2,
+        "userContactId": 8,
+        "poLineItemDtos": [
+            {
+                "quantity": 40,
+                "price": 50,
+                "finalGoodId": 9
+            }
+        ]
+      })
+
+      await this.purchaseOrderService.update(16, {
+        status: PurchaseOrderStatus.FULFILLED
+      })
+
+      await this.invoiceService.update(16, {
+        status: InvoiceStatus.CLOSED,
+        paymentReceived: new Date()
+      })
+
+      //create PO from BurgerQueen to PREGO
+      await this.purchaseOrderService.create({
+        "deliveryAddress": "warehouse 1",
+        "totalPrice": 1200,
+        "deliveryDate": new Date(2022-11-11),
+        "currentOrganisationId": 6,
+        "supplierId": 2,
+        "userContactId": 8,
+        "poLineItemDtos": [
+            {
+                "quantity": 40,
+                "price": 30,
+                "finalGoodId": 10
+            }
+        ]
+      })
+
+      await this.purchaseOrderService.update(17, {
+        status: PurchaseOrderStatus.FULFILLED
+      })
+
+      await this.invoiceService.update(17, {
+        status: InvoiceStatus.CLOSED,
+        paymentReceived: new Date()
+      })
+
+      //create PO from Tehtiam to PREGO
+      await this.purchaseOrderService.create({
+        "deliveryAddress": "warehouse 1",
+        "totalPrice": 4000,
+        "deliveryDate": new Date(2022-11-11),
+        "currentOrganisationId": 7,
+        "supplierId": 2,
+        "userContactId": 8,
+        "poLineItemDtos": [
+            {
+                "quantity": 40,
+                "price": 100,
+                "finalGoodId": 11
+            }
+        ]
+      })
+
+      await this.purchaseOrderService.update(18, {
+        status: PurchaseOrderStatus.FULFILLED
+      })
+
+      await this.invoiceService.update(18, {
+        status: InvoiceStatus.CLOSED,
+        paymentReceived: new Date()
+      })
+
+      //create PO from Formosa to PREGO
+      await this.purchaseOrderService.create({
+        "deliveryAddress": "warehouse 1",
+        "totalPrice": 1000,
+        "deliveryDate": new Date(2022-11-11),
+        "currentOrganisationId": 8,
+        "supplierId": 2,
+        "userContactId": 8,
+        "poLineItemDtos": [
+            {
+                "quantity": 50,
+                "price": 20,
+                "finalGoodId": 12
+            }
+        ]
+      })
+
+      await this.purchaseOrderService.update(19, {
+        status: PurchaseOrderStatus.FULFILLED
+      })
+
+      await this.invoiceService.update(19, {
+        status: InvoiceStatus.CLOSED,
+        paymentReceived: new Date()
+      })
+      
     }
   }
 }
