@@ -1,1 +1,4 @@
-export class CreateReservationLineItemDto {}
+export class CreateReservationLineItemDto {
+    quantity: number
+    batchLineItemId: number
+}
