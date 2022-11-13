@@ -120,28 +120,30 @@ export const QATracking = (props) => {
     for (const key of keys) {
       const value = object[key]
       
-      if (typeof value === 'object' && !Array.isArray(value)) {
-        //Object but not an array
-        result = {
-          id,
-          title,
-          children: Object.keys(value).length > 0 ? [transform(value, id, newDepth)] : null,
-          parentId
+      if (value !== null) {
+        if (typeof value === 'object' && !Array.isArray(value)) {
+          //Object but not an array
+          result = {
+            id,
+            title,
+            children: Object.keys(value).length > 0 ? [transform(value, id, newDepth)] : null,
+            parentId
+          }
+        } else if (typeof value === 'object' && Array.isArray(value)) {
+          //Object and is an array
+          let resultArray = []
+          for (const currentVal of value) {
+            const temp = transform(currentVal, rng, newDepth)
+            resultArray.push(temp)
+          }
+          result = {
+            id,
+            title,
+            children: resultArray,
+            parentId
+          }
         }
-      } else if (typeof value === 'object' && Array.isArray(value)) {
-        //Object and is an array
-        let resultArray = []
-        for (const currentVal of value) {
-          const temp = transform(currentVal, rng, newDepth)
-          resultArray.push(temp)
-        }
-        result = {
-          id,
-          title,
-          children: resultArray,
-          parentId
-        }
-      }
+      } 
     }
     if (depth === labels.length - 1) {
       result = {

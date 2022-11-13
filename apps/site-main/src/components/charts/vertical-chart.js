@@ -1,42 +1,43 @@
-import { Skeleton, useTheme } from '@mui/material';
-import { Bar } from 'react-chartjs-2';
+import { Card, CardContent, CardHeader, Divider, useTheme } from "@mui/material";
+import { Box } from "@mui/system";
+import { Bar } from "react-chartjs-2";
 
 export const VerticalChart = (props) => {
-  const {
-    data,
-    labels,
-    ...rest
-  } = props;
-
+  const{ 
+    dropDown,
+    dateLabels,
+    graphDataThisYear,
+    graphDataLastYear,
+    graphTitle
+    }= props;
+    
   const theme = useTheme();
 
-  const chartData = {
-    datasets: [
-      {
+  const data = {
+    datasets: [{
         backgroundColor: '#3F51B5',
         barPercentage: 0.5,
         barThickness: 12,
         borderRadius: 4,
         categoryPercentage: 0.5,
-        data: data,
+        maxBarThickness: 10,
         label: 'This year',
+        data: graphDataThisYear,
+   },
+   {
+        backgroundColor: '#EEEEEE',
+        barPercentage: 0.5,
+        barThickness: 12,
+        borderRadius: 4,
+        categoryPercentage: 0.5,
+        data: graphDataLastYear,
+        label: 'Last year',
         maxBarThickness: 10
-      },
-      // {
-      //   backgroundColor: '#EEEEEE',
-      //   barPercentage: 0.5,
-      //   barThickness: 12,
-      //   borderRadius: 4,
-      //   categoryPercentage: 0.5,
-      //   data: [11, 20, 12, 29, 30, 25, 13],
-      //   label: 'Last year',
-      //   maxBarThickness: 10
-      // }
-    ],
-    labels: labels
-  };
-
-  const options = {
+  }
+  ],
+  labels: dateLabels,
+};
+   const options = {
     animation: false,
     cornerRadius: 20,
     layout: { padding: 0 },
@@ -85,9 +86,36 @@ export const VerticalChart = (props) => {
     }
   };
 
-  return (data && options) ?
-    <Bar
-      data={chartData}
-      options={options}
-    /> : <Skeleton />
+  return (
+    <Card {...props}>
+    
+      <CardHeader
+        title = {`${graphTitle}`}
+        action={(
+          <Box
+            width={200}
+          >
+          {dropDown}
+        </Box>
+        )}
+      />
+         
+
+      <Divider />
+      <CardContent>
+        <Box
+          sx={{
+            height: 400,
+            position: 'relative'
+          }}
+        >
+          <Bar
+            data={data}
+            options={options}
+          />
+        </Box>
+      </CardContent>
+      
+    </Card>
+  );
 };

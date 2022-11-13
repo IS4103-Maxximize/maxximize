@@ -98,21 +98,18 @@ export class ProductionOrdersService {
             prodRequestId,
             { status: ProdRequestStatus.PROCESSING }
           );
+          prodRequest = await transactionalEntityManager.findOne(ProductionRequest, {
+            where: {
+              id: prodRequestId
+            }, relations: {
+              purchaseOrder: true,
+              finalGood: true,
+              prodOrders: true
+            }
+          })
         }
 		
-		console.log(prodRequest)
 		
-		prodRequest = await transactionalEntityManager.findOne(ProductionRequest, {
-			where: {
-			  id: prodRequestId
-			}, relations: {
-			  purchaseOrder: true,
-			  finalGood: true,
-			  prodOrders: true
-			}
-		})
-
-		console.log(prodRequest)
 
         if (daily) {
           scheduleDtos =
