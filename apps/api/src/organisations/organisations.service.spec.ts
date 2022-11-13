@@ -1,3 +1,8 @@
+/**
+ *
+ * @group unit
+ */
+
 import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
@@ -5,6 +10,7 @@ import { debugPort } from 'process';
 import { DataSource, Repository } from 'typeorm';
 import { Contact } from '../contacts/entities/contact.entity';
 import { MailService } from '../mail/mail.service';
+import { MembershipsService } from '../memberships/memberships.service';
 import { ShellOrganisation } from '../shell-organisations/entities/shell-organisation.entity';
 import { Role } from '../users/enums/role.enum';
 import { UsersService } from '../users/users.service';;
@@ -54,6 +60,7 @@ describe('OrganisationsService', () => {
   const mockMailService = {
     sendPasswordEmail: jest.fn()
   }
+  const mockMembershipService = {}
   
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -72,6 +79,9 @@ describe('OrganisationsService', () => {
       }, {
         provide: DataSource,
         useFactory: mockDataSource
+      }, {
+        provide: MembershipsService,
+        useValue: mockMembershipService
       }],
     }).compile();
 
