@@ -71,9 +71,9 @@ export class FinalGoodsController {
     );
   }
 
-  @Get('topSales/:id')
-  findTopSellingGoods(@Param('id') id: string) {
-    return this.finalGoodsService.findTopSellingGoods(+id);
+  @Get('topSales/:id/:count')
+  findTopSellingGoods(@Param('id') id: string, @Param('count') count: string) {
+    return this.finalGoodsService.findTopSellingGoods(+id, +count);
   }
 
   @Patch(':id')

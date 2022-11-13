@@ -59,7 +59,7 @@ export class ShellOrganisationsService {
       uen,
       contact: contact ?? null,
       parentOrganisation: parentOrganisation,
-      currentCredit: currentCredit ?? null,
+      currentCredit: currentCredit ?? 0,
       creditLimit: creditLimit ?? null,
     });
 

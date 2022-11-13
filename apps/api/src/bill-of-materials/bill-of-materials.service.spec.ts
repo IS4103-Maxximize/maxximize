@@ -5,6 +5,7 @@ import { BillOfMaterialsService } from './bill-of-materials.service';
 import { BillOfMaterial } from './entities/bill-of-material.entity';
 import { BomLineItem } from '../bom-line-items/entities/bom-line-item.entity';
 import { DataSource } from 'typeorm';
+import { Product } from '../products/entities/product.entity';
 
 describe('BillOfMaterialsService', () => {
   let service: BillOfMaterialsService;
@@ -58,6 +59,8 @@ describe('BillOfMaterialsService', () => {
 
   const mockBomLineItemRepository = {}
 
+  const mockProductsRepo = {}
+
   const mockDataSource = () => ({
     manager: {
       transaction: jest.fn()
@@ -75,6 +78,9 @@ describe('BillOfMaterialsService', () => {
       }, {
         provide: DataSource,
         useFactory: mockDataSource
+      }, {
+        provide: getRepositoryToken(Product),
+        useValue: mockProductsRepo
       }
     ],
     }).compile();

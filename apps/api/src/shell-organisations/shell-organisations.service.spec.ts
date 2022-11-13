@@ -101,7 +101,9 @@ describe('ShellOrganisationsService', () => {
         uen: dto.uen,
         parentOrganisation: parent,
         created: new Date("2022-10-29T04:04:08.715Z"),
-        contact: null
+        contact: null,
+        creditLimit: null,
+        currentCredit: 0
       }
       jest.spyOn(service, 'retrieveUensInParentOrg').mockResolvedValue([])
       expect(await service.create(dto)).toStrictEqual(expectedObject)

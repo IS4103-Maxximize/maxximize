@@ -25,7 +25,7 @@ export const VerticalChart = (props) => {
         data: graphDataThisYear,
    },
    {
-        backgroundColor: '#EEEEEE',
+        backgroundColor: '#fad775',
         barPercentage: 0.5,
         barThickness: 12,
         borderRadius: 4,
