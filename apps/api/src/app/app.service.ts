@@ -403,25 +403,25 @@ export class AppService implements OnApplicationBootstrap {
         organisationId: 2,
       });
 
-      //   await this.finalGoodsService.create({
-      //     name: 'Salad',
-      //     description: 'Fresh Cabbage Salad drizzled with olive oil',
-      //     lotQuantity: 20,
-      //     unit: MeasurementUnit.KILOGRAM,
-      //     unitPrice: 50,
-      //     expiry: 10,
-      //     organisationId: 2,
-      //   });
+      await this.finalGoodsService.create({
+        name: 'Salad',
+        description: 'Fresh Cabbage Salad drizzled with olive oil',
+        lotQuantity: 20,
+        unit: MeasurementUnit.KILOGRAM,
+        unitPrice: 50,
+        expiry: 10,
+        organisationId: 2,
+      });
 
-      //   await this.finalGoodsService.create({
-      //     name: 'Tomatoes Canned',
-      //     description: 'Canned Tomatoes in olive oil',
-      //     lotQuantity: 40,
-      //     unit: MeasurementUnit.KILOGRAM,
-      //     unitPrice: 45,
-      //     expiry: 20,
-      //     organisationId: 2,
-      //   });
+      await this.finalGoodsService.create({
+        name: 'Tomatoes Canned',
+        description: 'Canned Tomatoes in olive oil',
+        lotQuantity: 40,
+        unit: MeasurementUnit.KILOGRAM,
+        unitPrice: 45,
+        expiry: 20,
+        organisationId: 2,
+      });
 
       await this.rawMaterialsService.create({
         name: 'Tomato',
@@ -443,25 +443,25 @@ export class AppService implements OnApplicationBootstrap {
         organisationId: 4,
       });
 
-      //   await this.finalGoodsService.create({
-      //     name: 'Tomatoes Canned (Red)',
-      //     description: 'Canned Red tomatoes in olive oil',
-      //     lotQuantity: 40,
-      //     unit: MeasurementUnit.KILOGRAM,
-      //     unitPrice: 45,
-      //     expiry: 20,
-      //     organisationId: 4,
-      //   });
+      await this.finalGoodsService.create({
+        name: 'Tomatoes Canned (Red)',
+        description: 'Canned Red tomatoes in olive oil',
+        lotQuantity: 40,
+        unit: MeasurementUnit.KILOGRAM,
+        unitPrice: 45,
+        expiry: 20,
+        organisationId: 4,
+      });
 
-      //   await this.finalGoodsService.create({
-      //     name: 'Tomatoes Canned 2 (Blue)',
-      //     description: 'Canned Red tomatoes in olive oil',
-      //     lotQuantity: 40,
-      //     unit: MeasurementUnit.KILOGRAM,
-      //     unitPrice: 45,
-      //     expiry: 20,
-      //     organisationId: 4,
-      //   });
+      await this.finalGoodsService.create({
+        name: 'Tomatoes Canned 2 (Blue)',
+        description: 'Canned Red tomatoes in olive oil',
+        lotQuantity: 40,
+        unit: MeasurementUnit.KILOGRAM,
+        unitPrice: 45,
+        expiry: 20,
+        organisationId: 4,
+      });
 
       //create 2 BOMS
 

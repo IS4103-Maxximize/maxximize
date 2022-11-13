@@ -102,6 +102,7 @@ const Products = (props) => {
 
   const addProduct = (product) => {
     console.log(rows);
+    console.log(product);
     const updatedProducts = [...rows, product];
     setRows(updatedProducts);
     handleAlertOpen(
