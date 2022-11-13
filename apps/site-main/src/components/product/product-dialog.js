@@ -1,4 +1,5 @@
 import {
+  Box,
   Button,
   Dialog,
   DialogActions,
@@ -14,7 +15,8 @@ import {
 } from '@mui/material';
 import { Stack } from '@mui/system';
 import { useFormik } from 'formik';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import { useDropzone } from 'react-dropzone';
 import * as Yup from 'yup';
 import { createProduct, updateProduct } from '../../helpers/products';
 
@@ -46,7 +48,7 @@ export const ProductDialog = (props) => {
         setDisabled(product.billOfMaterial);
       }
     }
-  }, [product])
+  }, [product]);
 
   let initialValues = {
     id: product ? product.id : null,
@@ -57,32 +59,38 @@ export const ProductDialog = (props) => {
     expiry: product ? Number(product.expiry) : '',
     skuCode: product ? product.skuCode : '',
     lotQuantity: product ? Number(product.lotQuantity) : '',
+    image: '',
   };
   let schema = {
     name: Yup.string().max(255).required('Name is required'),
     description: Yup.string(),
     unit: Yup.string(),
-    unitPrice: Yup
-      .number()
+    unitPrice: Yup.number()
       .positive('Unit Price must be positive')
       .required('Unit Price is required'),
-    expiry: Yup
-      .number()
+    expiry: Yup.number()
       .positive('Days must be a positive integer')
       .integer('Days must be a positive integer')
       .required('Expiry (days) is required'),
-    lotQuantity: Yup
-      .number()
+    lotQuantity: Yup.number()
       .positive('Lot Quantity must be a positive integer')
       .integer('Lot Quantity must be a positive integer')
       .required('Lot quantity is required'),
+    image: Yup.mixed().required(),
   };
 
   const handleOnSubmit = async (values) => {
     if (action === 'POST') {
-      const result = await createProduct(type, values, organisationId).catch(
-        (err) => handleAlertOpen(`Error creating ${typeString}`, 'error')
-      );
+      let result;
+      if (type === 'final-goods') {
+        result = await createProduct(type, values, organisationId).catch(
+          (err) => handleAlertOpen(`Error creating ${typeString}`, 'error')
+        );
+      } else {
+        result = await createProduct(type, values, organisationId).catch(
+          (err) => handleAlertOpen(`Error creating ${typeString}`, 'error')
+        );
+      }
       addProduct(result);
     } else if (action === 'PATCH') {
       try {
@@ -106,11 +114,85 @@ export const ProductDialog = (props) => {
     onSubmit: handleOnSubmit,
   });
 
+  useEffect(() => console.log(formik.values.image), [formik.values.image]);
+
   const onClose = () => {
     formik.resetForm();
     setDisabled(false);
     handleClose();
   };
+
+  const convertToBase64 = (file) => {
+    const reader = new FileReader();
+    if (file) reader.readAsDataURL(file);
+
+    reader.onload = function () {
+      return reader.result;
+    };
+
+    reader.onerror = function (error) {
+      console.log('Error: ', error);
+    };
+  };
+
+  const {
+    acceptedFiles,
+    getRootProps,
+    getInputProps,
+    isFocused,
+    isDragAccept,
+    isDragReject,
+  } = useDropzone({
+    maxFiles: 1,
+    accept: { 'image/*': [] },
+    onDrop: (acceptedFiles) => {
+      formik.setFieldValue('image', convertToBase64(acceptedFiles));
+    },
+  });
+
+  const baseStyle = {
+    flex: 1,
+    display: 'flex',
+    flexDirection: 'column',
+    alignitems: 'center',
+    padding: '20px',
+    borderWidth: 2,
+    borderRadius: 2,
+    borderColor: '#eeeeee',
+    borderStyle: 'dashed',
+    backgroundColor: '#fafafa',
+    color: '#bdbdbd',
+    outline: 'none',
+    transition: 'border .24s ease-in-out',
+  };
+
+  const focusedStyle = {
+    borderColor: '#2196f3',
+  };
+
+  const acceptStyle = {
+    borderColor: '#00e676',
+  };
+
+  const rejectStyle = {
+    borderColor: '#ff1744',
+  };
+
+  const style = useMemo(
+    () => ({
+      ...baseStyle,
+      ...(isFocused ? focusedStyle : {}),
+      ...(isDragAccept ? acceptStyle : {}),
+      ...(isDragReject ? rejectStyle : {}),
+    }),
+    [isFocused, isDragAccept, isDragReject]
+  );
+
+  const acceptedFileItems = acceptedFiles.map((file) => (
+    <li key={file.path}>
+      {file.path} - {file.size} bytes
+    </li>
+  ));
 
   return (
     <form onSubmit={formik.handleSubmit}>
@@ -202,9 +284,7 @@ export const ProductDialog = (props) => {
               formik.touched.lotQuantity && formik.errors.lotQuantity
             )}
             fullWidth
-            helperText={
-              formik.touched.lotQuantity && formik.errors.lotQuantity
-            }
+            helperText={formik.touched.lotQuantity && formik.errors.lotQuantity}
             label="Lot Quantity"
             margin="normal"
             name="lotQuantity"
@@ -229,9 +309,7 @@ export const ProductDialog = (props) => {
             value={formik.values.unitPrice}
             variant="outlined"
             InputProps={{
-              startAdornment: (
-                <InputAdornment sx={{ mr: 1 }}>$</InputAdornment>
-              )
+              startAdornment: <InputAdornment sx={{ mr: 1 }}>$</InputAdornment>,
             }}
           />
           <TextField
@@ -249,6 +327,25 @@ export const ProductDialog = (props) => {
             value={formik.values.expiry}
             variant="outlined"
           />
+          {type === 'final-goods' ? (
+            <Box mt={2}>
+              <Typography variant="h6" sx={{ marginBottom: 2 }}>
+                Upload final good image
+              </Typography>
+              <div {...getRootProps({ style })}>
+                <input {...getInputProps()} />
+                <p>Drag 'n' drop image here, or click to select image</p>
+              </div>
+              <Box ml={3} mt={2}>
+                <aside>
+                  <h4>Uploaded image</h4>
+                  <ul>{acceptedFileItems}</ul>
+                </aside>
+              </Box>
+            </Box>
+          ) : (
+            <></>
+          )}
         </DialogContent>
         <DialogActions>
           <Button
