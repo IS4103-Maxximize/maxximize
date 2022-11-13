@@ -1091,7 +1091,12 @@ export class AppService implements OnApplicationBootstrap {
               }
           ]
         })
-  
+
+        
+        await this.purchaseOrderService.update(i + 2, {
+          status: PurchaseOrderStatus.ACCEPTED
+        })
+
         await this.purchaseOrderService.update(i + 2, {
           status: PurchaseOrderStatus.FULFILLED
         })
@@ -1122,7 +1127,12 @@ export class AppService implements OnApplicationBootstrap {
               }
           ]
         })
-  
+
+        
+        await this.purchaseOrderService.update(i + 7 + 2, {
+          status: PurchaseOrderStatus.ACCEPTED
+        })
+
         await this.purchaseOrderService.update(i + 7 + 2, {
           status: PurchaseOrderStatus.FULFILLED
         })
@@ -1153,6 +1163,10 @@ export class AppService implements OnApplicationBootstrap {
       })
 
       await this.purchaseOrderService.update(16, {
+        status: PurchaseOrderStatus.ACCEPTED
+      })
+
+      await this.purchaseOrderService.update(16, {
         status: PurchaseOrderStatus.FULFILLED
       })
 
@@ -1176,6 +1190,10 @@ export class AppService implements OnApplicationBootstrap {
                 "finalGoodId": 10
             }
         ]
+      })
+
+      await this.purchaseOrderService.update(17, {
+        status: PurchaseOrderStatus.ACCEPTED
       })
 
       await this.purchaseOrderService.update(17, {
@@ -1205,6 +1223,10 @@ export class AppService implements OnApplicationBootstrap {
       })
 
       await this.purchaseOrderService.update(18, {
+        status: PurchaseOrderStatus.ACCEPTED
+      })
+
+      await this.purchaseOrderService.update(18, {
         status: PurchaseOrderStatus.FULFILLED
       })
 
@@ -1228,6 +1250,10 @@ export class AppService implements OnApplicationBootstrap {
                 "finalGoodId": 12
             }
         ]
+      })
+
+      await this.purchaseOrderService.update(19, {
+        status: PurchaseOrderStatus.ACCEPTED
       })
 
       await this.purchaseOrderService.update(19, {
