@@ -12,13 +12,6 @@ describe('WarehousesService', () => {
   let organisationService: OrganisationsService;
   let warehouseRepo;
 
-  const testWarehouse = {
-    name: 'test warehouse',
-    address: 'test address',
-    description: 'test description',
-    organisationId: 2
-  };
-
   const organisation = {
     id: 2,
     name: 'manufacturer1',
@@ -26,6 +19,12 @@ describe('WarehousesService', () => {
     type: OrganisationType.MANUFACTURER
   };
 
+  const testWarehouse = {
+    name: 'test warehouse',
+    address: 'test address',
+    description: 'test description',
+    organisation: organisation
+  };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -58,16 +57,16 @@ describe('WarehousesService', () => {
               commitTransaction: jest.fn(),
               rollbackTransaction: jest.fn(),
               manager: {
-                save: jest.fn().mockImplementation(() => {
+                save: jest.fn().mockImplementation((dto) => {
                   return {
                     id: 1,
-                    ...testWarehouse
+                    ...dto
                   }
                 }),
-                update: jest.fn().mockImplementation(() => {
+                update: jest.fn().mockImplementation((dto) => {
                   return {
                     ...testWarehouse,
-                    address: 'address 1 updated',
+                    ...dto,
                     id: 1
                   }
                 })
@@ -89,12 +88,15 @@ describe('WarehousesService', () => {
 
   describe('create', () => {
     const dto = {
-      ...testWarehouse
+      name: 'test warehouse',
+      address: 'test address',
+      description: 'test description',
+      organisationId: 2
     };
     it('it should return a warehouse entity', async () => {
       const expected = {
         id: 1,
-        ...testWarehouse
+        ...testWarehouse,
       }
       expect(await service.create(dto)).toStrictEqual(expected);
     });
