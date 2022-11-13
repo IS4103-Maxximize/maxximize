@@ -1,7 +1,10 @@
-import { forwardRef, ForwardReference, ForwardReference, NotFoundException } from '@nestjs/common';
+import { HttpService } from '@nestjs/axios';
+import { forwardRef, ForwardReference, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
+import { BatchLineItemsService } from '../batch-line-items/batch-line-items.service';
+import { BillOfMaterialsService } from '../bill-of-materials/bill-of-materials.service';
 import { InvoicesService } from '../invoices/invoices.service';
 import { Organisation } from '../organisations/entities/organisation.entity';
 import { MeasurementUnit } from '../products/enums/measurementUnit.enum';
@@ -12,7 +15,6 @@ describe('FinalGoodsService', () => {
   let service: FinalGoodsService;
   let organisationRepo
   let finalGoodRepo
-  let invoicesService
 
   const organisation = {id: 1, name: 'organisation', uen: '123PARENT123'}
   const finalGood = {
@@ -29,6 +31,20 @@ describe('FinalGoodsService', () => {
   const mockOrganisationRepo = {
     findOneByOrFail: jest.fn().mockResolvedValue(organisation)
   }
+
+  const mockInvoicesService = {}
+
+  const mockHttpService = {}
+
+  const mockBillOfMaterialService = {}
+
+  const mockBatchLineItemService = {}
+
+  const mockDataSource = () => ({
+    manager: {
+      transaction: jest.fn()
+    }
+  })
 
   const mockFinalGoodRepo = {
     create: jest.fn().mockImplementation(dto => dto),
@@ -55,12 +71,26 @@ describe('FinalGoodsService', () => {
       }, {
         provide: getRepositoryToken(FinalGood),
         useValue: mockFinalGoodRepo
+      }, {
+        provide: InvoicesService,
+        useValue: mockInvoicesService
+      }, {
+        provide: HttpService,
+        useValue: mockHttpService
+      }, {
+        provide: BillOfMaterialsService,
+        useValue: mockBillOfMaterialService
+      }, {
+        provide: BatchLineItemsService,
+        useValue: mockBatchLineItemService
+      }, {
+        provide: DataSource,
+        useFactory: mockDataSource
       }],
     }).compile();
 
     organisationRepo = module.get<Repository<Organisation>>(getRepositoryToken(Organisation))
     finalGoodRepo = module.get<Repository<FinalGood>>(getRepositoryToken(FinalGood))
-    invoicesService = module.get<InvoicesService>(InvoicesService)
     service = module.get<FinalGoodsService>(FinalGoodsService);
   });
 
