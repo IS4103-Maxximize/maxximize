@@ -8,6 +8,7 @@ import {
   CardContent,
   FormControlLabel,
   FormGroup,
+  IconButton,
   Switch,
   TextField,
   Typography,
@@ -15,16 +16,19 @@ import {
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { procurementBreadcrumbs } from '../../helpers/constants';
+import UploadFileIcon from '@mui/icons-material/UploadFile';
 
 export const DemandForecastToolbar = (props) => {
   const {
     name,
     finalGoods,
+    selectedFinalGood,
     setSelectedFinalGood,
+    period,
     setPeriod,
     handleSubmit,
     loading,
-    handleToggle
+    handleToggle,
   } = props;
 
   // Get current pathname
@@ -39,6 +43,10 @@ export const DemandForecastToolbar = (props) => {
     setDomain(domain);
     setSubDomain(subdomain);
   }, [location]);
+
+  const handleCSVUpload = () => {
+	return
+  }
 
   return (
     <Box>
@@ -96,6 +104,9 @@ export const DemandForecastToolbar = (props) => {
                 />
               </FormGroup>
               <LoadingButton
+                disabled={
+                  period <= 0 || isNaN(period) || selectedFinalGood === ''
+                }
                 onClick={handleSubmit}
                 loading={loading}
                 loadingIndicator="Loading…"
@@ -103,6 +114,16 @@ export const DemandForecastToolbar = (props) => {
               >
                 Forecast
               </LoadingButton>
+            </Box>
+            <Box>
+              <IconButton
+                onClick={(event) => {
+                  handleCSVUpload();
+                }}
+              >
+                <UploadFileIcon color="primary" />
+				<input upload></input>
+              </IconButton>
             </Box>
           </CardContent>
         </Card>
