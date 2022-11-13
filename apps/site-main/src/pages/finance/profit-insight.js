@@ -13,6 +13,7 @@ import { useEffect, useState } from 'react';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { DashboardLayout } from '../../components/dashboard-layout';
 import { FilterCard } from '../../components/finance/filter-card';
+import { ProfitItemDialog } from '../../components/finance/profit-item-dialog';
 import { NotificationAlert } from '../../components/notification-alert';
 import { apiHost, requestOptionsHelper } from '../../helpers/constants';
 
@@ -88,6 +89,33 @@ export const ProfitInsight = (props) => {
       .catch(err => handleAlertOpen('Failed to load Profit Insight', 'error'));
   }
 
+  // Breakdown Dialog Helpers
+  const [selectedRow, setSelectedRow] = useState();
+  const [dialogOpen, setDialogOpen] = useState(false);
+
+  const handleDialogOpen = () => {
+    setDialogOpen(true);
+  }
+  const handleDialogClose= () => {
+    setDialogOpen(false);
+  }
+
+  const handleClick = (params) => {
+    setSelectedRow(params.row);
+  }
+
+  useEffect(() => {
+    if (selectedRow) {
+      handleDialogOpen();
+    }
+  }, [selectedRow])
+
+  useEffect(() => {
+    if (!dialogOpen) {
+      setSelectedRow(null);
+    }
+  }, [dialogOpen])
+
   // DataGrid Columns
   const columns = [
     {
@@ -108,7 +136,9 @@ export const ProfitInsight = (props) => {
       flex: 1,
       renderCell: (params) => (
         (params.row?.revenueLineItems?.length > 0 || params.row?.costLineItems?.length > 0) ?
-        <IconButton>
+        <IconButton
+          onClick={() => handleClick(params)}
+        >
           <ListIcon />
         </IconButton>
         : null
@@ -122,9 +152,6 @@ export const ProfitInsight = (props) => {
   }
   const handleOpenExportClose = () => {
     setOpenExport(false);
-  }
-  const toggleExport = () => {
-    setOpenExport(!openExport);
   }
 
   const ExportProfitButton = (props) => {
@@ -248,6 +275,7 @@ export const ProfitInsight = (props) => {
     getProfit();
   }
 
+
   return (
     <>
       <HelmetProvider>
@@ -273,6 +301,13 @@ export const ProfitInsight = (props) => {
             severity={alertSeverity}
             text={alertText}
             handleClose={handleAlertClose}
+          />
+          <ProfitItemDialog
+            open={dialogOpen}
+            handleClose={handleDialogClose}
+            profit={selectedRow}
+            handleAlertOpen={handleAlertOpen}
+            handleAlertClose={handleAlertClose}
           />
 
           {/* Profit Toolbar with FilterCard */}
@@ -303,20 +338,6 @@ export const ProfitInsight = (props) => {
           </Grid>
           {/* End of Profit Toolbar */}
 
-          {/* <InvoiceMenu
-            key="invoice-menu"
-            anchorEl={anchorEl}
-            menuOpen={menuOpen}
-            handleClickOpen={handleInvoiceDialogOpen}
-            handleMenuClose={handleMenuClose}
-          /> */}
-          {/* <InvoiceDialog
-            open={invoiceDialogOpen}
-            handleClose={handleInvoiceDialogClose}
-            invoice={selectedRow}
-            handleAlertOpen={handleAlertOpen}
-            handleAlertClose={handleAlertClose}
-          /> */}
           <Box
             sx={{
               mt: 3,

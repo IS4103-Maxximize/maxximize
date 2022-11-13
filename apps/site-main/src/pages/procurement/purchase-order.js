@@ -1,10 +1,12 @@
 import MoreVert from '@mui/icons-material/MoreVert';
+import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import {
   Box,
   Card,
   CardContent,
   Container,
   IconButton,
+  Tooltip,
   Typography,
 } from '@mui/material';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
@@ -23,7 +25,7 @@ import {
 } from '../../helpers/procurement-ordering/purchase-order';
 import { PoGoodsReceiptDialog } from '../../components/procurement-ordering/po-goods-receipt-dialog';
 import { SeverityPill } from '../../components/severity-pill';
-import { purchaseOrderStatusColorMap } from '../../helpers/constants';
+import { apiHost, purchaseOrderStatusColorMap, requestOptionsHelper } from '../../helpers/constants';
 // import { purchaseOrders } from "../../__mocks__/purchase-orders";
 
 export const PurchaseOrder = (props) => {
@@ -101,7 +103,10 @@ export const PurchaseOrder = (props) => {
   };
 
   const menuButton = (params) => {
+    const canClose = params.row.supplier === null && params.row.status === 'pending';
+
     return (
+      <>
       <IconButton
         onClick={(event) => {
           console.log(params.row);
@@ -112,7 +117,42 @@ export const PurchaseOrder = (props) => {
       >
         <MoreVert />
       </IconButton>
+      {canClose &&
+      <IconButton
+        color="primary"
+        onClick={() => {
+          setSelectedRow(params.row);
+          handleConfirmCloseDialogOpen();
+        }}
+      >
+        <Tooltip title="Close Purchase Order">
+          <HighlightOffIcon />
+        </Tooltip>
+      </IconButton>}
+      </>
     );
+  };
+
+  // Close Pending Shell-org PO Helpers
+  const [confirmCloseDialogOpen, setConfirmCloseDialogOpen] = useState(false);
+  const handleConfirmCloseDialogOpen = () => {
+    setConfirmCloseDialogOpen(true);
+  };
+  const handleConfirmCloseDialogClose = () => {
+    setConfirmCloseDialogOpen(false);
+  };
+
+  const handleClosePO = async () => {
+    const url = `${apiHost}/purchase-orders/${selectedRow.id}`;
+    const body = JSON.stringify({ status: 'closed' });
+    const requestOptions = requestOptionsHelper('PATCH', body);
+
+    await fetch(url, requestOptions).then(res => res.json())
+      .then(result => {
+        getPOs();
+        handleAlertOpen('Successfully updated Purchase Order status!', 'success');
+      })
+      .catch(err => handleAlertOpen('Failed to update Purchase Order status', 'error'));
   };
 
   // FormDialog Helpers
@@ -322,6 +362,7 @@ export const PurchaseOrder = (props) => {
             handleAlertClose={handleAlertClose}
           />
           <ConfirmDialog
+            key="confirm-delete-po_s"
             open={confirmDialogOpen}
             handleClose={handleConfirmDialogClose}
             dialogTitle={`Delete Purchase Order(s)`}
@@ -329,6 +370,14 @@ export const PurchaseOrder = (props) => {
             dialogAction={() => {
               handleDelete(selectedRows);
             }}
+          />
+          <ConfirmDialog
+            key="confirm-close-shell-po"
+            open={confirmCloseDialogOpen}
+            handleClose={handleConfirmCloseDialogClose}
+            dialogTitle={`Close Purchase Order`}
+            dialogContent={`Confirm status update of Purchase Order from 'pending' to 'closed'?`}
+            dialogAction={handleClosePO}
           />
           <Box
             sx={{

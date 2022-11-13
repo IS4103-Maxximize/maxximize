@@ -135,85 +135,6 @@ export const ProductDialog = (props) => {
     };
   };
 
-  let test = '';
-  const {
-    acceptedFiles,
-    getRootProps,
-    getInputProps,
-    isFocused,
-    isDragAccept,
-    isDragReject,
-  } = useDropzone({
-    maxFiles: 1,
-    accept: { 'image/*': [] },
-    onDrop: (acceptedFiles) => {
-      formik.setFieldValue(
-        'image',
-        getBase64(acceptedFiles, (result) => {
-          console.log(result);
-        })
-      );
-    },
-  });
-
-  const baseStyle = {
-    flex: 1,
-    display: 'flex',
-    flexDirection: 'column',
-    alignitems: 'center',
-    padding: '20px',
-    borderWidth: 2,
-    borderRadius: 2,
-    borderColor: '#eeeeee',
-    borderStyle: 'dashed',
-    backgroundColor: '#fafafa',
-    color: '#bdbdbd',
-    outline: 'none',
-    transition: 'border .24s ease-in-out',
-  };
-
-  const focusedStyle = {
-    borderColor: '#2196f3',
-  };
-
-  const acceptStyle = {
-    borderColor: '#00e676',
-  };
-
-  const rejectStyle = {
-    borderColor: '#ff1744',
-  };
-
-  const style = useMemo(
-    () => ({
-      ...baseStyle,
-      ...(isFocused ? focusedStyle : {}),
-      ...(isDragAccept ? acceptStyle : {}),
-      ...(isDragReject ? rejectStyle : {}),
-    }),
-    [isFocused, isDragAccept, isDragReject]
-  );
-
-  const acceptedFileItems = acceptedFiles.map((file) => (
-    <li key={file.path}>
-      {file.path} - {file.size} bytes
-    </li>
-  ));
-
-  const handleCapture = ({ target }) => {
-    if (target.files.length === 0) {
-      return null;
-    }
-    const fileReader = new FileReader();
-    console.log(target);
-    console.log(target.files[0]);
-    fileReader.readAsDataURL(target.files[0]);
-    fileReader.onloadend = () => {
-      console.log('onLoad');
-      formik.setFieldValue('image', fileReader.result);
-    };
-  };
-
   return (
     <form onSubmit={formik.handleSubmit}>
       <Dialog open={open} onClose={onClose}>
@@ -347,39 +268,6 @@ export const ProductDialog = (props) => {
             value={formik.values.expiry}
             variant="outlined"
           />
-          {type === 'final-goods' ? (
-            <>
-              <Button variant="contained" component="label" onC>
-                Upload Image
-                <input
-                  type="file"
-                  hidden
-                  accept="image/png, image/jpeg"
-                  onChange={handleCapture}
-                />
-              </Button>
-              <Avatar src={formik.values.image} />
-            </>
-          ) : (
-            <></>
-          )}
-          {/* 
-            <Box mt={2}>
-              <Typography variant="h6" sx={{ marginBottom: 2 }}>
-                Upload final good image
-              </Typography>
-              <div {...getRootProps({ style })}>
-                <input {...getInputProps()} />
-                <p>Drag 'n' drop image here, or click to select image</p>
-              </div>
-              <Box ml={3} mt={2}>
-                <aside>
-                  <h4>Uploaded image</h4>
-                  <ul>{acceptedFileItems}</ul>
-                </aside>
-              </Box>
-            </Box>
-           */}
         </DialogContent>
         <DialogActions>
           <Button

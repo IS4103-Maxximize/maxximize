@@ -56,6 +56,7 @@ const ROLES = {
   Manager: 'manager',
   FactoryWorker: 'factoryworker',
   SuperAdmin: 'superadmin',
+  Driver: 'driver'
 };
 
 const routes = (
@@ -96,6 +97,7 @@ const routes = (
               ROLES.Manager,
               ROLES.FactoryWorker,
               ROLES.SuperAdmin,
+              ROLES.Driver
             ]}
           />
         }

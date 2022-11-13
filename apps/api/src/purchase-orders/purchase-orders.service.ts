@@ -11,6 +11,7 @@ import { DataSource, Repository } from 'typeorm';
 import { BatchLineItemsService } from '../batch-line-items/batch-line-items.service';
 import { Contact } from '../contacts/entities/contact.entity';
 import { FinalGood } from '../final-goods/entities/final-good.entity';
+import { InvoiceStatus } from '../invoices/enums/invoiceStatus.enum';
 import { InvoicesService } from '../invoices/invoices.service';
 import { MailService } from '../mail/mail.service';
 import { Organisation } from '../organisations/entities/organisation.entity';
@@ -409,10 +410,18 @@ export class PurchaseOrdersService {
         const shellOrg = await this.shellOrganisationsService.retrieveShellOrgFromUen(purchaseOrderToUpdate.supplier.id, purchaseOrderToUpdate.currentOrganisation.uen)
         shellOrg.currentCredit -= purchaseOrderToUpdate.totalPrice
         await this.shellOrganisationsRepository.save(shellOrg)
+      } else if(key == 'status' && !purchaseOrderToUpdate.invoice && value == PurchaseOrderStatus.CLOSED) {
+        purchaseOrderToUpdate.invoice = await this.invoicesService.create({
+          amount: purchaseOrderToUpdate.totalPrice,
+          poId: id,
+          status: InvoiceStatus.CLOSED,
+          paymentReceived: new Date()
+        })
       } else if (key == 'status' && value == PurchaseOrderStatus.FULFILLED) {       
         purchaseOrderToUpdate.invoice = await this.invoicesService.create({
           amount: purchaseOrderToUpdate.totalPrice,
-          poId: id
+          poId: id,
+          status:InvoiceStatus.PENDING
         })
       }
     });
