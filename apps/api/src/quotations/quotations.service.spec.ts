@@ -30,11 +30,13 @@ describe('QuotationsService', () => {
   const quotation = {
     id: 1,
     created: new Date('2022-11-11'),
-    totalPrice: 50,
+    totalPrice: 0,
     leadTime: 3,
     currentOrganisation: organisation,
     salesInquiry: salesInquiry,
-    shellOrganisation: shellOrganisation
+    shellOrganisation: shellOrganisation,
+    quotationLineItems: [],
+    receivingOrganisation: null
   }
 
   const mockPurchaseOrdersRepo = {}
@@ -48,7 +50,12 @@ describe('QuotationsService', () => {
   }
 
   const mockQuotationsRepo = {
-    create: jest.fn().mockImplementation(dto => dto),
+    create: jest.fn().mockImplementation(dto => {
+      return {
+        ...dto,
+        created: new Date('2022-11-11')
+      }
+    }),
     save: jest.fn().mockImplementation(quotation => {
       return {
         ...quotation,
