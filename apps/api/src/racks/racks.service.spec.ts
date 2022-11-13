@@ -139,7 +139,7 @@ describe('RacksService', () => {
       }
       jest.spyOn(service, 'findOne').mockResolvedValue(expected)
       expect(await service.update(1, {
-        name: 'name 1 updated'
+        description: 'description 1 updated'
       })).toStrictEqual(expected)
     })
   });

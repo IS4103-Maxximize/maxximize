@@ -64,5 +64,26 @@ describe('BinsService', () => {
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
+
+  describe('create', () => {
+    const dto = {
+      ...testBin
+    };
+    it('it should return a bin entity', async () => {
+      const expected = {
+        id: 1,
+        ...testBin
+      }
+      expect(await service.create(dto)).toStrictEqual(expected);
+    });
+
+    // it('should throw an exception if organisation is not found', () => {
+    //   jest.spyOn(organisationService, 'findOne').mockRejectedValueOnce(new NotFoundException("organisation cannot be found"))
+    //   expect(service.create({
+    //     organisationId: 3, 
+    //     ...dto
+    //   })).rejects.toEqual(new NotFoundException("organisation cannot be found"))
+    // });
+  });
   
 });
