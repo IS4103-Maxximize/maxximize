@@ -1,23 +1,33 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { BulkDiscount } from "../../bulk-discounts/entities/bulk-discount.entity";
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { BulkDiscount } from '../../bulk-discounts/entities/bulk-discount.entity';
 
 @Entity()
 export class BulkDiscountRange {
-    @PrimaryGeneratedColumn()
-    id: number
+  @PrimaryGeneratedColumn()
+  id: number;
 
-    @Column({nullable: true})
-    bulkDiscountId: number
-    @ManyToOne(() => BulkDiscount, bulkDiscount => bulkDiscount.bulkDiscountRanges, {onDelete: "CASCADE"})
-    @JoinColumn()
-    bulkDiscount: BulkDiscount
+  @Column({ nullable: true })
+  bulkDiscountId: number;
+  @ManyToOne(
+    () => BulkDiscount,
+    (bulkDiscount) => bulkDiscount.bulkDiscountRanges,
+    { onDelete: 'CASCADE' }
+  )
+  @JoinColumn()
+  bulkDiscount: BulkDiscount;
 
-    @Column()
-    start: number
+  @Column()
+  start: number;
 
-    @Column()
-    end: number
+  @Column({ nullable: true })
+  end: number;
 
-    @Column()
-    discountRate: number
+  @Column()
+  discountRate: number;
 }
