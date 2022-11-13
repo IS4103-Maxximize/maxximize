@@ -392,22 +392,40 @@ const Dashboard = () => {
 
 
   // INIT
+  //TODO load based on role
   useEffect(() => {
+     // Set 1
     Promise.all([
-      //TODO load based on role
-
-      // Set 1
       getProfits(),
       getNewCustomers(),
       getProduction(),
       getCostBreakdown(),
       
-      // Set 2
+      
+    ])
+    .then(values => {
+      // console.log(values);
+    })
+    .catch(err => {
+      console.log(err);
+      // handleAlertOpen('Failed to fetch data', 'error')
+    });
+
+    // Set 2
+    Promise.all([
       getInventory(),
       getDeliveries(),
+    ])
+    .then(values => {
+      // console.log(values);
+    })
+    .catch(err => {
+      console.log(err);
+      // handleAlertOpen('Failed to fetch data', 'error')
+    });
 
-      // Charts
-      // 
+    // Charts
+    Promise.all([
       getHorizontalGraphData2(),
     ])
     .then(values => {
@@ -415,7 +433,7 @@ const Dashboard = () => {
     })
     .catch(err => {
       console.log(err);
-      handleAlertOpen('Failed to fetch data', 'error')
+      // handleAlertOpen('Failed to fetch data', 'error')
     });
   }, [])
 
