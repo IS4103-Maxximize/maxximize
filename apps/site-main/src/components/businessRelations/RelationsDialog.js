@@ -1,6 +1,12 @@
 import {
-  Box, Button,
-  Dialog, DialogContent, DialogTitle, TextField, Typography, useTheme
+  Box,
+  Button,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  TextField,
+  Typography,
+  useTheme,
 } from '@mui/material';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useFormik } from 'formik';
@@ -8,26 +14,28 @@ import { useState } from 'react';
 import * as Yup from 'yup';
 
 export const RelationsDialog = ({
-    fields,
-    openDialog,
-    setOpenDialog,
-    addOrganisation,
-    type,
-    orgId,
-    handleAlertOpen
-  }) => {
-    const theme = useTheme();
-    const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
-    const [error, setError] = useState('')
-    const handleDialogClose = () => {
-      setOpenDialog(false);
-      formik.resetForm();
-    };
+  fields,
+  openDialog,
+  setOpenDialog,
+  addOrganisation,
+  type,
+  orgId,
+  handleAlertOpen,
+}) => {
+  const theme = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
+  const [error, setError] = useState('');
+  const handleDialogClose = () => {
+    setOpenDialog(false);
+    formik.resetForm();
+  };
 
-    const user = JSON.parse(localStorage.getItem('user'));
+  const user = JSON.parse(localStorage.getItem('user'));
 
-    const handleOnSubmit = async () => {
-      const response = await fetch('http://localhost:3000/api/shell-organisations', {
+  const handleOnSubmit = async () => {
+    const response = await fetch(
+      'http://localhost:3000/api/shell-organisations',
+      {
         method: 'POST',
         headers: {
           Accept: 'application/json',
@@ -43,81 +51,82 @@ export const RelationsDialog = ({
             postalCode: formik.values.postalCode,
           },
           organisationId: orgId,
-          type: type === 'supplier' ? "SUPPLIER" : "RETAILER"
+          type: type === 'supplier' ? 'SUPPLIER' : 'RETAILER',
         }),
-      });
-
-      if (response.status === 200 || response.status === 201) {
-        const result = await response.json();
-
-        if (handleAlertOpen) {
-          handleAlertOpen('Successfully onboarded Retailer!', 'success');
-        }
-
-        addOrganisation(result);
-        setError('')
-        handleDialogClose();
-      } else {
-        const result = await response.json()
-        setError(result.message)
       }
-    };
-  
-    const formik = useFormik({
-      initialValues: {
-        name: fields ? fields.name : '',
-        uen: fields ? fields.uen : '',
-        address: fields ? fields.address : '',
-        postalCode: fields ? fields.postalCode : '',
-        email: fields ? fields.email : '',
-        phoneNumber: fields ? fields.phoneNumber : '',
-        creditLimit: 1,
-        error: ''
-      },
-      validationSchema: Yup.object({
-        name: Yup.string()
+    );
+
+    if (response.status === 200 || response.status === 201) {
+      const result = await response.json();
+
+      if (handleAlertOpen) {
+        handleAlertOpen('Successfully onboarded Retailer!', 'success');
+      }
+
+      addOrganisation(result);
+      setError('');
+      handleDialogClose();
+    } else {
+      const result = await response.json();
+      setError(result.message);
+    }
+  };
+
+  const formik = useFormik({
+    initialValues: {
+      name: fields ? fields.name : '',
+      uen: fields ? fields.uen : '',
+      address: fields ? fields.address : '',
+      postalCode: fields ? fields.postalCode : '',
+      email: fields ? fields.email : '',
+      phoneNumber: fields ? fields.phoneNumber : '',
+      creditLimit: 1,
+      error: '',
+    },
+    validationSchema: Yup.object({
+      name: Yup.string()
         .min(1, 'First Name must be at least be 1 character long')
         .max(50, 'First Name can at most be 50 characters long')
         .required('Business partner name is required'),
-        uen: Yup.string().max(255).required('UEN is required'),
-        address: Yup.string()
+      uen: Yup.string().max(255).required('UEN is required'),
+      address: Yup.string()
         .min(3, 'Address must be at least be 3 characters long')
         .max(95, 'Address can at most be 95 characters long')
         .required('Address is required'),
-        postalCode: Yup.string()
+      postalCode: Yup.string()
         .min(6, 'Postal Code must be at least be 6 digits')
         .max(6, 'Postal Code can at most be 6 digits')
         .required('Postal Code is required'),
-        email: Yup.string()
+      email: Yup.string()
         .email('Email must be in a proper format [eg. user@email.com]')
         .min(7, 'Email must be at least be 7 characters long')
         .max(62, 'Email can at most be 62 characters long')
         .required('Email is required'),
-        phoneNumber: Yup.string()
+      phoneNumber: Yup.string()
         .min(8, 'Phone number must be at least be 8 digits')
         .max(16, 'Phone number can at most be 16 digits')
         .matches(new RegExp('[0-9]'), 'Phone number should only contain digits')
         .required('Phone Number is required'),
-        creditLimit: Yup.number()
+      creditLimit: Yup.number()
         .min(1, 'Credit Limit must be a positive number')
         .required('Credit Limit is required'),
-      }),
-      enableReinitialize: true,
-      onSubmit: handleOnSubmit
-    });
-    
-    return (
-      <Dialog
-        fullScreen={fullScreen}
-        open={openDialog}
-        onClose={handleDialogClose}
-        aria-labelledby="responsive-dialog-title"
-      >
-        <DialogTitle id="responsive-dialog-title">
-          {`Onboard New ${type === "supplier" ? "Supplier" : "Retailer"}`}
-        </DialogTitle>
-        <DialogContent>
-          <form onSubmit={formik.handleSubmit}>
+    }),
+    enableReinitialize: true,
+    onSubmit: handleOnSubmit,
+  });
+
+  return (
+    <Dialog
+      fullScreen={fullScreen}
+      open={openDialog}
+      onClose={handleDialogClose}
+      aria-labelledby="responsive-dialog-title"
+    >
+      <DialogTitle id="responsive-dialog-title">
+        {`Onboard New ${type === 'supplier' ? 'Supplier' : 'Retailer'}`}
+      </DialogTitle>
+      <DialogContent>
+        <form onSubmit={formik.handleSubmit}>
           <TextField
             error={Boolean(formik.touched.name && formik.errors.name)}
             fullWidth
@@ -132,7 +141,7 @@ export const RelationsDialog = ({
             size="small"
           />
 
-        <TextField
+          <TextField
             error={Boolean(formik.touched.uen && formik.errors.uen)}
             fullWidth
             helperText={formik.touched.uen && formik.errors.uen}
@@ -205,52 +214,54 @@ export const RelationsDialog = ({
             size="small"
             inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
           />
-          <TextField
-            error={Boolean(
-              formik.touched.creditLimit && formik.errors.creditLimit
-            )}
-            fullWidth
-            helperText={formik.touched.creditLimit && formik.errors.creditLimit}
-            label="Credit Limit"
-            margin="normal"
-            name="creditLimit"
-            type="number"
-            onBlur={formik.handleBlur}
-            onChange={formik.handleChange}
-            value={formik.values.creditLimit}
-            variant="outlined"
-            size="small"
-          />
-            <Typography variant="caption" color="red">
-              {error}
-            </Typography>
-  
-            <Box
-              mt={1}
-              mb={1}
-              sx={{
-                alignItems: 'center',
-                display: 'flex',
-                justifyContent: 'space-between',
-              }}
+          {type === 'retailer' && (
+            <TextField
+              error={Boolean(
+                formik.touched.creditLimit && formik.errors.creditLimit
+              )}
+              fullWidth
+              helperText={
+                formik.touched.creditLimit && formik.errors.creditLimit
+              }
+              label="Credit Limit"
+              margin="normal"
+              name="creditLimit"
+              type="number"
+              onBlur={formik.handleBlur}
+              onChange={formik.handleChange}
+              value={formik.values.creditLimit}
+              variant="outlined"
+              size="small"
+            />
+          )}
+          <Typography variant="caption" color="red">
+            {error}
+          </Typography>
+
+          <Box
+            mt={1}
+            mb={1}
+            sx={{
+              alignItems: 'center',
+              display: 'flex',
+              justifyContent: 'space-between',
+            }}
+          >
+            <Button autoFocus onClick={handleDialogClose}>
+              Back
+            </Button>
+            <Button
+              color="primary"
+              disabled={formik.isSubmitting}
+              size="large"
+              type="submit"
+              variant="contained"
             >
-              <Button autoFocus 
-              onClick={handleDialogClose}>
-                Back
-              </Button>
-              <Button
-                color="primary"
-                disabled={formik.isSubmitting}
-                size="large"
-                type="submit"
-                variant="contained"
-              >
-                Onboard
-              </Button>
-            </Box>
-          </form>
-        </DialogContent>
-      </Dialog>
-    );
-  };
-  
+              Onboard
+            </Button>
+          </Box>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+};

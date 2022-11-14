@@ -19,6 +19,7 @@ export const SubscriptionDialog = (props) => {
 
   const [error, setError] = useState('');
   const [subscriptions, setSubscriptions] = useState([]);
+  const [selectedRow, setSelectedRow] = useState();
 
   // Retrieve all subscriptions invoices
   const retrieveAllSubscriptions = async () => {
@@ -35,6 +36,26 @@ export const SubscriptionDialog = (props) => {
       setSubscriptions(result);
     }
   };
+
+  const [invoices, setInvoices] = useState([]);
+
+  // Retrieve all subscriptions invoices
+  const retrieveAllInvoiceOfSubscriptions = async () => {
+    const response = await fetch(
+      `http://localhost:3000/api/memberships/stripe/invoices/subscriptions/${selectedRow?.id}`
+    );
+    let result = [];
+
+    if (response.status == 200 || response.status == 201) {
+      result = await response.json();
+    }
+
+    setInvoices(result);
+  };
+
+  useEffect(() => {
+    retrieveAllInvoiceOfSubscriptions();
+  }, [selectedRow]);
 
   useEffect(() => {
     if (organisation) {
@@ -53,8 +74,6 @@ export const SubscriptionDialog = (props) => {
   const handleClickClose = () => {
     setSubscriptionInvoicesDialogOpen(false);
   };
-
-  const [selectedRow, setSelectedRow] = useState();
 
   // Action button
   const actionButton = (params) => {
@@ -161,6 +180,7 @@ export const SubscriptionDialog = (props) => {
         open={subscriptionInvoicesDialogOpen}
         handleClose={handleClickClose}
         subscription={selectedRow}
+        invoices={invoices}
       />
       <Dialog
         fullScreen

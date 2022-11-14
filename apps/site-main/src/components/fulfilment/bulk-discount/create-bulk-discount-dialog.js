@@ -77,7 +77,7 @@ export const CreateBulkDiscountDialog = ({
       },
       body: JSON.stringify({
         organisationId: organisationId,
-        bulkType: formik.values.type,
+        bulkType: selectedType,
         bulkDiscountRangeDtos: ranges,
       }),
     });
@@ -86,6 +86,7 @@ export const CreateBulkDiscountDialog = ({
       const result = await response.json();
 
       handleAlertOpen(`Created Bulk Discount ${result.id} successfully`);
+      retrieveAllBulkDiscounts();
       setError('');
       onClose();
     } else {
@@ -139,9 +140,10 @@ export const CreateBulkDiscountDialog = ({
 
   const handleDelete = async () => {
     let result = ranges.shift();
-    result[0].end = null;
+    console.log(ranges);
+    ranges[0].end = null;
 
-    setRanges(result);
+    // setRanges(ranges);
     handleAlertOpen('Deleted discount range successfully', 'success');
   };
 

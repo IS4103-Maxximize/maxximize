@@ -196,7 +196,7 @@ export const ProfitInsight = (props) => {
             const cost = item.costLineItems.length > 0;
             return (
               <View key={item.dateKey} style={styles.entry}>
-                <Text style={styles.entryTitle}>{`${item.dateKey} - $${item.profit}`}</Text>
+                <Text style={styles.entryTitle}>{`${item.dateKey} - $${item.profit.toFixed(2)}`}</Text>
                 {rev && 
                 <View key={`revenueLineItems_${index}`} style={styles.tableHeader}>
                   <Text>Revenue Items</Text>
@@ -258,7 +258,7 @@ export const ProfitInsight = (props) => {
                           return ''
                         }}/>
                         <DataTableCell getContent={(r) => r.type}/>
-                        <DataTableCell getContent={(r) => r.costAmount}/>
+                        <DataTableCell getContent={(r) => r.costAmount.toFixed(2)}/>
                       </TableBody>
                     </Table>
                   {/* </View> */}

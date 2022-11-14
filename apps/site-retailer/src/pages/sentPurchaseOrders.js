@@ -248,8 +248,8 @@ export const SentPurchaseOrders = (props) => {
       <POConfirmDialog
         open={confirmDialogOpen}
         handleClose={handleConfirmDialogClose}
-        dialogTitle={`Delete purchase order(s)`}
-        dialogContent={`Confirm deletion of purchase order(s)?`}
+        dialogTitle={`Fulfilment(s)`}
+        dialogContent={`Confirm fulfilment of purchase order(s)?`}
         dialogAction={() => {
           handleCompletion(selectedRow.id);
         }}

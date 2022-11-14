@@ -2,7 +2,20 @@ import GroupsIcon from '@mui/icons-material/Groups';
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import MoneyIcon from '@mui/icons-material/Money';
 import PrecisionManufacturingIcon from '@mui/icons-material/PrecisionManufacturing';
-import { Box, Button, Container, FormControl, Grid, InputLabel, Link, MenuItem, Select, Skeleton, TextField, Typography } from '@mui/material';
+import {
+  Box,
+  Button,
+  Container,
+  FormControl,
+  Grid,
+  InputLabel,
+  Link,
+  MenuItem,
+  Select,
+  Skeleton,
+  TextField,
+  Typography,
+} from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import DayJS from 'dayjs';
 import { useEffect, useState } from 'react';
@@ -39,7 +52,7 @@ const Dashboard = () => {
   useEffect(() => {
     getSessionUrl(user, setSessionUrl);
     setActive(user.organisation?.membership?.status === 'active');
-  }, [])
+  }, []);
 
   // Alert Helpers
   const [alertOpen, setAlertOpen] = useState(false);
@@ -54,7 +67,6 @@ const Dashboard = () => {
     setAlertOpen(false);
   };
 
-
   // Generic Card Helpers
   const getTrend = (change) => {
     if (change === 0) {
@@ -67,8 +79,7 @@ const Dashboard = () => {
       return 'down';
     }
     return null;
-  }
-
+  };
 
   // Profits Card Helpers
   const [profits, setProfits] = useState([]);
@@ -78,34 +89,34 @@ const Dashboard = () => {
     const today = new Date();
     const url = `${apiHost}/profit`;
     const body = JSON.stringify({
-      "inDate": null,
-      "start": DayJS(today).subtract(1, 'month'),
-      "end": today,
-      "range": true,
-      "type": "month",
-      "organisationId": organisationId
+      inDate: null,
+      start: DayJS(today).subtract(1, 'month'),
+      end: today,
+      range: true,
+      type: 'month',
+      organisationId: organisationId,
     });
 
     const requestOptions = requestOptionsHelper('POST', body);
 
-    await fetch(url, requestOptions).then(res => res.json())
-      .then(result => {
-        setProfits(result)
+    await fetch(url, requestOptions)
+      .then((res) => res.json())
+      .then((result) => {
+        setProfits(result);
         setProfitChange(result[1].profit - result[0].profit);
       });
-  }
+  };
   // ------------------------------------------------------------------------------------
-
 
   // New Customers Card Helpers
   const [newCustomers, setNewCustomers] = useState();
   const getNewCustomers = async () => {
     const url = `${apiHost}/shell-organisations/newCustomers/${organisationId}`;
-    await fetch(url).then(res => res.json())
-      .then(result => setNewCustomers(result));
-  }
-  // ------------------------------------------------------------------------------------ 
-
+    await fetch(url)
+      .then((res) => res.json())
+      .then((result) => setNewCustomers(result));
+  };
+  // ------------------------------------------------------------------------------------
 
   // Production Throughput and Yield Card Helpers
   const [production, setProduction] = useState(); // [yield, throughput]
@@ -114,63 +125,75 @@ const Dashboard = () => {
     const yieldUrl = `${baseUrl}/yield/${organisationId}`;
     const throughputUrl = `${baseUrl}/throughput/${organisationId}`;
 
-    const getYield = fetch(yieldUrl).then(res => res.json());
-    const getThroughput = fetch(throughputUrl).then(res => res.json());
+    const getYield = fetch(yieldUrl).then((res) => res.json());
+    const getThroughput = fetch(throughputUrl).then((res) => res.json());
 
-    await Promise.all([getYield, getThroughput])
-      .then(values => setProduction(values));
-  }
+    await Promise.all([getYield, getThroughput]).then((values) =>
+      setProduction(values)
+    );
+  };
   // ------------------------------------------------------------------------------------
-
 
   // Inventory Card Helpers
   // Slider Helpers
-  const [defaultLevel, setDefaultLevel] = useState(20)
+  const [defaultLevel, setDefaultLevel] = useState(20);
   const [warningLevel, setWarningLevel] = useState(defaultLevel);
 
   const handleDrag = (event, value) => {
     setWarningLevel(value);
-  }
+  };
 
   const [inventory, setInventory] = useState([]);
 
   const getInventory = async () => {
-    const url = `${apiHost}/batch-line-items/inventoryLevel/${organisationId}/${warningLevel}`
-    await fetch(url).then(res => res.json())
-      .then(result => {
-        const mapped = result.map((item, index) => {return {id: index, ...item }});
+    const url = `${apiHost}/batch-line-items/inventoryLevel/${organisationId}/${warningLevel}`;
+    await fetch(url)
+      .then((res) => res.json())
+      .then((result) => {
+        const mapped = result.map((item, index) => {
+          return { id: index, ...item };
+        });
         setInventory(mapped);
-      })
-  }
+      });
+  };
 
   const handleRefresh = async () => {
     getInventory().then(() => {
       setDefaultLevel(warningLevel);
-      handleAlertOpen('Successfully updated Inventory Warning Level!', 'success');
-    })
-  }
+      handleAlertOpen(
+        'Successfully updated Inventory Warning Level!',
+        'success'
+      );
+    });
+  };
 
   // Send Bulk Production Requests
   const sendProdRequests = async () => {
     const url = `${apiHost}/production-requests/bulk`;
-    const productionRequestDtos = inventory.map(item => {
+    const productionRequestDtos = inventory.map((item) => {
       const dto = {
         quantity: item.totalQuantity - item.remainingQuantity,
         finalGoodId: item.finalGood.id,
-        organisationId: organisationId
+        organisationId: organisationId,
       };
       return dto;
     });
-    const requestOptions = requestOptionsHelper('POST', JSON.stringify(productionRequestDtos));
+    const requestOptions = requestOptionsHelper(
+      'POST',
+      JSON.stringify(productionRequestDtos)
+    );
 
-    await fetch(url, requestOptions).then(res => res.json())
-      .then(result => {
+    await fetch(url, requestOptions)
+      .then((res) => res.json())
+      .then((result) => {
         getInventory();
-        handleAlertOpen('Successfully created Production Requests for Final Goods!', 'success');
+        handleAlertOpen(
+          'Successfully created Production Requests for Final Goods!',
+          'success'
+        );
       });
-  }
+  };
   // ------------------------------------------------------------------------------------
-
 
   // Monthly Cost Breakdown Card + Doughnut
   const [costBreakdown, setCostBreakdown] = useState();
@@ -185,11 +208,12 @@ const Dashboard = () => {
       end: null,
       range: false,
       type: 'month',
-      organisationId: organisationId
+      organisationId: organisationId,
     });
     const requestOptions = requestOptionsHelper('POST', body);
-    await fetch(url, requestOptions).then(res => res.json())
-      .then(result => {
+    await fetch(url, requestOptions)
+      .then((res) => res.json())
+      .then((result) => {
         setCostBreakdown(result);
 
         const data = [];
@@ -203,87 +227,93 @@ const Dashboard = () => {
         setCostData(data);
         setCostLabels(labels);
       });
-  }
+  };
 
   const costBreakdownHeaderProps = {
-    title: "Monthly Cost Breakdown"
-  }
+    title: 'Monthly Cost Breakdown',
+  };
 
-  const CostBreakdownCardContent = (props) => 
-    (
-      <Box
-        sx={{
-          height: 400,
-          position: 'relative'
-        }}
-      >
-        <DoughnutChart
-          data={costData}
-          labels={costLabels}
-        /> 
-      </Box>
-    );
+  const CostBreakdownCardContent = (props) => (
+    <Box
+      sx={{
+        height: 400,
+        position: 'relative',
+      }}
+    >
+      <DoughnutChart data={costData} labels={costLabels} />
+    </Box>
+  );
   // ------------------------------------------------------------------------------------
 
   // Deliveries Helpers
   const [assigned, setAssigned] = useState();
   const [deliveries, setDeliveries] = useState([]);
   const getDeliveries = async () => {
-    const url = `${apiHost}/delivery-requests/findAllByWorkerId/${8}`;
-    await fetch(url).then(res => res.json())
-      .then(result => {
+    const url = `${apiHost}/delivery-requests/findAllByWorkerId/${user.id}`;
+    await fetch(url)
+      .then((res) => res.json())
+      .then((result) => {
         const deliveries = [];
         let assigned = null;
         result.forEach((item, index) => {
           if (item.status === 'completed') {
             deliveries.push(item);
-          } else { // assigned to Driver
+          } else {
+            // assigned to Driver
             assigned = item;
           }
-        })
+        });
         setAssigned(assigned);
         setDeliveries(deliveries);
-      })
-  }
+      });
+  };
 
   // ------------------------------------------------------------------------------------
-
 
   // Picking List Helpers
   const [pickingList, setPickingList] = useState([]);
 
   const getPickingList = async () => {
     const url = `${apiHost}/production-orders/retrieveBatchLineItemsForProduction/${organisationId}`;
-    await fetch(url).then(res => res.json())
-      .then(result => setPickingList(result.map((item, index) => {return {id: index, ...item}})));
-  }
+    await fetch(url)
+      .then((res) => res.json())
+      .then((result) =>
+        setPickingList(
+          result.map((item, index) => {
+            return { id: index, ...item };
+          })
+        )
+      );
+  };
 
   const pickingListColumns = [
     {
       field: 'code',
       headerName: 'Batch Line Item Code',
       flex: 2,
-      valueGetter: (params) => params.row ? 
-        params.row.batchLineItem.code : ''
+      valueGetter: (params) =>
+        params.row ? params.row.batchLineItem.code : '',
     },
     {
       field: 'batchNumber',
       headerName: 'Batch Number',
       flex: 2,
-      valueGetter: (params) => params.row ?
-        params.row.batchLineItem.batch.batchNumber : ''
+      valueGetter: (params) =>
+        params.row ? params.row.batchLineItem.batch.batchNumber : '',
     },
     {
       field: 'quantityToTake',
       headerName: 'Retrieve Quantity',
-      flex: 1
+      flex: 1,
     },
-  ]
+  ];
 
   const pickingListHeaderProps = {
-    title: `Batch Line Items to retrieve today, ${DayJS().format('ddd DD MMM YYYY')}`,
-    action: <SeverityPill color="primary">Raw Materials</SeverityPill>
-  }
+    title: `Batch Line Items to retrieve today, ${DayJS().format(
+      'ddd DD MMM YYYY'
+    )}`,
+    action: <SeverityPill color="primary">Raw Materials</SeverityPill>,
+  };
 
   const pickingListContent = (
     <DataGrid
@@ -294,10 +324,9 @@ const Dashboard = () => {
       rowsPerPageOptions={[10]}
       disableSelectionOnClick
     />
-  )
-    
-  // ------------------------------------------------------------------------------------
+  );
 
+  // ------------------------------------------------------------------------------------
 
   // Chart Helpers
   const today = new Date();
@@ -307,13 +336,13 @@ const Dashboard = () => {
   const [selectedDays, setSelectedDays] = useState(7);
 
   useEffect(() => {
-    if (selectedDays) { 
+    if (selectedDays) {
       getGraphData();
     }
-  }, [selectedDays])
+  }, [selectedDays]);
 
   const onChange = (event) => {
-    console.log(event.target)
+    console.log(event.target);
     setSelectedDays(event.target.value);
   };
 
@@ -321,39 +350,38 @@ const Dashboard = () => {
   const [selectedCount, setSelectedCount] = useState(5);
 
   useEffect(() => {
-    if (selectedCount) { 
-      getHorizontalGraphData1()
+    if (selectedCount) {
+      getHorizontalGraphData1();
     }
-  }, [selectedCount])
-
+  }, [selectedCount]);
 
   const handleChange = (event) => {
-    console.log(event.target)
+    console.log(event.target);
     setSelectedCount(event.target.value);
   };
 
   const DropDown = () => {
-    return(
+    return (
       <FormControl fullWidth>
-          <InputLabel id="demo-simple-select-label">Date Range</InputLabel>
-          <Select
-            labelId="demo-simple-select-label"
-            id="demo-simple-select"
-            value={selectedDays}
-            label="time range"
-            onChange={onChange}
-          >
-            <MenuItem value={7}>Last 7 days</MenuItem>
-            <MenuItem value={14}>Last 14 days</MenuItem>
-            <MenuItem value={21}>Last 21 days</MenuItem>
-          </Select>
-        </FormControl>
+        <InputLabel id="demo-simple-select-label">Date Range</InputLabel>
+        <Select
+          labelId="demo-simple-select-label"
+          id="demo-simple-select"
+          value={selectedDays}
+          label="time range"
+          onChange={onChange}
+        >
+          <MenuItem value={7}>Last 7 days</MenuItem>
+          <MenuItem value={14}>Last 14 days</MenuItem>
+          <MenuItem value={21}>Last 21 days</MenuItem>
+        </Select>
+      </FormControl>
     );
   };
 
   const Counter = () => {
-    return(
-      <TextField 
+    return (
+      <TextField
         fullWidth
         type="number"
         inputProps={{ max: 20, min: 1 }}
@@ -378,30 +406,31 @@ const Dashboard = () => {
     const body = JSON.stringify({
       days: selectedDays,
       currentDate: today,
-      organisationId: organisationId
+      organisationId: organisationId,
     });
     const requestOptions = requestOptionsHelper('POST', body);
 
-   await fetch(apiUrl,requestOptions).then(res => res.json())
-    .then(result => {
-      const arrSalesAmountThisYear = []
-      const arrSalesAmountLastYear = []
-      const arrDateLabels = []
+    await fetch(apiUrl, requestOptions)
+      .then((res) => res.json())
+      .then((result) => {
+        const arrSalesAmountThisYear = [];
+        const arrSalesAmountLastYear = [];
+        const arrDateLabels = [];
 
-      result.forEach(item => {
-        arrSalesAmountThisYear.push(item.salesAmountThisYear)
-        arrSalesAmountLastYear.push(item.salesAmountLastYear)
-        arrDateLabels.push(item.dateKey)
-      })
+        result.forEach((item) => {
+          arrSalesAmountThisYear.push(item.salesAmountThisYear);
+          arrSalesAmountLastYear.push(item.salesAmountLastYear);
+          arrDateLabels.push(item.dateKey);
+        });
 
-      const reversedSalesThisYear = arrSalesAmountThisYear.reverse();
-      const reversedSalesLastYear = arrSalesAmountLastYear.reverse();
-      const reversedDays = arrDateLabels.reverse();
+        const reversedSalesThisYear = arrSalesAmountThisYear.reverse();
+        const reversedSalesLastYear = arrSalesAmountLastYear.reverse();
+        const reversedDays = arrDateLabels.reverse();
 
-      setGraphDataThisYear(reversedSalesThisYear);
-      setGraphDataLastYear(reversedSalesLastYear);
-      setDateLabels(reversedDays);
-    });
+        setGraphDataThisYear(reversedSalesThisYear);
+        setGraphDataLastYear(reversedSalesLastYear);
+        setDateLabels(reversedDays);
+      });
   };
 
   // horizontal graph data 1
@@ -416,20 +445,21 @@ const Dashboard = () => {
       start: null,
       end: null,
       range: false,
-      type: "month",
+      type: 'month',
       organisationId: organisationId,
-      count:selectedCount
+      count: selectedCount,
     });
     const requestOptions = requestOptionsHelper('POST', body);
-    
-    await fetch(apiUrl,requestOptions).then(res => res.json())
-      .then(result => {
+
+    await fetch(apiUrl, requestOptions)
+      .then((res) => res.json())
+      .then((result) => {
         const nameLabels = [];
         const contributionLabels = [];
 
-        result.forEach(item => {
-          nameLabels.push(item.name)
-          contributionLabels.push(item.contribution)
+        result.forEach((item) => {
+          nameLabels.push(item.name);
+          contributionLabels.push(item.contribution);
         });
 
         setGraphData1(contributionLabels);
@@ -447,14 +477,15 @@ const Dashboard = () => {
   const getHorizontalGraphData2 = async () => {
     const apiUrl = `${apiHost}/final-goods/topSales/${organisationId}/${selectedCount2}`;
 
-    await fetch(apiUrl).then(res => res.json())
-      .then(result => {
+    await fetch(apiUrl)
+      .then((res) => res.json())
+      .then((result) => {
         const nameLabels = [];
         const quantityLabels = [];
 
-        result.forEach(item => {
-          nameLabels.push(item.name)
-          quantityLabels.push(item.quantity)
+        result.forEach((item) => {
+          nameLabels.push(item.name);
+          quantityLabels.push(item.quantity);
         });
 
         setGraphData2(quantityLabels);
@@ -466,16 +497,16 @@ const Dashboard = () => {
     if (selectedCount2) {
       getHorizontalGraphData2();
     }
-  }, [selectedCount2])
+  }, [selectedCount2]);
 
   const handleChange2 = (event) => {
-    console.log(event.target)
+    console.log(event.target);
     setSelectedCount2(event.target.value);
   };
 
   const Counter2 = () => {
-    return(
-      <TextField 
+    return (
+      <TextField
         fullWidth
         type="number"
         inputProps={{ max: 20, min: 1 }}
@@ -490,11 +521,10 @@ const Dashboard = () => {
   };
   // ------------------------------------------------------------------------------------
 
-
   // INIT
   useEffect(() => {
-     // Set 1
-     // Admin and Manager
+    // Set 1
+    // Admin and Manager
     if (['admin', 'manager', 'superadmin'].includes(role)) {
       Promise.all([
         getProfits(),
@@ -503,46 +533,41 @@ const Dashboard = () => {
         getCostBreakdown(),
         getHorizontalGraphData2(),
       ])
-      .then(values => {
-        // console.log(values);
-      })
-      .catch(err => {
-        console.log(err);
-        // handleAlertOpen('Failed to fetch data', 'error')
-      });
+        .then((values) => {
+          // console.log(values);
+        })
+        .catch((err) => {
+          console.log(err);
+          // handleAlertOpen('Failed to fetch data', 'error')
+        });
     }
 
     // Set 2
     // Factory Worker
     if (['factoryworker', 'superadmin'].includes(role)) {
-      Promise.all([
-        getInventory(),
-        getPickingList(),
-      ])
-      .then(values => {
-        // console.log(values);
-      })
-      .catch(err => {
-        console.log(err);
-        // handleAlertOpen('Failed to fetch data', 'error')
-      });
+      Promise.all([getInventory(), getPickingList()])
+        .then((values) => {
+          // console.log(values);
+        })
+        .catch((err) => {
+          console.log(err);
+          // handleAlertOpen('Failed to fetch data', 'error')
+        });
     }
 
     // Set 3
     // Driver
     if (['driver', 'superadmin'].includes(role)) {
-      Promise.all([
-        getDeliveries(),
-      ])
-      .then(values => {
-        // console.log(values);
-      })
-      .catch(err => {
-        console.log(err);
-        // handleAlertOpen('Failed to fetch data', 'error')
-      });
+      Promise.all([getDeliveries()])
+        .then((values) => {
+          // console.log(values);
+        })
+        .catch((err) => {
+          console.log(err);
+          // handleAlertOpen('Failed to fetch data', 'error')
+        });
     }
-  }, [])
+  }, []);
 
   // Dashboard Grid Items
   // For Manager + Admin
@@ -555,7 +580,9 @@ const Dashboard = () => {
           title={'New Customers'}
           icon={<GroupsIcon />}
           value={newCustomers ? `${newCustomers.count}` : null}
-          change={newCustomers ? `${(newCustomers.pct_change).toFixed(2)}%` : null}
+          change={
+            newCustomers ? `${newCustomers.pct_change.toFixed(2)}%` : null
+          }
           trend={getTrend(newCustomers?.pct_change)}
           sinceLast={'month'}
           avatarColor={'primary.main'}
@@ -568,7 +595,9 @@ const Dashboard = () => {
           title={'Profit'}
           icon={<MoneyIcon />}
           value={profits.length > 1 ? `$${profits[1].profit}` : null}
-          change={profits.length > 1 ? `${(profitChange/100).toFixed(2)}%` : null}
+          change={
+            profits.length > 1 ? `${(profitChange / 100).toFixed(2)}%` : null
+          }
           trend={getTrend(profitChange)}
           sinceLast={'month'}
           avatarColor={'secondary.main'}
@@ -580,7 +609,7 @@ const Dashboard = () => {
           sx={{ height: '100% ' }}
           title={'Production Throughput'}
           icon={<PrecisionManufacturingIcon />}
-          value={production ? `${(production[1]).toFixed(2)}` : null}
+          value={production ? `${production[1].toFixed(2)}` : null}
           change={production ? 'Amount of Final Goods / hr' : null}
           avatarColor={'warning.main'}
         />
@@ -591,12 +620,12 @@ const Dashboard = () => {
           sx={{ height: '100% ' }}
           title={'Production Yield'}
           icon={<PrecisionManufacturingIcon />}
-          value={production ? `${(production[0]*100).toFixed(1)}%` : null}
+          value={production ? `${(production[0] * 100).toFixed(1)}%` : null}
           avatarColor={'warning.main'}
         />
       </Grid>
       <Grid item lg={8} md={8} xl={9} xs={12}>
-        <InventoryCard 
+        <InventoryCard
           sx={{ height: '100%' }}
           defaultLevel={defaultLevel}
           warningLevel={warningLevel}
@@ -617,27 +646,27 @@ const Dashboard = () => {
       {/* CHARTS */}
       <Grid item lg={12} md={12} xl={12} xs={12}>
         <VerticalChart
-          dropDown={<DropDown/>}
+          dropDown={<DropDown />}
           dateLabels={dateLabels}
           graphDataThisYear={graphDataThisYear}
           graphDataLastYear={graphDataLastYear}
-          graphTitle= "Total Sales Amount"
+          graphTitle="Total Sales Amount"
         />
       </Grid>
 
       <Grid item lg={6} md={12} xl={6} xs={12}>
-        <HorizontalChart 
-          counter={<Counter2/>}
+        <HorizontalChart
+          counter={<Counter2 />}
           graphLabels={graphLabels2}
           graphData={graphData2}
           graphTitle={`Top ${selectedCount2} best selling goods this month`}
-          sx={{ height: '100%' }} 
+          sx={{ height: '100%' }}
         />
       </Grid>
 
       <Grid item lg={6} md={12} xl={6} xs={12}>
-        <HorizontalChart 
-          counter={<Counter/>}
+        <HorizontalChart
+          counter={<Counter />}
           graphLabels={graphLabels1}
           graphData={graphData1}
           graphTitle={`Top ${selectedCount} customers contributing to revenue`}
@@ -657,7 +686,7 @@ const Dashboard = () => {
         />
       </Grid>
       <Grid item lg={6} md={12} xl={6} xs={12}>
-        <InventoryCard 
+        <InventoryCard
           sx={{ height: '100%' }}
           defaultLevel={defaultLevel}
           warningLevel={warningLevel}
@@ -669,28 +698,26 @@ const Dashboard = () => {
         />
       </Grid>
     </>
-  )
+  );
 
   // Driver Dashboard Items
   const DashboardItems3 = (props) => (
     <>
       <Grid item lg={8} md={12} xl={9} xs={12}>
         <Deliveries
-          sx={{ height: '100%'}}
+          sx={{ height: '100%' }}
           assigned={assigned}
           deliveries={deliveries}
           handleRefresh={handleRefresh}
           handleAlertOpen={handleAlertOpen}
+          getDeliveries={getDeliveries}
         />
       </Grid>
       <Grid item lg={4} md={6} xl={3} xs={12}>
-        <TrackDelivery 
-          sx={{ height: '100%' }}
-          assigned={assigned}
-        />
+        <TrackDelivery sx={{ height: '100%' }} assigned={assigned} />
       </Grid>
     </>
-  )
+  );
 
   // For reference
   const DefaultDashboardItems = () => (
@@ -723,7 +750,6 @@ const Dashboard = () => {
   );
   // ------------------------------------------------------------------------------------
 
-
   return (
     <>
       <HelmetProvider>
@@ -735,7 +761,7 @@ const Dashboard = () => {
         component="main"
         sx={{
           flexGrow: 1,
-          py: 4
+          py: 4,
         }}
       >
         <Blur open={!active}>
@@ -744,23 +770,26 @@ const Dashboard = () => {
               textAlign: 'center',
             }}
           >
-            <Typography 
-              variant="h6"
-              pb={2}
-            >
-                Visit the Customer Portal to Resume or Start your Subscription
+            <Typography variant="h6" pb={2}>
+              Visit the Customer Portal to Resume or Start your Subscription
             </Typography>
-            {sessionUrl ? 
+            {sessionUrl ? (
               <Button
                 LinkComponent={Link}
-                variant="contained" 
+                variant="contained"
                 endIcon={<ManageAccountsIcon />}
                 href={sessionUrl}
               >
                 Customer Portal
               </Button>
-              : <Skeleton sx={{ bgcolor: "grey.700" }} variant="rectangular" width={500} height={50}/>
-            }
+            ) : (
+              <Skeleton
+                sx={{ bgcolor: 'grey.700' }}
+                variant="rectangular"
+                width={500}
+                height={50}
+              />
+            )}
           </Box>
         </Blur>
         <NotificationAlert
@@ -770,18 +799,15 @@ const Dashboard = () => {
           handleClose={handleAlertClose}
         />
         <Container maxWidth={false}>
-          <Grid container spacing={3}  width='100%'>
+          <Grid container spacing={3} width="100%">
             {/* <DefaultDashboardItems /> */}
-            {['manager', 
-              'admin',
-              'superadmin',
-              ].includes(role) && <DashboardItems1 />}
-            {['factoryworker',
-              'superadmin',
-              ].includes(role) && <DashboardItems2 />}
-            {['driver',
-              'superadmin',
-              ].includes(role) && <DashboardItems3 />}
+            {['manager', 'admin', 'superadmin'].includes(role) && (
+              <DashboardItems1 />
+            )}
+            {['factoryworker', 'superadmin'].includes(role) && (
+              <DashboardItems2 />
+            )}
+            {['driver', 'superadmin'].includes(role) && <DashboardItems3 />}
           </Grid>
         </Container>
       </Box>

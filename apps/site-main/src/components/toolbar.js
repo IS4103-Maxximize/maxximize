@@ -23,6 +23,7 @@ import {
 } from '../helpers/constants';
 import { Search as SearchIcon } from '../icons/search';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
+import InfoIcon from '@mui/icons-material/Info';
 import { NotificationAlert } from './notification-alert';
 
 export const Toolbar = (props) => {
@@ -76,7 +77,7 @@ export const Toolbar = (props) => {
     );
 
     if (uploadResponse.status === 200 || uploadResponse.status === 201) {
-      const result = await uploadResponse.json();
+      handleAlertOpen('Uploaded Successfully!', 'success');
       setDisabled(false);
     } else {
       const result = await uploadResponse.json();
@@ -159,21 +160,24 @@ export const Toolbar = (props) => {
 
                 <Box sx={{ m: 1 }}>
                   {name === 'Purchase Order' ? (
-                    <Tooltip title="Upload purchase orders">
-                      <IconButton
-                        variant="contained"
-                        component="label"
-                        disabled={disabled}
-                      >
-                        <UploadFileIcon color="primary" />
-                        <input
-                          type="file"
-                          hidden
-                          accept=".csv"
-                          onChange={handleCSVUpload}
-                        />
-                      </IconButton>
-                    </Tooltip>
+                    <>
+                      <Tooltip title="Format for CSV: Delivery Address,	Total Price, Delivery Date,	quantity,	price,	finalGoodId, PurchaseOrderId">
+                        <IconButton variant="contained" component="label">
+                          <InfoIcon color="primary" />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title="Upload purchase orders">
+                        <IconButton variant="contained" component="label">
+                          <UploadFileIcon color="primary" />
+                          <input
+                            type="file"
+                            hidden
+                            accept=".csv"
+                            onChange={handleCSVUpload}
+                          />
+                        </IconButton>
+                      </Tooltip>
+                    </>
                   ) : (
                     <></>
                   )}

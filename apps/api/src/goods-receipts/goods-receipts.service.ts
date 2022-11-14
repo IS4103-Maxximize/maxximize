@@ -80,6 +80,7 @@ export class GoodsReceiptsService {
 
       purchaseOrder.followUpLineItems = followUpLineItems;
 
+      let invoice: Invoice;
       for (const reserveLineItem of purchaseOrder.reservationLineItems) {
         queryRunner.manager.softDelete(ReservationLineItem, reserveLineItem.id);
       }
@@ -90,19 +91,18 @@ export class GoodsReceiptsService {
       ) {
         purchaseOrder.status = PurchaseOrderStatus.FULFILLED;
         if (purchaseOrder.supplier) {
-          const invoice = new Invoice();
+          invoice = new Invoice();
           invoice.date = new Date();
           invoice.amount = purchaseOrder.totalPrice;
           invoice.status = InvoiceStatus.PENDING;
-          invoice.po = purchaseOrder;
-          queryRunner.manager.save(invoice);
           purchaseOrder.followUpLineItems = [];
+          const savedInvoice = await queryRunner.manager.save(invoice);
+		  purchaseOrder.invoice = savedInvoice;
         }
-        
       } else {
         purchaseOrder.status = PurchaseOrderStatus.PARTIALLYFULFILLED;
       }
-      queryRunner.manager.save(purchaseOrder);
+      await queryRunner.manager.save(purchaseOrder);
 
       const recipient = await this.userService.findOne(
         createGoodsReceiptDto.recipientId

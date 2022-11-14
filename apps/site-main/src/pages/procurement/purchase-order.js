@@ -224,7 +224,7 @@ export const PurchaseOrder = (props) => {
       headerName: 'Delivery Date',
       flex: 1,
       valueGetter: (params) => {
-        return format(parseISO(params.row.deliveryDate), 'dd MMM yyyy');
+        return params.row.deliveryDate ? format(parseISO(params.row.deliveryDate), 'dd MMM yyyy') : '';
       },
     },
     {

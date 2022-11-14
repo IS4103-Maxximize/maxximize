@@ -80,7 +80,7 @@ export const CostDialog = (props) => {
       field: 'costAmount',
       headerName: 'Amount',
       flex: 2,
-      valueFormatter: (params) => `$ ${params.value}`
+      valueFormatter: (params) => `$ ${params.value.toFixed(2)}`
     },
   ]
 

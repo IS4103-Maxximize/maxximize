@@ -13,33 +13,21 @@ import { useEffect, useState } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 
 export const SubscriptionInvoiceDialog = (props) => {
-  const { open, handleClose, subscription } = props;
+  const { open, handleClose, subscription, invoices } = props;
 
   const [error, setError] = useState('');
-  const [invoices, setInvoices] = useState([]);
 
-  // Retrieve all subscriptions invoices
-  const retrieveAllInvoiceOfSubscriptions = async () => {
-    if (subscription) {
-      const response = await fetch(
-        `http://localhost:3000/api/memberships/stripe/invoices/subscriptions/${subscription?.id}`
-      );
-      let result = [];
-
-      if (response.status == 200 || response.status == 201) {
-        result = await response.json();
-      }
-
-      setInvoices(result);
-    }
-  };
-
-  useEffect(() => retrieveAllInvoiceOfSubscriptions, [open]);
+  //   useEffect(() => {
+  //     if (open && subscription) {
+  //       retrieveAllInvoiceOfSubscriptions();
+  //     }
+  //   }, [open]);
 
   // Close dialog
   const onClose = () => {
     handleClose();
     setError('');
+    // setInvoices([]);
   };
 
   // Columns for subscription datagrid
@@ -106,6 +94,7 @@ export const SubscriptionInvoiceDialog = (props) => {
           </Box>
           <Box mt={2}>
             <Typography variant="h6">Invoices</Typography>
+
             <DataGrid
               autoHeight
               rows={invoices}

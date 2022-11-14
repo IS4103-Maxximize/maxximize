@@ -51,7 +51,8 @@
       "defaultConfiguration": "development",
       "options": {
         "buildTarget": "site-retailer:build",
-        "hmr": true
+        "hmr": true,
+		"port": 4202
       },
       "configurations": {
         "development": {

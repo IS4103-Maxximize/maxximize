@@ -50,7 +50,7 @@ export const CartCard = (props) => {
               aria-label="comments"
               onClick={handleDialogOpen}
             >
-              <EditIcon />
+              <EditIcon color="primary" />
             </IconButton>
           </Box>
         }
