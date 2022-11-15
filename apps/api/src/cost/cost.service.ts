@@ -12,214 +12,300 @@ import { GetCostDto } from './dto/get-cost.dto';
 @Injectable()
 export class CostService {
   private months = [
-    "January", "February", "March", 
-    "April", "May", "June", 
-    "July", "August", "September", 
-    "October", "November", "December"
-  ]
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ];
   constructor(
-      private invoicesService: InvoicesService,
-      private schedulesService: SchedulesService,
-      private membershipsService: MembershipsService
+    private invoicesService: InvoicesService,
+    private schedulesService: SchedulesService,
+    private membershipsService: MembershipsService
   ) {}
 
   async getCostByDate(getCostDto: GetCostDto) {
-    const {inDate, start, end, type, range, organisationId} = getCostDto
+    const { inDate, start, end, type, range, organisationId } = getCostDto;
 
-    let inDateValue = inDate ? {
-      month: new Date(inDate).getMonth(),
-      year: new Date(inDate).getFullYear()
-    } : null
+    let inDateValue = inDate
+      ? {
+          month: new Date(inDate).getMonth(),
+          year: new Date(inDate).getFullYear(),
+        }
+      : null;
 
-    let startValue = start ? {
-      month: new Date(start).getMonth(),
-      year: new Date(start).getFullYear()
-    } : null
+    let startValue = start
+      ? {
+          month: new Date(start).getMonth(),
+          year: new Date(start).getFullYear(),
+        }
+      : null;
 
-    let endValue = end ? {
-      month: new Date(end).getMonth(),
-      year: new Date(end).getFullYear()
-    } : null
+    let endValue = end
+      ? {
+          month: new Date(end).getMonth(),
+          year: new Date(end).getFullYear(),
+        }
+      : null;
 
     //get all the invoices received
-    const allInvoices = await this.invoicesService.findIncomingInvoicesByOrg(organisationId)
+    const allInvoices = await this.invoicesService.findIncomingInvoicesByOrg(
+      organisationId
+    );
     //only use closed invoices
-    const closedInvoices = allInvoices.filter(invoice => invoice.status === InvoiceStatus.CLOSED)
+    const closedInvoices = allInvoices.filter(
+      (invoice) => invoice.status === InvoiceStatus.CLOSED
+    );
     //get all the schedules
-    const schedules = await this.schedulesService.findAllByOrg(organisationId)
+    const schedules = await this.schedulesService.findAllByOrg(organisationId);
     //only use completed or allocated schedules
-    const completedSchedules = schedules.filter(schedule => {
-      return (schedule.status === ScheduleType.ALLOCATED || schedule.status === ScheduleType.COMPLETED)
-    })
+    const completedSchedules = schedules.filter((schedule) => {
+      return (
+        schedule.status === ScheduleType.ALLOCATED ||
+        schedule.status === ScheduleType.COMPLETED
+      );
+    });
     //get all invoices paid to maxximize
-    const membership = await this.membershipsService.findOneByOrg(organisationId)
-    const {customerId} = membership
-    const invoices = await this.membershipsService.getInvoicesOfCustomer(customerId)
+    const membership = await this.membershipsService.findOneByOrg(
+      organisationId
+    );
+    const { customerId } = membership;
+    const invoices = await this.membershipsService.getInvoicesOfCustomer(
+      customerId
+    );
     //only use paid invoices
-    const paidInvoicesToMaxximize = invoices.filter(invoice => invoice.status === 'paid')
+    const paidInvoicesToMaxximize = invoices.filter(
+      (invoice) => invoice.status === 'paid'
+    );
 
-    let map = new Map()
-    let filteredInvoices: Invoice[]
-    let filteredSchedules:  Schedule[]
-    let filteredMaxximizeInvoices: any[]
+    let map = new Map();
+    let filteredInvoices: Invoice[];
+    let filteredSchedules: Schedule[];
+    let filteredMaxximizeInvoices: any[];
 
-    filteredInvoices = this.filterObjectsByDateInputs(inDateValue, startValue, endValue, closedInvoices, type, range, 'invoice')
-    filteredSchedules = this.filterObjectsByDateInputs(inDateValue, startValue, endValue, completedSchedules, type, range, 'schedule')
-    filteredMaxximizeInvoices = this.filterObjectsByDateInputs(inDateValue, startValue, endValue, paidInvoicesToMaxximize, type, range, 'maxximizeInvoice')
-    
-    map = this.setMapping(map, filteredInvoices, 'invoice', type)
-    map = this.setMapping(map, filteredSchedules, 'schedule', type)
-    map = this.setMapping(map, filteredMaxximizeInvoices, 'maxximizeInvoice', type)
+    filteredInvoices = this.filterObjectsByDateInputs(
+      inDateValue,
+      startValue,
+      endValue,
+      closedInvoices,
+      type,
+      range,
+      'invoice'
+    );
+    filteredSchedules = this.filterObjectsByDateInputs(
+      inDateValue,
+      startValue,
+      endValue,
+      completedSchedules,
+      type,
+      range,
+      'schedule'
+    );
+    filteredMaxximizeInvoices = this.filterObjectsByDateInputs(
+      inDateValue,
+      startValue,
+      endValue,
+      paidInvoicesToMaxximize,
+      type,
+      range,
+      'maxximizeInvoice'
+    );
+
+    map = this.setMapping(map, filteredInvoices, 'invoice', type);
+    map = this.setMapping(map, filteredSchedules, 'schedule', type);
+    map = this.setMapping(
+      map,
+      filteredMaxximizeInvoices,
+      'maxximizeInvoice',
+      type
+    );
 
     //need to convert map to object
     const arrayOfCosts = Array.from(map, ([key, value]) => {
       return {
         dateKey: key,
         cost: Math.round(value.cost * 100) / 100,
-        lineItems: value.lineItems
-      }
-    })
-    return arrayOfCosts
+        lineItems: value.lineItems,
+      };
+    });
+    return arrayOfCosts;
   }
 
   getCostAmount(objectType: string, object: any) {
-    let amount: number
+    let amount: number;
     if (objectType === 'invoice') {
-      amount = object.amount
+      amount = object.amount;
     } else if (objectType === 'maxximizeInvoice') {
-      amount = object.total
+      amount = object.total;
     } else if (objectType === 'schedule') {
       //need to get the schedule end and start time
       //need to get the schedule production line
       //calculate cost
-      const {end, start, productionLine} = object
-      const timeFrame = new Date(end).getTime() - new Date(start).getTime()
-      const timeFrameInHours = timeFrame / 1000 / 60 / 60
-      amount = timeFrameInHours * productionLine.productionCostPerLot
+      const { end, start, productionLine } = object;
+      const timeFrame = new Date(end).getTime() - new Date(start).getTime();
+      const timeFrameInHours = timeFrame / 1000 / 60 / 60;
+      amount = timeFrameInHours * productionLine.productionCostPerLot;
     }
-    return amount
+    return amount;
   }
 
-  setMapping(map: Map<string, any>, lineItems: any[], objectType: string, type: string) {
-    let dateProperty: string
+  setMapping(
+    map: Map<string, any>,
+    lineItems: any[],
+    objectType: string,
+    type: string
+  ) {
+    let dateProperty: string;
     if (objectType === 'invoice') {
-      dateProperty = 'paymentReceived'
+      dateProperty = 'paymentReceived';
     } else if (objectType === 'schedule') {
-      dateProperty = 'end'
+      dateProperty = 'end';
     } else if (objectType === 'maxximizeInvoice') {
-      dateProperty = 'created'
+      dateProperty = 'created';
     }
 
     for (const lineItem of lineItems) {
-      const monthOfPayment = new Date(lineItem[dateProperty]).getMonth()
-      const yearOfPayment = new Date(lineItem[dateProperty]).getFullYear()
-      const key = type === 'month' ? `${this.months[monthOfPayment]}/${yearOfPayment}` : `${yearOfPayment}`
+      const monthOfPayment = new Date(lineItem[dateProperty]).getMonth();
+      const yearOfPayment = new Date(lineItem[dateProperty]).getFullYear();
+      const key =
+        type === 'month'
+          ? `${this.months[monthOfPayment]}/${yearOfPayment}`
+          : `${yearOfPayment}`;
       if (map.has(key)) {
-        let {cost, lineItems} = map.get(key)
-        lineItems.push({...lineItem, type: objectType, costAmount: this.getCostAmount(objectType, lineItem)})
-  
+        let { cost, lineItems } = map.get(key);
+        lineItems.push({
+          ...lineItem,
+          type: objectType,
+          costAmount: this.getCostAmount(objectType, lineItem),
+        });
+
         map.set(key, {
-          cost: cost += this.getCostAmount(objectType, lineItem),
-          lineItems
-        })
+          cost: (cost += this.getCostAmount(objectType, lineItem)),
+          lineItems,
+        });
       } else {
         const value = {
           cost: this.getCostAmount(objectType, lineItem),
-          lineItems: [{...lineItem, type: objectType, costAmount: this.getCostAmount(objectType, lineItem)}]
-        }
-        map.set(key, value)
+          lineItems: [
+            {
+              ...lineItem,
+              type: objectType,
+              costAmount: this.getCostAmount(objectType, lineItem),
+            },
+          ],
+        };
+        map.set(key, value);
       }
     }
-    return map
+    return map;
   }
 
-  filterObjectsByDateInputs(inDateValue: any, startValue: any, endValue: any, objects: any[], type: string, range: boolean, objectType: any) {
-    let filteredObjects: any[]
-    let dateProperty: string
+  filterObjectsByDateInputs(
+    inDateValue: any,
+    startValue: any,
+    endValue: any,
+    objects: any[],
+    type: string,
+    range: boolean,
+    objectType: any
+  ) {
+    let filteredObjects: any[];
+    let dateProperty: string;
     if (objectType === 'invoice') {
-      dateProperty = 'paymentReceived'
+      dateProperty = 'paymentReceived';
     } else if (objectType === 'schedule') {
-      dateProperty = 'end'
+      dateProperty = 'end';
     } else if (objectType === 'maxximizeInvoice') {
-      dateProperty = 'created'
+      dateProperty = 'created';
     }
     if (type === 'month') {
       if (!range) {
-        filteredObjects = objects.filter(object => {
-          const dateOfCostIncurred = new Date(object[dateProperty])
-          const {month, year} = inDateValue
-          return (dateOfCostIncurred.getMonth() === month && 
-          dateOfCostIncurred.getFullYear() === year)
-        })
+        filteredObjects = objects.filter((object) => {
+          const dateOfCostIncurred = new Date(object[dateProperty]);
+          const { month, year } = inDateValue;
+          return (
+            dateOfCostIncurred.getMonth() === month &&
+            dateOfCostIncurred.getFullYear() === year
+          );
+        });
       } else {
-        filteredObjects = objects.filter(object => {
-          const dateOfCostIncurred = new Date(object[dateProperty])
-          const costMonth = dateOfCostIncurred.getMonth()
-          const costYear = dateOfCostIncurred.getFullYear()
-          const {month: startMonth, year: startYear} = startValue
-          const {month: endMonth, year: endYear} = endValue
-          let check = false
-          if ((costMonth >= startMonth && 
-            costMonth <= endMonth) && 
-            (costYear >= startYear && 
-              costYear <= endYear)) {
-              check = true
+        filteredObjects = objects.filter((object) => {
+          const dateOfCostIncurred = new Date(object[dateProperty]);
+          const costMonth = dateOfCostIncurred.getMonth();
+          const costYear = dateOfCostIncurred.getFullYear();
+          const { month: startMonth, year: startYear } = startValue;
+          const { month: endMonth, year: endYear } = endValue;
+          let check = false;
+          if (
+            costMonth >= startMonth &&
+            costMonth <= endMonth &&
+            costYear >= startYear &&
+            costYear <= endYear
+          ) {
+            check = true;
           }
-          return check
-        })
+          return check;
+        });
       }
     } else {
       if (!range) {
-        filteredObjects = objects.filter(object => {
-          const dateOfCostIncurred = new Date(object[dateProperty])
-          const {year} = inDateValue
-          return dateOfCostIncurred.getFullYear() === year
-        })
+        filteredObjects = objects.filter((object) => {
+          const dateOfCostIncurred = new Date(object[dateProperty]);
+          const { year } = inDateValue;
+          return dateOfCostIncurred.getFullYear() === year;
+        });
       } else {
-        filteredObjects = objects.filter(object => {
-          const dateOfCostIncurred = new Date(object[dateProperty])
-          const costYear = dateOfCostIncurred.getFullYear()
-          const {year: startYear} = startValue
-          const {year: endYear} = endValue
-          let check = false
-          if ((costYear >= startYear && 
-              costYear <= endYear)) {
-              check = true
+        filteredObjects = objects.filter((object) => {
+          const dateOfCostIncurred = new Date(object[dateProperty]);
+          const costYear = dateOfCostIncurred.getFullYear();
+          const { year: startYear } = startValue;
+          const { year: endYear } = endValue;
+          let check = false;
+          if (costYear >= startYear && costYear <= endYear) {
+            check = true;
           }
-          return check
-        })
+          return check;
+        });
       }
     }
-    return filteredObjects
+    return filteredObjects;
   }
 
   async getCostBreakdown(getCostBreakdownDto: GetCostBreakdownDto) {
     const getCostRevenueDto = {
-      ...getCostBreakdownDto
-    }
-    const costArray = await this.getCostByDate(getCostRevenueDto)
+      ...getCostBreakdownDto,
+    };
+    const costArray = await this.getCostByDate(getCostRevenueDto);
     if (costArray.length === 0) {
-      return []
+      return [];
     } else {
-      const {lineItems} = costArray[0]
-      const map = new Map()
+      const { lineItems } = costArray[0];
+      const map = new Map();
       for (const lineItem of lineItems) {
-        const {type, costAmount} = lineItem
+        const { type, costAmount } = lineItem;
         if (!map.has(type)) {
           map.set(type, {
             name: type,
-            costAmount: Math.round(costAmount * 100) / 100
-          })
+            costAmount: Math.round(costAmount * 100) / 100,
+          });
         } else {
-          const currentValue = map.get(type)
-          const newCostAmount = currentValue.costAmount + costAmount
+          const currentValue = map.get(type);
+          const newCostAmount = currentValue.costAmount + costAmount;
           map.set(type, {
             ...currentValue,
-            costAmount: Math.round(newCostAmount * 100) / 100
-          })
+            costAmount: Math.round(newCostAmount * 100) / 100,
+          });
         }
       }
-      return Array.from(map.values())
+      console.log(Array.from(map.values()));
+      return Array.from(map.values());
     }
   }
 }

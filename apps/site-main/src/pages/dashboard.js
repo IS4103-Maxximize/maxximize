@@ -219,11 +219,12 @@ const Dashboard = () => {
         const data = [];
         const labels = [];
 
-        result.forEach((item, index) => {
-          data.push(item.costAmount);
-          labels.push(item.name);
-        });
-
+        if (result) {
+          result.forEach((item, index) => {
+            data.push(item.costAmount);
+            labels.push(item.name);
+          });
+        }
         setCostData(data);
         setCostLabels(labels);
       });
