@@ -1,5 +1,6 @@
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { DataSource } from 'typeorm';
+import { AccountInfoService } from '../account-info/account-info.service';
 import { BatchesService } from '../batches/batches.service';
 import { BillOfMaterialsService } from '../bill-of-materials/bill-of-materials.service';
 import { BinsService } from '../bins/bins.service';
@@ -59,7 +60,8 @@ export class AppService implements OnApplicationBootstrap {
     private membershipService: MembershipsService,
     private invoiceService: InvoicesService,
     private productionOrdersService: ProductionOrdersService,
-    private schedulesService: SchedulesService
+    private schedulesService: SchedulesService,
+    private accountInfosService: AccountInfoService
   ) {}
   getData(): { message: string } {
     return { message: 'Welcome to api!' };
@@ -535,7 +537,6 @@ export class AppService implements OnApplicationBootstrap {
         organisationId: 4,
       });
 
-
       //Final Good for Prego
 
       //8
@@ -593,13 +594,13 @@ export class AppService implements OnApplicationBootstrap {
         organisationId: 2,
       });
 
-
       //Final Good for Nissin
 
       //13
       await this.finalGoodsService.create({
         name: 'Tomato Noodles',
-        description: 'Tomato Noodles made with fresh ingredients, tangy and mild, perfect for a small snack!',
+        description:
+          'Tomato Noodles made with fresh ingredients, tangy and mild, perfect for a small snack!',
         lotQuantity: 40,
         unit: MeasurementUnit.KILOGRAM,
         unitPrice: 45,
@@ -607,11 +608,11 @@ export class AppService implements OnApplicationBootstrap {
         organisationId: 4,
       });
 
-
       //14
       await this.finalGoodsService.create({
         name: 'Sweet and Sour Noodles',
-        description: 'QQ noodles that is both sweet and sour, made with fresh tomatoes and pickles',
+        description:
+          'QQ noodles that is both sweet and sour, made with fresh tomatoes and pickles',
         lotQuantity: 40,
         unit: MeasurementUnit.KILOGRAM,
         unitPrice: 45,
@@ -619,7 +620,6 @@ export class AppService implements OnApplicationBootstrap {
         organisationId: 4,
       });
 
-      
       //create BOMS for Prego
 
       //1
@@ -699,7 +699,6 @@ export class AppService implements OnApplicationBootstrap {
 
       //create BOMS for Prego
 
-
       //6
       await this.bomService.create({
         finalGoodId: 13,
@@ -707,7 +706,7 @@ export class AppService implements OnApplicationBootstrap {
           {
             quantity: 3,
             rawMaterialId: 6,
-          }
+          },
         ],
       });
 
@@ -721,7 +720,6 @@ export class AppService implements OnApplicationBootstrap {
           },
         ],
       });
-
 
       //Shell organisations for Prego 1 Supplier and 1 Retailer
 
@@ -749,7 +747,7 @@ export class AppService implements OnApplicationBootstrap {
           postalCode: '123123',
         },
         organisationId: 2,
-        creditLimit: 1000000000
+        creditLimit: 1000000000,
       });
 
       await this.shellOrganisationsService.create({
@@ -763,7 +761,7 @@ export class AppService implements OnApplicationBootstrap {
           postalCode: '376839',
         },
         organisationId: 2,
-        creditLimit: 1000000000
+        creditLimit: 1000000000,
       });
 
       await this.shellOrganisationsService.create({
@@ -777,7 +775,7 @@ export class AppService implements OnApplicationBootstrap {
           postalCode: '555839',
         },
         organisationId: 2,
-        creditLimit: 1000000000
+        creditLimit: 1000000000,
       });
 
       await this.shellOrganisationsService.create({
@@ -791,7 +789,7 @@ export class AppService implements OnApplicationBootstrap {
           postalCode: '371841',
         },
         organisationId: 2,
-        creditLimit: 1000000000
+        creditLimit: 1000000000,
       });
 
       await this.shellOrganisationsService.create({
@@ -805,11 +803,11 @@ export class AppService implements OnApplicationBootstrap {
           postalCode: '471839',
         },
         organisationId: 2,
-        creditLimit: 1000000000
+        creditLimit: 1000000000,
       });
 
       //create SI from Nissin to Nissin's supplier
-  
+
       await this.salesInquiryService.create({
         currentOrganisationId: 2,
         totalPrice: 9600,
@@ -931,7 +929,7 @@ export class AppService implements OnApplicationBootstrap {
             quantity: 500,
             price: 3,
             rawMaterialId: 5,
-          }
+          },
         ],
       });
 
@@ -967,17 +965,16 @@ export class AppService implements OnApplicationBootstrap {
             quantity: 500,
             rawMaterialId: 5,
             volumetricSpace: 140,
-          }
-          
+          },
         ],
         followUpLineItemsDtos: [],
       });
 
-      console.log(po)
+      console.log(po);
 
       await this.purchaseOrderService.update(1, {
-        status: PurchaseOrderStatus.CLOSED
-      })
+        status: PurchaseOrderStatus.CLOSED,
+      });
 
       //Factory Machine
       await this.factoryMachineService.create({
@@ -1010,16 +1007,15 @@ export class AppService implements OnApplicationBootstrap {
         plannedQuantity: 5,
         bomId: 1,
         daily: false,
-        organisationId: 2
-      })
+        organisationId: 2,
+      });
 
       await this.schedulesService.allocate({
         orgId: 2,
         scheduleId: 1,
         quantity: 90,
-        volumetricSpace: 900
-      })
-
+        volumetricSpace: 900,
+      });
 
       //Revenue brackets
       await this.revenueBracketsService.create({
@@ -1041,230 +1037,238 @@ export class AppService implements OnApplicationBootstrap {
       //Membership
       await this.membershipService.create({
         organisationId: 2,
-        "customerId": "cus_MnDRgcxCOYXY19"
-      })
+        customerId: 'cus_MnDRgcxCOYXY19',
+      });
 
       await this.membershipService.create({
         organisationId: 4,
-        "customerId": "cus_MnDS3VhLvWZ50w",
-      })
+        customerId: 'cus_MnDS3VhLvWZ50w',
+      });
 
       await this.membershipService.update(1, {
-        subscriptionId: "sub_1M3d4yHs54DYkQ2IpzPFPAEl",
-        "status": MembershipStatus.ACTIVE,
-        "plan": SubscriptionPlan.PRO,
+        subscriptionId: 'sub_1M3d4yHs54DYkQ2IpzPFPAEl',
+        status: MembershipStatus.ACTIVE,
+        plan: SubscriptionPlan.PRO,
         planAmount: 25,
         currentPeriodStart: new Date('2022-11-13T10:06:20.000Z'),
         currentPeriodEnd: new Date('2022-12-13T10:06:20.000Z'),
-        "commisionPayment": "card_1M3d4oHs54DYkQ2IF2O5h0n7",
-        "defaultPayment": "card_1M3d4oHs54DYkQ2IF2O5h0n7"
-      })
+        commisionPayment: 'card_1M3d4oHs54DYkQ2IF2O5h0n7',
+        defaultPayment: 'card_1M3d4oHs54DYkQ2IF2O5h0n7',
+      });
 
       await this.membershipService.update(2, {
-        subscriptionId: "sub_1M3d4THs54DYkQ2InnhUmxsb",
-        "status": MembershipStatus.ACTIVE,
-        "plan": SubscriptionPlan.PRO,
+        subscriptionId: 'sub_1M3d4THs54DYkQ2InnhUmxsb',
+        status: MembershipStatus.ACTIVE,
+        plan: SubscriptionPlan.PRO,
         currentPeriodStart: new Date('2022-11-13T10:05:49.000Z'),
         currentPeriodEnd: new Date('2022-12-13T10:05:49.000Z'),
         planAmount: 25,
-        "commisionPayment": "card_1M3d30Hs54DYkQ2Il1jp1wiW",
-        "defaultPayment": "card_1M3d30Hs54DYkQ2Il1jp1wiW"
-      })
+        commisionPayment: 'card_1M3d30Hs54DYkQ2Il1jp1wiW',
+        defaultPayment: 'card_1M3d30Hs54DYkQ2Il1jp1wiW',
+      });
 
       //create PO from HAIDILAO to PREGO
-      let startCurrentQuantity = 300
-      const priceCurrent = 50
-      let currentDate = new Date()
+      let startCurrentQuantity = 300;
+      const priceCurrent = 50;
+      let currentDate = new Date();
       for (let i = 0; i < 7; i++) {
         await this.purchaseOrderService.create({
-          "deliveryAddress": "warehouse 1",
-          "totalPrice": startCurrentQuantity * priceCurrent,
-          "deliveryDate": new Date(2022-10-11),
-          "currentOrganisationId": 3,
-          "supplierId": 2,
-          "userContactId": 8,
-          "poLineItemDtos": [
-              {
-                  "quantity": startCurrentQuantity,
-                  "price": priceCurrent,
-                  "finalGoodId": 8
-              }
-          ]
-        })
-
-        
-        await this.purchaseOrderService.update(i + 2, {
-          status: PurchaseOrderStatus.ACCEPTED
-        })
+          deliveryAddress: 'warehouse 1',
+          totalPrice: startCurrentQuantity * priceCurrent,
+          deliveryDate: new Date(2022 - 10 - 11),
+          currentOrganisationId: 3,
+          supplierId: 2,
+          userContactId: 8,
+          poLineItemDtos: [
+            {
+              quantity: startCurrentQuantity,
+              price: priceCurrent,
+              finalGoodId: 8,
+            },
+          ],
+        });
 
         await this.purchaseOrderService.update(i + 2, {
-          status: PurchaseOrderStatus.FULFILLED
-        })
-  
+          status: PurchaseOrderStatus.ACCEPTED,
+        });
+
+        await this.purchaseOrderService.update(i + 2, {
+          status: PurchaseOrderStatus.FULFILLED,
+        });
+
         await this.invoiceService.update(i + 2, {
           status: InvoiceStatus.CLOSED,
-          paymentReceived: currentDate
-        })
-        currentDate = new Date(currentDate.setDate(currentDate.getDate() - 1))
-        startCurrentQuantity -= ((i + 1) * 10)
+          paymentReceived: currentDate,
+        });
+        currentDate = new Date(currentDate.setDate(currentDate.getDate() - 1));
+        startCurrentQuantity -= (i + 1) * 10;
       }
-      let currentLastYearDate = new Date(new Date().setFullYear(new Date().getFullYear() - 1))
-      let startQuantity = 200
-      const price = 50
-      for (let i = 0; i < 7; i++) { 
+      let currentLastYearDate = new Date(
+        new Date().setFullYear(new Date().getFullYear() - 1)
+      );
+      let startQuantity = 200;
+      const price = 50;
+      for (let i = 0; i < 7; i++) {
         await this.purchaseOrderService.create({
-          "deliveryAddress": "warehouse 1",
-          "totalPrice": (startQuantity * price),
-          "deliveryDate": new Date(2022-10-11),
-          "currentOrganisationId": 3,
-          "supplierId": 2,
-          "userContactId": 8,
-          "poLineItemDtos": [
-              {
-                  "quantity": startQuantity,
-                  "price": price,
-                  "finalGoodId": 8
-              }
-          ]
-        })
-
-        
-        await this.purchaseOrderService.update(i + 7 + 2, {
-          status: PurchaseOrderStatus.ACCEPTED
-        })
+          deliveryAddress: 'warehouse 1',
+          totalPrice: startQuantity * price,
+          deliveryDate: new Date(2022 - 10 - 11),
+          currentOrganisationId: 3,
+          supplierId: 2,
+          userContactId: 8,
+          poLineItemDtos: [
+            {
+              quantity: startQuantity,
+              price: price,
+              finalGoodId: 8,
+            },
+          ],
+        });
 
         await this.purchaseOrderService.update(i + 7 + 2, {
-          status: PurchaseOrderStatus.FULFILLED
-        })
-  
+          status: PurchaseOrderStatus.ACCEPTED,
+        });
+
+        await this.purchaseOrderService.update(i + 7 + 2, {
+          status: PurchaseOrderStatus.FULFILLED,
+        });
+
         await this.invoiceService.update(i + 7 + 2, {
           status: InvoiceStatus.CLOSED,
-          paymentReceived: currentLastYearDate
-        })
-        currentLastYearDate = new Date(currentLastYearDate.setDate(currentLastYearDate.getDate() - 1))
-        startQuantity -= ((i + 1) * 5)
+          paymentReceived: currentLastYearDate,
+        });
+        currentLastYearDate = new Date(
+          currentLastYearDate.setDate(currentLastYearDate.getDate() - 1)
+        );
+        startQuantity -= (i + 1) * 5;
       }
 
       //create PO from WcDonald to PREGO
       await this.purchaseOrderService.create({
-        "deliveryAddress": "warehouse 1",
-        "totalPrice": 2000,
-        "deliveryDate": new Date(2022-11-11),
-        "currentOrganisationId": 5,
-        "supplierId": 2,
-        "userContactId": 8,
-        "poLineItemDtos": [
-            {
-                "quantity": 40,
-                "price": 50,
-                "finalGoodId": 9
-            }
-        ]
-      })
+        deliveryAddress: 'warehouse 1',
+        totalPrice: 2000,
+        deliveryDate: new Date(2022 - 11 - 11),
+        currentOrganisationId: 5,
+        supplierId: 2,
+        userContactId: 8,
+        poLineItemDtos: [
+          {
+            quantity: 40,
+            price: 50,
+            finalGoodId: 9,
+          },
+        ],
+      });
 
       await this.purchaseOrderService.update(16, {
-        status: PurchaseOrderStatus.ACCEPTED
-      })
+        status: PurchaseOrderStatus.ACCEPTED,
+      });
 
       await this.purchaseOrderService.update(16, {
-        status: PurchaseOrderStatus.FULFILLED
-      })
+        status: PurchaseOrderStatus.FULFILLED,
+      });
 
       await this.invoiceService.update(16, {
         status: InvoiceStatus.CLOSED,
-        paymentReceived: new Date()
-      })
+        paymentReceived: new Date(),
+      });
 
       //create PO from BurgerQueen to PREGO
       await this.purchaseOrderService.create({
-        "deliveryAddress": "warehouse 1",
-        "totalPrice": 1200,
-        "deliveryDate": new Date(2022-11-11),
-        "currentOrganisationId": 6,
-        "supplierId": 2,
-        "userContactId": 8,
-        "poLineItemDtos": [
-            {
-                "quantity": 40,
-                "price": 30,
-                "finalGoodId": 10
-            }
-        ]
-      })
+        deliveryAddress: 'warehouse 1',
+        totalPrice: 1200,
+        deliveryDate: new Date(2022 - 11 - 11),
+        currentOrganisationId: 6,
+        supplierId: 2,
+        userContactId: 8,
+        poLineItemDtos: [
+          {
+            quantity: 40,
+            price: 30,
+            finalGoodId: 10,
+          },
+        ],
+      });
 
       await this.purchaseOrderService.update(17, {
-        status: PurchaseOrderStatus.ACCEPTED
-      })
+        status: PurchaseOrderStatus.ACCEPTED,
+      });
 
       await this.purchaseOrderService.update(17, {
-        status: PurchaseOrderStatus.FULFILLED
-      })
+        status: PurchaseOrderStatus.FULFILLED,
+      });
 
       await this.invoiceService.update(17, {
         status: InvoiceStatus.CLOSED,
-        paymentReceived: new Date()
-      })
+        paymentReceived: new Date(),
+      });
 
       //create PO from Tehtiam to PREGO
       await this.purchaseOrderService.create({
-        "deliveryAddress": "warehouse 1",
-        "totalPrice": 4000,
-        "deliveryDate": new Date(2022-11-11),
-        "currentOrganisationId": 7,
-        "supplierId": 2,
-        "userContactId": 8,
-        "poLineItemDtos": [
-            {
-                "quantity": 40,
-                "price": 100,
-                "finalGoodId": 11
-            }
-        ]
-      })
+        deliveryAddress: 'warehouse 1',
+        totalPrice: 4000,
+        deliveryDate: new Date(2022 - 11 - 11),
+        currentOrganisationId: 7,
+        supplierId: 2,
+        userContactId: 8,
+        poLineItemDtos: [
+          {
+            quantity: 40,
+            price: 100,
+            finalGoodId: 11,
+          },
+        ],
+      });
 
       await this.purchaseOrderService.update(18, {
-        status: PurchaseOrderStatus.ACCEPTED
-      })
+        status: PurchaseOrderStatus.ACCEPTED,
+      });
 
       await this.purchaseOrderService.update(18, {
-        status: PurchaseOrderStatus.FULFILLED
-      })
+        status: PurchaseOrderStatus.FULFILLED,
+      });
 
       await this.invoiceService.update(18, {
         status: InvoiceStatus.CLOSED,
-        paymentReceived: new Date()
-      })
+        paymentReceived: new Date(),
+      });
 
       //create PO from Formosa to PREGO
       await this.purchaseOrderService.create({
-        "deliveryAddress": "warehouse 1",
-        "totalPrice": 1000,
-        "deliveryDate": new Date(2022-11-11),
-        "currentOrganisationId": 8,
-        "supplierId": 2,
-        "userContactId": 8,
-        "poLineItemDtos": [
-            {
-                "quantity": 50,
-                "price": 20,
-                "finalGoodId": 12
-            }
-        ]
-      })
+        deliveryAddress: 'warehouse 1',
+        totalPrice: 1000,
+        deliveryDate: new Date(2022 - 11 - 11),
+        currentOrganisationId: 8,
+        supplierId: 2,
+        userContactId: 8,
+        poLineItemDtos: [
+          {
+            quantity: 50,
+            price: 20,
+            finalGoodId: 12,
+          },
+        ],
+      });
 
       await this.purchaseOrderService.update(19, {
-        status: PurchaseOrderStatus.ACCEPTED
-      })
+        status: PurchaseOrderStatus.ACCEPTED,
+      });
 
       await this.purchaseOrderService.update(19, {
-        status: PurchaseOrderStatus.FULFILLED
-      })
+        status: PurchaseOrderStatus.FULFILLED,
+      });
 
       await this.invoiceService.update(19, {
         status: InvoiceStatus.CLOSED,
-        paymentReceived: new Date()
-      })
-      
+        paymentReceived: new Date(),
+      });
+
+      await this.accountInfosService.create({
+        bankCode: '021',
+        bankName: 'DBS',
+        accountNumber: '1231231',
+        organisationId: 2,
+      });
     }
   }
 }
