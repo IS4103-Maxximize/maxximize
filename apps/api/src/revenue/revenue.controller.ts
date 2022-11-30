@@ -2,7 +2,8 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { RevenueService } from './revenue.service';
 import { CreateRevenueDto } from './dto/create-revenue.dto';
 import { UpdateRevenueDto } from './dto/update-revenue.dto';
-import { getRevenueDto } from './dto/get-revenue.dto';
+import { GetRevenueDto } from './dto/get-revenue.dto';
+import { RevenueCommisionDto } from './dto/revenue-commision.dto';
 
 @Controller('revenue')
 export class RevenueController {
@@ -10,7 +11,23 @@ export class RevenueController {
 
   
   @Post()
-  getRevenuesByDate(@Body() getRevenueDto: getRevenueDto) {
+  getRevenuesByDate(@Body() getRevenueDto: GetRevenueDto) {
     return this.revenueService.getRevenueByDate(getRevenueDto)
   }
+
+  @Post('commision')
+  payCommision(@Body() revenueCommisionDto: RevenueCommisionDto) {
+    return this.revenueService.paymentToStripe(revenueCommisionDto)
+  }
+
+  @Get('monthlyPayment')
+  setUpPayments() {
+    return this.revenueService.setUpPayments()
+  }
+
+  @Get('commision/:date/:orgId') 
+  getCommisionForMonth(@Param('date') date: Date, @Param('orgId') id: string) {
+    return this.revenueService.calculateCommisionForMonth(date, +id)
+  }
+  
 }

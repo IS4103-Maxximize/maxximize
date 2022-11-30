@@ -46,6 +46,7 @@ import { RacksModule } from '../racks/racks.module';
 import { RawMaterialsModule } from '../raw-materials/raw-materials.module';
 import { RecipesModule } from '../recipes/recipes.module';
 import { ReservationLineItemsModule } from '../reservation-line-items/reservation-line-items.module';
+import { RevenueBracketsModule } from '../revenue-brackets/revenue-brackets.module';
 import { RevenueModule } from '../revenue/revenue.module';
 import { SalesInquiryLineItemsModule } from '../sales-inquiry-line-items/sales-inquiry-line-items.module';
 import { SalesInquiryModule } from '../sales-inquiry/sales-inquiry.module';
@@ -133,7 +134,8 @@ import { AppService } from './app.service';
       dest: '/uploads'
     }),
     StripeModule,
-    RevenueModule
+    RevenueModule,
+    RevenueBracketsModule
   ],
   controllers: [AppController],
   providers: [AppService],

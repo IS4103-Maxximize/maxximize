@@ -1,16 +1,31 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { Invoice } from '../invoices/entities/invoice.entity';
 import { InvoiceStatus } from '../invoices/enums/invoiceStatus.enum';
 import { InvoicesService } from '../invoices/invoices.service';
-import { getRevenueDto } from './dto/get-revenue.dto';
+import { GetRevenueDto } from './dto/get-revenue.dto';
+import Stripe from 'stripe';
+import { RevenueCommisionDto } from './dto/revenue-commision.dto';
+import { SchedulerRegistry } from '@nestjs/schedule';
+import { CronJob } from 'cron';
+import { OrganisationsService } from '../organisations/organisations.service';
+import { RevenueBracketsService } from '../revenue-brackets/revenue-brackets.service';
 
 @Injectable()
-export class RevenueService {
+export class RevenueService implements OnModuleInit {
+  private readonly logger = new Logger(RevenueService.name);
+  private stripe: Stripe
   constructor(
-    private invoicesService: InvoicesService
-  ) {}
-  async getRevenueByDate(getRevenueDto: getRevenueDto) {
-    const months = ["Jan", "Feb", "Mar", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"]
+    private invoicesService: InvoicesService,
+    private schedulerRegistry: SchedulerRegistry,
+    private organisationService: OrganisationsService,
+    private revenueBracketService: RevenueBracketsService
+  ) {
+    this.stripe = new Stripe(process.env.API_SECRET_KEY, {
+      apiVersion: '2022-08-01'
+    })
+  }
+  async getRevenueByDate(getRevenueDto: GetRevenueDto) {
+    const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"]
     const {inDate, start, end, type, range, organisationId} = getRevenueDto
     
     let inDateValue = inDate ? {
@@ -71,7 +86,7 @@ export class RevenueService {
         const key = `${months[monthOfPayment]}/${yearOfPayment}`
         if (map.has(key)) {
           let {revenue, lineItems} = map.get(key)
-          lineItems.push(invoice)
+          lineItems.push({...invoice, type: 'invoice'})
           map.set(key, {
             revenue: revenue += invoice.amount,
             lineItems: lineItems
@@ -114,7 +129,7 @@ export class RevenueService {
         const key = `${yearOfPayment}`
         if (map.has(key)) {
           let {revenue, lineItems} = map.get(key)
-          lineItems.push(invoice)
+          lineItems.push({...invoice, type: 'invoice'})
     
           map.set(key, {
             revenue: revenue += invoice.amount,
@@ -126,7 +141,6 @@ export class RevenueService {
             lineItems: [{...invoice, type: 'invoice'}]
           }
           map.set(key, value)
-          console.log(map)
         }
       }
     }
@@ -139,5 +153,122 @@ export class RevenueService {
       }
     })
     return arrayOfRevenues
+  }
+
+  async paymentToStripe(revenueCommisionDto: RevenueCommisionDto) {
+    const {customerId, amount, paymentMethod, currency, description} = revenueCommisionDto
+    const invoice = await this.stripe.invoices.create({
+      customer: customerId,
+      default_payment_method: paymentMethod,
+      description
+    })
+    await this.stripe.invoiceItems.create({
+      customer: customerId,
+      amount,
+      currency,
+      invoice: invoice.id,
+    })
+    const paidInvoice = await this.stripe.invoices.pay(
+      invoice.id
+    )
+    return paidInvoice
+  }
+
+  async onModuleInit() {
+    await this.setUpPaymentsForCommisionCollection()
+  }
+
+  async calculateCommisionForMonth(date: Date, organisationId: number) {
+    const getRevenueDto: GetRevenueDto = {
+      inDate: date,
+      start: null,
+      end: null,
+      range: false,
+      type: 'month',
+      organisationId
+    }
+    const revenueArray = await this.getRevenueByDate(getRevenueDto)
+    if (revenueArray.length > 0) {
+      const lineItem = revenueArray[0]
+      const grossRevenueAmount = lineItem.revenue
+      const bracket = await this.getRevenueBracket(grossRevenueAmount)
+      if (bracket) {
+        const percentage = bracket.commisionRate
+        const paymentAmount = Math.round((percentage / 100) * grossRevenueAmount)
+        return paymentAmount
+      }
+    }
+    return 0
+  }
+
+  async getRevenueBracket(amount: number) {
+    const revenueBrackets = await this.revenueBracketService.findAll()
+    const bracket = revenueBrackets.find(bracket => {
+      const {start, end} = bracket
+      if (start && end) {
+        if (amount > start && amount <= end) {
+          return bracket
+        }
+      } else if (start && !end) {
+        if (amount > start) {
+          return bracket
+        }
+      }
+    })
+    return bracket
+  }
+
+  async setUpPayments() {
+    //get all organisation which are customers and charge them for commision
+    const currentDate = new Date()
+    const previousMonth = currentDate.setMonth(currentDate.getMonth() - 1)
+    const previousMonthDate = new Date(previousMonth)
+    const organisations = await this.organisationService.findAll()
+    const customers = organisations.filter(organisation => {
+      if (organisation.membership && organisation.membership.customerId) {
+        return true
+      }
+    })
+    for (const customer of customers) {
+      const getRevenueDto: GetRevenueDto = {
+        inDate: previousMonthDate,
+        start: null,
+        end: null,
+        range: false,
+        type: 'month',
+        organisationId: customer.id
+
+      }
+      const revenueArray = await this.getRevenueByDate(getRevenueDto)
+      if (revenueArray.length > 0) {
+        const lineItem = revenueArray[0]
+        const grossRevenueAmount = lineItem.revenue
+        const bracket = await this.getRevenueBracket(grossRevenueAmount)
+        if (bracket) {
+          //fits within a bracket
+          const percentage = bracket.commisionRate
+          const paymentAmount = Math.round((percentage / 100) * grossRevenueAmount)
+          const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"]
+          const revenueCommisionDto = {
+            amount: paymentAmount * 100,
+            customerId: customer.membership.customerId,
+            paymentMethod: customer.membership.commisionPayment,
+            currency: 'sgd',
+            description: `this is the commision paid for month: ${months[previousMonthDate.getMonth()]}/${previousMonthDate.getFullYear()}`
+          }
+          //make payment to stripe!
+          await this.paymentToStripe(revenueCommisionDto)
+        }
+      }
+    }
+  }
+
+  async setUpPaymentsForCommisionCollection() {
+    const job = new CronJob('0 0 0 1 * *', async () => {
+      this.logger.warn("PAYMENT DUE!")
+      await this.setUpPayments()
+    })
+    this.schedulerRegistry.addCronJob("Monthy-Commision", job)
+    job.start()
   }
 }
